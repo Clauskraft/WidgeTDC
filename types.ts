@@ -1,4 +1,6 @@
 import type { Layout } from 'react-grid-layout';
+// FIX: Import ComponentType to resolve 'Cannot find namespace React' error.
+import type { ComponentType } from 'react';
 
 export type Theme = 'light' | 'dark';
 
@@ -8,11 +10,34 @@ export interface GlobalState {
   user: { name: string } | null;
 }
 
+// Flyttet fra MSWidgetAdapter.ts og opdateret for at undgå cirkulære afhængigheder og øge fleksibiliteten.
+export interface MSWidget {
+  id: string;
+  displayName: string;
+  template: any;
+  dataSource?: {
+    url: string;
+  };
+  capabilities: string[];
+  size?: string;
+  detectionSource?: string; // Tilføjet for at vise kilden i UI'en
+}
+
+export interface MSWidgetDetectionResult {
+  widgets: MSWidget[];
+  source: string;
+  confidence: number;
+}
+
+
 export interface WidgetDefinition {
   id: string;
   name: string;
-  component: React.ComponentType<any>;
+  // FIX: Use imported ComponentType.
+  component: ComponentType<any>;
   defaultLayout: { w: number; h: number };
+  source: 'proprietary' | 'microsoft';
+  msWidgetData?: MSWidget;
 }
 
 export interface WidgetInstance {
@@ -85,7 +110,8 @@ export interface DataSource {
   id: string;
   name: string;
   category: DataSourceCategory;
-  icon: React.ComponentType<{ className?: string }>;
+  // FIX: Use imported ComponentType.
+  icon: ComponentType<{ className?: string }>;
   fields: FormField[];
 }
 

@@ -11,7 +11,7 @@ const SystemSettingsWidget: React.FC<{ widgetId: string }> = () => {
             <span className="font-medium">{label}</span>
             <button
                 onClick={onChange}
-                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
+                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
                     checked ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
                 }`}
             >

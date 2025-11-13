@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { Button } from '../components/ui/Button';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -74,7 +75,7 @@ const VideoAnalyzerWidget: React.FC<{ widgetId: string }> = () => {
             <div className="flex-1 p-4 space-y-4 overflow-y-auto">
                 <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center">
                     <input type="file" accept="video/*" onChange={handleFileChange} className="hidden" id="video-upload" />
-                    <label htmlFor="video-upload" className="cursor-pointer">
+                    <label htmlFor="video-upload" className="ms-focusable cursor-pointer">
                         <p>Klik for at vælge en video</p>
                         <p className="text-xs text-gray-500">MP4, WEBM, etc. (Maks 50MB)</p>
                     </label>
@@ -83,9 +84,9 @@ const VideoAnalyzerWidget: React.FC<{ widgetId: string }> = () => {
                 {videoPreview && (
                     <div className="space-y-4">
                          <video src={videoPreview} controls className="w-full rounded-md max-h-64" />
-                         <button onClick={handleAnalyze} disabled={isLoading || !videoFile} className="w-full py-2 px-4 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 disabled:bg-gray-400">
+                         <Button onClick={handleAnalyze} disabled={isLoading || !videoFile} className="w-full">
                             {isLoading ? 'Analyserer...' : 'Analyser Video'}
-                        </button>
+                        </Button>
                     </div>
                 )}
                 

@@ -3,6 +3,7 @@
   "description": "A modular dashboard system built with React and a FastAPI backend, designed for creating and interacting with custom AI agents and monitoring system performance in real-time.",
   "requestFramePermissions": [
     "microphone",
-    "camera"
+    "camera",
+    "geolocation"
   ]
 }

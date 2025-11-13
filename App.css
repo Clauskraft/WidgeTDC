@@ -23,6 +23,9 @@
   /* === MICROSOFT SHADOWS === */
   --ms-shadow-1: 0 1.6px 3.6px rgba(0,0,0,0.07), 0 0.3px 0.9px rgba(0,0,0,0.1);
   --ms-shadow-2: 0 3.2px 7.2px rgba(0,0,0,0.08), 0 0.6px 1.8px rgba(0,0,0,0.11);
+
+  /* === MICROSOFT TYPOGRAPHY === */
+  --ms-typography: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
   
   /* === ACCESSIBILITY TOKENS === */
   --ms-high-contrast-border: 2px solid currentColor;
@@ -36,6 +39,10 @@
   --ms-text-primary: #ffffff;
   --ms-text-secondary: #a5a5a5;
   --ms-border: #484848;
+}
+
+.ms-typography {
+  font-family: var(--ms-typography);
 }
 
 /* Microsofts gennemsigtige blur effect */
@@ -58,9 +65,84 @@
 }
 
 .ms-widget-container {
-  background-color: var(--ms-surface);
-  border-radius: var(--ms-radius-medium);
+  background: var(--ms-surface-alt);
   border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius-medium);
+  box-shadow: var(--ms-shadow-1);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+}
+
+.ms-widget-container:hover {
   box-shadow: var(--ms-shadow-2);
-  overflow: hidden; 
+  transform: translateY(-1px);
+}
+
+/* Widget header - Microsoft style */
+.ms-widget-header {
+  padding: var(--ms-spacing-sm);
+  border-bottom: 1px solid var(--ms-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ms-widget-title {
+  font: var(--ms-typography);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ms-text-primary);
+}
+
+.ms-widget-actions {
+  display: flex;
+  gap: var(--ms-spacing-xs);
+}
+
+.ms-icon-button {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--ms-radius-small);
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.ms-icon-button:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.dark .ms-icon-button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+/* Bedre end Microsofts default focus */
+.ms-focusable:focus-visible {
+  outline: var(--ms-focus-outline);
+  outline-offset: 2px;
+  border-radius: var(--ms-radius-small);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ms-focusable:focus-visible {
+    outline: var(--ms-high-contrast-border);
+    background-color: transparent;
+  }
+}
+
+/* Microsoft-style animation, men med reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .ms-widget-container {
+    transition: none;
+    animation: none;
+  }
+  
+  .ms-widget-container:hover {
+    transform: none;
+  }
 }

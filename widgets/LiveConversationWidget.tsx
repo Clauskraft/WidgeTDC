@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob as GenAIBlob } from "@google/genai";
 import type { TranscriptEntry } from '../types';
+import { Button } from '../components/ui/Button';
 
 // --- Audio Utility Functions ---
 function decode(base64: string): Uint8Array {
@@ -135,7 +136,10 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
                     onmessage: async (message: LiveServerMessage) => {
                         // Handle transcription
                         if (message.serverContent?.inputTranscription) {
-                            const { text, isFinal } = message.serverContent.inputTranscription;
+                            // FIX: Property 'isFinal' does not exist on type 'Transcription'.
+                            // Infer finality from the `turnComplete` flag in the same server message.
+                            const { text } = message.serverContent.inputTranscription;
+                            const isFinal = !!message.serverContent.turnComplete;
                             setTranscript(prev => {
                                 const last = prev[prev.length - 1];
                                 if (last?.speaker === 'user' && !last.isFinal) {
@@ -145,7 +149,10 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
                             });
                         }
                         if (message.serverContent?.outputTranscription) {
-                           const { text, isFinal } = message.serverContent.outputTranscription;
+                            // FIX: Property 'isFinal' does not exist on type 'Transcription'.
+                            // Infer finality from the `turnComplete` flag in the same server message.
+                            const { text } = message.serverContent.outputTranscription;
+                            const isFinal = !!message.serverContent.turnComplete;
                             setTranscript(prev => {
                                 const last = prev[prev.length - 1];
                                 if (last?.speaker === 'model' && !last.isFinal) {
@@ -226,14 +233,13 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
                  <div ref={transcriptEndRef} />
             </div>
             <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center gap-2">
-                <button onClick={handleToggleConversation}
-                    className={`px-6 py-2 rounded-full font-semibold text-white transition-colors ${
-                        isRecording 
-                        ? 'bg-red-500 hover:bg-red-600' 
-                        : 'bg-green-500 hover:bg-green-600'
-                    }`}>
+                <Button 
+                    onClick={handleToggleConversation}
+                    variant={isRecording ? 'destructive' : 'success'}
+                    className="px-6 rounded-full"
+                >
                     {isRecording ? 'Stop Samtale' : 'Start Samtale'}
-                </button>
+                </Button>
                 <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{statusText}</p>
             </div>
         </div>

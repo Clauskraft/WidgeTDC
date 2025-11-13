@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import type { DataSource, Connection, FormField, ConnectionStatus, DataSourceCategory } from '../types';
+import { MicrosoftIcons } from '../assets/MicrosoftIcons';
+import { Button } from '../components/ui/Button';
 
 // --- Helper Components & Icons ---
 const DatabaseIcon = (props: { className?: string }) => <svg {...props} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7a8 8 0 0116 0" /></svg>;
@@ -89,7 +91,7 @@ const MCPConnectorWidget: React.FC<{ widgetId: string }> = () => {
     // --- Render Methods ---
     const renderListView = () => (
         <div className="space-y-3">
-            <button onClick={() => setView('select_source')} className="w-full py-2 px-4 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors">Opret Ny Forbindelse</button>
+            <Button onClick={() => setView('select_source')} className="w-full">Opret Ny Forbindelse</Button>
             {connections.length > 0 ? connections.map(conn => {
                 const source = DATA_SOURCES.find(ds => ds.id === conn.dataSourceId);
                 return (
@@ -101,7 +103,13 @@ const MCPConnectorWidget: React.FC<{ widgetId: string }> = () => {
                                 <StatusIndicator status={conn.status} />
                             </div>
                         </div>
-                        <button onClick={() => handleDeleteConnection(conn.id)} className="text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600">&times;</button>
+                        <button 
+                            onClick={() => handleDeleteConnection(conn.id)} 
+                            className="ms-icon-button ms-focusable w-6 h-6 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                            title="Slet forbindelse"
+                        >
+                            <MicrosoftIcons.Close />
+                        </button>
                     </div>
                 );
             }) : <p className="text-center text-gray-500 py-4">Ingen forbindelser oprettet.</p>}
@@ -110,10 +118,16 @@ const MCPConnectorWidget: React.FC<{ widgetId: string }> = () => {
 
     const renderSelectSourceView = () => (
         <div>
-            <button onClick={handleBack} className="text-sm mb-4">&larr; Tilbage</button>
+            <button onClick={handleBack} className="ms-focusable text-sm mb-4">&larr; Tilbage</button>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {DATA_SOURCES.map(source => (
-                    <div key={source.id} onClick={() => handleSelectSource(source)} className="p-4 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 cursor-pointer transition-colors">
+                    <div 
+                        key={source.id} 
+                        onClick={() => handleSelectSource(source)} 
+                        onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') handleSelectSource(source)}}
+                        tabIndex={0}
+                        className="ms-focusable p-4 flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 cursor-pointer transition-colors"
+                    >
                         <source.icon className="w-10 h-10 text-gray-600 dark:text-gray-300" />
                         <span className="font-semibold text-center">{source.name}</span>
                     </div>
@@ -134,25 +148,30 @@ const MCPConnectorWidget: React.FC<{ widgetId: string }> = () => {
 
         return (
             <div className="space-y-4">
-                <button onClick={handleBack} className="text-sm mb-2">&larr; Tilbage til valg</button>
+                <button onClick={handleBack} className="ms-focusable text-sm mb-2">&larr; Tilbage til valg</button>
                 <div className="flex items-center gap-3">
                     <selectedSource.icon className="w-8 h-8 text-gray-600 dark:text-gray-300" />
                     <h3 className="text-xl font-bold">Konfigurer {selectedSource.name}</h3>
                 </div>
-                <input type="text" name="name" value={formState.name || ''} onChange={handleFormChange} placeholder="Navn på forbindelse" className="w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
+                <input type="text" name="name" value={formState.name || ''} onChange={handleFormChange} placeholder="Navn på forbindelse" className="ms-focusable w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
                 {selectedSource.fields.map(field => (
                     <div key={field.name}>
                         <label className="text-sm font-medium">{field.label}{field.required && '*'}</label>
-                        <input name={field.name} type={field.type} placeholder={field.placeholder} value={formState[field.name] || ''} onChange={handleFormChange} required={field.required} className="w-full mt-1 p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
+                        <input name={field.name} type={field.type} placeholder={field.placeholder} value={formState[field.name] || ''} onChange={handleFormChange} required={field.required} className="ms-focusable w-full mt-1 p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
                     </div>
                 ))}
                 <div className="flex gap-2 pt-2">
-                    <button onClick={handleTestConnection} disabled={testStatus === 'testing'} className={`flex-1 py-2 px-4 rounded-lg text-white font-semibold transition-colors ${testBtnClasses[testStatus]}`}>
+                    <Button
+                        onClick={handleTestConnection}
+                        disabled={testStatus === 'testing'}
+                        variant="subtle"
+                        className={`flex-1 text-white ${testBtnClasses[testStatus]}`}
+                    >
                         {testBtnText[testStatus]}
-                    </button>
-                    <button onClick={handleSaveConnection} disabled={testStatus !== 'success'} className="flex-1 py-2 px-4 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    </Button>
+                    <Button onClick={handleSaveConnection} disabled={testStatus !== 'success'} className="flex-1">
                         Gem Forbindelse
-                    </button>
+                    </Button>
                 </div>
             </div>
         );

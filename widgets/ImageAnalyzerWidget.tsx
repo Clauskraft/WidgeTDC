@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { Button } from '../components/ui/Button';
 
 const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -88,7 +89,7 @@ const ImageAnalyzerWidget: React.FC<{ widgetId: string }> = () => {
                     {imagePreview ? (
                         <img src={imagePreview} alt="Forhåndsvisning" className="max-h-48 mx-auto rounded-md" />
                     ) : (
-                        <label htmlFor="image-upload" className="cursor-pointer">
+                        <label htmlFor="image-upload" className="ms-focusable cursor-pointer">
                             <p>Træk og slip et billede her, eller klik for at vælge</p>
                             <p className="text-xs text-gray-500">PNG, JPG, WEBP</p>
                         </label>
@@ -102,11 +103,11 @@ const ImageAnalyzerWidget: React.FC<{ widgetId: string }> = () => {
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder="Stil et spørgsmål om billedet..."
                             rows={2}
-                            className="w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                            className="ms-focusable w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
                         />
-                        <button onClick={handleAnalyze} disabled={isLoading} className="w-full py-2 px-4 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 disabled:bg-gray-400">
+                        <Button onClick={handleAnalyze} disabled={isLoading} className="w-full">
                             {isLoading ? 'Analyserer...' : 'Analyser Billede'}
-                        </button>
+                        </Button>
                     </div>
                 )}
 

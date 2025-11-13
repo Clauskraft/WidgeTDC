@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { Message } from '../types';
+import { GoogleGenAI } from "@google/genai";
+import type { Message, GroundingSource } from '../types';
+import { Button } from '../components/ui/Button';
 
 const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -8,11 +10,31 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
   const [useGoogleSearch, setUseGoogleSearch] = useState(false);
   const [useGoogleMaps, setUseGoogleMaps] = useState(false);
   const [useThinkingMode, setUseThinkingMode] = useState(false);
+  const [location, setLocation] = useState<{latitude: number, longitude: number} | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (useGoogleMaps) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLocation({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                    });
+                },
+                (error) => {
+                    console.warn("Geolocation permission denied or unavailable.", error);
+                    // Optionally, inform the user that location access is beneficial for Maps search.
+                }
+            );
+        }
+    }
+  }, [useGoogleMaps]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -25,49 +47,82 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
+    if (!process.env.API_KEY) {
+        const errorMessage: Message = {
+            id: `error-${Date.now()}`,
+            content: 'Fejl: API nøgle mangler. Sæt den venligst i dine secrets for at bruge denne widget.',
+            sender: 'agent',
+            timestamp: new Date()
+        };
+        setMessages(prev => [...prev, errorMessage]);
+        setIsLoading(false);
+        return;
+    }
+
     try {
-      // This is a mocked API call. In a real scenario, the backend would handle grounding and thinking mode.
-      await new Promise(resolve => setTimeout(resolve, 1200)); 
+      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-      const mockResponse: { response: string, sources?: any[] } = {
-        response: `Dette er et simuleret svar for: "${userMessage.content}".`
-      };
-
-      if (useThinkingMode) {
-        mockResponse.response += "\n\n🧠 Thinking Mode (gemini-2.5-pro) aktiveret med thinkingBudget: 32768. Dette giver et mere dybdegående svar.";
-      }
-
+      const modelName = useThinkingMode ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
+      
+      const tools: any[] = [];
       if (useGoogleSearch) {
-          mockResponse.response += "\n\n🌍 Søgning er aktiveret.";
-          mockResponse.sources = [
-              { uri: 'https://google.com/search?q=nyheder', title: 'Nyheder - Google Søgning' },
-              { uri: 'https://ai.google.dev', title: 'Google AI for Developers' }
-          ];
+          tools.push({ googleSearch: {} });
       }
       if (useGoogleMaps) {
-          mockResponse.response += "\n\n📍 Kort er aktiveret.";
-          mockResponse.sources = [
-              ...mockResponse.sources || [],
-              { uri: 'https://maps.google.com/?q=restauranter', title: 'Restauranter i nærheden - Google Maps' }
-          ];
+          tools.push({ googleMaps: {} });
       }
+
+      const config: any = {};
+      if (tools.length > 0) {
+          config.tools = tools;
+      }
+      if (useThinkingMode) {
+          config.thinkingConfig = { thinkingBudget: 32768 };
+      }
+      if (useGoogleMaps && location) {
+          config.toolConfig = {
+              retrievalConfig: {
+                  latLng: location
+              }
+          };
+      }
+
+      const response = await ai.models.generateContent({
+          model: modelName,
+          contents: { parts: [{ text: currentInput }] },
+          config: config
+      });
+
+      const agentResponseText = response.text;
+      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+      
+      const sources: GroundingSource[] = groundingChunks
+        .map((chunk: any) => {
+          const sourceData = chunk.web || chunk.maps;
+          return {
+              uri: sourceData?.uri || '#',
+              title: sourceData?.title || 'Ukendt Kilde',
+          };
+        })
+        .filter((source: GroundingSource) => source.uri !== '#');
 
       const agentMessage: Message = {
         id: `agent-${Date.now()}`,
-        content: mockResponse.response,
+        content: agentResponseText,
         sender: 'agent',
         timestamp: new Date(),
-        sources: mockResponse.sources
+        sources: sources.length > 0 ? sources : undefined
       };
       setMessages(prev => [...prev, agentMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to fetch chat response:", error);
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        content: 'Fejl: Kunne ikke kontakte serveren. Sørg for at backend kører.',
+        content: `Fejl: Kunne ikke hente svar fra Gemini API.\n\n${error.message || 'En ukendt fejl opstod.'}`,
         sender: 'agent',
         timestamp: new Date()
       };
@@ -86,7 +141,7 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
 
   const Toggle: React.FC<{label: string, checked: boolean, onChange: () => void}> = ({ label, checked, onChange }) => (
     <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300">
-        <input type="checkbox" checked={checked} onChange={onChange} className="w-4 h-4 rounded text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+        <input type="checkbox" checked={checked} onChange={onChange} className="ms-focusable w-4 h-4 rounded text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600" />
         {label}
     </label>
   );
@@ -111,7 +166,7 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
                     <h4 className="text-xs font-bold mb-1 text-blue-100 dark:text-gray-300">Kilder:</h4>
                     <div className="space-y-1">
                         {message.sources.map((source, index) => (
-                            <a href={source.uri} target="_blank" rel="noopener noreferrer" key={index} className="block text-xs text-blue-200 dark:text-blue-300 hover:underline truncate">
+                            <a href={source.uri} target="_blank" rel="noopener noreferrer" key={index} className="ms-focusable block text-xs text-blue-200 dark:text-blue-300 hover:underline truncate">
                                 {source.title}
                             </a>
                         ))}
@@ -147,16 +202,16 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyPress}
             placeholder="Skriv din besked... (Shift+Enter for ny linje)"
-            className="w-full p-3 pr-20 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+            className="ms-focusable w-full p-3 pr-20 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 resize-none"
             rows={2}
           />
-          <button
+          <Button
             onClick={handleSend}
             disabled={isLoading || !inputValue.trim()}
-            className="absolute right-3 top-1/2 -translate-y-1/2 py-2 px-4 rounded-lg transition-colors text-white bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="absolute right-3 top-1/2 -translate-y-1/2"
           >
             Send
-          </button>
+          </Button>
         </div>
       </div>
     </div>

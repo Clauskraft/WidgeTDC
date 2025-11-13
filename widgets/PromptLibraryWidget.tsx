@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import type { Prompt } from '../types';
+import { Button } from '../components/ui/Button';
 
 const MOCK_PROMPTS: Prompt[] = [
   { id: '1', title: 'Opsummer GDPR Artikel 5', text: 'Giv en koncis opsummering af hovedpunkterne i GDPR Artikel 5.', category: 'GDPR', tags: ['opsummering', 'artikel-5'] },
@@ -42,7 +42,7 @@ const PromptLibraryWidget: React.FC<{ widgetId: string }> = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Søg i prompts..."
-          className="w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className="ms-focusable w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600"
         />
       </div>
 
@@ -57,16 +57,13 @@ const PromptLibraryWidget: React.FC<{ widgetId: string }> = () => {
                   <span key={tag} className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-700">#{tag}</span>
                 ))}
               </div>
-              <button
+              <Button
                 onClick={() => copyToClipboard(prompt.text, prompt.id)}
-                className={`px-3 py-1 rounded text-sm font-semibold transition-colors ${
-                  copiedId === prompt.id
-                    ? 'bg-green-500 text-white'
-                    : 'bg-blue-500 hover:bg-blue-600 text-white'
-                }`}
+                variant={copiedId === prompt.id ? 'success' : 'primary'}
+                size="small"
               >
                 {copiedId === prompt.id ? 'Kopieret!' : 'Kopiér'}
-              </button>
+              </Button>
             </div>
           </div>
         )) : (

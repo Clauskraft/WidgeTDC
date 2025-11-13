@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import HelpModal from './HelpModal';
+import { Button } from './ui/Button';
 
 const Header: React.FC = () => {
   const { state, setTheme } = useGlobalState();
@@ -16,16 +17,17 @@ const Header: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <button
+            <Button
               onClick={() => setIsHelpModalOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              variant="subtle"
+              className="font-medium"
               title="Hjælp og Vejledning"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Hjælp
-            </button>
+            </Button>
             
             <div className="h-6 w-px bg-gray-200 dark:bg-gray-600"></div>
             
@@ -33,7 +35,7 @@ const Header: React.FC = () => {
                <span className="text-sm font-medium">Dark Mode</span>
               <button
                 onClick={() => setTheme(state.theme === 'dark' ? 'light' : 'dark')}
-                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
+                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
                   state.theme === 'dark' ? 'bg-blue-600' : 'bg-gray-300'
                 }`}
               >

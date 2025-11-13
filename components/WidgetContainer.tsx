@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
+import { useWidgetAccessibility } from '../hooks/useWidgetAccessibility';
+import { MicrosoftIcons } from '../assets/MicrosoftIcons';
 
 interface WidgetContainerProps {
   widgetId: string;
@@ -11,6 +13,8 @@ interface WidgetContainerProps {
 const WidgetContainer: React.FC<WidgetContainerProps> = ({ widgetId, widgetType, onRemove }) => {
   const { availableWidgets } = useWidgetRegistry();
   const widgetDef = availableWidgets.find(w => w.id === widgetType);
+  
+  useWidgetAccessibility(widgetId, widgetDef?.name || widgetType);
 
   if (!widgetDef) {
     return (
@@ -23,16 +27,18 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({ widgetId, widgetType,
   const WidgetComponent = widgetDef.component;
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="widget-drag-handle flex justify-between items-center p-3 border-b border-gray-200 dark:border-gray-700 cursor-move">
-        <h3 className="font-semibold text-base">{widgetDef.name}</h3>
-        <button
-          onClick={onRemove}
-          className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors rounded-full w-6 h-6 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700"
-          title="Fjern widget"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
+    <div className="h-full flex flex-col" role="region" aria-label={`${widgetDef.name} widget`}>
+       <div className="ms-widget-header widget-drag-handle cursor-move">
+        <h3 className="ms-widget-title">{widgetDef.name}</h3>
+        <div className="ms-widget-actions">
+           <button
+             onClick={onRemove}
+             className="ms-icon-button ms-focusable"
+             title="Fjern widget"
+           >
+             <MicrosoftIcons.Close />
+           </button>
+        </div>
       </div>
       <div className="flex-1 overflow-auto p-4">
         <WidgetComponent widgetId={widgetId} />

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
+import { Button } from '../components/ui/Button';
 
 const AudioTranscriberWidget: React.FC<{ widgetId: string }> = () => {
     const [isRecording, setIsRecording] = useState(false);
@@ -77,9 +78,13 @@ const AudioTranscriberWidget: React.FC<{ widgetId: string }> = () => {
     
     return (
         <div className="h-full flex flex-col items-center justify-center text-center -m-4">
-            <button onClick={handleToggleRecording} className={`px-8 py-4 rounded-full font-semibold text-white transition-all duration-300 ${isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-blue-500 hover:bg-blue-600'}`}>
+            <Button
+                onClick={handleToggleRecording}
+                variant={isRecording ? 'destructive' : 'primary'}
+                className={`px-8 py-4 rounded-full transition-all duration-300 ${isRecording ? 'animate-pulse' : ''}`}
+            >
                 {isRecording ? 'Stopper Optagelse...' : 'Start Optagelse'}
-            </button>
+            </Button>
             <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
                 {isRecording ? 'Taler...' : 'Klik for at starte optagelse'}
             </p>

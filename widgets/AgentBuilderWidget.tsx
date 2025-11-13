@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
 import type { ToolSuggestion, ToolStatus, Agent } from '../types';
+import { Button } from '../components/ui/Button';
 
 const ALL_TOOLS: Omit<ToolSuggestion, 'status'>[] = [
     { name: 'calculator', description: 'Matematiske beregninger.', category: 'Beregning' },
@@ -127,7 +128,7 @@ const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
                             {createdAgents.length}
                         </span>
                     </div>
-                    <button className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label={isListVisible ? "Skjul liste" : "Vis liste"}>
+                    <button className="ms-focusable p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label={isListVisible ? "Skjul liste" : "Vis liste"}>
                         <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-transform duration-200 ${isListVisible ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
@@ -174,12 +175,12 @@ const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
 
             <div>
                 <label htmlFor="agentName" className="text-sm font-medium mb-1 block">Agent Navn</label>
-                <input id="agentName" type="text" value={agentName} onChange={e => setAgentName(e.target.value)} placeholder="Eks: GDPR Compliance Agent" className="w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                <input id="agentName" type="text" value={agentName} onChange={e => setAgentName(e.target.value)} placeholder="Eks: GDPR Compliance Agent" className="ms-focusable w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
             </div>
 
             <div>
                  <label htmlFor="agentInstruction" className="text-sm font-medium mb-1 block">Instruktion</label>
-                <textarea id="agentInstruction" value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="Beskriv agentens opgaver og kompetenceområde..." rows={4} className="w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" />
+                <textarea id="agentInstruction" value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="Beskriv agentens opgaver og kompetenceområde..." rows={4} className="ms-focusable w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 resize-none" />
             </div>
 
             <div>
@@ -192,7 +193,16 @@ const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
                         <div 
                             key={tool.name} 
                             onClick={() => handleToolToggle(tool.name)}
-                            className={`p-3 rounded-lg border-2 flex flex-col gap-1 transition-all ${getStatusClasses(tool.status)} ${selectedTools.has(tool.name) ? 'ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800 ring-blue-500' : ''} ${tool.status === 'excluded' ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                            role="checkbox"
+                            aria-checked={selectedTools.has(tool.name)}
+                            tabIndex={tool.status === 'excluded' ? -1 : 0}
+                            onKeyDown={(e) => {
+                                if (e.key === ' ' || e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleToolToggle(tool.name);
+                                }
+                            }}
+                            className={`ms-focusable p-3 rounded-lg border-2 flex flex-col gap-1 transition-all ${getStatusClasses(tool.status)} ${selectedTools.has(tool.name) ? 'ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800 ring-blue-500' : ''} ${tool.status === 'excluded' ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                         >
                             <div className="flex justify-between items-start">
                                 <span className="font-semibold capitalize">{tool.name.replace('_', ' ')}</span>
@@ -216,7 +226,7 @@ const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
             </div>
         </div>
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <button onClick={handleCreateAgent} className="w-full py-2 px-4 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors" disabled={!agentName.trim() || !instruction.trim()}>Opret Agent</button>
+            <Button onClick={handleCreateAgent} className="w-full" disabled={!agentName.trim() || !instruction.trim()}>Opret Agent</Button>
         </div>
     </div>
   );
