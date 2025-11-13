@@ -1,3 +1,4 @@
+
 import type { Layout } from 'react-grid-layout';
 // FIX: Import ComponentType to resolve 'Cannot find namespace React' error.
 import type { ComponentType } from 'react';
@@ -38,6 +39,10 @@ export interface WidgetDefinition {
   defaultLayout: { w: number; h: number };
   source: 'proprietary' | 'microsoft';
   msWidgetData?: MSWidget;
+  minW?: number;
+  maxW?: number;
+  minH?: number;
+  maxH?: number;
 }
 
 export interface WidgetInstance {
@@ -123,4 +128,22 @@ export interface Connection {
   dataSourceId: string;
   status: ConnectionStatus;
   config: Record<string, any>;
+}
+
+// Types for Email RAG Widget
+export interface Email {
+  id: string;
+  from: string;
+  subject: string;
+  body: string;
+  timestamp: string;
+}
+
+export type Tone = 'Professionel' | 'Venlig' | 'Afslappet' | 'Kortfattet';
+
+export interface ReplySuggestion {
+  text: string;
+  confidence: number;
+  tone: Tone;
+  basedOnEmails: string[];
 }

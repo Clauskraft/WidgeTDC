@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Metrics } from '../types';
 
@@ -19,13 +20,16 @@ const PerformanceMonitorWidget: React.FC<{ widgetId: string }> = () => {
         setMetrics(prev => [...prev.slice(-59), data]);
       };
 
-      socketRef.current.onclose = () => {
+      socketRef.current.onclose = (event: CloseEvent) => {
         setStatus('disconnected');
+        if (!event.wasClean) {
+            console.error(`Performance Monitor WebSocket closed unexpectedly. Code: ${event.code}, Reason: "${event.reason}"`);
+        }
         setTimeout(connect, 5000); // Reconnect after 5s
       };
 
-      socketRef.current.onerror = (error) => {
-        console.error('WebSocket Error:', error);
+      socketRef.current.onerror = (error: Event) => {
+        console.error('Performance Monitor WebSocket Error. See the event object for details:', error);
         socketRef.current?.close();
       };
     }

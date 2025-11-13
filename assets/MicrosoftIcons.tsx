@@ -20,4 +20,9 @@ export const MicrosoftIcons = {
         <path d="M8.5 8.5H16V16H8.5V8.5Z" fill="#FFB900"/>
     </svg>
   ),
+  Trash: () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 2L9 3H4V5H20V3H15L14 2H10ZM5 7V20C5 21.1 5.9 22 7 22H17C18.1 22 19 21.1 19 20V7H5Z" />
+    </svg>
+  ),
 };

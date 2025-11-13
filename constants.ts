@@ -9,6 +9,7 @@ import ImageAnalyzerWidget from './widgets/ImageAnalyzerWidget';
 import AudioTranscriberWidget from './widgets/AudioTranscriberWidget';
 import VideoAnalyzerWidget from './widgets/VideoAnalyzerWidget';
 import WidgetImporterWidget from './widgets/WidgetImporterWidget';
+import MCPEmailRAGWidget from './widgets/MCPEmailRAGWidget';
 import { WidgetDefinition } from './types';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -18,6 +19,17 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: AgentChatWidget,
     defaultLayout: { w: 6, h: 9 },
     source: 'proprietary',
+    minW: 4,
+    minH: 6,
+  },
+  {
+    id: 'MCPEmailRAGWidget',
+    name: 'Email Svarsassistent',
+    component: MCPEmailRAGWidget,
+    defaultLayout: { w: 8, h: 11 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 9,
   },
   {
     id: 'LiveConversationWidget',
@@ -25,6 +37,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: LiveConversationWidget,
     defaultLayout: { w: 6, h: 9 },
     source: 'proprietary',
+    minW: 4,
+    minH: 6,
   },
   {
     id: 'ImageAnalyzerWidget',
@@ -32,6 +46,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: ImageAnalyzerWidget,
     defaultLayout: { w: 6, h: 10 },
     source: 'proprietary',
+    minW: 4,
+    minH: 8,
   },
   {
     id: 'AudioTranscriberWidget',
@@ -39,6 +55,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: AudioTranscriberWidget,
     defaultLayout: { w: 6, h: 8 },
     source: 'proprietary',
+    minW: 4,
+    minH: 6,
   },
   {
     id: 'VideoAnalyzerWidget',
@@ -46,6 +64,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: VideoAnalyzerWidget,
     defaultLayout: { w: 7, h: 11 },
     source: 'proprietary',
+    minW: 5,
+    minH: 9,
   },
   {
     id: 'MCPConnectorWidget',
@@ -53,6 +73,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: MCPConnectorWidget,
     defaultLayout: { w: 8, h: 11 },
     source: 'proprietary',
+    minW: 6,
+    minH: 8,
   },
   {
     id: 'PromptLibraryWidget',
@@ -60,6 +82,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: PromptLibraryWidget,
     defaultLayout: { w: 6, h: 9 },
     source: 'proprietary',
+    minW: 4,
   },
   {
     id: 'PerformanceMonitorWidget',
@@ -67,6 +90,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: PerformanceMonitorWidget,
     defaultLayout: { w: 12, h: 6 },
     source: 'proprietary',
+    minW: 6,
+    maxH: 6,
   },
   {
     id: 'SystemSettingsWidget',
@@ -74,6 +99,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: SystemSettingsWidget,
     defaultLayout: { w: 5, h: 7 },
     source: 'proprietary',
+    maxW: 5,
+    maxH: 7,
   },
   {
     id: 'AgentBuilderWidget',
@@ -81,6 +108,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: AgentBuilderWidget,
     defaultLayout: { w: 7, h: 10 },
     source: 'proprietary',
+    minW: 6,
+    minH: 10,
   },
   {
     id: 'WidgetImporterWidget',
@@ -88,5 +117,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     component: WidgetImporterWidget,
     defaultLayout: { w: 8, h: 10 },
     source: 'proprietary',
+    minW: 6,
+    minH: 8,
   }
 ];

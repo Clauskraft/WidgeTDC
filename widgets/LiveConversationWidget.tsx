@@ -196,8 +196,9 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
                         stopConversation();
                     },
                     onerror: (e: ErrorEvent) => {
-                        console.error('WebSocket error:', e);
-                        setStatusText('Fejl i forbindelse.');
+                        const errorMessage = e.message || 'En ukendt WebSocket-fejl opstod.';
+                        console.error('Live Conversation WebSocket error:', errorMessage, e);
+                        setStatusText(`Fejl i forbindelse: ${errorMessage}`);
                         stopConversation();
                     },
                 },

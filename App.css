@@ -137,12 +137,50 @@
 
 /* Microsoft-style animation, men med reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .ms-widget-container {
-    transition: none;
-    animation: none;
+  .ms-widget-container,
+  .trash-dropzone {
+    transition: none !important;
+    animation: none !important;
   }
   
   .ms-widget-container:hover {
     transform: none;
   }
+}
+
+/* Papirkurv til træk-og-slip sletning */
+.trash-dropzone {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background-color: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 1000;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    transform: translateY(100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    gap: 1rem;
+}
+
+.trash-dropzone.is-visible {
+    transform: translateY(0);
+}
+
+.trash-dropzone.is-active {
+    background-color: rgba(220, 38, 38, 0.9);
+}
+
+.trash-dropzone .trash-icon {
+    transition: transform 0.2s ease;
+}
+
+.trash-dropzone.is-active .trash-icon {
+    transform: scale(1.2);
 }

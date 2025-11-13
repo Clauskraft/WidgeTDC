@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WidthProvider, Responsive } from 'react-grid-layout';
 import WidgetContainer from './WidgetContainer';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import type { WidgetInstance } from '../types';
 import type { Layout, Layouts } from 'react-grid-layout';
+import TrashDropzone from './TrashDropzone';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -28,6 +29,11 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
         return {};
     }
   });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isOverTrash, setIsOverTrash] = useState(false);
+  const trashRef = useRef<HTMLDivElement>(null);
+  const draggedItemRef = useRef<Layout | null>(null);
+
 
   useEffect(() => {
     const currentLayout = layouts.lg || [];
@@ -43,6 +49,10 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
           y: Infinity, // puts it at the bottom
           w: widgetDef.defaultLayout.w,
           h: widgetDef.defaultLayout.h,
+          minW: widgetDef.minW,
+          maxW: widgetDef.maxW,
+          minH: widgetDef.minH,
+          maxH: widgetDef.maxH,
         };
       }).filter((item): item is Layout => item !== null);
 
@@ -55,8 +65,11 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
 
   const onLayoutChange = (layout: Layout[], allLayouts: Layouts) => {
     try {
-        localStorage.setItem(LAYOUTS_STORAGE_KEY, JSON.stringify(allLayouts));
-        setLayouts(allLayouts);
+        // Only save layouts if not dragging to prevent intermediate saves
+        if (!isDragging) {
+            localStorage.setItem(LAYOUTS_STORAGE_KEY, JSON.stringify(allLayouts));
+            setLayouts(allLayouts);
+        }
     } catch (error) {
         console.error("Could not save layouts to localStorage", error);
     }
@@ -76,6 +89,28 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
     });
   };
   
+  const onDragStart = (layout: Layout[], oldItem: Layout) => {
+    setIsDragging(true);
+    draggedItemRef.current = oldItem;
+  };
+
+  const onDrag = (layout: Layout[], oldItem: Layout, newItem: Layout, placeholder: Layout, e: MouseEvent) => {
+    if (trashRef.current) {
+        const trashRect = trashRef.current.getBoundingClientRect();
+        const isOver = e.clientY > trashRect.top;
+        setIsOverTrash(isOver);
+    }
+  };
+
+  const onDragStop = () => {
+    if (isOverTrash && draggedItemRef.current) {
+        onRemoveWidget(draggedItemRef.current.i);
+    }
+    setIsDragging(false);
+    setIsOverTrash(false);
+    draggedItemRef.current = null;
+  };
+  
   const generateDOM = () => {
     return widgets.map(widget => {
       const widgetDef = availableWidgets.find(w => w.id === widget.widgetType);
@@ -93,12 +128,29 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
     });
   };
 
-  // Filter layouts to ensure we only render layouts for existing widgets.
+  // Filter layouts to ensure we only render layouts for existing widgets and apply constraints.
   const synchronizedLayouts: Layouts = {};
   Object.keys(layouts).forEach(breakpoint => {
       const widgetIds = new Set(widgets.map(w => w.id));
       // @ts-ignore
-      synchronizedLayouts[breakpoint] = layouts[breakpoint]?.filter(l => widgetIds.has(l.i));
+      const filteredLayout = layouts[breakpoint]?.filter(l => widgetIds.has(l.i));
+      
+      // @ts-ignore
+      synchronizedLayouts[breakpoint] = filteredLayout?.map(layoutItem => {
+          const widget = widgets.find(w => w.id === layoutItem.i);
+          const widgetDef = widget ? availableWidgets.find(w => w.id === widget.widgetType) : undefined;
+
+          if (widgetDef) {
+              return {
+                  ...layoutItem,
+                  minW: widgetDef.minW,
+                  maxW: widgetDef.maxW,
+                  minH: widgetDef.minH,
+                  maxH: widgetDef.maxH,
+              };
+          }
+          return layoutItem;
+      });
   });
 
   return (
@@ -110,6 +162,9 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
         rowHeight={30}
         onLayoutChange={onLayoutChange}
+        onDragStart={onDragStart}
+        onDrag={onDrag}
+        onDragStop={onDragStop}
         isDraggable={!state.reduceMotion}
         isResizable={!state.reduceMotion}
         useCSSTransforms={true}
@@ -117,6 +172,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
       >
         {generateDOM()}
       </ResponsiveGridLayout>
+       <TrashDropzone ref={trashRef} isVisible={isDragging} isActive={isOverTrash} />
     </div>
   );
 };
