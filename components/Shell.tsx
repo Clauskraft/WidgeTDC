@@ -24,7 +24,8 @@ const Shell: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans">
+    <div className="h-screen w-screen flex flex-col text-gray-900 dark:text-gray-100 font-sans relative">
+      <div className="ms-acrylic fixed inset-0 -z-10" />
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar addWidget={addWidget} />

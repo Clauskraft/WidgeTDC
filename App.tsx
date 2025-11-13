@@ -4,6 +4,7 @@ import { WidgetRegistryProvider, useWidgetRegistry } from './contexts/WidgetRegi
 import { GlobalStateProvider } from './contexts/GlobalStateContext';
 import Shell from './components/Shell';
 import { WIDGET_DEFINITIONS } from './constants';
+import './App.css';
 
 // Component to initialize widgets into the registry
 const WidgetInitializer: React.FC = () => {

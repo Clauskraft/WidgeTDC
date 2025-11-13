@@ -1,0 +1,66 @@
+/* Microsoft Fluent Design Tokens */
+:root {
+  /* === MICROSOFT FARVER === */
+  --ms-surface: #f3f3f3;
+  --ms-surface-alt: #fafafa;
+  --ms-accent: #0078d4;
+  --ms-accent-light: #e1f3fc;
+  --ms-text-primary: #000000;
+  --ms-text-secondary: #616161;
+  --ms-border: #e1e1e1;
+  
+  /* === MICROSOFT SKALING === */
+  --ms-base-unit: 4px;
+  --ms-spacing-xs: calc(var(--ms-base-unit) * 2);  /* 8px */
+  --ms-spacing-sm: calc(var(--ms-base-unit) * 4);  /* 16px */
+  --ms-spacing-md: calc(var(--ms-base-unit) * 6);  /* 24px */
+  
+  /* === MICROSOFT RADII === */
+  --ms-radius-small: 4px;
+  --ms-radius-medium: 8px;
+  --ms-radius-large: 12px;
+  
+  /* === MICROSOFT SHADOWS === */
+  --ms-shadow-1: 0 1.6px 3.6px rgba(0,0,0,0.07), 0 0.3px 0.9px rgba(0,0,0,0.1);
+  --ms-shadow-2: 0 3.2px 7.2px rgba(0,0,0,0.08), 0 0.6px 1.8px rgba(0,0,0,0.11);
+  
+  /* === ACCESSIBILITY TOKENS === */
+  --ms-high-contrast-border: 2px solid currentColor;
+  --ms-focus-outline: 2px solid var(--ms-accent);
+}
+
+/* Dark mode tokens */
+.dark {
+  --ms-surface: #202020;
+  --ms-surface-alt: #2d2d2d;
+  --ms-text-primary: #ffffff;
+  --ms-text-secondary: #a5a5a5;
+  --ms-border: #484848;
+}
+
+/* Microsofts gennemsigtige blur effect */
+.ms-acrylic {
+  background: rgba(243, 243, 243, 0.85); /* Fluent surface with opacity */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Fallback for browsers without backdrop-filter */
+@supports not (backdrop-filter: blur(20px)) {
+  .ms-acrylic {
+    background: var(--ms-surface);
+  }
+}
+
+/* Dark mode acrylic */
+.dark .ms-acrylic {
+  background: rgba(32, 32, 32, 0.85);
+}
+
+.ms-widget-container {
+  background-color: var(--ms-surface);
+  border-radius: var(--ms-radius-medium);
+  border: 1px solid var(--ms-border);
+  box-shadow: var(--ms-shadow-2);
+  overflow: hidden; 
+}

@@ -61,7 +61,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
       const layout = layouts.lg?.find(l => l.i === widget.id) || defaultLayout;
 
       return (
-        <div key={widget.id} data-grid={layout} className="rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+        <div key={widget.id} data-grid={layout} className="ms-widget-container">
           <WidgetContainer
             widgetId={widget.id}
             widgetType={widget.widgetType}
