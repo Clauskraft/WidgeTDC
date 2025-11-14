@@ -317,12 +317,12 @@ export function sanitizeHTML(
  */
 export function containsXSSPatterns(content: string): boolean {
   const xssPatterns = [
-    /<script[^>]*>.*?<\/script>/gi,
+    /<script[\s\S]*?<\/script\s*>/gi, // Match script tags with any whitespace
     /javascript:/gi,
     /on\w+\s*=/gi,
-    /<iframe[^>]*>/gi,
-    /eval\(/gi,
-    /expression\(/gi,
+    /<iframe[\s\S]*?>/gi,
+    /eval\s*\(/gi,
+    /expression\s*\(/gi,
     /vbscript:/gi,
     /data:text\/html/gi
   ];
