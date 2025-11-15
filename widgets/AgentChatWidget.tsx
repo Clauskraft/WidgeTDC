@@ -51,7 +51,9 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
     setInputValue('');
     setIsLoading(true);
 
-    if (!process.env.API_KEY) {
+    const apiKey = process.env.GEMINI_API_KEY ?? process.env.API_KEY ?? import.meta.env.VITE_GEMINI_API_KEY;
+
+    if (!apiKey) {
         const errorMessage: Message = {
             id: `error-${Date.now()}`,
             content: 'Fejl: API nøgle mangler. Sæt den venligst i dine secrets for at bruge denne widget.',
@@ -64,7 +66,7 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
     }
 
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      const ai = new GoogleGenAI({ apiKey });
 
       const modelName = useThinkingMode ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
       
