@@ -10,6 +10,9 @@ import AudioTranscriberWidget from './widgets/AudioTranscriberWidget';
 import VideoAnalyzerWidget from './widgets/VideoAnalyzerWidget';
 import WidgetImporterWidget from './widgets/WidgetImporterWidget';
 import MCPEmailRAGWidget from './widgets/MCPEmailRAGWidget';
+import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
+import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
+import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
 import { WidgetDefinition } from './types';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -30,6 +33,33 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     source: 'proprietary',
     minW: 6,
     minH: 9,
+  },
+  {
+    id: 'IntelligentNotesWidget',
+    name: 'Intelligent Notes',
+    component: IntelligentNotesWidget,
+    defaultLayout: { w: 7, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
+    id: 'CybersecurityOverwatchWidget',
+    name: 'Cybersecurity Overwatch',
+    component: CybersecurityOverwatchWidget,
+    defaultLayout: { w: 7, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
+    id: 'ProcurementIntelligenceWidget',
+    name: 'Procurement Intelligence',
+    component: ProcurementIntelligenceWidget,
+    defaultLayout: { w: 8, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
   },
   {
     id: 'LiveConversationWidget',
