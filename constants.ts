@@ -13,6 +13,7 @@ import MCPEmailRAGWidget from './widgets/MCPEmailRAGWidget';
 import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
 import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
 import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
+import StatusWidget from './widgets/StatusWidget';
 import { WidgetDefinition } from './types';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -149,5 +150,16 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     source: 'proprietary',
     minW: 6,
     minH: 8,
+  },
+  {
+    id: 'StatusWidget',
+    name: 'Status',
+    component: StatusWidget,
+    defaultLayout: { w: 5, h: 7 },
+    source: 'proprietary',
+    minW: 4,
+    minH: 6,
+    maxW: 6,
+    maxH: 8,
   }
 ];
