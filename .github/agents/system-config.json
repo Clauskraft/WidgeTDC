@@ -268,11 +268,14 @@
 
   "team_summary": {
     "total_agents": 30,
-    "leadership": 4,
-    "specialists": 26,
-    "scaling_factor": "10x from baseline (3 core agents to 30 total)",
+    "leadership_total": 4,
+    "leadership_working": 3,
+    "specialists": 27,
+    "working_agents": 30,
+    "scaling_factor": "10x from baseline (3 working agents to 30 working agents)",
     "expansion_date": "2025-11-16T22:47:00Z",
-    "expansion_rationale": "System Director directive: 'staff up times 10... and keep running. alll accepted'"
+    "expansion_rationale": "System Director directive: 'staff up times 10... and keep running. alll accepted'",
+    "note": "Total team = 31 (1 human System Director + 30 Claude Code Agents)"
   },
 
   "activation_date": "2025-11-16T14:50:00Z",
