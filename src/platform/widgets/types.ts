@@ -7,6 +7,7 @@
  */
 
 import type { ComponentType, ReactNode } from 'react';
+import type { PlatformServices } from '../core/PlatformContext';
 
 /**
  * Semantic version string (e.g., "1.2.3")
@@ -242,7 +243,7 @@ export interface WidgetComponentProps {
   onError?: (error: Error) => void;
   
   /** Platform services (injected via context) */
-  services?: unknown; // Will be typed in PlatformContext
+  services?: PlatformServices;
 }
 
 /**
