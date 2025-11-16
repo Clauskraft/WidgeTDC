@@ -258,8 +258,10 @@ export class MCPClient {
           this.pendingRequests.delete(message.id);
 
           if (message.type === 'error' || message.error) {
+            this.circuitBreaker.recordFailure();
             pending.reject(new Error(message.error?.message || 'Unknown error'));
           } else {
+            this.circuitBreaker.recordSuccess();
             pending.resolve(message.result);
           }
         }
@@ -357,7 +359,6 @@ export class MCPClient {
 
       try {
         this.ws!.send(JSON.stringify(message));
-        this.circuitBreaker.recordSuccess();
       } catch (error) {
         clearTimeout(timeout);
         this.pendingRequests.delete(id);
