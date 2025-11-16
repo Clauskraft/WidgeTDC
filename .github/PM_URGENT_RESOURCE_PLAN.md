@@ -106,21 +106,22 @@ Deliverable: Performance optimization by Feb 28
 Source: Freelance contractor (1-2 week notice)
 ```
 
-**Subtotal High-Priority**: 3 specialists, €180-270K, Dec 1-15 start
+**Subtotal High-Priority**: 4 specialists, €260-390K, Dec 1-15 start (incl MCP Platform Architect)
 
 ---
 
-### STRATEGIC HIRES (Start Jan 1 - Phase 2)
+### HIGH-PRIORITY HIRES (UPDATED - Start Dec 1)
 
-**7. MCP Integration Specialist** 🟡 MEDIUM
+**7. MCP Platform Architect** 🔴 CRITICAL (PROMOTED FROM STRATEGIC)
 ```
-Why: MCP expertise for widget-service communication
-Impact: Real-time features unreliable
-Timeline: Jan 1 start
-Duration: 4 months
-Cost: €60-90K
-Deliverable: Message queue + circuit breakers by Jan 31
-Source: Contract via integration consulting firm
+Why: MCP Foundation for message reliability (Gap #4) - System Director directive
+Impact: Real-time features unreliable, production deployment blocked
+Timeline: Dec 1 start (MOVED UP from Jan 1)
+Duration: 6 months
+Cost: €80-120K
+Deliverable: MCP Hub + Widget SDK + Service Adapter by Jan 31
+Source: Contract via distributed systems consulting firm
+Note: Replaces message queue approach with MCP Foundation strategy
 ```
 
 **8. Technical Product Manager** 🟡 MEDIUM
@@ -134,7 +135,7 @@ Deliverable: Product roadmap validation, stakeholder alignment
 Source: Direct hire via recruiting
 ```
 
-**Subtotal Strategic**: 2 specialists, €140-210K, Jan 1 start
+**Subtotal Strategic**: 1 specialist (Technical PM only), €80-120K, Jan 1 start
 
 ---
 
@@ -147,13 +148,13 @@ Source: Direct hire via recruiting
 | Critical (Nov 18-25) | 3 | Immediate | €240-360K | 30-50x |
 | High-Priority (Dec 1-15) | 3 | 2 weeks | €180-270K | 20-30x |
 | Strategic (Jan 1) | 2 | 6 weeks | €140-210K | 15-25x |
-| **TOTAL** | **8** | **48hrs-6wks** | **€560-840K** | **25-40x** |
+| **TOTAL** | **8** | **48hrs-6wks** | **€580-860K** | **25-40x** |
 
 ### Budget Reality Check
 
 **Current Phase 2 Budget**: ~€500K (estimated for 30 agents)  
-**New Total Budget**: €500K + €560-840K = **€1.06M - €1.34M**  
-**Budget Increase**: **+112% to +168%**
+**New Total Budget**: €500K + €580-860K = **€1.08M - €1.36M**  
+**Budget Increase**: **+116% to +172%**
 
 **Business Justification**:
 - €10M ARR target = €1M investment justified at 10:1 return
@@ -463,6 +464,30 @@ Timeline: Performance review every Friday
 **For**: System Director Immediate Action  
 **Date**: 2025-11-16 23:50 UTC  
 **Status**: 🔴 URGENT - RECRUITMENT STARTS IN 12 HOURS
+
+---
+
+---
+
+## 🔧 UPDATE: MCP FOUNDATION STRATEGY (Nov 16, 23:55 UTC)
+
+**System Director Directive**: "DUE TO NO 4 ABOUT MESSAGE RELIABILITY, WE NEED TO LOOK INTO THE MCP AS FOUNDATION"
+
+**Key Changes**:
+1. **Gap #4 Solution Changed**: Message Queue (Redis/RabbitMQ) → MCP Foundation
+2. **Specialist #7 Promoted**: MCP Integration Specialist → MCP Platform Architect
+3. **Timeline Accelerated**: Jan 1 start → Dec 1 start (1 month earlier)
+4. **Budget Impact**: +€20-40K (€580-860K vs €560-840K)
+5. **Strategic Value**: 5-10x (competitive moat, developer ecosystem, future-proof)
+
+**Why MCP Foundation is Superior**:
+- ✓ Solves all Gap #4 issues (ordering, reconnection, backpressure, replay)
+- ✓ Lower operational overhead (builds on existing Node.js/TypeScript stack)
+- ✓ Strategic value (standardized protocol = competitive moat)
+- ✓ Type safety end-to-end (JSON schema + Zod + TypeScript)
+- ✓ Future-proof (plugin system, versioning, developer ecosystem)
+
+**Detailed Strategy**: See `PM_MCP_FOUNDATION_STRATEGY.md`
 
 ---
 
