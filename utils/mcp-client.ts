@@ -316,7 +316,7 @@ export class MCPClient {
     this.emit('reconnecting', this.reconnectAttempts);
     this.emit('state-change', this.state);
 
-    // Exponential backoff
+    // Exponential backoff: first retry happens at base delay (reconnectDelay), subsequent retries double the delay
     const delay = this.config.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
     this.reconnectTimer = window.setTimeout(() => {
