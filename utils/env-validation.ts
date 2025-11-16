@@ -193,7 +193,7 @@ function validatePerformance(config: Partial<EnvConfig>, errors: string[]): void
     }
   }
   
-  if (config.RATE_LIMIT_MAX_REQUESTS < 1) {
+  if (config.RATE_LIMIT_MAX_REQUESTS !== undefined && config.RATE_LIMIT_MAX_REQUESTS < 1) {
     errors.push('RATE_LIMIT_MAX_REQUESTS must be at least 1');
   }
   
