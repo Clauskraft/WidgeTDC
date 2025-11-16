@@ -146,17 +146,21 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
     return results;
   }
 
-  async createBid(bid: Omit<Bid, 'id' | 'dates'>): Promise<Bid> {
+  async createBid(
+    bid: Omit<Bid, 'id' | 'dates'> & { deadline?: Date; submitted?: Date }
+  ): Promise<Bid> {
     const id = this.generateBidId();
     const now = new Date();
     
+    const { deadline, submitted, ...rest } = bid;
+
     const completeBid: Bid = {
-      ...bid,
+      ...rest,
       id,
       dates: {
         created: now,
-        deadline: bid.dates?.deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        submitted: bid.dates?.submitted,
+        deadline: deadline || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        submitted: submitted,
       },
     };
 
