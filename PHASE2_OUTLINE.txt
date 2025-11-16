@@ -424,3 +424,87 @@ Next Review: Upon Phase 1 completion (Dec 31, 2025 quality gate)
 
 IMPORTANT: This is preliminary. Final Phase 2 spec will be confirmed after
 Phase 1 quality gate passes. Scope may be adjusted based on Phase 1 outcomes.
+
+================================================================================
+PHASE 2 BACKEND PLATFORM INFRASTRUCTURE (NEW TRACK 2.C)
+================================================================================
+Added: 2025-11-16 18:30 UTC (from existing branches held for Phase 2)
+
+TRACK 2.C: Backend Platform Services (PARALLEL with 2.A and 2.B)
+PURPOSE: Build platform infrastructure foundation for core widgets
+
+BRANCHES CONTAINING THIS WORK:
+  - copilot/sub-pr-14 (PlatformProvider + contracts)
+  - copilot/sub-pr-14-one-more-time (Platform services + logging)
+  - copilot/sub-pr-14-yet-again (WidgetComponentProps types)
+
+IMPLEMENTATION COMPONENTS:
+
+2.C.1: PlatformProvider & Context
+  Files: src/platform/core/PlatformProvider.tsx, PlatformContext.ts
+  Purpose: React Context wrapper providing platform services to widgets
+  Effort: 3-5 days
+  Owner: Backend Architect (NEW ROLE recommended)
+
+2.C.2: Service Implementations
+  Files: src/domain/*, src/platform/*/InMemory*Service.ts
+  Services:
+    - SecurityOverwatchService (security operations)
+    - AuditLogService (event logging)
+    - VectorStoreAdapter (vector DB)
+    - ProcurementIntelligenceService (procurement logic)
+    - NotesAggregatorService (notes backend)
+  Effort: 10-12 days
+  Owner: Backend Architect + Backend team
+
+2.C.3: Type System & Integration
+  Files: src/platform/widgets/types.ts, WidgetComponentProps
+  Purpose: Strong typing between widgets and services
+  Effort: 3-4 days
+  Owner: Chief Architect
+
+2.C.4: Logging & Monitoring
+  Files: utils/logger.ts, service logging integration
+  Purpose: Replace console.* with proper logging service
+  Effort: 2-3 days
+  Owner: Backend team
+
+TOTAL EFFORT (TRACK 2.C): 18-24 days (3-4 weeks parallel)
+
+PHASE 2 REVISED STRUCTURE:
+
+  Track 2.A: Core Widget Enterprise Upgrade (32-44 days)
+  Track 2.B: Security Intelligence Widgets (23-29 days)
+  Track 2.C: Backend Platform Infrastructure (18-24 days) [NEW]
+  
+  Total: 73-97 days of work compressed to 8 weeks (parallel execution)
+
+PARALLEL EXECUTION STRATEGY:
+  - Track 2.A: Frontend engineers (UI widget upgrades)
+  - Track 2.B: Frontend + Backend (Security widgets UI + backend)
+  - Track 2.C: Backend engineers (Platform infrastructure)
+  
+  All three tracks run simultaneously Jan 1 - Feb 28
+
+DEPENDENCIES:
+  Track 2.A → Track 2.C: Widgets need platform services
+  Track 2.B → Track 2.C: Security widgets need audit/logging
+  Track 2.C is foundational: Must complete or integrate with other tracks
+
+TIMELINE IMPACT:
+  - If all 3 tracks work in parallel: 8 weeks remains realistic
+  - If Track 2.C slips: Blocks widget implementation
+  - Recommendation: Assign dedicated backend team to Track 2.C
+
+TEAM REQUIREMENT FOR PHASE 2 (UPDATED):
+  Track 2.A: 2-3 Frontend engineers (React)
+  Track 2.B: 1-2 Frontend + 1 Backend (security integration)
+  Track 2.C: 1-2 Backend engineers (platform infrastructure) [NEW]
+  
+  Total: 4-6 engineers minimum
+  Current: 1 Chief Architect + 1 Chief GUI Designer
+  
+  RECOMMENDATION: Hire 2-3 specialists (confirmed in Interview #2)
+
+================================================================================
+

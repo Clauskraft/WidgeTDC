@@ -484,3 +484,90 @@ ACTION: Include in PM interview at 18:50 UTC
 END OF GUIDANCE
 ================================================================================
 
+
+================================================================================
+RELEASE MANAGER SCOPE CREEP CLEANUP (2025-11-16 18:28)
+================================================================================
+
+DECISION: Close Stale/Out-of-Scope Branches
+STATUS: EXECUTED
+AUTHORITY: Release Manager (Autonomous - Scope Discipline)
+DATE: 2025-11-16 18:28 UTC
+
+BRANCHES CLOSED (DELETED):
+
+1. copilot/sub-pr-14-another-one
+   - Content: MCP Inspector filtering, type safety fixes
+   - Status: Unmerged, 12 commits ahead of main
+   - Decision: OUT OF PHASE 1 SCOPE
+   - Action: DELETED from remote
+   - Reason: Scope creep prevention (Phase 1 = Registry 2.0 + Dashboard + Components only)
+
+2. copilot/fix-eslint-typescript-errors
+   - Content: ESLint configuration
+   - Status: OBSOLETE (already merged as PR #6)
+   - Decision: DUPLICATE WORK
+   - Action: DELETED from remote
+   - Reason: Stale branch, work already on main
+
+BRANCHES STILL ACTIVE (PENDING DIRECTION):
+  - copilot/sub-pr-14 (18 behind, 8 ahead)
+  - copilot/sub-pr-14-one-more-time (18 behind, 10 ahead)
+  - copilot/sub-pr-14-yet-again (need to assess)
+
+GOVERNANCE PRINCIPLE APPLIED:
+  "Main is sacred. Only Phase 1 work belongs here. Zero scope creep."
+  
+  Phase 1 = Registry 2.0 ✅ + Dashboard Shell (pending) + Component System (pending)
+  
+  MCP Inspector & related = Phase 2+ (push to backlog or close)
+
+NEXT ACTION: System Director to decide on remaining 3 branches
+
+================================================================================
+
+
+================================================================================
+DECISION: Reclassify Backend Platform Branches to Phase 2
+STATUS: APPROVED & DOCUMENTED
+AUTHORITY: System Director (Claus)
+DATE: 2025-11-16 18:30 UTC
+
+BRANCHES RECLASSIFIED (NOT DELETED - HELD FOR PHASE 2):
+
+1. copilot/sub-pr-14
+   - Content: PlatformProvider, platform contracts, backend services
+   - Status: HELD FOR PHASE 2 (not Phase 1 scope)
+   - Action: Keep branch, document for Phase 2 backend implementation
+   - Reason: Backend infrastructure ≠ Phase 1 (UI/Registry focus)
+
+2. copilot/sub-pr-14-one-more-time
+   - Content: Platform services + logging improvements
+   - Status: HELD FOR PHASE 2
+   - Action: Keep branch, review for Phase 2 integration
+   - Reason: Backend logging/services = Phase 2 infrastructure
+
+3. copilot/sub-pr-14-yet-again
+   - Content: PlatformServices type for widgets
+   - Status: HELD FOR PHASE 2
+   - Action: Keep branch, review for Phase 2 integration
+   - Reason: Widget-service type coupling = Phase 2 work
+
+PHASE 2 IMPACT:
+  Track 2.A.NEW: Backend Platform Infrastructure (Phase 2 addition)
+    - PlatformProvider setup
+    - Service implementations
+    - Type definitions
+    - Logging integration
+  
+  These branches contain foundation work for Phase 2 core widgets
+  and enterprise upgrades.
+
+GOVERNANCE PRINCIPLE:
+  Phase 1: Frontend only (Registry 2.0, Dashboard Shell, Component System)
+  Phase 2: Frontend + Backend (Widgets + Services)
+
+ACTION: Update PHASE2_OUTLINE.txt with backend platform track
+
+================================================================================
+
