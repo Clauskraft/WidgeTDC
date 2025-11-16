@@ -79,16 +79,33 @@ class ConsoleTransport implements LogTransport {
 
     switch (entry.level) {
       case 'ERROR':
-        console.error(prefix, message, entry.context || '', entry.error || '');
+        console.error(
+          prefix,
+          message,
+          ...(entry.context ? [entry.context] : []),
+          ...(entry.error ? [entry.error] : [])
+        );
         break;
       case 'WARN':
-        console.warn(prefix, message, entry.context || '');
+        console.warn(
+          prefix,
+          message,
+          ...(entry.context ? [entry.context] : [])
+        );
         break;
       case 'INFO':
-        console.info(prefix, message, entry.context || '');
+        console.info(
+          prefix,
+          message,
+          ...(entry.context ? [entry.context] : [])
+        );
         break;
       case 'DEBUG':
-        console.debug(prefix, message, entry.context || '');
+        console.debug(
+          prefix,
+          message,
+          ...(entry.context ? [entry.context] : [])
+        );
         break;
     }
   }
