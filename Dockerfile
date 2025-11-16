@@ -22,7 +22,6 @@ RUN npm run build
 FROM nginx:alpine
 
 # Install Node.js for health checks (optional)
-RUN apk add --no-cache nodejs npm
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
