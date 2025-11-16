@@ -122,12 +122,23 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
     };
   }, [options]);
 
+  // Log error details for developers
+  useEffect(() => {
+    if (error) {
+      // In production, replace with secure logging service
+      // eslint-disable-next-line no-console
+      console.error('Platform initialization error:', error);
+    }
+  }, [error]);
+
   // Show error state
   if (error) {
     return (
       <div style={{ padding: '20px', color: 'red' }}>
         <h2>Platform Initialization Error</h2>
-        <p>{error.message}</p>
+        <p>
+          An unexpected error occurred during platform initialization. Please contact support or try again later.
+        </p>
       </div>
     );
   }
