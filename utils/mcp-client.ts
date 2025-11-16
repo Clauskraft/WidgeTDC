@@ -4,7 +4,7 @@
  */
 
 import { getEnvConfig } from './env-validation';
-import { isValidJWTFormat, generateSecureToken } from './security';
+import { generateSecureToken } from './security';
 
 /**
  * Connection states
