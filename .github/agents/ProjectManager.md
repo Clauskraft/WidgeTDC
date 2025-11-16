@@ -1,9 +1,9 @@
 ---
 name: ProjectManager
+description: "Oversee timeline, budget, resources, and quality gates for WidgetTDC Enterprise Platform development across all phases."
 role: "Project Manager - WidgetTDC Enterprise Platform"
 status: "ACTIVE"
 assigned_to: "Claude Code Agent"
-
 ---
 
 # 📊 PROJECT MANAGER - WIDGETBOARD ENTERPRISE PLATFORM
