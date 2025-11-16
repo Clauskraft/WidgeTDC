@@ -16,6 +16,7 @@ import type {
   SecurityMetrics,
   AlertStatus,
   AlertSeverity,
+  AlertCategory,
 } from './types';
 
 export class InMemorySecurityOverwatchService implements SecurityOverwatchService {
@@ -251,7 +252,16 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
       info: 0,
     };
 
-    const alertsByCategory: Record<string, number> = {};
+    const alertsByCategory: Record<AlertCategory, number> = {
+      'network-intrusion': 0,
+      'malware': 0,
+      'vulnerability': 0,
+      'data-breach': 0,
+      'unauthorized-access': 0,
+      'compliance-violation': 0,
+      'configuration-issue': 0,
+      'suspicious-activity': 0,
+    };
     let totalResolveTime = 0;
     let resolvedCount = 0;
 
@@ -260,7 +270,7 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
         alertsBySeverity[alert.severity]++;
       }
 
-      alertsByCategory[alert.category] = (alertsByCategory[alert.category] || 0) + 1;
+      alertsByCategory[alert.category]++;
 
       if (alert.resolvedAt) {
         const resolveTime = alert.resolvedAt.getTime() - alert.detectedAt.getTime();
@@ -282,7 +292,7 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
 
     return {
       alertsBySeverity,
-      alertsByCategory: alertsByCategory as any,
+      alertsByCategory,
       meanTimeToResolve,
       totalVulnerabilities: this.vulnerabilities.length,
       criticalVulnerabilities,

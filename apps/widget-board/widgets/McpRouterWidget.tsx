@@ -256,6 +256,21 @@ const McpRouterWidget: React.FC = () => {
             fontSize: '12px',
           }}
         />
+        <input
+          type="text"
+          placeholder="Filter by target..."
+          value={filterTarget}
+          onChange={(e) => setFilterTarget(e.target.value)}
+          style={{
+            flex: 1,
+            padding: '8px',
+            backgroundColor: '#2a2a2a',
+            border: '1px solid #444',
+            borderRadius: '4px',
+            color: '#ffffff',
+            fontSize: '12px',
+          }}
+        />
       </div>
 
       {/* Message Stream */}
