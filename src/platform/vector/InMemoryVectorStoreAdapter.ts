@@ -159,10 +159,23 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
           if (typeof value !== 'number' || value > (filter.value as number)) return false;
           break;
         case 'in':
-          if (!Array.isArray(filter.value) || !filter.value.includes(value as any)) return false;
+          if (!Array.isArray(filter.value)) return false;
+          // Type guard: check type of first element in filter.value
+          if (filter.value.length === 0) return false;
+          {
+            const firstType = typeof filter.value[0];
+            if (typeof value !== firstType) return false;
+            if (!filter.value.includes(value)) return false;
+          }
           break;
         case 'nin':
-          if (!Array.isArray(filter.value) || filter.value.includes(value as any)) return false;
+          if (!Array.isArray(filter.value)) return false;
+          if (filter.value.length === 0) return true;
+          {
+            const firstType = typeof filter.value[0];
+            if (typeof value !== firstType) return true;
+            if (filter.value.includes(value)) return false;
+          }
           break;
         case 'contains':
           if (typeof value !== 'string' || !value.includes(filter.value as string)) return false;
