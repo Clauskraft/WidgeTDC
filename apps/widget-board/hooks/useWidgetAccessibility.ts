@@ -13,6 +13,6 @@ export const useWidgetAccessibility = (widgetId: string, title: string) => {
             liveRegion.textContent = `Widget '${title}' er fjernet.`;
         }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [widgetId, title]);
 };

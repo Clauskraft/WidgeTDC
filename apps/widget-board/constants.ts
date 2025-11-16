@@ -13,6 +13,11 @@ import MCPEmailRAGWidget from './widgets/MCPEmailRAGWidget';
 import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
 import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
 import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
+import CmaDecisionWidget from './widgets/CmaDecisionWidget';
+import SragGovernanceWidget from './widgets/SragGovernanceWidget';
+import EvolutionAgentWidget from './widgets/EvolutionAgentWidget';
+import McpRouterWidget from './widgets/McpRouterWidget';
+import AiPalWidget from './widgets/AiPalWidget';
 import { WidgetDefinition } from './types';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -149,5 +154,50 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     source: 'proprietary',
     minW: 6,
     minH: 8,
+  },
+  {
+    id: 'CmaDecisionWidget',
+    name: 'CMA Decision Assistant',
+    component: CmaDecisionWidget,
+    defaultLayout: { w: 7, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
+    id: 'SragGovernanceWidget',
+    name: 'SRAG Data Governance',
+    component: SragGovernanceWidget,
+    defaultLayout: { w: 8, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
+    id: 'EvolutionAgentWidget',
+    name: 'Evolution & KPI Monitor',
+    component: EvolutionAgentWidget,
+    defaultLayout: { w: 7, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
+    id: 'McpRouterWidget',
+    name: 'MCP Inspector',
+    component: McpRouterWidget,
+    defaultLayout: { w: 8, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
+    id: 'AiPalWidget',
+    name: 'AI PAL Assistant',
+    component: AiPalWidget,
+    defaultLayout: { w: 7, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
   }
 ];
