@@ -87,9 +87,32 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
       } catch (err) {
         if (mounted) {
           setError(err as Error);
-          console.error('Failed to initialize platform:', err);
+          // Log error to audit log if available
+          if (typeof options?.auditLog?.append === 'function') {
+            options.auditLog.append({
+              timestamp: new Date(),
+              domain: 'system',
+              sensitivity: 'internal',
+              actor: {
+                type: 'system',
+                id: 'platform',
+                name: 'Platform Bootstrap',
+              },
+              payload: {
+                action: 'platform.initialized',
+                outcome: 'error',
+                metadata: {
+                  error: (err instanceof Error) ? err.message : String(err),
+                },
+              },
+              retention: {
+                retentionDays: 365,
+                archiveBeforeDelete: true,
+                legalHold: false,
+              },
+            });
+          }
         }
-      }
     }
 
     initializePlatform();
