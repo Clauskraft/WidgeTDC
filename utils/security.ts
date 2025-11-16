@@ -282,7 +282,7 @@ export function sanitizeHTML(
       const tag = element.tagName.toLowerCase();
       
       if (!allowedTags.includes(tag)) {
-        return sanitize(element.childNodes[0]) || '';
+        return element.childNodes.length > 0 ? sanitize(element.childNodes[0]) : '';
       }
       
       const children = Array.from(element.childNodes)
