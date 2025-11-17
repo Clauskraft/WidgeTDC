@@ -1,0 +1,191 @@
+name: Agent Block 1 - Dashboard Shell UI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dashboard-ui:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create feature branch
+        run: |
+          git config user.name "AlexaGPT-Frontend"
+          git config user.email "alexa@widgettdc.ai"
+          git checkout -b agent/block-1-dashboard-ui
+
+      - name: Create React dashboard component
+        run: |
+          mkdir -p src/components/Dashboard
+          cat > src/components/Dashboard/Dashboard.tsx << 'EOF'
+          import React from 'react';
+          import './Dashboard.css';
+
+          interface DashboardProps {
+            title?: string;
+          }
+
+          export const Dashboard: React.FC<DashboardProps> = ({ title = 'WidgetTDC Dashboard' }) => {
+            return (
+              <div className="dashboard-container">
+                <aside className="dashboard-sidebar">
+                  <div className="sidebar-header">
+                    <h2>WidgetTDC</h2>
+                  </div>
+                  <nav className="sidebar-nav">
+                    <ul>
+                      <li><a href="#widgets">Widgets</a></li>
+                      <li><a href="#registry">Registry</a></li>
+                      <li><a href="#audit">Audit Log</a></li>
+                      <li><a href="#settings">Settings</a></li>
+                    </ul>
+                  </nav>
+                </aside>
+                <main className="dashboard-main">
+                  <header className="dashboard-header">
+                    <h1>{title}</h1>
+                  </header>
+                  <div className="dashboard-content">
+                    <p>Dashboard shell ready for widget integration</p>
+                  </div>
+                </main>
+              </div>
+            );
+          };
+          EOF
+
+      - name: Create dashboard CSS styling
+        run: |
+          cat > src/components/Dashboard/Dashboard.css << 'EOF'
+          .dashboard-container {
+            display: flex;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+          }
+
+          .dashboard-sidebar {
+            width: 250px;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+          }
+
+          .sidebar-header h2 {
+            margin: 0 0 30px 0;
+            font-size: 24px;
+            font-weight: 600;
+          }
+
+          .sidebar-nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+          }
+
+          .sidebar-nav li {
+            margin-bottom: 15px;
+          }
+
+          .sidebar-nav a {
+            color: #b8b8d1;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+          }
+
+          .sidebar-nav a:hover {
+            color: #ffffff;
+          }
+
+          .dashboard-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f5f5;
+          }
+
+          .dashboard-header {
+            background-color: #ffffff;
+            padding: 20px 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          }
+
+          .dashboard-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+            color: #1a1a2e;
+          }
+
+          .dashboard-content {
+            flex: 1;
+            padding: 30px;
+          }
+          EOF
+
+      - name: Create index file
+        run: |
+          cat > src/components/Dashboard/index.ts << 'EOF'
+          export { Dashboard } from './Dashboard';
+          EOF
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "feat: Add React dashboard shell UI with sidebar navigation
+
+- Created Dashboard component with TypeScript
+- Implemented responsive sidebar navigation
+- Added modern CSS styling with dark sidebar theme
+- Ready for widget registry integration
+
+Agent: AlexaGPT-Frontend
+Block: 1 of 6
+Points: 18"
+
+      - name: Push feature branch
+        run: git push origin agent/block-1-dashboard-ui
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --title "Block 1: Dashboard Shell UI Implementation" \
+            --body "## Dashboard Shell UI - AlexaGPT-Frontend
+
+### Completed Tasks
+- React dashboard component with TypeScript
+- Sidebar navigation structure
+- Modern CSS styling with responsive layout
+- Dark theme sidebar with light content area
+
+### Technical Details
+- Component: Dashboard.tsx
+- Styling: Dashboard.css
+- Export: index.ts
+
+### Ready For
+- Widget Registry integration (Block 2)
+- Content area population
+
+**Agent:** AlexaGPT-Frontend
+**Block:** 1 of 6
+**Points:** 18" \
+            --base main \
+            --head agent/block-1-dashboard-ui

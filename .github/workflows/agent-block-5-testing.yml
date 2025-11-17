@@ -1,0 +1,473 @@
+name: Agent Block 5 - QASpecialist
+
+on:
+  workflow_run:
+    workflows: ["Agent Block 4 - DatabaseMaster"]
+    types:
+      - completed
+  workflow_dispatch:
+
+env:
+  AGENT_NAME: QASpecialist
+  BLOCK_NUMBER: 5
+  STORY_POINTS: 32
+
+jobs:
+  testing-infrastructure:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "QASpecialist Agent"
+          git config user.email "qaspecialist@widgettdc.dev"
+
+      - name: Create feature branch
+        run: |
+          BRANCH_NAME="agent/block-5-testing-infrastructure"
+          git checkout -b $BRANCH_NAME
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Create testing directory structure
+        run: |
+          mkdir -p tests/unit
+          mkdir -p tests/integration
+          mkdir -p tests/e2e
+          mkdir -p tests/fixtures
+          mkdir -p tests/helpers
+          echo "Testing directories created"
+
+      - name: Create Jest configuration
+        run: |
+          cat > jest.config.js << 'EOF'
+          module.exports = {
+            testEnvironment: 'node',
+            coverageDirectory: 'coverage',
+            collectCoverageFrom: [
+              'src/**/*.{js,jsx}',
+              '!src/**/*.test.{js,jsx}',
+              '!src/**/__tests__/**'
+            ],
+            coverageThreshold: {
+              global: {
+                branches: 80,
+                functions: 80,
+                lines: 80,
+                statements: 80
+              }
+            },
+            testMatch: [
+              '**/__tests__/**/*.{js,jsx}',
+              '**/?(*.)+(spec|test).{js,jsx}'
+            ],
+            setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
+            testTimeout: 10000
+          };
+          EOF
+
+      - name: Create test setup file
+        run: |
+          cat > tests/setup.js << 'EOF'
+          // Global test setup
+          beforeAll(() => {
+            process.env.NODE_ENV = 'test';
+            process.env.DB_NAME = 'widgettdc_test';
+          });
+
+          afterAll(() => {
+            // Cleanup connections
+          });
+
+          global.testTimeout = (ms) => {
+            jest.setTimeout(ms);
+          };
+          EOF
+
+      - name: Create database test helpers
+        run: |
+          cat > tests/helpers/dbHelper.js << 'EOF'
+          const { Sequelize } = require('sequelize');
+
+          class DatabaseTestHelper {
+            constructor() {
+              this.sequelize = new Sequelize({
+                dialect: 'postgres',
+                host: 'localhost',
+                port: 5432,
+                database: 'widgettdc_test',
+                username: 'postgres',
+                password: 'password',
+                logging: false
+              });
+            }
+
+            async connect() {
+              await this.sequelize.authenticate();
+            }
+
+            async disconnect() {
+              await this.sequelize.close();
+            }
+
+            async clearDatabase() {
+              await this.sequelize.query('TRUNCATE TABLE users, widgets CASCADE');
+            }
+
+            async createTestUser(overrides = {}) {
+              const User = require('../../database/models/User')(this.sequelize);
+              return await User.create({
+                username: 'testuser',
+                email: 'test@example.com',
+                passwordHash: 'hashed_password',
+                ...overrides
+              });
+            }
+
+            async createTestWidget(userId, overrides = {}) {
+              const Widget = require('../../database/models/Widget')(this.sequelize);
+              return await Widget.create({
+                name: 'Test Widget',
+                version: '1.0.0',
+                price: 99.99,
+                ownerId: userId,
+                ...overrides
+              });
+            }
+          }
+
+          module.exports = DatabaseTestHelper;
+          EOF
+
+      - name: Create API test helpers
+        run: |
+          cat > tests/helpers/apiHelper.js << 'EOF'
+          const request = require('supertest');
+
+          class APITestHelper {
+            constructor(app) {
+              this.app = app;
+              this.token = null;
+            }
+
+            async login(email, password) {
+              const response = await request(this.app)
+                .post('/api/auth/login')
+                .send({ email, password });
+
+              this.token = response.body.accessToken;
+              return response;
+            }
+
+            async authenticatedRequest(method, path, body = null) {
+              const req = request(this.app)[method](path)
+                .set('Authorization', `Bearer ${this.token}`);
+
+              if (body) {
+                req.send(body);
+              }
+
+              return await req;
+            }
+
+            async get(path) {
+              return this.authenticatedRequest('get', path);
+            }
+
+            async post(path, body) {
+              return this.authenticatedRequest('post', path, body);
+            }
+
+            async put(path, body) {
+              return this.authenticatedRequest('put', path, body);
+            }
+
+            async delete(path) {
+              return this.authenticatedRequest('delete', path);
+            }
+          }
+
+          module.exports = APITestHelper;
+          EOF
+
+      - name: Create unit test for User model
+        run: |
+          cat > tests/unit/userModel.test.js << 'EOF'
+          const DatabaseTestHelper = require('../helpers/dbHelper');
+
+          describe('User Model', () => {
+            let dbHelper;
+
+            beforeAll(async () => {
+              dbHelper = new DatabaseTestHelper();
+              await dbHelper.connect();
+            });
+
+            afterAll(async () => {
+              await dbHelper.disconnect();
+            });
+
+            beforeEach(async () => {
+              await dbHelper.clearDatabase();
+            });
+
+            test('should create a user with valid data', async () => {
+              const user = await dbHelper.createTestUser({
+                username: 'john_doe',
+                email: 'john@example.com'
+              });
+
+              expect(user.id).toBeDefined();
+              expect(user.username).toBe('john_doe');
+              expect(user.email).toBe('john@example.com');
+              expect(user.isActive).toBe(true);
+            });
+
+            test('should enforce unique username constraint', async () => {
+              await dbHelper.createTestUser({ username: 'duplicate' });
+
+              await expect(
+                dbHelper.createTestUser({
+                  username: 'duplicate',
+                  email: 'different@example.com'
+                })
+              ).rejects.toThrow();
+            });
+
+            test('should enforce unique email constraint', async () => {
+              await dbHelper.createTestUser({ email: 'same@example.com' });
+
+              await expect(
+                dbHelper.createTestUser({
+                  username: 'different',
+                  email: 'same@example.com'
+                })
+              ).rejects.toThrow();
+            });
+
+            test('should validate email format', async () => {
+              await expect(
+                dbHelper.createTestUser({ email: 'invalid-email' })
+              ).rejects.toThrow();
+            });
+          });
+          EOF
+
+      - name: Create integration test for Widget API
+        run: |
+          cat > tests/integration/widgetApi.test.js << 'EOF'
+          const DatabaseTestHelper = require('../helpers/dbHelper');
+          const APITestHelper = require('../helpers/apiHelper');
+
+          describe('Widget API Integration', () => {
+            let dbHelper;
+            let apiHelper;
+            let testUser;
+
+            beforeAll(async () => {
+              dbHelper = new DatabaseTestHelper();
+              await dbHelper.connect();
+            });
+
+            afterAll(async () => {
+              await dbHelper.disconnect();
+            });
+
+            beforeEach(async () => {
+              await dbHelper.clearDatabase();
+              testUser = await dbHelper.createTestUser();
+              apiHelper = new APITestHelper(app);
+              await apiHelper.login(testUser.email, 'password');
+            });
+
+            test('GET /api/widgets should return all widgets', async () => {
+              await dbHelper.createTestWidget(testUser.id);
+              await dbHelper.createTestWidget(testUser.id, { name: 'Widget 2' });
+
+              const response = await apiHelper.get('/api/widgets');
+
+              expect(response.status).toBe(200);
+              expect(response.body).toHaveLength(2);
+            });
+
+            test('POST /api/widgets should create a new widget', async () => {
+              const widgetData = {
+                name: 'New Widget',
+                version: '1.0.0',
+                price: 49.99,
+                description: 'Test widget'
+              };
+
+              const response = await apiHelper.post('/api/widgets', widgetData);
+
+              expect(response.status).toBe(201);
+              expect(response.body.name).toBe('New Widget');
+              expect(response.body.ownerId).toBe(testUser.id);
+            });
+
+            test('PUT /api/widgets/:id should update widget', async () => {
+              const widget = await dbHelper.createTestWidget(testUser.id);
+
+              const response = await apiHelper.put(`/api/widgets/${widget.id}`, {
+                price: 79.99
+              });
+
+              expect(response.status).toBe(200);
+              expect(response.body.price).toBe('79.99');
+            });
+
+            test('DELETE /api/widgets/:id should delete widget', async () => {
+              const widget = await dbHelper.createTestWidget(testUser.id);
+
+              const response = await apiHelper.delete(`/api/widgets/${widget.id}`);
+
+              expect(response.status).toBe(204);
+            });
+          });
+          EOF
+
+      - name: Create E2E test configuration
+        run: |
+          cat > tests/e2e/playwright.config.js << 'EOF'
+          module.exports = {
+            testDir: './tests/e2e',
+            timeout: 30000,
+            retries: 2,
+            use: {
+              baseURL: 'http://localhost:3000',
+              screenshot: 'only-on-failure',
+              video: 'retain-on-failure',
+              trace: 'on-first-retry'
+            },
+            projects: [
+              {
+                name: 'chromium',
+                use: { browserName: 'chromium' }
+              }
+            ]
+          };
+          EOF
+
+      - name: Create E2E authentication test
+        run: |
+          cat > tests/e2e/auth.spec.js << 'EOF'
+          const { test, expect } = require('@playwright/test');
+
+          test.describe('Authentication Flow', () => {
+            test('should successfully login with valid credentials', async ({ page }) => {
+              await page.goto('/login');
+
+              await page.fill('input[name="email"]', 'admin@widgettdc.dev');
+              await page.fill('input[name="password"]', 'password');
+              await page.click('button[type="submit"]');
+
+              await expect(page).toHaveURL('/dashboard');
+              await expect(page.locator('text=Welcome')).toBeVisible();
+            });
+
+            test('should show error with invalid credentials', async ({ page }) => {
+              await page.goto('/login');
+
+              await page.fill('input[name="email"]', 'wrong@example.com');
+              await page.fill('input[name="password"]', 'wrongpass');
+              await page.click('button[type="submit"]');
+
+              await expect(page.locator('.error-message')).toBeVisible();
+              await expect(page.locator('.error-message')).toContainText('Invalid credentials');
+            });
+
+            test('should logout successfully', async ({ page }) => {
+              await page.goto('/login');
+              await page.fill('input[name="email"]', 'admin@widgettdc.dev');
+              await page.fill('input[name="password"]', 'password');
+              await page.click('button[type="submit"]');
+
+              await page.click('button[aria-label="Logout"]');
+
+              await expect(page).toHaveURL('/login');
+            });
+          });
+          EOF
+
+      - name: Create test fixtures
+        run: |
+          cat > tests/fixtures/users.json << 'EOF'
+          [
+            {
+              "id": "550e8400-e29b-41d4-a716-446655440000",
+              "username": "testadmin",
+              "email": "admin@test.com",
+              "role": "admin",
+              "isActive": true,
+              "isVerified": true
+            },
+            {
+              "id": "550e8400-e29b-41d4-a716-446655440001",
+              "username": "testdev",
+              "email": "dev@test.com",
+              "role": "developer",
+              "isActive": true,
+              "isVerified": true
+            }
+          ]
+          EOF
+
+      - name: Commit testing infrastructure
+        run: |
+          git add .
+          git commit -m "Agent: QASpecialist | Block: 5 | Points: 32
+
+          Implement comprehensive testing infrastructure
+
+          - Jest configuration with coverage thresholds
+          - Database test helpers with cleanup utilities
+          - API test helpers with authentication
+          - Unit tests for User model
+          - Integration tests for Widget API
+          - E2E tests with Playwright
+          - Test fixtures and setup files
+
+          Dependencies: Block 4 (DatabaseMaster)"
+
+      - name: Push feature branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin $BRANCH_NAME
+
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --title "Block 5: QASpecialist - Testing Infrastructure (32 points)" \
+            --body "## QASpecialist Agent - Block 5
+
+          **Story Points:** 32
+          **Agent:** QASpecialist
+          **Block Number:** 5
+
+          ### Implementation Summary
+          Complete testing infrastructure with unit, integration, and E2E tests
+
+          ### Changes Made
+          - Jest configuration with 80% coverage threshold
+          - Database test helpers with cleanup
+          - API test helpers with authentication
+          - Unit tests for data models
+          - Integration tests for API endpoints
+          - E2E tests with Playwright
+          - Test fixtures and seed data
+
+          ### Dependencies
+          - Depends on: Block 4 (DatabaseMaster)
+          - Blocks: Block 6 (SecurityCompliance)
+
+          Agent: QASpecialist | Block: 5 | Points: 32" \
+            --base main \
+            --head $BRANCH_NAME
