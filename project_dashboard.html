@@ -27,7 +27,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
         }
 
@@ -83,8 +83,21 @@
 
         .kanban {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1400px) {
+            .kanban {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .kanban {
+                grid-template-columns: 1fr;
+            }
         }
 
         .kanban-column {
@@ -92,7 +105,23 @@
             border: 2px solid var(--border-color);
             border-radius: 8px;
             padding: 15px;
-            min-height: 300px;
+            min-height: 500px;
+        }
+
+        .kanban-column.todo {
+            border-top: 4px solid var(--border-color);
+        }
+
+        .kanban-column.in-progress {
+            border-top: 4px solid var(--warning);
+        }
+
+        .kanban-column.blocked {
+            border-top: 4px solid var(--danger);
+        }
+
+        .kanban-column.completed {
+            border-top: 4px solid var(--success);
         }
 
         .kanban-header {
@@ -106,6 +135,21 @@
             padding-bottom: 10px;
         }
 
+        .kanban-column.in-progress .kanban-header {
+            color: var(--warning);
+            border-bottom-color: var(--warning);
+        }
+
+        .kanban-column.blocked .kanban-header {
+            color: var(--danger);
+            border-bottom-color: var(--danger);
+        }
+
+        .kanban-column.completed .kanban-header {
+            color: var(--success);
+            border-bottom-color: var(--success);
+        }
+
         .kanban-item {
             background-color: var(--card-bg);
             border-left: 4px solid var(--primary);
@@ -114,14 +158,34 @@
             margin-bottom: 10px;
             font-size: 13px;
             word-wrap: break-word;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .kanban-item.in-progress {
             border-left-color: var(--warning);
         }
 
+        .kanban-item.blocked {
+            border-left-color: var(--danger);
+            opacity: 0.8;
+        }
+
         .kanban-item.completed {
             border-left-color: var(--success);
+            opacity: 0.7;
+        }
+
+        .kanban-item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .kanban-item-points {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 5px;
+            padding-top: 5px;
+            border-top: 1px solid var(--border-color);
         }
 
         .status-indicator {
@@ -140,37 +204,6 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
-        }
-
-        .metric-card {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .metric-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-
-        .metric-label {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .two-column {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 1024px) {
-            .two-column {
-                grid-template-columns: 1fr;
-            }
         }
 
         .status-badge {
@@ -207,6 +240,31 @@
             font-size: 14px;
             font-weight: bold;
             color: var(--text);
+        }
+
+        .column-count {
+            display: inline-block;
+            background-color: rgba(59, 130, 246, 0.2);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        .column-count.warning {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .column-count.danger {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .column-count.success {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success);
         }
     </style>
 </head>
@@ -245,19 +303,10 @@
             </div>
         </div>
 
-        <div class="two-column">
-            <div class="card">
-                <h2>Sprint Backlog (6 Task Blocks)</h2>
-                <div class="kanban" id="kanban-board">
-                    <!-- Kanban columns will be rendered by JavaScript -->
-                </div>
-            </div>
-
-            <div class="card">
-                <h2>Key Metrics</h2>
-                <div class="grid" id="metrics-grid">
-                    <!-- Metrics will be rendered by JavaScript -->
-                </div>
+        <div class="card">
+            <h2>Sprint Kanban Board</h2>
+            <div class="kanban" id="kanban-board">
+                <!-- Kanban columns will be rendered by JavaScript -->
             </div>
         </div>
 
@@ -334,93 +383,107 @@
                         'Remediation - 6 pts'
                     ]
                 }
-            },
-            metrics: {
-                'Completed Points': 0,
-                'In Progress': 0,
-                'Blocked': 0,
-                'Remaining': 184
             }
         };
 
-        // Calculate metrics
-        function updateMetrics() {
-            let completed = 0;
-            let remaining = sprintData.totalPoints;
+        // Calculate status counts
+        function getStatusCounts() {
+            let todo = 0;
             let inProgress = 0;
             let blocked = 0;
+            let completed = 0;
+            let totalCompleted = 0;
 
             for (const [taskName, taskData] of Object.entries(sprintData.tasks)) {
                 if (taskData.status === 'completed') {
-                    completed += taskData.points;
-                    remaining -= taskData.points;
+                    completed++;
+                    totalCompleted += taskData.points;
                 } else if (taskData.status === 'in-progress') {
-                    inProgress += taskData.points;
-                    remaining -= taskData.points;
+                    inProgress++;
                 } else if (taskData.status === 'blocked') {
-                    blocked += taskData.points;
-                    remaining -= taskData.points;
+                    blocked++;
+                } else {
+                    todo++;
                 }
             }
 
-            sprintData.metrics = {
-                'Completed Points': completed,
-                'In Progress': inProgress,
-                'Blocked': blocked,
-                'Remaining': remaining
-            };
-
-            sprintData.completedPoints = completed;
+            sprintData.completedPoints = totalCompleted;
+            return { todo, inProgress, blocked, completed };
         }
 
-        // Render Kanban board
+        // Render Kanban board organized by status
         function renderKanban() {
             const kanbanBoard = document.getElementById('kanban-board');
             kanbanBoard.innerHTML = '';
 
-            for (const [taskName, taskData] of Object.entries(sprintData.tasks)) {
+            const statuses = ['todo', 'in-progress', 'blocked', 'completed'];
+            const statusLabels = {
+                'todo': 'TO DO',
+                'in-progress': 'IN PROGRESS',
+                'blocked': 'BLOCKED',
+                'completed': 'COMPLETED'
+            };
+            const statusColors = {
+                'todo': '#334155',
+                'in-progress': '#f59e0b',
+                'blocked': '#ef4444',
+                'completed': '#10b981'
+            };
+
+            statuses.forEach(status => {
                 const column = document.createElement('div');
-                column.className = 'kanban-column';
+                column.className = `kanban-column ${status}`;
 
                 const header = document.createElement('div');
                 header.className = 'kanban-header';
-                header.innerHTML = `<span>${taskName}</span><br><span style="font-size: 12px; color: var(--primary);">${taskData.points} pts</span>`;
+
+                const tasksInStatus = Object.entries(sprintData.tasks).filter(([_, task]) => task.status === status);
+                const pointsInStatus = tasksInStatus.reduce((sum, [_, task]) => sum + task.points, 0);
+                const countBadge = document.createElement('span');
+                countBadge.className = `column-count ${status === 'in-progress' ? 'warning' : status === 'blocked' ? 'danger' : status === 'completed' ? 'success' : ''}`;
+                countBadge.textContent = `${tasksInStatus.length} (${pointsInStatus} pts)`;
+
+                header.innerHTML = `${statusLabels[status]}`;
+                header.appendChild(countBadge);
                 column.appendChild(header);
 
                 const itemsContainer = document.createElement('div');
-                taskData.subtasks.forEach(subtask => {
+                tasksInStatus.forEach(([taskName, taskData]) => {
                     const item = document.createElement('div');
-                    item.className = `kanban-item ${taskData.status}`;
-                    item.textContent = subtask;
+                    item.className = `kanban-item ${status}`;
+
+                    const title = document.createElement('div');
+                    title.className = 'kanban-item-title';
+                    title.textContent = taskName;
+                    item.appendChild(title);
+
+                    taskData.subtasks.forEach(subtask => {
+                        const subtaskText = document.createElement('div');
+                        subtaskText.style.fontSize = '11px';
+                        subtaskText.style.color = 'var(--text-muted)';
+                        subtaskText.style.marginTop = '4px';
+                        subtaskText.textContent = '• ' + subtask;
+                        item.appendChild(subtaskText);
+                    });
+
+                    const points = document.createElement('div');
+                    points.className = 'kanban-item-points';
+                    points.textContent = `${taskData.points} story points`;
+                    item.appendChild(points);
+
                     itemsContainer.appendChild(item);
                 });
+
+                if (tasksInStatus.length === 0) {
+                    const emptyMsg = document.createElement('div');
+                    emptyMsg.className = 'kanban-item';
+                    emptyMsg.textContent = 'No tasks';
+                    emptyMsg.style.opacity = '0.5';
+                    itemsContainer.appendChild(emptyMsg);
+                }
+
                 column.appendChild(itemsContainer);
-
                 kanbanBoard.appendChild(column);
-            }
-        }
-
-        // Render metrics
-        function renderMetrics() {
-            const metricsGrid = document.getElementById('metrics-grid');
-            metricsGrid.innerHTML = '';
-
-            const metricItems = [
-                { label: 'Completed', value: sprintData.metrics['Completed Points'], color: 'var(--success)' },
-                { label: 'In Progress', value: sprintData.metrics['In Progress'], color: 'var(--warning)' },
-                { label: 'Blocked', value: sprintData.metrics['Blocked'], color: 'var(--danger)' },
-                { label: 'Remaining', value: sprintData.metrics['Remaining'], color: 'var(--primary)' }
-            ];
-
-            metricItems.forEach(metric => {
-                const card = document.createElement('div');
-                card.className = 'card metric-card';
-                card.style.borderLeft = `4px solid ${metric.color}`;
-                card.innerHTML = `
-                    <div class="metric-label">${metric.label}</div>
-                    <div class="metric-value" style="color: ${metric.color};">${metric.value} pts</div>
-                `;
-                metricsGrid.appendChild(card);
             });
         }
 
@@ -516,37 +579,31 @@
 
         // Initialize dashboard
         function initDashboard() {
-            updateMetrics();
+            getStatusCounts();
             renderKanban();
-            renderMetrics();
             updateProgressBar();
             renderTimelineChart();
             renderDistributionChart();
         }
 
-        // Simulate progress (for demonstration - update manually in production)
-        function simulateProgress() {
-            // Uncomment to enable auto-progress for demo
-            // setInterval(() => {
-            //     const taskKeys = Object.keys(sprintData.tasks);
-            //     const randomTask = taskKeys[Math.floor(Math.random() * taskKeys.length)];
-            //     if (sprintData.tasks[randomTask].status === 'todo') {
-            //         sprintData.tasks[randomTask].status = 'in-progress';
-            //     } else if (sprintData.tasks[randomTask].status === 'in-progress' && Math.random() > 0.5) {
-            //         sprintData.tasks[randomTask].status = 'completed';
-            //     }
-            //     updateMetrics();
-            //     renderKanban();
-            //     renderMetrics();
-            //     updateProgressBar();
-            // }, 5000);
-        }
-
         // Run on load
         window.addEventListener('load', () => {
             initDashboard();
-            simulateProgress();
         });
+
+        // Expose API for updating tasks from external systems
+        window.updateTaskStatus = function(taskName, newStatus) {
+            if (sprintData.tasks[taskName]) {
+                sprintData.tasks[taskName].status = newStatus;
+                initDashboard();
+                return true;
+            }
+            return false;
+        };
+
+        window.getSprintData = function() {
+            return sprintData;
+        };
     </script>
 </body>
 </html>
