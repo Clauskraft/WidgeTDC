@@ -29,7 +29,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🔍 Discover agent PRs
+      - name: Discover agent PRs
         id: find_prs
         run: |
           echo "Looking for agent PRs ready for merge..."
@@ -45,7 +45,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 📊 Validate agent PR quality
+      - name: Validate agent PR quality
         run: |
           echo "Validating PR quality metrics..."
 
@@ -76,7 +76,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: ✅ Approve and merge PRs
+      - name: Approve and merge PRs
         run: |
           echo "Processing agent PRs for merge..."
 
@@ -111,7 +111,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 🔄 Update kanban board status
+      - name: Update kanban board status
         run: |
           echo "Updating kanban board with merge status..."
 
@@ -151,7 +151,7 @@ jobs:
 
           echo "$DASHBOARD" > project_dashboard.html
 
-      - name: 📈 Generate merge summary
+      - name: Generate merge summary
         run: |
           cat > MERGE_SUMMARY.md << 'EOF'
           # HansPedder Merge Summary
@@ -189,7 +189,7 @@ jobs:
 
           cat MERGE_SUMMARY.md
 
-      - name: 🚀 Commit kanban updates
+      - name: Commit kanban updates
         run: |
           git config user.name "HansPedder"
           git config user.email "hanspedder@widgetboard.dev"
@@ -214,7 +214,7 @@ jobs:
 
           git push origin main
 
-      - name: 📢 Create completion report
+      - name: Create completion report
         run: |
           echo "## 🎯 Phase 1.B Agent Wave Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

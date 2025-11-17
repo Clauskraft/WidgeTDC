@@ -20,13 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: 🌿 Create agent branch
+      - name: Create agent branch
         run: |
           git config user.name "CryptographyExpert"
           git config user.email "agent-block-3@widgetboard.dev"
           git checkout -b ${{ env.BRANCH }} || git checkout ${{ env.BRANCH }}
 
-      - name: 📝 Task 3.1: SHA-256 Hash Chain Implementation (18 pts)
+      - name: Task 3.1: SHA-256 Hash Chain Implementation (18 pts)
         run: |
           mkdir -p packages/audit-log/src
           cat > packages/audit-log/src/hash-chain.ts << 'EOF'
@@ -176,7 +176,7 @@ jobs:
           EOF
           git add packages/audit-log/src/hash-chain.ts
 
-      - name: 📝 Task 3.1 Continued: Integrity Checking (18 pts)
+      - name: Task 3.1 Continued: Integrity Checking (18 pts)
         run: |
           cat > packages/audit-log/src/integrity-check.ts << 'EOF'
           import { SHA256HashChain, ChainIntegrityResult } from './hash-chain';
@@ -243,7 +243,7 @@ jobs:
           EOF
           git add packages/audit-log/src/integrity-check.ts
 
-      - name: 📝 Task 3.2: GDPR Compliance Framework (14 pts)
+      - name: Task 3.2: GDPR Compliance Framework (14 pts)
         run: |
           cat > packages/audit-log/src/gdpr-compliance.ts << 'EOF'
           import { SHA256HashChain, HashChainEntry } from './hash-chain';
@@ -381,7 +381,7 @@ jobs:
           EOF
           git add packages/audit-log/src/gdpr-compliance.ts
 
-      - name: 📝 Task 3.3: Audit Trail UI Implementation (8 pts)
+      - name: Task 3.3: Audit Trail UI Implementation (8 pts)
         run: |
           mkdir -p apps/widget-board/src/components/AuditLog
           cat > apps/widget-board/src/components/AuditLog/AuditViewer.tsx << 'EOF'
@@ -583,7 +583,7 @@ jobs:
           EOF
           git add apps/widget-board/src/components/AuditLog/AuditViewer.tsx
 
-      - name: 🎨 Task 3.3 Continued: Audit Viewer Styles (8 pts)
+      - name: Task 3.3 Continued: Audit Viewer Styles (8 pts)
         run: |
           cat > apps/widget-board/src/components/AuditLog/AuditViewer.css << 'EOF'
           .audit-viewer {
@@ -726,7 +726,7 @@ jobs:
           EOF
           git add apps/widget-board/src/components/AuditLog/AuditViewer.css
 
-      - name: 🎯 Task 3.3 Continued: Custom Hook (8 pts)
+      - name: Task 3.3 Continued: Custom Hook (8 pts)
         run: |
           cat > apps/widget-board/src/hooks/useAuditLog.ts << 'EOF'
           import { useState, useCallback, useEffect } from 'react';
@@ -809,7 +809,7 @@ jobs:
           EOF
           git add apps/widget-board/src/hooks/useAuditLog.ts
 
-      - name: ✅ Commit Block 3
+      - name: Commit Block 3
         run: |
           git commit -m "🔐 Block 3: Audit Log Hash-Chain System (40 pts) - CryptographyExpert
 
@@ -843,10 +843,10 @@ jobs:
           Test Coverage: 92%+
           Status: Ready for merge review"
 
-      - name: 🚀 Push to agent branch
+      - name: Push to agent branch
         run: git push -u origin ${{ env.BRANCH }} --force
 
-      - name: 📢 Create Pull Request
+      - name: Create Pull Request
         uses: actions/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

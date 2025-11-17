@@ -20,13 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: 🌿 Create agent branch
+      - name: Create agent branch
         run: |
           git config user.name "SecurityCompliance"
           git config user.email "agent-block-6@widgetboard.dev"
           git checkout -b ${{ env.BRANCH }} || git checkout ${{ env.BRANCH }}
 
-      - name: 📝 Task 6.1: Security Architecture Review (12 pts)
+      - name: Task 6.1: Security Architecture Review (12 pts)
         run: |
           mkdir -p claudedocs
           cat > claudedocs/SECURITY_ARCHITECTURE.md << 'EOF'
@@ -275,7 +275,7 @@ jobs:
           EOF
           git add claudedocs/THREAT_MODEL.md
 
-      - name: 📝 Task 6.2: Compliance Audit (GDPR/ISO/SOC2) (10 pts)
+      - name: Task 6.2: Compliance Audit (GDPR/ISO/SOC2) (10 pts)
         run: |
           cat > claudedocs/GDPR_CHECKLIST.md << 'EOF'
           # GDPR Compliance Checklist
@@ -512,7 +512,7 @@ jobs:
           EOF
           git add claudedocs/SOC2_COMPLIANCE.md
 
-      - name: 📝 Task 6.3: Remediation of Findings (6 pts)
+      - name: Task 6.3: Remediation of Findings (6 pts)
         run: |
           cat > .github/SECURITY.md << 'EOF'
           # Security Policy
@@ -722,7 +722,7 @@ jobs:
           EOF
           git add claudedocs/REMEDIATION_PLAN.md
 
-      - name: ✅ Commit Block 6
+      - name: Commit Block 6
         run: |
           git commit -m "🔒 Block 6: Security & Compliance Review (28 pts) - SecurityCompliance
 
@@ -787,10 +787,10 @@ jobs:
           Test Coverage: 94%+
           Status: Ready for merge review"
 
-      - name: 🚀 Push to agent branch
+      - name: Push to agent branch
         run: git push -u origin ${{ env.BRANCH }} --force
 
-      - name: 📢 Create Pull Request
+      - name: Create Pull Request
         uses: actions/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

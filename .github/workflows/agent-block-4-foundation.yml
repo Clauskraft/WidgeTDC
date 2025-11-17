@@ -20,13 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: 🌿 Create agent branch
+      - name: Create agent branch
         run: |
           git config user.name "DatabaseMaster"
           git config user.email "agent-block-4@widgetboard.dev"
           git checkout -b ${{ env.BRANCH }} || git checkout ${{ env.BRANCH }}
 
-      - name: 📝 Task 4.1: Database Migration Plan & Execution (16 pts)
+      - name: Task 4.1: Database Migration Plan & Execution (16 pts)
         run: |
           mkdir -p scripts/migrations packages/database/src
           cat > scripts/migrations/001_initial_schema.sql << 'EOF'
@@ -235,7 +235,7 @@ jobs:
           EOF
           git add packages/database/src/migration-manager.ts
 
-      - name: 📝 Task 4.2: Authentication Architecture (18 pts)
+      - name: Task 4.2: Authentication Architecture (18 pts)
         run: |
           cat > packages/database/src/auth-service.ts << 'EOF'
           import crypto from 'crypto';
@@ -396,7 +396,7 @@ jobs:
           EOF
           git add packages/database/src/auth-service.ts
 
-      - name: 📝 Task 4.3: Observability & Monitoring Setup (16 pts)
+      - name: Task 4.3: Observability & Monitoring Setup (16 pts)
         run: |
           cat > packages/database/src/observability.ts << 'EOF'
           import { metrics, context, SpanStatusCode } from '@opentelemetry/api';
@@ -515,7 +515,7 @@ jobs:
           EOF
           git add packages/database/src/observability.ts
 
-      - name: 🔧 Task 4.3 Continued: OpenTelemetry Configuration
+      - name: Task 4.3 Continued: OpenTelemetry Configuration
         run: |
           cat > apps/api/otel-config.ts << 'EOF'
           import { NodeSDK } from '@opentelemetry/sdk-node';
@@ -548,7 +548,7 @@ jobs:
           EOF
           git add apps/api/otel-config.ts
 
-      - name: ✅ Commit Block 4
+      - name: Commit Block 4
         run: |
           git commit -m "🗄️ Block 4: Foundation Systems - Database & Auth (50 pts) - DatabaseMaster
 
@@ -595,10 +595,10 @@ jobs:
           Test Coverage: 88%+
           Status: Ready for merge review"
 
-      - name: 🚀 Push to agent branch
+      - name: Push to agent branch
         run: git push -u origin ${{ env.BRANCH }} --force
 
-      - name: 📢 Create Pull Request
+      - name: Create Pull Request
         uses: actions/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

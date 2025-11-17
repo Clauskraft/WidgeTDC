@@ -20,13 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: 🌿 Create agent branch
+      - name: Create agent branch
         run: |
           git config user.name "GoogleCloudArch"
           git config user.email "agent-block-2@widgetboard.dev"
           git checkout -b ${{ env.BRANCH }} || git checkout ${{ env.BRANCH }}
 
-      - name: 📝 Task 2.1: Type-safe Widget Discovery (14 pts)
+      - name: Task 2.1: Type-safe Widget Discovery (14 pts)
         run: |
           mkdir -p packages/types packages/widget-registry/src
           cat > packages/types/widget-registry.ts << 'EOF'
@@ -72,7 +72,7 @@ jobs:
           EOF
           git add packages/types/widget-registry.ts
 
-      - name: 📝 Task 2.2: Versioning System (12 pts)
+      - name: Task 2.2: Versioning System (12 pts)
         run: |
           cat > packages/widget-registry/src/versioning.ts << 'EOF'
           export class WidgetVersioning {
@@ -98,7 +98,7 @@ jobs:
           EOF
           git add packages/widget-registry/src/versioning.ts
 
-      - name: 📝 Task 2.3: Capability-based Filtering (16 pts)
+      - name: Task 2.3: Capability-based Filtering (16 pts)
         run: |
           cat > packages/widget-registry/src/capabilities.ts << 'EOF'
           export class CapabilityFilter {
@@ -132,7 +132,7 @@ jobs:
           EOF
           git add packages/widget-registry/src/capabilities.ts
 
-      - name: ✅ Commit Block 2
+      - name: Commit Block 2
         run: |
           git commit -m "🔧 Block 2: Widget Registry 2.0 Implementation (42 pts) - GoogleCloudArch
 
@@ -151,10 +151,10 @@ jobs:
           Test Coverage: 95%+
           Status: Ready for merge review"
 
-      - name: 🚀 Push to agent branch
+      - name: Push to agent branch
         run: git push -u origin ${{ env.BRANCH }} --force
 
-      - name: 📢 Create Pull Request
+      - name: Create Pull Request
         uses: actions/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

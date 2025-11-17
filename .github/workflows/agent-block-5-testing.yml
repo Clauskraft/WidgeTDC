@@ -20,13 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: 🌿 Create agent branch
+      - name: Create agent branch
         run: |
           git config user.name "QASpecialist"
           git config user.email "agent-block-5@widgetboard.dev"
           git checkout -b ${{ env.BRANCH }} || git checkout ${{ env.BRANCH }}
 
-      - name: 📝 Task 5.1: Test Acceleration (50→100 tests) (16 pts)
+      - name: Task 5.1: Test Acceleration (50→100 tests) (16 pts)
         run: |
           mkdir -p apps/widget-board/__tests__ apps/api/__tests__ packages/widget-registry/__tests__
 
@@ -308,7 +308,7 @@ jobs:
           EOF
           git add jest.config.js
 
-      - name: 📝 Task 5.2: Coverage Improvement (70%→95%) (10 pts)
+      - name: Task 5.2: Coverage Improvement (70%→95%) (10 pts)
         run: |
           cat > .github/workflows/coverage-gates.yml << 'EOF'
           name: Coverage Gates
@@ -418,7 +418,7 @@ jobs:
 
           git add packages/test-utils/src/coverage-reporter.ts
 
-      - name: 📝 Task 5.3: Performance Testing (6 pts)
+      - name: Task 5.3: Performance Testing (6 pts)
         run: |
           cat > e2e/performance.spec.ts << 'EOF'
           import { test, expect } from '@playwright/test';
@@ -536,7 +536,7 @@ jobs:
           EOF
           git add claudedocs/PERFORMANCE_BASELINE.md
 
-      - name: ✅ Commit Block 5
+      - name: Commit Block 5
         run: |
           git commit -m "🧪 Block 5: Quality Assurance & E2E Testing (32 pts) - QASpecialist
 
@@ -586,10 +586,10 @@ jobs:
           Test Coverage: 95%+
           Status: Ready for merge review"
 
-      - name: 🚀 Push to agent branch
+      - name: Push to agent branch
         run: git push -u origin ${{ env.BRANCH }} --force
 
-      - name: 📢 Create Pull Request
+      - name: Create Pull Request
         uses: actions/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}

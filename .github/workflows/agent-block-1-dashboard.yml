@@ -22,18 +22,18 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: 🔧 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🌿 Create agent branch
+      - name: Create agent branch
         run: |
           git config user.name "AlexaGPT-Frontend"
           git config user.email "agent-block-1@widgetboard.dev"
           git checkout -b ${{ env.BRANCH }} || git checkout ${{ env.BRANCH }}
 
-      - name: 📝 Task 1.1: Dashboard Shell UI Refinement (6 pts)
+      - name: Task 1.1: Dashboard Shell UI Refinement (6 pts)
         run: |
           cat > apps/widget-board/src/components/Dashboard/DashboardShell.tsx << 'EOF'
           import React, { useState } from 'react';
@@ -97,7 +97,7 @@ jobs:
           EOF
           git add apps/widget-board/src/components/Dashboard/DashboardShell.tsx
 
-      - name: 🎨 Task 1.1: Dashboard Styles
+      - name: Task 1.1: Dashboard Styles
         run: |
           cat > apps/widget-board/src/components/Dashboard/DashboardShell.css << 'EOF'
           :root {
@@ -226,7 +226,7 @@ jobs:
           EOF
           git add apps/widget-board/src/components/Dashboard/DashboardShell.css
 
-      - name: 📋 Task 1.2: Layout System Fixes (4 pts)
+      - name: Task 1.2: Layout System Fixes (4 pts)
         run: |
           cat > apps/widget-board/src/styles/layout.css << 'EOF'
           /* 12-Column Grid System (8px base unit) */
@@ -275,7 +275,7 @@ jobs:
           EOF
           git add apps/widget-board/src/styles/layout.css
 
-      - name: 🎯 Task 1.3: Widget Placement Validation (8 pts)
+      - name: Task 1.3: Widget Placement Validation (8 pts)
         run: |
           cat > apps/widget-board/src/hooks/useWidgetLayout.ts << 'EOF'
           import { useState, useCallback } from 'react';
@@ -335,7 +335,7 @@ jobs:
           EOF
           git add apps/widget-board/src/hooks/useWidgetLayout.ts
 
-      - name: ✅ Commit Block 1 completion
+      - name: Commit Block 1 completion
         run: |
           git commit -m "✨ Block 1: Dashboard Shell UI Refinement (18 pts) - AlexaGPT-Frontend
 
@@ -356,11 +356,11 @@ jobs:
           Performance: FCP <1.5s
           Status: Ready for merge review"
 
-      - name: 🚀 Push to agent branch
+      - name: Push to agent branch
         run: |
           git push -u origin ${{ env.BRANCH }} --force
 
-      - name: 📢 Create Pull Request for HansPedder
+      - name: Create Pull Request for HansPedder
         uses: actions/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
