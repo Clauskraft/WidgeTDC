@@ -416,21 +416,7 @@ jobs:
       - name: Commit security infrastructure
         run: |
           git add .
-          git commit -m "Agent: SecurityCompliance | Block: 6 | Points: 28
-
-          Implement comprehensive security infrastructure
-
-          - Created SECURITY.md policy document
-          - CodeQL security scanning workflow
-          - Dependency vulnerability scanning
-          - Security headers middleware with Helmet
-          - Rate limiting for auth and API endpoints
-          - Input validation and sanitization
-          - CSRF protection middleware
-          - Automated security audit scripts
-          - Security configuration policies
-
-          Dependencies: Block 5 (QASpecialist)"
+          git commit -m "feat: Implement security compliance framework - SecurityCompliance Block 6 (28pts)"
 
       - name: Push feature branch
         env:

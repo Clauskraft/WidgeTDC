@@ -238,18 +238,7 @@ jobs:
       - name: Commit database foundation
         run: |
           git add .
-          git commit -m "Agent: DatabaseMaster | Block: 4 | Points: 50
-
-          Implement database foundation with models and migrations
-
-          - Created User model with authentication fields
-          - Created Widget model with owner relationship
-          - Generated initial database migrations
-          - Added database configuration for all environments
-          - Created demo seed data
-          - Established indexes for query optimization
-
-          Dependencies: Block 3 (APISpecialist)"
+          git commit -m "feat: Implement foundation systems with database layer - DatabaseMaster Block 4 (50pts)"
 
       - name: Push feature branch
         env:

@@ -206,31 +206,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
-            --title "Block 2: Widget Registry 2.0 with Versioning" \
-            --body "## Widget Registry 2.0 - GoogleCloudArch
-
-### Completed Tasks
-- TypeScript widget metadata types
-- Version management system
-- Capability-based filtering
-- Registry service with CRUD operations
-- Unit tests with Jest
-
-### Technical Details
-- Service: WidgetRegistry.ts
-- Types: types.ts
-- Tests: WidgetRegistry.test.ts
-
-### Features
-- Widget registration and retrieval
-- Version history tracking
-- Capability-based search
-- Deprecation management
-
-**Agent:** GoogleCloudArch
-**Block:** 2 of 6
-**Points:** 42
-**Depends on:** Block 1" \
-            --base main \
-            --head agent/block-2-widget-registry
+          gh pr create --title "Block 2: Widget Registry 2.0 with Versioning" --body "Widget Registry 2.0 - GoogleCloudArch. Completed: TypeScript widget metadata types, version management system, capability-based filtering, registry service with CRUD operations, unit tests. Agent: GoogleCloudArch, Block: 2 of 6, Points: 42, Depends on: Block 1" --base main --head agent/block-2-widget-registry

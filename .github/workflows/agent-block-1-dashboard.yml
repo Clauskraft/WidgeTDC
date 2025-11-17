@@ -156,27 +156,4 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr create \
-            --title "Block 1: Dashboard Shell UI Implementation" \
-            --body "## Dashboard Shell UI - AlexaGPT-Frontend
-
-### Completed Tasks
-- React dashboard component with TypeScript
-- Sidebar navigation structure
-- Modern CSS styling with responsive layout
-- Dark theme sidebar with light content area
-
-### Technical Details
-- Component: Dashboard.tsx
-- Styling: Dashboard.css
-- Export: index.ts
-
-### Ready For
-- Widget Registry integration (Block 2)
-- Content area population
-
-**Agent:** AlexaGPT-Frontend
-**Block:** 1 of 6
-**Points:** 18" \
-            --base main \
-            --head agent/block-1-dashboard-ui
+          gh pr create --title "Block 1: Dashboard Shell UI Implementation" --body "Dashboard Shell UI - AlexaGPT-Frontend. Completed: React dashboard component with TypeScript, sidebar navigation structure, modern CSS styling. Agent: AlexaGPT-Frontend, Block: 1 of 6, Points: 18" --base main --head agent/block-1-dashboard-ui

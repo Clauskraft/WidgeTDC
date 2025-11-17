@@ -420,19 +420,7 @@ jobs:
       - name: Commit testing infrastructure
         run: |
           git add .
-          git commit -m "Agent: QASpecialist | Block: 5 | Points: 32
-
-          Implement comprehensive testing infrastructure
-
-          - Jest configuration with coverage thresholds
-          - Database test helpers with cleanup utilities
-          - API test helpers with authentication
-          - Unit tests for User model
-          - Integration tests for Widget API
-          - E2E tests with Playwright
-          - Test fixtures and setup files
-
-          Dependencies: Block 4 (DatabaseMaster)"
+          git commit -m "feat: Implement comprehensive testing framework - QASpecialist Block 5 (32pts)"
 
       - name: Push feature branch
         env:
