@@ -2,11 +2,6 @@ name: 🎨 Agent Block 1 - Dashboard Shell UI
 
 on:
   workflow_dispatch:
-    inputs:
-      start:
-        description: 'Start Block 1 execution'
-        required: false
-        default: 'true'
 
 env:
   AGENT_NAME: AlexaGPT-Frontend
