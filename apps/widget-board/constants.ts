@@ -14,9 +14,19 @@ import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
 import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
 import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
 import StatusWidget from './widgets/StatusWidget';
+import Phase1CFastTrackKanbanWidget from './widgets/Phase1CFastTrackKanbanWidget';
 import { WidgetDefinition } from './types';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
+  {
+    id: 'Phase1CFastTrackKanban',
+    name: '🚀 Priority 3: Phase 1.C Kanban',
+    component: Phase1CFastTrackKanbanWidget,
+    defaultLayout: { w: 12, h: 12 },
+    source: 'proprietary',
+    minW: 8,
+    minH: 8,
+  },
   {
     id: 'AgentChatWidget',
     name: 'Chat Agent',
