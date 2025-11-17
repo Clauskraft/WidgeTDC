@@ -1,10 +1,10 @@
 ---
 name: MLEngineer
-description: "RAG ML/Retrieval Specialist - VectorDB, embeddings, retrieval, evaluation"
-identity: "Machine Learning & Retrieval Engineering Expert"
-role: "ML Engineer - WidgetTDC RAG"
-status: "PLACEHOLDER - AWAITING ASSIGNMENT"
-assigned_to: "TBD"
+description: 'RAG ML/Retrieval Specialist - VectorDB, embeddings, retrieval, evaluation'
+identity: 'Machine Learning & Retrieval Engineering Expert'
+role: 'ML Engineer - WidgetTDC RAG'
+status: 'PLACEHOLDER - AWAITING ASSIGNMENT'
+assigned_to: 'TBD'
 ---
 
 # 🧠 ML ENGINEER - RAG RETRIEVAL & EVALUATION
@@ -21,12 +21,14 @@ assigned_to: "TBD"
 ### EPIC 3: Vector Database & Retrieval (PRIMARY)
 
 **Phase 1: Research & Selection (Sprint 1)**
+
 - [ ] Evaluate VectorDB options (Pinecone, Weaviate, Milvus, etc.)
 - [ ] Design chunking strategy
 - [ ] Select embedding model
 - [ ] Estimate: 8-12 hours
 
 **Phase 2: Implementation (Sprint 1-2)**
+
 - [ ] Setup VectorDB cluster
 - [ ] Implement embedding pipeline
 - [ ] Implement chunking logic
@@ -34,6 +36,7 @@ assigned_to: "TBD"
 - [ ] Estimate: 24-32 hours
 
 **Phase 3: Optimization (Sprint 2-3)**
+
 - [ ] Retrieval model tuning
 - [ ] Hybrid search (BM25 + semantic)
 - [ ] Query expansion
@@ -45,12 +48,14 @@ assigned_to: "TBD"
 ### EPIC 5: Evaluation & Quality (SECONDARY)
 
 **Phase 1: Framework Setup (Sprint 2)**
+
 - [ ] RAGAS framework implementation
 - [ ] Metric selection (context relevance, answer relevancy, faithfulness)
 - [ ] Baseline establishment
 - [ ] Estimate: 12-16 hours
 
 **Phase 2: Continuous Monitoring (Sprint 3+)**
+
 - [ ] Dashboard creation
 - [ ] Alert thresholds
 - [ ] Feedback loop implementation
@@ -65,12 +70,14 @@ assigned_to: "TBD"
 ### VectorDB Selection & Setup
 
 **Task**: Choose and configure VectorDB
+
 - Compare options (latency, cost, scale, features)
 - Create test cluster
 - Design schema
 - Setup connections
 
 **Definition of Done**:
+
 - [ ] Database operational
 - [ ] Connection tested
 - [ ] Schema documented
@@ -79,12 +86,14 @@ assigned_to: "TBD"
 ### Embedding Pipeline
 
 **Task**: Implement text → embeddings
+
 - Select embedding model (OpenAI, sentence-transformers, etc.)
 - Create pipeline
 - Handle batch processing
 - Cache embeddings efficiently
 
 **Definition of Done**:
+
 - [ ] Pipeline working end-to-end
 - [ ] Performance >1000 embeddings/min
 - [ ] Tests passing
@@ -93,12 +102,14 @@ assigned_to: "TBD"
 ### Chunking Strategy
 
 **Task**: Design optimal document chunking
+
 - Research chunking approaches
 - Test different strategies
 - Measure impact on retrieval
 - Document final approach
 
 **Definition of Done**:
+
 - [ ] Strategy documented with rationale
 - [ ] Tests validating approach
 - [ ] Performance metrics captured
@@ -107,12 +118,14 @@ assigned_to: "TBD"
 ### Retrieval Optimization
 
 **Task**: Maximize retrieval quality
+
 - Implement BM25 (keyword search)
 - Implement semantic search (vector similarity)
 - Hybrid retrieval combining both
 - Query optimization techniques
 
 **Definition of Done**:
+
 - [ ] Retrieval accuracy >90%
 - [ ] Query latency <200ms (p95)
 - [ ] All retrieval modes tested
@@ -121,12 +134,14 @@ assigned_to: "TBD"
 ### RAGAS Evaluation
 
 **Task**: Setup evaluation framework
+
 - Implement RAGAS metrics
 - Create evaluation dashboard
 - Establish baselines
 - Setup continuous monitoring
 
 **Definition of Done**:
+
 - [ ] All metrics implemented
 - [ ] Dashboard live
 - [ ] Thresholds configured
@@ -137,16 +152,19 @@ assigned_to: "TBD"
 ## 🤝 COLLABORATION
 
 ### With Data Engineer
+
 - Coordinate on data format
 - Feedback on data quality impact
 - Test data sharing
 
 ### With Backend Engineer
+
 - Define API contracts
 - Coordinate LLM integration
 - Performance requirements
 
 ### With QA Engineer
+
 - Test data generation
 - Quality validation
 - Performance benchmarking
@@ -156,6 +174,7 @@ assigned_to: "TBD"
 ## 📊 SUCCESS METRICS
 
 **Technical**:
+
 - Retrieval accuracy: >90%
 - Query latency: <200ms (p95)
 - RAGAS context relevance: >0.8
@@ -163,6 +182,7 @@ assigned_to: "TBD"
 - System uptime: >99%
 
 **Project**:
+
 - Tasks delivered on-time: 100%
 - Test coverage: >85%
 - Documentation: 100% complete
@@ -181,6 +201,7 @@ assigned_to: "TBD"
 ## 💬 DAILY INTERACTION WITH CURSOR
 
 **Standup Format**:
+
 ```
 YESTERDAY: ✅ [Completed work]
 TODAY: 📌 [Current focus]

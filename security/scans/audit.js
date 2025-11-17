@@ -7,7 +7,7 @@ class SecurityAuditor {
     this.results = {
       timestamp: new Date().toISOString(),
       vulnerabilities: [],
-      summary: {}
+      summary: {},
     };
   }
 
@@ -22,7 +22,7 @@ class SecurityAuditor {
         critical: auditData.metadata.vulnerabilities.critical,
         high: auditData.metadata.vulnerabilities.high,
         moderate: auditData.metadata.vulnerabilities.moderate,
-        low: auditData.metadata.vulnerabilities.low
+        low: auditData.metadata.vulnerabilities.low,
       };
     } catch (error) {
       console.error('npm audit failed:', error.message);
@@ -30,12 +30,7 @@ class SecurityAuditor {
   }
 
   checkSecurityHeaders() {
-    const required = [
-      'helmet',
-      'express-rate-limit',
-      'csurf',
-      'sanitize-html'
-    ];
+    const required = ['helmet', 'express-rate-limit', 'csurf', 'sanitize-html'];
 
     const packageJson = require('../../package.json');
     const missing = required.filter(
@@ -45,7 +40,7 @@ class SecurityAuditor {
     this.results.summary.securityPackages = {
       required,
       missing,
-      installed: required.length - missing.length
+      installed: required.length - missing.length,
     };
   }
 

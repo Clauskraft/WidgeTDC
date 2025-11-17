@@ -17,6 +17,7 @@
 ## 🏗️ HOW IT WORKS
 
 ### Phase 1: Code Discovery
+
 ```
 Widget Extraction Agent scans:
 ├─ C:\Users\claus\Projects (local legacy code)
@@ -33,6 +34,7 @@ Widget Extraction Agent scans:
 ```
 
 ### Phase 2: Module Analysis
+
 ```
 For each discovered module:
 1. Understand purpose: "What job is this hired to do?" (Jobs-to-be-Done)
@@ -43,6 +45,7 @@ For each discovered module:
 ```
 
 ### Phase 3: Widget Conversion
+
 ```
 Convert to WidgetBoard Format:
 ├─ Create Widget Manifest (metadata, capabilities, constraints)
@@ -56,6 +59,7 @@ Convert to WidgetBoard Format:
 ```
 
 ### Phase 4: Portfolio Management
+
 ```
 Continuous expansion:
 ├─ New extracted widget published to registry
@@ -71,6 +75,7 @@ Continuous expansion:
 ## 📚 EXAMPLE CONVERSIONS
 
 ### Example 1: From Legacy Dashboard Code
+
 ```
 Found: C:\Users\claus\Projects\old-dashboard\src\components\StatusCard.tsx
   ├─ Purpose: Display status of various system components
@@ -90,6 +95,7 @@ Result: "Status Card" widget in registry, ready to use
 ```
 
 ### Example 2: From Data Analytics Code
+
 ```
 Found: GitHub repo with analytics dashboard
   ├─ Purpose: Visualize time-series data, trends
@@ -118,6 +124,7 @@ Result: "Analytics Chart" widget in registry, enterprise-ready
 **Support**: Backend Architect 1 (MCP adapters), QA Engineer 1 (testing)
 
 **Responsibilities**:
+
 1. Weekly scan of local C:\Users\claus\Projects for new modules
 2. Daily GitHub search for relevant open-source projects
 3. Module analysis & Jobs-to-be-Done identification
@@ -131,22 +138,26 @@ Result: "Analytics Chart" widget in registry, enterprise-ready
 ## 📊 PORTFOLIO EXPANSION TARGET
 
 **Current State** (Phase 1.B completion):
+
 - 0 extracted widgets
 - Manual widget development only
 - Portfolio: 4 planned widgets (Calendar, Notes, Status, Procurement) + 3 security widgets
 
 **Phase 1.C Goal** (Dec 20):
+
 - 0-2 extracted widgets (proof of concept)
 - Widget Extraction Agent operational
 - Conversion pipeline established
 
 **Phase 2 Goal** (Feb 28):
+
 - 8-12 extracted + new widgets (total)
 - 20+ available in Widget Marketplace
 - Community contributions enabled
 - Portfolio: Diverse capabilities (analytics, document viewing, data tables, etc.)
 
 **Year 1 Goal** (Dec 2026):
+
 - 50-100 widgets in ecosystem
 - Mix of core (enterprise), community (OSS), and partner widgets
 - Marketplace revenue generating
@@ -157,6 +168,7 @@ Result: "Analytics Chart" widget in registry, enterprise-ready
 ## 🔧 TECHNICAL IMPLEMENTATION
 
 ### Extraction Agent Architecture
+
 ```
 Agent Components:
 ├─ Code Repository Scanner
@@ -184,6 +196,7 @@ Agent Components:
 ```
 
 ### Integration Points
+
 ```
 Widget Extraction Agent
 ├─ Connects to: Widget Registry 2.0 (publishes converted widgets)
@@ -198,24 +211,28 @@ Widget Extraction Agent
 ## 📅 TIMELINE
 
 ### Phase 1.C (Dec 16-20): Agent Development
+
 - Design Widget Extraction Agent architecture
 - Build code scanner for local repositories
 - Build basic module analyzer (proof of concept)
 - Identify 2-3 candidate modules from C:\Users\claus\Projects
 
 ### Phase 2.A (Jan 1-31): Conversion Pipeline
+
 - Complete widget conversion process
 - Convert first 3-5 modules to widgets
 - Publish to Widget Registry
 - Community testing and feedback
 
 ### Phase 2.B (Feb 1-28): Ecosystem Growth
+
 - Expand GitHub search and analysis
 - Enable community contributions
 - Build Widget Marketplace interface
 - Scale to 20+ widgets
 
 ### Post-Go-Live (Mar 1+): Ongoing
+
 - Weekly portfolio expansion (3-5 new widgets)
 - Community widget curation and review
 - Revenue model (marketplace commission, premium widgets)
@@ -226,6 +243,7 @@ Widget Extraction Agent
 ## 💡 WHY THIS MATTERS
 
 **Business Value**:
+
 1. **Accelerated Portfolio**: 50-100 widgets vs. 4-5 built in-house
 2. **Lower Cost**: Extract existing code vs. build from scratch
 3. **Ecosystem Network Effect**: More widgets = more value = higher ARR
@@ -233,6 +251,7 @@ Widget Extraction Agent
 5. **Competitive Moat**: Widget ecosystem = hard to replicate
 
 **Technical Value**:
+
 1. Validates Widget SDK quality (real-world usage)
 2. Improves MCP Service Adapter patterns (diverse use cases)
 3. Stress-tests Widget Registry (scale, performance)
@@ -244,16 +263,19 @@ Widget Extraction Agent
 ## 🎬 NEXT STEPS
 
 **Phase 1.B (Dec 1-15)**: Design concept
+
 - [ ] Finalize Widget Extraction Agent requirements
 - [ ] Scope MVP (minimum viable product)
 - [ ] Identify first 3 modules for conversion
 
 **Phase 1.C (Dec 16-20)**: Build agent framework
+
 - [ ] Implement code scanner
 - [ ] Build module analyzer
 - [ ] Proof of concept conversion
 
 **Phase 2 (Jan-Feb)**: Operational deployment
+
 - [ ] Full conversion pipeline
 - [ ] Portfolio expansion (20+ widgets)
 - [ ] Community integration
@@ -267,4 +289,4 @@ Widget Extraction Agent
 
 ---
 
-*This initiative will continuously expand WidgetBoard's widget portfolio and ecosystem value.*
+_This initiative will continuously expand WidgetBoard's widget portfolio and ecosystem value._

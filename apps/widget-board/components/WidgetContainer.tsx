@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 import { useWidgetAccessibility } from '../hooks/useWidgetAccessibility';
@@ -13,7 +12,7 @@ interface WidgetContainerProps {
 const WidgetContainer: React.FC<WidgetContainerProps> = ({ widgetId, widgetType, onRemove }) => {
   const { availableWidgets } = useWidgetRegistry();
   const widgetDef = availableWidgets.find(w => w.id === widgetType);
-  
+
   useWidgetAccessibility(widgetId, widgetDef?.name || widgetType);
 
   if (!widgetDef) {
@@ -28,16 +27,12 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({ widgetId, widgetType,
 
   return (
     <div className="h-full flex flex-col" role="region" aria-label={`${widgetDef.name} widget`}>
-       <div className="ms-widget-header widget-drag-handle cursor-move">
+      <div className="ms-widget-header widget-drag-handle cursor-move">
         <h3 className="ms-widget-title">{widgetDef.name}</h3>
         <div className="ms-widget-actions">
-           <button
-             onClick={onRemove}
-             className="ms-icon-button ms-focusable"
-             title="Fjern widget"
-           >
-             <MicrosoftIcons.Close />
-           </button>
+          <button onClick={onRemove} className="ms-icon-button ms-focusable" title="Fjern widget">
+            <MicrosoftIcons.Close />
+          </button>
         </div>
       </div>
       <div className="flex-1 overflow-auto p-4">

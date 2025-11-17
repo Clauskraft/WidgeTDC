@@ -9,7 +9,9 @@ describe('AuditLog', () => {
   });
 
   test('should log audit entry', () => {
-    const entry = auditLog.log(AuditAction.CREATE, 'user-123', 'widget', 'widget-456', { name: 'Test Widget' });
+    const entry = auditLog.log(AuditAction.CREATE, 'user-123', 'widget', 'widget-456', {
+      name: 'Test Widget',
+    });
     expect(entry.action).toBe(AuditAction.CREATE);
     expect(entry.userId).toBe('user-123');
     expect(entry.currentHash).toBeDefined();

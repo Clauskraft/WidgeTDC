@@ -9,6 +9,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ or 20+
 - npm 9+
 - Git
@@ -53,6 +54,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 ### Making Changes
 
 1. Create a new branch:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
@@ -60,16 +62,19 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 2. Make your changes following our coding standards
 
 3. Write or update tests:
+
    ```bash
    npm test
    ```
 
 4. Run linter:
+
    ```bash
    npm run lint
    ```
 
 5. Format your code:
+
    ```bash
    npm run format
    ```
@@ -92,6 +97,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -102,6 +108,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 - `security`: Security improvements
 
 **Examples:**
+
 ```
 feat(widgets): add email RAG widget
 fix(security): prevent XSS in input fields
@@ -200,6 +207,7 @@ describe('sanitizeInput', () => {
 ### Submitting PR
 
 1. Push your branch to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -216,20 +224,24 @@ describe('sanitizeInput', () => {
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Comments added for complex code
@@ -265,19 +277,24 @@ Brief description of changes
 ### Architecture Decisions
 
 Document significant architectural decisions in `docs/ADR/`:
+
 ```markdown
 # ADR-001: Use Circuit Breaker Pattern
 
 ## Status
+
 Accepted
 
 ## Context
+
 Need fault tolerance for external service calls
 
 ## Decision
+
 Implement circuit breaker pattern in MCP client
 
 ## Consequences
+
 - Improved resilience
 - Faster failure detection
 - Additional complexity
@@ -322,6 +339,7 @@ Implement circuit breaker pattern in MCP client
 Email: security@widgetboard.example.com
 
 Include:
+
 - Description of vulnerability
 - Steps to reproduce
 - Potential impact
@@ -366,6 +384,7 @@ endTimer(); // Logs: Performance: Operation Name { duration: "12.34ms" }
 ## Recognition
 
 Contributors will be recognized in:
+
 - README.md acknowledgments section
 - Release notes
 - GitHub contributors page

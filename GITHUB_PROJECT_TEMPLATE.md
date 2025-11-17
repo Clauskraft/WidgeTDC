@@ -57,6 +57,7 @@ Block 3: Feature Set B (Lead Agent 3) - Z story points
 For each block, create a brief in `.cursor/agents/agent-name.md`:
 
 **Template:**
+
 ```markdown
 # [AgentName] Specialist
 
@@ -66,18 +67,22 @@ For each block, create a brief in `.cursor/agents/agent-name.md`:
 **Start**: [Date] - [Time] UTC
 
 ## Mission
+
 [One sentence describing the work]
 
 ## Tasks ([Total] story points)
 
 ### [Task 1] ([Points] pts)
+
 **Priority**: CRITICAL | **Time**: [X] hours
 
 **Deliverables**:
+
 - [ ] Item 1
 - [ ] Item 2
 
 **Acceptance Criteria**:
+
 - Criterion 1
 - Criterion 2
 
@@ -86,6 +91,7 @@ For each block, create a brief in `.cursor/agents/agent-name.md`:
 [Continue for each task...]
 
 ## Timeline
+
 - Start: [Time] UTC
 - Target: [Time] UTC ([X] hours)
 - Checkpoint: Every 2 hours
@@ -96,6 +102,7 @@ For each block, create a brief in `.cursor/agents/agent-name.md`:
 For each block, create `.github/workflows/agent-block-X.yml`:
 
 **Template Structure:**
+
 ```yaml
 name: 📋 Agent Block [X] - [Block Title]
 
@@ -181,12 +188,14 @@ jobs:
 Update `project_dashboard.html` with your project blocks:
 
 **Column Structure:**
+
 - **TO DO**: Unstarted tasks
 - **IN PROGRESS**: Active tasks
 - **BLOCKED**: Dependent tasks awaiting completion
 - **COMPLETED**: Finished tasks
 
 **Data Structure:**
+
 ```html
 <div class="kanban-column" data-status="todo">
   <div class="kanban-card" data-block="1">
@@ -202,37 +211,43 @@ Update `project_dashboard.html` with your project blocks:
 Create `.cursor/AGENT_PROGRESS_TRACKER.md`:
 
 **Template:**
+
 ```markdown
 # Phase [X] Progress Tracker - Real-Time Status
 
 ## Live Status Dashboard
 
-| Block | Agent | Task | Story Points | Status | Start | ETA | % Complete |
-|-------|-------|------|--------------|--------|-------|-----|-----------|
-| 1 | [Agent] | [Task] | [Pts] | 🟡 QUEUED | - | - | 0% |
-| 2 | [Agent] | [Task] | [Pts] | 🟡 QUEUED | - | - | 0% |
+| Block | Agent   | Task   | Story Points | Status    | Start | ETA | % Complete |
+| ----- | ------- | ------ | ------------ | --------- | ----- | --- | ---------- |
+| 1     | [Agent] | [Task] | [Pts]        | 🟡 QUEUED | -     | -   | 0%         |
+| 2     | [Agent] | [Task] | [Pts]        | 🟡 QUEUED | -     | -   | 0%         |
 
 ## Wave 1 Parallelization (START NOW)
+
 Blocks: 1, 2, 4, 5, 6 (all start simultaneously at [TIME] UTC)
 Dependencies: None
 
 ## Wave 2 (START AFTER BLOCK [X])
+
 Blocks: 3, 7 (wait for Block 1 completion)
 Dependencies: Block 1.1 completion required
 
 ## Checkpoint Schedule
+
 - Checkpoint 1: [Date] [Time] (after 2 hours)
 - Checkpoint 2: [Date] [Time] (after 4 hours)
 - Checkpoint 3: [Date] [Time] (after 6 hours)
 - Final: [Date] [Time] (end of wave)
 
 ## Integration Points
+
 [Describe where blocks integrate and how dependencies flow]
 ```
 
 ### Step 6: Create Orchestrator Workflow
 
 The orchestrator workflow (`hanspedder-orchestrator.yml`) handles:
+
 - Discovery of agent PRs
 - Quality validation
 - Approval and merge
@@ -245,6 +260,7 @@ This remains the same across projects, just update the list of agent names and b
 ### For Different Project Types
 
 #### Web Application Project
+
 ```
 Block 1: Frontend/UI (Designer Agent)
 Block 2: Backend API (Backend Agent)
@@ -254,6 +270,7 @@ Block 5: Deployment (DevOps Agent)
 ```
 
 #### Mobile Application Project
+
 ```
 Block 1: iOS App (iOS Agent)
 Block 2: Android App (Android Agent)
@@ -263,6 +280,7 @@ Block 5: Analytics (Analytics Agent)
 ```
 
 #### ML/Data Science Project
+
 ```
 Block 1: Data Pipeline (Data Agent)
 Block 2: Model Development (ML Agent)
@@ -274,6 +292,7 @@ Block 5: Monitoring (Ops Agent)
 ### Configuration Points
 
 **Per-Project Customization:**
+
 1. Agent names and email domains
 2. Block titles and descriptions
 3. Story point allocations
@@ -284,6 +303,7 @@ Block 5: Monitoring (Ops Agent)
 8. Quality gate thresholds
 
 **Minimal Customization (Reuse Most):**
+
 1. Kanban board (copy, update block names)
 2. Progress tracker (copy, update agents/blocks)
 3. Orchestrator workflow (copy, update agent names)
@@ -292,12 +312,14 @@ Block 5: Monitoring (Ops Agent)
 ## Integration with Existing Workflows
 
 ### Git Strategy
+
 - Agents work on feature branches: `agent/block-X-description`
 - PRs created for each agent deliverable
 - Orchestrator merges to `main` after quality validation
 - Main branch stays production-ready
 
 ### Branch Protection
+
 ```yaml
 main:
   - Require pull request reviews before merging
@@ -307,6 +329,7 @@ main:
 ```
 
 ### CI/CD Integration
+
 - GitHub Actions run on every commit
 - Tests execute automatically
 - Coverage reports generated
@@ -315,18 +338,21 @@ main:
 ## Scalability
 
 ### For Larger Projects
+
 - Increase number of blocks (up to 10-12 recommended)
 - Create sub-blocks with their own agent teams
 - Use multiple waves of parallel execution
 - Implement inter-block dependencies carefully
 
 ### For Faster Projects
+
 - Reduce number of blocks (3-4 minimum)
 - Eliminate or combine dependent tasks
 - Increase parallelization (all blocks at once)
 - Reduce checkpoint frequency
 
 ### For Complex Projects
+
 - Create detailed dependency graphs
 - Define clear integration points
 - Implement comprehensive testing between blocks
@@ -362,6 +388,7 @@ Track these metrics across projects:
 ## Template Maintenance
 
 This template should be updated when:
+
 - New automation techniques discovered
 - Workflow inefficiencies identified
 - Tool improvements available
@@ -385,6 +412,7 @@ To use this template for a new project:
 ## Support
 
 For questions or improvements to this template:
+
 - Review the WidgetTDC project implementation
 - Check agent brief examples
 - Examine workflow patterns

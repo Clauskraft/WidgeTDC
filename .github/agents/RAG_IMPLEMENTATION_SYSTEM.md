@@ -1,8 +1,8 @@
 ---
 name: RAG_Implementation_System
-description: "Coordinated agent team system for WidgetTDC RAG project"
-status: "ACTIVE"
-version: "1.0"
+description: 'Coordinated agent team system for WidgetTDC RAG project'
+status: 'ACTIVE'
+version: '1.0'
 ---
 
 # 🤖 RAG IMPLEMENTATION SYSTEM - AGENT COORDINATION
@@ -47,34 +47,36 @@ System Attributes:
 
 ### ACTIVE AGENTS
 
-| Agent | Role | Status | Start Date | Epic Owner |
-|-------|------|--------|-----------|-----------|
-| Cursor | Impl. Lead | ACTIVE | 2025-11-17 | All (coord) |
-| DataEngineer | Data Pipeline | PLACEHOLDER | TBD | EPIC 2, 3 |
-| MLEngineer | Retrieval & Eval | PLACEHOLDER | TBD | EPIC 3, 5 |
-| BackendEngineer | API & LLM | PLACEHOLDER | TBD | EPIC 4, 6 |
-| QAEngineer | Testing & Quality | PLACEHOLDER | TBD | All |
-| DevOpsEngineer | Infra & Deploy | PLACEHOLDER | TBD | EPIC 6 |
+| Agent           | Role              | Status      | Start Date | Epic Owner  |
+| --------------- | ----------------- | ----------- | ---------- | ----------- |
+| Cursor          | Impl. Lead        | ACTIVE      | 2025-11-17 | All (coord) |
+| DataEngineer    | Data Pipeline     | PLACEHOLDER | TBD        | EPIC 2, 3   |
+| MLEngineer      | Retrieval & Eval  | PLACEHOLDER | TBD        | EPIC 3, 5   |
+| BackendEngineer | API & LLM         | PLACEHOLDER | TBD        | EPIC 4, 6   |
+| QAEngineer      | Testing & Quality | PLACEHOLDER | TBD        | All         |
+| DevOpsEngineer  | Infra & Deploy    | PLACEHOLDER | TBD        | EPIC 6      |
 
 ### GOVERNANCE
 
-| Role | Authority | Escalation |
-|------|-----------|-----------|
+| Role        | Authority | Escalation            |
+| ----------- | --------- | --------------------- |
 | HansPedder2 | STRATEGIC | None (final decision) |
-| Cursor | TACTICAL | HansPedder2 |
-| Team | TECHNICAL | Cursor |
+| Cursor      | TACTICAL  | HansPedder2           |
+| Team        | TECHNICAL | Cursor                |
 
 ---
 
 ## 📋 AGENT ACTIVATION SEQUENCE
 
 ### Phase 1: Setup (Week 1)
+
 - [x] HansPedder2 initiates RAG project
 - [x] Cursor assigned as Implementation Lead
 - [x] Project documentation created
 - [ ] **Next**: Team recruitment & assignment
 
 ### Phase 2: Team Assembly (Week 2)
+
 - [ ] Identify candidates for each role
 - [ ] Brief each agent on their role
 - [ ] Onboarding to project docs
@@ -82,6 +84,7 @@ System Attributes:
 - [ ] **Status**: Awaiting team member identification
 
 ### Phase 3: Execution (Week 3+)
+
 - [ ] Daily standups with Cursor
 - [ ] Epic execution begins
 - [ ] Continuous progress tracking
@@ -153,12 +156,14 @@ Cursor Response Time: <SLA per severity
 ### For All Agents
 
 **Mandatory Reading**:
+
 1. `claudedocs/RAG_PROJECT_OVERVIEW.md` - Main dashboard
 2. `claudedocs/RAG_TEAM_RESPONSIBILITIES.md` - Role definitions
 3. `.github/agents/Cursor_Implementation_Lead.md` - Management structure
 4. `.github/agents/HansPedder2_ProjectDirector.md` - Authority structure
 
 **Ongoing References**:
+
 - `claudedocs/BLOCKERS_LOG.md` - Current blockers
 - `claudedocs/DECISION_LOG.md` - Decisions made
 - GitHub Projects - Kanban board
@@ -176,18 +181,21 @@ Cursor Response Time: <SLA per severity
 ## 🎯 SUCCESS CRITERIA FOR THE SYSTEM
 
 ### Operational Success
+
 - ✅ Daily standups 100% adherence
 - ✅ Blocker response times within SLA
 - ✅ All documentation up-to-date
 - ✅ Zero communication breakdowns
 
 ### Project Success
+
 - ✅ Milestones delivered on-time: 100%
 - ✅ Scope managed (0% unauthorized creep)
 - ✅ Budget tracked & optimized
 - ✅ Team satisfaction: >8/10
 
 ### Technical Success
+
 - ✅ Code quality: >85% coverage
 - ✅ Performance: All targets met
 - ✅ Production ready by Mar 2026
@@ -199,6 +207,7 @@ Cursor Response Time: <SLA per severity
 ### Weekly System Health Check
 
 **Cursor Reviews**:
+
 - Team coordination effectiveness
 - Communication quality
 - Blocker resolution efficiency
@@ -208,12 +217,12 @@ Cursor Response Time: <SLA per severity
 
 ### Metrics Tracked
 
-| Metric | Target | Current | Trend |
-|--------|--------|---------|-------|
-| Standup Adherence | 100% | TBD | - |
-| Blocker Response | SLA | TBD | - |
-| Doc Currency | 100% | TBD | - |
-| Team Satisfaction | >8/10 | TBD | - |
+| Metric            | Target | Current | Trend |
+| ----------------- | ------ | ------- | ----- |
+| Standup Adherence | 100%   | TBD     | -     |
+| Blocker Response  | SLA    | TBD     | -     |
+| Doc Currency      | 100%   | TBD     | -     |
+| Team Satisfaction | >8/10  | TBD     | -     |
 
 ---
 
@@ -280,17 +289,20 @@ When a new agent joins:
 ## 🛡️ SYSTEM RESILIENCE
 
 ### What if an agent goes offline?
+
 - Task reassignment by Cursor
 - Escalate to HansPedder2 if critical
 - Document in BLOCKERS_LOG.md
 
 ### What if a sprint derails?
+
 - Emergency standup
 - Reassess priorities
 - Adjust timeline if needed
 - Escalate to HansPedder2
 
 ### What if team conflict occurs?
+
 - Cursor mediates
 - Escalate to HansPedder2 if needed
 - Document in decision log
@@ -300,15 +312,19 @@ When a new agent joins:
 ## 📞 SUPPORT & ESCALATION
 
 **For Technical Issues**:
+
 - Agent → Cursor → HansPedder2
 
 **For Blocker Issues**:
+
 - Agent → Cursor (with escalation timing)
 
 **For Scope/Timeline Changes**:
+
 - Cursor → HansPedder2 (with analysis)
 
 **For Strategic Changes**:
+
 - Any → HansPedder2 (via Cursor)
 
 ---

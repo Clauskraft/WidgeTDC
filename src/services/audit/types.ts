@@ -16,7 +16,7 @@ export enum AuditAction {
   UPDATE = 'UPDATE',
   DELETE = 'DELETE',
   REGISTER = 'REGISTER',
-  DEPRECATE = 'DEPRECATE'
+  DEPRECATE = 'DEPRECATE',
 }
 
 export interface GDPRContext {

@@ -15,6 +15,7 @@ This document defines the complete design system for WidgetBoard Phase 1.B. All 
 ## Color System
 
 ### Primary Colors (UI Actions)
+
 Used for primary actions, links, highlights.
 
 ```
@@ -33,6 +34,7 @@ Primary-900:  #0c3d66  (Darkest)
 **Usage**: Buttons, links, selection states, highlights
 
 ### Secondary Colors (Accents)
+
 Used for secondary actions, badges.
 
 ```
@@ -51,6 +53,7 @@ Secondary-900:  #4c1d95
 **Usage**: Secondary buttons, badge accents, alternative actions
 
 ### Neutral Colors (Text & Backgrounds)
+
 Used for text, borders, backgrounds.
 
 ```
@@ -71,18 +74,22 @@ Neutral-900:  #111827  (Darkest - text on light)
 ### Semantic Colors
 
 **Success (Green)**: `#22c55e` (RGB: 34, 197, 94)
+
 - Used for: Checkmarks, success messages, positive indicators
 - Minimum contrast: 4.5:1 on white, meets WCAG AA
 
 **Warning (Amber)**: `#f59e0b` (RGB: 245, 158, 11)
+
 - Used for: Alerts, caution messages, pending states
 - Minimum contrast: 4.5:1 on white, meets WCAG AA
 
 **Error (Red)**: `#ef4444` (RGB: 239, 68, 68)
+
 - Used for: Errors, validation failures, danger states
 - Minimum contrast: 4.5:1 on white, meets WCAG AA
 
 **Info (Cyan)**: `#0ea5e9` (RGB: 14, 165, 233)
+
 - Used for: Information, helpful hints, neutral alerts
 - Minimum contrast: 4.5:1 on white, meets WCAG AA
 
@@ -92,24 +99,25 @@ Neutral-900:  #111827  (Darkest - text on light)
 
 ### Heading Scale (Responsive)
 
-| Level | Size | Weight | Line Height | Usage |
-|-------|------|--------|-------------|-------|
-| H1 | 32px | 700 | 40px | Page titles |
-| H2 | 28px | 700 | 36px | Section titles |
-| H3 | 24px | 700 | 32px | Subsection titles |
-| H4 | 20px | 600 | 28px | Component titles |
-| H5 | 16px | 600 | 24px | Labels, emphasis |
-| H6 | 14px | 600 | 20px | Secondary labels |
+| Level | Size | Weight | Line Height | Usage             |
+| ----- | ---- | ------ | ----------- | ----------------- |
+| H1    | 32px | 700    | 40px        | Page titles       |
+| H2    | 28px | 700    | 36px        | Section titles    |
+| H3    | 24px | 700    | 32px        | Subsection titles |
+| H4    | 20px | 600    | 28px        | Component titles  |
+| H5    | 16px | 600    | 24px        | Labels, emphasis  |
+| H6    | 14px | 600    | 20px        | Secondary labels  |
 
 ### Body Text Scale
 
-| Level | Size | Weight | Line Height | Usage |
-|-------|------|--------|-------------|-------|
-| Body-Large | 16px | 400 | 24px | Main content, descriptions |
-| Body-Medium | 14px | 400 | 20px | Secondary content, hints |
-| Body-Small | 12px | 400 | 16px | Captions, metadata |
+| Level       | Size | Weight | Line Height | Usage                      |
+| ----------- | ---- | ------ | ----------- | -------------------------- |
+| Body-Large  | 16px | 400    | 24px        | Main content, descriptions |
+| Body-Medium | 14px | 400    | 20px        | Secondary content, hints   |
+| Body-Small  | 12px | 400    | 16px        | Captions, metadata         |
 
 ### Monospace (Code)
+
 - Font: `Menlo, Monaco, Courier New, monospace`
 - Size: 12px
 - Weight: 400
@@ -154,6 +162,7 @@ XL:   48px  (hero, extra large)
 ## Accessibility Standards (WCAG 2.1 AA)
 
 ### Color Contrast Minimums
+
 - **Text on backgrounds**: 4.5:1 (normal text)
 - **UI components**: 3:1 (focus indicators, borders)
 - **Large text (18pt+)**: 3:1
@@ -161,17 +170,20 @@ XL:   48px  (hero, extra large)
 **Verification**: All colors tested against white, black, and neutral backgrounds.
 
 ### Focus Indicators
+
 - **Color**: Primary-500 (`#0ea5e9`)
 - **Width**: 2px
 - **Offset**: 2px from element edge
 - **Style**: Solid outline (not dotted)
 
 ### Touch Targets
+
 - **Minimum size**: 44px x 44px
 - **Spacing**: Minimum 8px between interactive elements
 - **Exception**: Smaller targets acceptable if not clickable multiple times
 
 ### Keyboard Navigation
+
 - Tab order follows visual hierarchy (left-to-right, top-to-bottom)
 - Shift+Tab goes backward
 - Enter/Space activates buttons
@@ -195,6 +207,7 @@ Dark Mode Primary:      Primary-400 (#38bdf8) - lighter for contrast
 ```
 
 ### Dark Mode Implementation
+
 1. Create `isDarkMode` boolean prop on all components
 2. Map tokens to dark variants when `isDarkMode={true}`
 3. Test contrast ratios in dark mode (minimum 4.5:1)
@@ -205,6 +218,7 @@ Dark Mode Primary:      Primary-400 (#38bdf8) - lighter for contrast
 ## Implementation Guidelines
 
 ### CSS Variables (Preferred)
+
 ```css
 :root {
   --color-primary: #0ea5e9;
@@ -222,6 +236,7 @@ Dark Mode Primary:      Primary-400 (#38bdf8) - lighter for contrast
 ```
 
 ### Styled Components (React)
+
 ```typescript
 import styled from 'styled-components';
 
@@ -233,6 +248,7 @@ const Button = styled.button`
 ```
 
 ### Component Props
+
 ```typescript
 interface ComponentProps {
   isDarkMode?: boolean;
@@ -274,6 +290,7 @@ All components must verify:
 ### Most Common Tokens
 
 **Colors**:
+
 - Primary action: `#0ea5e9`
 - Secondary action: `#8b5cf6`
 - Success: `#22c55e`
@@ -282,16 +299,19 @@ All components must verify:
 - Light background: `#f9fafb`
 
 **Spacing**:
+
 - Standard gap: `12px` (md)
 - Small gap: `8px` (sm)
 - Large gap: `16px` (lg)
 
 **Typography**:
+
 - Headings: 700 weight
 - Body: 400 weight
 - Monospace: Menlo/Monaco
 
 **Accessibility**:
+
 - Focus color: `#0ea5e9`
 - Focus width: `2px`
 - Minimum contrast: `4.5:1`
@@ -306,4 +326,4 @@ All components must verify:
 
 ---
 
-*WidgetBoard Design System v1.0 - Phase 1.B Ready*
+_WidgetBoard Design System v1.0 - Phase 1.B Ready_

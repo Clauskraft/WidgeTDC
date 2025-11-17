@@ -161,5 +161,5 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     minH: 6,
     maxW: 6,
     maxH: 8,
-  }
+  },
 ];

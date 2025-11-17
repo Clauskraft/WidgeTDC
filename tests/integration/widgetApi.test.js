@@ -37,7 +37,7 @@ describe('Widget API Integration', () => {
       name: 'New Widget',
       version: '1.0.0',
       price: 49.99,
-      description: 'Test widget'
+      description: 'Test widget',
     };
 
     const response = await apiHelper.post('/api/widgets', widgetData);
@@ -51,7 +51,7 @@ describe('Widget API Integration', () => {
     const widget = await dbHelper.createTestWidget(testUser.id);
 
     const response = await apiHelper.put(`/api/widgets/${widget.id}`, {
-      price: 79.99
+      price: 79.99,
     });
 
     expect(response.status).toBe(200);

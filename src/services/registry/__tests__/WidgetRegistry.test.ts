@@ -18,7 +18,7 @@ describe('WidgetRegistry', () => {
       capabilities: ['ui', 'data'],
       dependencies: {},
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     registry.register(mockWidget);
     expect(registry.getWidget('test-1')).toEqual(mockWidget);
@@ -34,7 +34,7 @@ describe('WidgetRegistry', () => {
       capabilities: ['ui'],
       dependencies: {},
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
     registry.register(mockWidget);
     const filtered = registry.filterWidgets({ capabilities: ['ui'] });

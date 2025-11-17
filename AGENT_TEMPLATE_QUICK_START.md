@@ -5,6 +5,7 @@ Fast reference for setting up a new project using the agent-based methodology.
 ## 30-Second Overview
 
 This template enables parallel development by:
+
 1. Breaking your project into 3-7 **blocks** (major features)
 2. Assigning each block to an **agent** (AI specialist)
 3. Agents work **simultaneously** on feature branches
@@ -17,11 +18,13 @@ This template enables parallel development by:
 ### Step 1: Define Your Blocks (5 min)
 
 List 3-7 major work areas:
+
 - What are the key components?
 - What can be done in parallel?
 - What has hard dependencies?
 
 **Example for E-Commerce:**
+
 - Block 1: Frontend (UI components, pages)
 - Block 2: Backend API (endpoints, services)
 - Block 3: Database (schema, migrations)
@@ -40,19 +43,23 @@ Copy template to `.cursor/agents/agent-name.md`:
 **Status**: 🟡 QUEUED
 
 ## Mission
+
 [One sentence describing the work]
 
 ## Tasks (X story points)
 
 ### Task 1.1: [Task Name] (X pts)
+
 **Priority**: CRITICAL | **Time**: X hours
 
 **Deliverables**:
+
 - [ ] Build component
 - [ ] Add styling
 - [ ] Write tests
 
 **Acceptance Criteria**:
+
 - Component renders
 - All tests pass
 - <100KB bundle size
@@ -60,6 +67,7 @@ Copy template to `.cursor/agents/agent-name.md`:
 **Status**: QUEUED
 
 ## Timeline
+
 - Start: Now
 - Target: [Time] (X hours)
 - Checkpoint: Every 2 hours
@@ -70,6 +78,7 @@ Copy template to `.cursor/agents/agent-name.md`:
 Copy `.github/workflows/agent-block-1-name.yml`:
 
 **Key sections:**
+
 ```yaml
 name: 📋 Agent Block 1 - [Feature Name]
 
@@ -133,6 +142,7 @@ jobs:
 ### Step 4: Update Kanban (5 min)
 
 Edit `project_dashboard.html`:
+
 - Update block names
 - Update story point totals
 - Keep 4 columns (TO DO, IN PROGRESS, BLOCKED, COMPLETED)
@@ -140,6 +150,7 @@ Edit `project_dashboard.html`:
 ### Step 5: Copy Progress Tracker (2 min)
 
 Copy `.cursor/AGENT_PROGRESS_TRACKER.md`, update:
+
 - Agent names
 - Block names and story points
 - Timeline dates
@@ -175,6 +186,7 @@ Copy `.cursor/AGENT_PROGRESS_TRACKER.md`, update:
 ## Running Your First Execution
 
 ### Pre-Execution Checklist
+
 - [ ] All agent briefs created
 - [ ] All workflows created
 - [ ] Kanban board initialized
@@ -184,6 +196,7 @@ Copy `.cursor/AGENT_PROGRESS_TRACKER.md`, update:
 - [ ] Secrets configured (if needed)
 
 ### Execution
+
 1. Manually trigger workflows:
    - Start Wave 1 agents (no dependencies)
    - Wait for Wave 1 to complete
@@ -201,6 +214,7 @@ Copy `.cursor/AGENT_PROGRESS_TRACKER.md`, update:
    - Updates kanban board
 
 ### Post-Execution
+
 1. Verify all work on main branch
 2. Document lessons learned
 3. Update template for next project
@@ -209,6 +223,7 @@ Copy `.cursor/AGENT_PROGRESS_TRACKER.md`, update:
 ## Common Block Patterns
 
 ### Web Application (5 blocks)
+
 ```
 Block 1: Frontend UI Components
 Block 2: Backend API
@@ -218,6 +233,7 @@ Block 5: Deployment
 ```
 
 ### Mobile App (4 blocks)
+
 ```
 Block 1: iOS App
 Block 2: Android App
@@ -226,6 +242,7 @@ Block 4: Testing & Deployment
 ```
 
 ### Data Pipeline (4 blocks)
+
 ```
 Block 1: Data Ingestion
 Block 2: Processing & ETL
@@ -234,6 +251,7 @@ Block 4: Visualization & Reporting
 ```
 
 ### Microservices (6 blocks)
+
 ```
 Block 1: Service 1
 Block 2: Service 2
@@ -246,6 +264,7 @@ Block 6: Testing & Deployment
 ## Dependency Patterns
 
 ### All Parallel (Fastest)
+
 ```
 Blocks 1-5 start immediately
 No dependencies
@@ -253,12 +272,14 @@ Elapsed time = longest single block
 ```
 
 ### Sequential (Slowest)
+
 ```
 Block 1 → Block 2 → Block 3 → Block 4 → Block 5
 Elapsed time = sum of all blocks
 ```
 
 ### Optimal Mixed (Recommended)
+
 ```
 Wave 1 (Parallel):
   Block 1 (Frontend UI)
@@ -274,6 +295,7 @@ Wave 2 (Parallel):
 ## File Checklist for New Project
 
 ### Essential Files
+
 ```
 .github/workflows/
 ├── agent-block-1-*.yml
@@ -293,6 +315,7 @@ README.md
 ```
 
 ### Recommended Files
+
 ```
 claudedocs/
 ├── ARCHITECTURE.md
@@ -304,6 +327,7 @@ TEMPLATE_STRUCTURE.md
 ```
 
 ### Domain-Specific Files
+
 ```
 claudedocs/
 ├── SECURITY_ARCHITECTURE.md (security projects)
@@ -318,6 +342,7 @@ scripts/
 ## Customization Points
 
 **Before Starting Project:**
+
 - [ ] Agent names and domains
 - [ ] Block titles and descriptions
 - [ ] Story point estimates
@@ -326,6 +351,7 @@ scripts/
 - [ ] Quality gate thresholds
 
 **Before Execution:**
+
 - [ ] Verify all workflows syntactically correct
 - [ ] Check branch naming consistent
 - [ ] Confirm agent email domains work
@@ -333,6 +359,7 @@ scripts/
 - [ ] Test GitHub Actions permissions
 
 **During Execution:**
+
 - [ ] Monitor progress tracker updates
 - [ ] Track kanban board status
 - [ ] Review PR quality metrics
@@ -341,21 +368,25 @@ scripts/
 ## Troubleshooting
 
 ### Workflow Not Triggering
+
 - Check `on:` condition matches previous workflow name
 - Verify `workflow_dispatch` enabled for manual triggers
 - Check GitHub Actions permissions
 
 ### PRs Not Being Created
+
 - Verify `uses: actions/create-pull-request@v5` syntax
 - Check GitHub token has write permissions
 - Ensure branch name doesn't exist
 
 ### Kanban Not Updating
+
 - Verify orchestrator has write permissions
 - Check HTML structure matches update script
 - Test manually updating to verify structure
 
 ### Quality Gates Failing
+
 - Review acceptance criteria for each task
 - Check test coverage thresholds
 - Verify performance benchmarks
@@ -364,32 +395,36 @@ scripts/
 
 Track for optimization:
 
-| Metric | Target | Typical | Notes |
-|--------|--------|---------|-------|
-| Parallel efficiency | 70%+ | 60-75% | Time saved by parallelization |
-| Merge success rate | 95%+ | 90-98% | % of PRs merged without issues |
-| Quality gate pass rate | 95%+ | 85-95% | % of PRs passing checks |
-| Average PR review time | <1 hour | 30-90 min | Time from PR to merge |
+| Metric                 | Target  | Typical   | Notes                          |
+| ---------------------- | ------- | --------- | ------------------------------ |
+| Parallel efficiency    | 70%+    | 60-75%    | Time saved by parallelization  |
+| Merge success rate     | 95%+    | 90-98%    | % of PRs merged without issues |
+| Quality gate pass rate | 95%+    | 85-95%    | % of PRs passing checks        |
+| Average PR review time | <1 hour | 30-90 min | Time from PR to merge          |
 
 ## Advanced Usage
 
 ### Multi-Wave Execution
+
 - Define Wave 1 (no dependencies)
 - Wait for Wave 1 completion
 - Trigger Wave 2 (depends on Wave 1)
 - Scale to 3-4 waves for complex projects
 
 ### Conditional Blocks
+
 - Use `workflow_run` to create sequential workflows
 - Multiple workflows can wait for same upstream
 - Enable complex dependency graphs
 
 ### Sub-Blocks
+
 - Create sub-agents within a block
 - Use separate workflows for each sub-block
 - Merge sub-results before creating block PR
 
 ### Automated Rollback
+
 - Keep feature branches available
 - Add rollback workflow if needed
 - Document rollback procedures
@@ -397,18 +432,21 @@ Track for optimization:
 ## Integration with CI/CD
 
 ### Pre-Merge Testing
+
 1. Agent workflow creates PR
 2. GitHub Actions runs tests automatically
 3. Status checks block merge if tests fail
 4. Orchestrator only merges after checks pass
 
 ### Post-Merge Deployment
+
 1. Main branch updated
 2. Trigger deployment workflow
 3. Deploy to staging first
 4. Manual promotion to production
 
 ### Monitoring
+
 - Track metrics in observability tool
 - Set up alerts for failures
 - Post metrics to dashboard
@@ -432,6 +470,7 @@ Track for optimization:
 ## Support
 
 For questions:
+
 1. Check template documentation
 2. Review WidgetTDC implementation
 3. Study existing agent briefs

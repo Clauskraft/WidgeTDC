@@ -1,6 +1,6 @@
 /**
  * In-Memory Security Overwatch Service
- * 
+ *
  * Development implementation of SecurityOverwatchService
  */
 
@@ -70,15 +70,13 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
 
     // Filter by tags
     if (query.tags && query.tags.length > 0) {
-      results = results.filter(a => 
-        a.tags && query.tags!.some(tag => a.tags!.includes(tag))
-      );
+      results = results.filter(a => a.tags && query.tags!.some(tag => a.tags!.includes(tag)));
     }
 
     // Sort
     const sortBy = query.sortBy || 'detectedAt';
     const sortDirection = query.sortDirection || 'desc';
-    
+
     results.sort((a, b) => {
       let comparison = 0;
       switch (sortBy) {
@@ -120,7 +118,10 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
     return completeAlert;
   }
 
-  async updateAlert(id: AlertId, updates: Partial<Omit<SecurityAlert, 'id' | 'detectedAt'>>): Promise<SecurityAlert> {
+  async updateAlert(
+    id: AlertId,
+    updates: Partial<Omit<SecurityAlert, 'id' | 'detectedAt'>>
+  ): Promise<SecurityAlert> {
     const existing = this.alerts.get(id);
     if (!existing) {
       throw new Error(`Alert ${id} not found`);
@@ -137,7 +138,10 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
     return updated;
   }
 
-  async resolveAlert(id: AlertId, resolution: { status: AlertStatus; notes?: string }): Promise<SecurityAlert> {
+  async resolveAlert(
+    id: AlertId,
+    resolution: { status: AlertStatus; notes?: string }
+  ): Promise<SecurityAlert> {
     const updates: Partial<SecurityAlert> = {
       status: resolution.status,
       resolvedAt: new Date(),
@@ -153,7 +157,10 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
     return this.updateAlert(id, updates);
   }
 
-  async getVulnerabilities(filters?: { severity?: AlertSeverity; patchAvailable?: boolean }): Promise<Vulnerability[]> {
+  async getVulnerabilities(filters?: {
+    severity?: AlertSeverity;
+    patchAvailable?: boolean;
+  }): Promise<Vulnerability[]> {
     let results = [...this.vulnerabilities];
 
     if (filters?.severity) {
@@ -167,7 +174,10 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
     return results;
   }
 
-  async getThreatIntelligence(filters?: { type?: ThreatIntelligence['type']; minConfidence?: number }): Promise<ThreatIntelligence[]> {
+  async getThreatIntelligence(filters?: {
+    type?: ThreatIntelligence['type'];
+    minConfidence?: number;
+  }): Promise<ThreatIntelligence[]> {
     let results = [...this.threatIntel];
 
     if (filters?.type) {
@@ -193,7 +203,8 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
         nonCompliantItems: [
           {
             control: 'Article 32',
-            description: 'Security of processing - encryption at rest not enabled for all databases',
+            description:
+              'Security of processing - encryption at rest not enabled for all databases',
             severity: 'high',
           },
         ],
@@ -254,8 +265,8 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
 
     const alertsByCategory: Record<AlertCategory, number> = {
       'network-intrusion': 0,
-      'malware': 0,
-      'vulnerability': 0,
+      malware: 0,
+      vulnerability: 0,
       'data-breach': 0,
       'unauthorized-access': 0,
       'compliance-violation': 0,
@@ -279,11 +290,14 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
       }
     }
 
-    const meanTimeToResolve = resolvedCount > 0 
-      ? totalResolveTime / resolvedCount / (1000 * 60 * 60) // Convert to hours
-      : 0;
+    const meanTimeToResolve =
+      resolvedCount > 0
+        ? totalResolveTime / resolvedCount / (1000 * 60 * 60) // Convert to hours
+        : 0;
 
-    const criticalVulnerabilities = this.vulnerabilities.filter(v => v.severity === 'critical').length;
+    const criticalVulnerabilities = this.vulnerabilities.filter(
+      v => v.severity === 'critical'
+    ).length;
 
     // Calculate security score (simple algorithm)
     const openCritical = alertsBySeverity.critical;
@@ -326,17 +340,22 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
     return mockVulnerabilities.length;
   }
 
-  async generateComplianceReport(framework: ComplianceFramework, format: 'json' | 'pdf'): Promise<string> {
+  async generateComplianceReport(
+    framework: ComplianceFramework,
+    format: 'json' | 'pdf'
+  ): Promise<string> {
     const status = await this.getComplianceStatus(framework);
 
     if (format === 'json') {
       return JSON.stringify(status, null, 2);
     } else {
       // For PDF, return a simple text representation
-      return `Compliance Report: ${framework}\n` +
-             `Compliance: ${status.compliancePercentage}%\n` +
-             `Compliant Controls: ${status.compliantControls}/${status.totalControls}\n` +
-             `Last Assessed: ${status.lastAssessedAt.toISOString()}\n`;
+      return (
+        `Compliance Report: ${framework}\n` +
+        `Compliance: ${status.compliancePercentage}%\n` +
+        `Compliant Controls: ${status.compliantControls}/${status.totalControls}\n` +
+        `Last Assessed: ${status.lastAssessedAt.toISOString()}\n`
+      );
     }
   }
 }

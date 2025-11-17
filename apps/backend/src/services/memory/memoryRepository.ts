@@ -6,11 +6,15 @@ export class MemoryRepository {
 
   ingestEntity(input: MemoryEntityInput): number {
     const importance = input.importance || 3;
-    
-    const result = this.db.prepare(`
+
+    const result = this.db
+      .prepare(
+        `
       INSERT INTO memory_entities (org_id, user_id, entity_type, content, importance)
       VALUES (?, ?, ?, ?, ?)
-    `).run(input.orgId, input.userId || null, input.entityType, input.content, importance);
+    `
+      )
+      .run(input.orgId, input.userId || null, input.entityType, input.content, importance);
 
     const entityId = result.lastInsertRowid as number;
 
@@ -19,7 +23,7 @@ export class MemoryRepository {
       const insertTag = this.db.prepare(`
         INSERT INTO memory_tags (entity_id, tag) VALUES (?, ?)
       `);
-      
+
       for (const tag of input.tags) {
         insertTag.run(entityId, tag);
       }
@@ -50,12 +54,14 @@ export class MemoryRepository {
 
     if (query.keywords && query.keywords.length > 0) {
       // Simple keyword search in content or tags
-      const keywordConditions = query.keywords.map(() => {
-        return `(e.content LIKE ? OR e.id IN (SELECT entity_id FROM memory_tags WHERE tag LIKE ?))`;
-      }).join(' OR ');
-      
+      const keywordConditions = query.keywords
+        .map(() => {
+          return `(e.content LIKE ? OR e.id IN (SELECT entity_id FROM memory_tags WHERE tag LIKE ?))`;
+        })
+        .join(' OR ');
+
       sql += ` AND (${keywordConditions})`;
-      
+
       for (const keyword of query.keywords) {
         params.push(`%${keyword}%`, `%${keyword}%`);
       }
@@ -68,24 +74,36 @@ export class MemoryRepository {
   }
 
   getEntityById(id: number): any {
-    return this.db.prepare(`
+    return this.db
+      .prepare(
+        `
       SELECT * FROM memory_entities WHERE id = ?
-    `).get(id);
+    `
+      )
+      .get(id);
   }
 
   getEntityTags(entityId: number): string[] {
-    const rows = this.db.prepare(`
+    const rows = this.db
+      .prepare(
+        `
       SELECT tag FROM memory_tags WHERE entity_id = ?
-    `).all(entityId);
-    
+    `
+      )
+      .all(entityId);
+
     return rows.map((row: any) => row.tag);
   }
 
   createRelation(orgId: string, sourceId: number, targetId: number, relationType: string): number {
-    const result = this.db.prepare(`
+    const result = this.db
+      .prepare(
+        `
       INSERT INTO memory_relations (org_id, source_id, target_id, relation_type)
       VALUES (?, ?, ?, ?)
-    `).run(orgId, sourceId, targetId, relationType);
+    `
+      )
+      .run(orgId, sourceId, targetId, relationType);
 
     return result.lastInsertRowid as number;
   }

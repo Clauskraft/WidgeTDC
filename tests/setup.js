@@ -8,6 +8,6 @@ afterAll(() => {
   // Cleanup connections
 });
 
-global.testTimeout = (ms) => {
+global.testTimeout = ms => {
   jest.setTimeout(ms);
 };

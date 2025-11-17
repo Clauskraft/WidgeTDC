@@ -23,7 +23,7 @@ export class MSWidgetAdapter {
       source: 'microsoft',
       msWidgetData: msWidget,
     };
-    
+
     return definition;
   }
 }

@@ -1,6 +1,7 @@
 # ADR-0001: Platform Shell and Widget Registry 2.0
 
 ## Status
+
 Accepted
 
 ## Context
@@ -24,6 +25,7 @@ The WidgeTDC platform requires a robust foundation for managing widgets and dash
 ### Requirements
 
 **Functional**:
+
 - Register widgets from multiple sources
 - Validate widget manifests
 - Query widgets by capabilities, source, or metadata
@@ -32,6 +34,7 @@ The WidgeTDC platform requires a robust foundation for managing widgets and dash
 - Provide accessibility configurations
 
 **Non-Functional**:
+
 - Type-safe TypeScript interfaces
 - GDPR-compliant metadata handling
 - Backward compatible with existing widgets
@@ -45,7 +48,7 @@ We will implement a comprehensive **Widget Registry 2.0** and **Platform Shell**
 
 **Type System** (`src/platform/widgets/types.ts`):
 
-````typescript
+```typescript
 // Core widget manifest describing metadata, capabilities, and requirements
 interface WidgetManifest {
   id: WidgetTypeId;
@@ -82,11 +85,11 @@ interface WidgetCapabilities {
   gdprCompliant: boolean;
   permissions?: string[];
 }
-````
+```
 
 **Registry Interface** (`src/platform/widgets/registry.ts`):
 
-````typescript
+```typescript
 interface WidgetRegistry {
   register(definition: WidgetDefinition): Promise<WidgetValidationResult>;
   unregister(id: WidgetTypeId): Promise<boolean>;
@@ -98,13 +101,13 @@ interface WidgetRegistry {
   has(id: WidgetTypeId): Promise<boolean>;
   count(): Promise<number>;
 }
-````
+```
 
 ### Platform Shell
 
 **Type System** (`src/platform/shell/types.ts`):
 
-````typescript
+```typescript
 // Dashboard state management
 interface DashboardState {
   instances: Map<WidgetInstanceId, { widgetType: WidgetTypeId; config?: ...; state?: ... }>;
@@ -146,11 +149,11 @@ interface AccessibilityConfig {
   fontSizeMultiplier: number;
   wcagLevel: 'A' | 'AA' | 'AAA';
 }
-````
+```
 
 **Shell Interface**:
 
-````typescript
+```typescript
 interface PlatformShell {
   getDashboardState(): Promise<DashboardState>;
   updateDashboardState(state: Partial<DashboardState>): Promise<void>;
@@ -163,7 +166,7 @@ interface PlatformShell {
   exportDashboard(format: 'json' | 'yaml'): Promise<string>;
   importDashboard(data: string, format: 'json' | 'yaml'): Promise<boolean>;
 }
-````
+```
 
 ### Integration with Existing Code
 
@@ -202,29 +205,35 @@ The new architecture is designed to be **non-invasive**:
 ## Alternatives Considered
 
 ### Alternative 1: Extend Existing Registry
+
 **Rejected**: Would require breaking changes and doesn't provide clean separation of concerns
 
 ### Alternative 2: Use External Widget Framework
+
 **Rejected**: Adds significant dependency overhead and reduces control over architecture
 
 ### Alternative 3: Minimal Types Only
+
 **Rejected**: Insufficient for enterprise requirements (versioning, security, monitoring)
 
 ## Implementation Notes
 
 ### Phase 1 (Current)
+
 - ✅ Define all TypeScript interfaces
 - ✅ Implement in-memory registry for development
 - ✅ Create adapter for existing widgets
 - ✅ Document migration guide
 
 ### Phase 2 (Future)
+
 - Digital signature verification
 - Widget marketplace integration
 - Remote widget loading
 - Version conflict resolution
 
 ### Phase 3 (Future)
+
 - Real-time collaboration support
 - Multi-monitor docking
 - Advanced layout algorithms

@@ -8,7 +8,7 @@ describe('Microsoft Visual Style', () => {
     expect(style.getPropertyValue('--ms-accent').trim()).toBe('#0078d4');
     expect(style.getPropertyValue('--ms-radius-medium').trim()).toBe('8px');
   });
-  
+
   it('should have correct Microsoft typography', () => {
     // This test relies on the .ms-typography class being applied to an element in the DOM
     const element = document.querySelector('.ms-typography');

@@ -55,9 +55,24 @@ const NETWORK_METRICS = [
 ];
 
 const COMPLIANCE_CONTROLS = [
-  { name: 'GDPR - Art. 32', status: 'grøn', detail: 'Kryptering & kontinuitet kontrolleret', due: 'Næste audit 15/03' },
-  { name: 'ISO 27001 A.16', status: 'gul', detail: 'Automatiseret hændelseslogging skal udvides', due: 'Opfølgning 28/02' },
-  { name: 'NIS2 Annex II', status: 'rød', detail: 'Dokumentation for leverandørkæde påkrævet', due: 'Haster' },
+  {
+    name: 'GDPR - Art. 32',
+    status: 'grøn',
+    detail: 'Kryptering & kontinuitet kontrolleret',
+    due: 'Næste audit 15/03',
+  },
+  {
+    name: 'ISO 27001 A.16',
+    status: 'gul',
+    detail: 'Automatiseret hændelseslogging skal udvides',
+    due: 'Opfølgning 28/02',
+  },
+  {
+    name: 'NIS2 Annex II',
+    status: 'rød',
+    detail: 'Dokumentation for leverandørkæde påkrævet',
+    due: 'Haster',
+  },
 ];
 
 const severityColors: Record<Severity, string> = {
@@ -73,7 +88,9 @@ const CybersecurityOverwatchWidget: React.FC<{ widgetId: string }> = () => {
   const [retentionMonths, setRetentionMonths] = useState(12);
 
   const filteredAlerts = useMemo(() => {
-    return THREAT_ALERTS.filter(alert => severityFilter === 'all' || alert.severity === severityFilter);
+    return THREAT_ALERTS.filter(
+      alert => severityFilter === 'all' || alert.severity === severityFilter
+    );
   }, [severityFilter]);
 
   return (
@@ -83,7 +100,9 @@ const CybersecurityOverwatchWidget: React.FC<{ widgetId: string }> = () => {
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-white/70">Security Operations</p>
             <h3 className="text-xl font-semibold">Cybersecurity Overwatch</h3>
-            <p className="text-sm text-white/80">Netværk, dark web og compliance monitorering samlet ét sted.</p>
+            <p className="text-sm text-white/80">
+              Netværk, dark web og compliance monitorering samlet ét sted.
+            </p>
           </div>
           <div className="text-right">
             <p className="text-sm text-white/70">Realtime SLA</p>
@@ -101,8 +120,13 @@ const CybersecurityOverwatchWidget: React.FC<{ widgetId: string }> = () => {
             >
               <p className="text-xs text-gray-500 uppercase tracking-wide">{metric.label}</p>
               <div className="flex items-baseline gap-2 mt-2">
-                <p className="text-3xl font-semibold">{metric.value}{metric.unit}</p>
-                <span className="text-xs text-emerald-600 dark:text-emerald-400">{metric.trend}</span>
+                <p className="text-3xl font-semibold">
+                  {metric.value}
+                  {metric.unit}
+                </p>
+                <span className="text-xs text-emerald-600 dark:text-emerald-400">
+                  {metric.trend}
+                </span>
               </div>
             </div>
           ))}
@@ -149,7 +173,9 @@ const CybersecurityOverwatchWidget: React.FC<{ widgetId: string }> = () => {
                     <p className="text-sm font-semibold">{alert.vector}</p>
                     <p className="text-xs text-gray-500">{alert.source}</p>
                   </div>
-                  <span className={`inline-flex items-center text-xs font-semibold text-white px-3 py-1 rounded-full ${severityColors[alert.severity]}`}>
+                  <span
+                    className={`inline-flex items-center text-xs font-semibold text-white px-3 py-1 rounded-full ${severityColors[alert.severity]}`}
+                  >
                     {alert.severity.toUpperCase()}
                   </span>
                 </div>
@@ -161,9 +187,15 @@ const CybersecurityOverwatchWidget: React.FC<{ widgetId: string }> = () => {
                   <span>Status: {alert.status}</span>
                 </div>
                 <div className="mt-4 flex gap-2">
-                  <Button variant="primary" size="small">Åbn hændelse</Button>
-                  <Button variant="subtle" size="small">Del med SOC</Button>
-                  <Button variant="subtle" size="small">Exportér evidens</Button>
+                  <Button variant="primary" size="small">
+                    Åbn hændelse
+                  </Button>
+                  <Button variant="subtle" size="small">
+                    Del med SOC
+                  </Button>
+                  <Button variant="subtle" size="small">
+                    Exportér evidens
+                  </Button>
                 </div>
               </div>
             ))}
@@ -177,7 +209,10 @@ const CybersecurityOverwatchWidget: React.FC<{ widgetId: string }> = () => {
 
         <section className="grid grid-cols-3 gap-3">
           {COMPLIANCE_CONTROLS.map(control => (
-            <div key={control.name} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-slate-900/60">
+            <div
+              key={control.name}
+              className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-slate-900/60"
+            >
               <p className="text-sm font-semibold">{control.name}</p>
               <p className="text-xs text-gray-500">{control.detail}</p>
               <p className="text-xs mt-2 text-gray-400">{control.due}</p>

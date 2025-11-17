@@ -95,7 +95,8 @@ describe('Security Utils', () => {
 
   describe('isValidJWTFormat', () => {
     it('should validate JWT format', () => {
-      const validJWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      const validJWT =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
       expect(isValidJWTFormat(validJWT)).toBe(true);
     });
 
@@ -130,7 +131,7 @@ describe('Security Utils', () => {
       limiter.allowRequest();
       limiter.allowRequest();
       expect(limiter.allowRequest()).toBe(false);
-      
+
       // Wait for window to expire
       await new Promise(resolve => setTimeout(resolve, 1100));
       expect(limiter.allowRequest()).toBe(true);
@@ -229,8 +230,8 @@ describe('Security Utils', () => {
       const data = {
         user: {
           name: 'john',
-          apiKey: 'sk-123456'
-        }
+          apiKey: 'sk-123456',
+        },
       };
       const redacted = redactSensitiveData(data);
       expect(redacted.user.name).toBe('john');
@@ -240,7 +241,7 @@ describe('Security Utils', () => {
     it('should handle arrays', () => {
       const data = [
         { id: 1, token: 'abc' },
-        { id: 2, token: 'def' }
+        { id: 2, token: 'def' },
       ];
       const redacted = redactSensitiveData(data);
       expect(redacted[0].token).toBe('[REDACTED]');

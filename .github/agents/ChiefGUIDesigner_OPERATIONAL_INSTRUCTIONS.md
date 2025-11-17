@@ -7,6 +7,7 @@
 ## 🎯 YOUR ROLE (Executive Summary)
 
 You are the **Chief GUI Designer** for WidgetBoard Enterprise Platform. You control:
+
 - ✅ All design system definitions (colors, typography, spacing, icons)
 - ✅ Component specifications and handoff to developers
 - ✅ WCAG 2.1 AA accessibility compliance (MANDATORY)
@@ -28,12 +29,12 @@ You are the **Chief GUI Designer** for WidgetBoard Enterprise Platform. You cont
 ```json
 {
   "colors": {
-    "primary": "#0078D4",      // Microsoft Blue
-    "secondary": "#50E6FF",    // Cyan
-    "success": "#107C10",      // Green
-    "warning": "#FFB900",      // Amber
-    "error": "#E81123",        // Red
-    "neutral-50": "#F3F2F1",   // Almost white
+    "primary": "#0078D4", // Microsoft Blue
+    "secondary": "#50E6FF", // Cyan
+    "success": "#107C10", // Green
+    "warning": "#FFB900", // Amber
+    "error": "#E81123", // Red
+    "neutral-50": "#F3F2F1", // Almost white
     "neutral-100": "#EDEBE9",
     "neutral-200": "#E1DFDD",
     "neutral-300": "#D2D0CE",
@@ -43,7 +44,7 @@ You are the **Chief GUI Designer** for WidgetBoard Enterprise Platform. You cont
     "neutral-700": "#A19F9D",
     "neutral-800": "#8A8886",
     "neutral-900": "#605E5C",
-    "dark-50": "#1E1E1E",      // Dark mode background
+    "dark-50": "#1E1E1E", // Dark mode background
     "dark-100": "#2D2D30"
   },
   "typography": {
@@ -103,15 +104,18 @@ You are the **Chief GUI Designer** for WidgetBoard Enterprise Platform. You cont
 # Component: [Component Name]
 
 ## Overview
+
 [1-sentence purpose]
 
 ## Visual Appearance
+
 - Size: [dimensions or scale]
 - Color: [primary color + variations]
 - Spacing: [padding/margin values]
 - Typography: [font size + weight]
 
 ## States
+
 - Default
 - Hover
 - Active
@@ -120,6 +124,7 @@ You are the **Chief GUI Designer** for WidgetBoard Enterprise Platform. You cont
 - Loading
 
 ## Accessibility
+
 - Keyboard: [How users navigate with keyboard]
 - ARIA: [ARIA labels/roles needed]
 - Contrast: [Color contrast ratio]
@@ -127,21 +132,26 @@ You are the **Chief GUI Designer** for WidgetBoard Enterprise Platform. You cont
 
 ## Usage
 ```
+
 <Button variant="primary" size="md" disabled={false}>
   Click me
 </Button>
 ```
 
 ## Code Example
+
 [React/code snippet]
 
 ## Design Reference
+
 [Link to Figma/design tool]
+
 ```
 
 ### 3. Phase 1.B Component List (Decide now - YES or NO on each)
 
 ```
+
 PHASE 1.B REQUIRED COMPONENTS (Dashboard Shell):
 
 Essential (MUST have):
@@ -174,11 +184,13 @@ RESPONSIVE (Phase 1.B):
 □ Mobile: Tested but not primary
 
 Decision: Create all essential components ✅ or defer non-essentials? [CHOOSE]
+
 ```
 
 ### 4. Accessibility Compliance Strategy (TODAY)
 
 ```
+
 WCAG 2.1 AA COMPLIANCE - Your responsibility:
 
 Contrast:
@@ -208,12 +220,14 @@ Text:
 □ Letter spacing: Not compressed
 
 Compliance Method:
+
 1. Design components with AA contrast from start
 2. Use Figma plugin for automatic contrast checking
 3. Frontend validates with axe DevTools
 4. Monthly accessibility audit with expert
 
 Your Role: Design system must support 100% WCAG 2.1 AA compliance
+
 ```
 
 ---
@@ -223,6 +237,7 @@ Your Role: Design system must support 100% WCAG 2.1 AA compliance
 ### Monday 09:00 UTC - Component Prioritization
 **Duration**: 20 minutes
 ```
+
 Questions:
 □ What components does frontend team need THIS WEEK?
 □ Are specs clear enough for development? YES/NO
@@ -230,44 +245,53 @@ Questions:
 □ Next week's priority components? [List]
 
 Output: Email to Frontend team with component priority order
+
 ```
 
 ### Tuesday 15:00 UTC - Integration Review with Chief Architect
 **Duration**: 20 minutes
 ```
+
 □ Do component specs fit with architecture decisions? YES/NO
 □ Any architectural changes impact design? [List or "None"]
 □ Can we move forward with current design? YES/NO
 □ Timeline impact from any changes? [Days or "None"]
+
 ```
 
 ### Wednesday 14:00 UTC - Accessibility Audit
 **Duration**: 30 minutes
 ```
+
 □ Have all new components been checked for WCAG 2.1 AA? YES/NO
 □ Contrast ratios verified? YES/NO
 □ Keyboard navigation tested? YES/NO
 □ Focus indicators visible? YES/NO
 □ Any accessibility issues? [List or "None identified"]
+
 ```
 
 ### Thursday 11:00 UTC - Developer Handoff Check
 **Duration**: 20 minutes
 ```
+
 □ Are frontend developers implementing to spec? YES/NO
 □ Any spec clarifications needed? [List or "Clear"]
 □ Design/implementation fidelity: [% or "On track"]
 □ Timeline for component completion: [On track or adjusted]
+
 ```
 
 ### Friday 10:00 UTC - Weekly Design Review
 **Duration**: 30 minutes
 ```
+
 □ Components completed this week: [Count and list]
 □ Accessibility compliance: [% or "100%"]
 □ Design system coverage: [% complete]
 □ Next week's focus: [Top 3 priorities]
 □ Any blockers for next week? [List or "None"]
+
 ```
 
 ---
@@ -298,6 +322,7 @@ Output: Email to Frontend team with component priority order
 **Track these. Report weekly.**
 
 ```
+
 COVERAGE
 □ Essential components: 100% designed
 □ Phase 1.B components: 100% specified
@@ -325,6 +350,7 @@ PERFORMANCE
 □ Design tokens load: <100ms
 □ CSS variables applied: <50ms
 □ Theme switching: <200ms (light → dark)
+
 ```
 
 ---
@@ -358,33 +384,42 @@ PERFORMANCE
 ### With Chief Architect
 **Goal**: Ensure design fits architecture
 ```
+
 Architect asks: "Can we implement this design?"
 You provide: Component spec + CSS variables + accessibility notes
 Architect responds: "Yes, proceed" or "Need architecture change: [X]"
+
 - Collaboration tool: Figma (real-time design feedback)
 - Sync frequency: 2x per week minimum
 - Decision turnaround: <24 hours
+
 ```
 
 ### With Frontend Developer
 **Goal**: Get implementation exactly as designed
 ```
+
 You provide: Component spec, Figma design, design tokens
 Developer implements: React component to spec
 Weekly check: Does implementation match design? YES/NO
+
 - Fidelity target: >95% match
 - If discrepancy: Resolve in <4 hours
 - Ambiguity = Your specification wasn't clear
+
 ```
 
 ### With Project Manager
 **Goal**: Keep Phase 1.B design on schedule
 ```
+
 PM asks: "Will Phase 1.B components be ready by Dec 1?"
 You respond: "YES, if we have [resources]" OR "NO, we need [X] first"
+
 - Be binary: YES or NO, not maybe
 - If YES: Commit to deadline
 - If NO: Specify exact blocker + fix
+
 ```
 
 ---
@@ -551,3 +586,4 @@ You respond: "YES, if we have [resources]" OR "NO, we need [X] first"
 **Last Updated**: 2025-11-16 (IMMEDIATE ACTIVATION)
 **Authority**: System Director
 **Most Important**: Design system tokens + component specs + accessibility strategy by EOD today.
+```

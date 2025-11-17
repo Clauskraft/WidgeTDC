@@ -16,30 +16,34 @@ export class MCPWebSocketServer {
     this.wss.on('connection', (ws: WebSocket) => {
       const clientId = Math.random().toString(36).substring(7);
       this.clients.set(clientId, ws);
-      
+
       console.log(`MCP WebSocket client connected: ${clientId}`);
 
       ws.on('message', async (data: Buffer) => {
         try {
           const message: MCPMessage = JSON.parse(data.toString());
-          
+
           // Route the message
           const result = await mcpRegistry.route(message);
-          
+
           // Send response back to client
-          ws.send(JSON.stringify({
-            success: true,
-            messageId: message.id,
-            result,
-          }));
+          ws.send(
+            JSON.stringify({
+              success: true,
+              messageId: message.id,
+              result,
+            })
+          );
 
           // Broadcast to other clients if needed
           this.broadcast(message, clientId);
         } catch (error: any) {
-          ws.send(JSON.stringify({
-            success: false,
-            error: error.message,
-          }));
+          ws.send(
+            JSON.stringify({
+              success: false,
+              error: error.message,
+            })
+          );
         }
       });
 
@@ -49,11 +53,13 @@ export class MCPWebSocketServer {
       });
 
       // Send welcome message
-      ws.send(JSON.stringify({
-        type: 'welcome',
-        clientId,
-        availableTools: mcpRegistry.getRegisteredTools(),
-      }));
+      ws.send(
+        JSON.stringify({
+          type: 'welcome',
+          clientId,
+          availableTools: mcpRegistry.getRegisteredTools(),
+        })
+      );
     });
   }
 
@@ -72,7 +78,7 @@ export class MCPWebSocketServer {
 
   public sendToAll(message: any): void {
     const data = JSON.stringify(message);
-    this.clients.forEach((client) => {
+    this.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(data);
       }
