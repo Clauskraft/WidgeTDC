@@ -9,6 +9,14 @@ import os
 import argparse
 from pathlib import Path
 
+# Fix terminal encoding for Windows compatibility
+if sys.stdout.encoding.lower() not in ('utf-8', 'utf8'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 
 def main():
     parser = argparse.ArgumentParser(
