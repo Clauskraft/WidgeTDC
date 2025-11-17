@@ -1,0 +1,236 @@
+name: Agent Block 2 - Widget Registry 2.0
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Agent Block 1 - Dashboard Shell UI"]
+    types: [completed]
+
+jobs:
+  widget-registry:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Create feature branch
+        run: |
+          git config user.name "GoogleCloudArch"
+          git config user.email "cloudarch@widgettdc.ai"
+          git checkout -b agent/block-2-widget-registry
+
+      - name: Create TypeScript widget registry types
+        run: |
+          mkdir -p src/services/registry
+          cat > src/services/registry/types.ts << 'EOF'
+          export interface WidgetMetadata {
+            id: string;
+            name: string;
+            version: string;
+            description: string;
+            author: string;
+            capabilities: string[];
+            dependencies: Record<string, string>;
+            createdAt: Date;
+            updatedAt: Date;
+          }
+
+          export interface WidgetVersion {
+            version: string;
+            releaseDate: Date;
+            changelog: string;
+            deprecated: boolean;
+          }
+
+          export interface WidgetCapability {
+            name: string;
+            category: 'ui' | 'data' | 'integration' | 'analytics';
+            required: boolean;
+          }
+
+          export interface RegistryFilter {
+            capabilities?: string[];
+            version?: string;
+            author?: string;
+            deprecated?: boolean;
+          }
+          EOF
+
+      - name: Create widget registry service
+        run: |
+          cat > src/services/registry/WidgetRegistry.ts << 'EOF'
+          import { WidgetMetadata, WidgetVersion, RegistryFilter } from './types';
+
+          export class WidgetRegistry {
+            private widgets: Map<string, WidgetMetadata> = new Map();
+            private versions: Map<string, WidgetVersion[]> = new Map();
+
+            register(widget: WidgetMetadata): void {
+              this.widgets.set(widget.id, widget);
+              const versions = this.versions.get(widget.id) || [];
+              versions.push({
+                version: widget.version,
+                releaseDate: new Date(),
+                changelog: 'Initial version',
+                deprecated: false
+              });
+              this.versions.set(widget.id, versions);
+            }
+
+            getWidget(id: string): WidgetMetadata | undefined {
+              return this.widgets.get(id);
+            }
+
+            getAllWidgets(): WidgetMetadata[] {
+              return Array.from(this.widgets.values());
+            }
+
+            filterWidgets(filter: RegistryFilter): WidgetMetadata[] {
+              let results = this.getAllWidgets();
+              if (filter.capabilities && filter.capabilities.length > 0) {
+                results = results.filter(widget =>
+                  filter.capabilities!.every(cap => widget.capabilities.includes(cap))
+                );
+              }
+              if (filter.version) {
+                results = results.filter(widget => widget.version === filter.version);
+              }
+              if (filter.author) {
+                results = results.filter(widget => widget.author === filter.author);
+              }
+              return results;
+            }
+
+            getVersionHistory(widgetId: string): WidgetVersion[] {
+              return this.versions.get(widgetId) || [];
+            }
+
+            deprecateVersion(widgetId: string, version: string): void {
+              const versions = this.versions.get(widgetId);
+              if (versions) {
+                const versionEntry = versions.find(v => v.version === version);
+                if (versionEntry) {
+                  versionEntry.deprecated = true;
+                }
+              }
+            }
+
+            searchByCapability(capability: string): WidgetMetadata[] {
+              return this.getAllWidgets().filter(widget =>
+                widget.capabilities.includes(capability)
+              );
+            }
+          }
+
+          export const registry = new WidgetRegistry();
+          EOF
+
+      - name: Create registry index
+        run: |
+          cat > src/services/registry/index.ts << 'EOF'
+          export { WidgetRegistry, registry } from './WidgetRegistry';
+          export type { WidgetMetadata, WidgetVersion, WidgetCapability, RegistryFilter } from './types';
+          EOF
+
+      - name: Create registry tests
+        run: |
+          mkdir -p src/services/registry/__tests__
+          cat > src/services/registry/__tests__/WidgetRegistry.test.ts << 'EOF'
+          import { WidgetRegistry } from '../WidgetRegistry';
+          import { WidgetMetadata } from '../types';
+
+          describe('WidgetRegistry', () => {
+            let registry: WidgetRegistry;
+
+            beforeEach(() => {
+              registry = new WidgetRegistry();
+            });
+
+            test('should register widget', () => {
+              const mockWidget: WidgetMetadata = {
+                id: 'test-1',
+                name: 'Test Widget',
+                version: '1.0.0',
+                description: 'Test',
+                author: 'TestAuthor',
+                capabilities: ['ui', 'data'],
+                dependencies: {},
+                createdAt: new Date(),
+                updatedAt: new Date()
+              };
+              registry.register(mockWidget);
+              expect(registry.getWidget('test-1')).toEqual(mockWidget);
+            });
+
+            test('should filter by capabilities', () => {
+              const mockWidget: WidgetMetadata = {
+                id: 'test-1',
+                name: 'Test Widget',
+                version: '1.0.0',
+                description: 'Test',
+                author: 'TestAuthor',
+                capabilities: ['ui'],
+                dependencies: {},
+                createdAt: new Date(),
+                updatedAt: new Date()
+              };
+              registry.register(mockWidget);
+              const filtered = registry.filterWidgets({ capabilities: ['ui'] });
+              expect(filtered.length).toBe(1);
+            });
+          });
+          EOF
+
+      - name: Commit changes
+        run: |
+          git add .
+          git commit -m "feat: Implement Widget Registry 2.0 with versioning - GoogleCloudArch Block 2 (42pts)"
+
+      - name: Push feature branch
+        run: git push origin agent/block-2-widget-registry
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --title "Block 2: Widget Registry 2.0 with Versioning" \
+            --body "## Widget Registry 2.0 - GoogleCloudArch
+
+### Completed Tasks
+- TypeScript widget metadata types
+- Version management system
+- Capability-based filtering
+- Registry service with CRUD operations
+- Unit tests with Jest
+
+### Technical Details
+- Service: WidgetRegistry.ts
+- Types: types.ts
+- Tests: WidgetRegistry.test.ts
+
+### Features
+- Widget registration and retrieval
+- Version history tracking
+- Capability-based search
+- Deprecation management
+
+**Agent:** GoogleCloudArch
+**Block:** 2 of 6
+**Points:** 42
+**Depends on:** Block 1" \
+            --base main \
+            --head agent/block-2-widget-registry

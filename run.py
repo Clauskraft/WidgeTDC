@@ -34,7 +34,7 @@ def main():
     )
     parser.add_argument(
         "-m", "--model",
-        default="claude-3-5-sonnet-20241022",
+        default="claude-opus-4-1",
         help="LLM model to use for real execution"
     )
 
