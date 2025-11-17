@@ -30,7 +30,7 @@ jobs:
       - name: Discover all open agent PRs
         id: discover
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Discovering agent PRs..."
 
@@ -50,6 +50,8 @@ jobs:
       - name: Parse and validate agent PRs
         id: validate
         if: steps.discover.outputs.agent_prs_found == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Validating agent PRs..."
 
@@ -126,7 +128,7 @@ jobs:
       - name: Auto-approve validated PRs
         if: steps.validate.outputs.validated_prs_exist == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Auto-approving validated PRs..."
 
@@ -154,7 +156,7 @@ jobs:
       - name: Merge validated PRs
         if: steps.validate.outputs.validated_prs_exist == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Merging validated PRs..."
 
@@ -201,7 +203,7 @@ jobs:
       - name: Update project kanban board
         if: steps.validate.outputs.validated_prs_exist == 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           echo "Updating project kanban board..."
 
