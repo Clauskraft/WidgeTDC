@@ -98,6 +98,7 @@ Dec 13 (Day 6): Block 4 Quality Gate + completion
 
 **Result**: 6 days with parallelization compresses to equivalent of 4.5 days effective work
 
+> **Explanation**: The "4.5 days effective work" is calculated by summing the durations of all blocks (Block 1: 1.5 days, Block 2: 2.5 days, Block 3: 1.5 days, Block 4: 0.5 days), which totals 6 days. Through parallelization, overlapping work reduces the actual elapsed time to 6 calendar days, but the total effort expended is equivalent to 4.5 days when accounting for concurrent execution and partial pre-completion (e.g., Block 1 is 50% complete before Dec 8). "Effective work" here refers to the aggregate person-days required, not the elapsed calendar days.
 ---
 
 ## Phase 1.C Execution (Dec 8-13)
