@@ -1,0 +1,26 @@
+{
+  "timeout_seconds": 30,
+  "severity_threshold": "MEDIUM",
+  "models": [
+    "microsoft/codebert-base",
+    "huggingface/CodeBERTa-small-v1"
+  ],
+  "parallel_workers": 3,
+  "cache_results": true,
+  "exclude_patterns": [
+    "node_modules/",
+    "dist/",
+    "build/",
+    "*.test.py",
+    "*_test.py",
+    ".next/",
+    ".cache/",
+    ".git/"
+  ],
+  "security_check": true,
+  "performance_check": true,
+  "api_validation": true,
+  "batch_size": 16,
+  "model_cache_dir": ".cache/huggingface/models",
+  "output_format": "json"
+}
