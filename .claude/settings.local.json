@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__serena__list_memories",
+      "Bash(git -C \"C:\\Users\\claus\\Projects\\WidgetTDC\" log --oneline -20)",
+      "mcp__serena__search_for_pattern",
+      "mcp__serena__activate_project",
+      "Bash(cat:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(git push:*)",
+      "Bash(git fetch:*)",
+      "Bash(git merge:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "mcp__serena__list_dir",
+      "WebFetch(domain:github.com)",
+      "Bash(for branch in copilot/sub-pr-14-another-one copilot/fix-eslint-typescript-errors copilot/sub-pr-14-one-more-time copilot/sub-pr-14)",
+      "Bash(do echo \"=== $branch ===\")",
+      "Bash(done)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
