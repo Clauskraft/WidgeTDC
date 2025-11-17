@@ -130,7 +130,7 @@ def run_real_agents(iterations, continuous, model):
 
                 result = executor.execute_cascade_iteration(agents)
                 if result.get('all_complete'):
-                    print(f"\n✓ Cascade complete - all {len(agents)} blocks executed!")
+                    print(f"\n[OK] Cascade complete - all {len(agents)} blocks executed!")
                     break
         else:
             # Run specific iterations
@@ -141,7 +141,7 @@ def run_real_agents(iterations, continuous, model):
 
                 result = executor.execute_cascade_iteration(agents)
                 if result.get('all_complete'):
-                    print(f"\n✓ All {len(agents)} blocks completed!")
+                    print(f"\n[OK] All {len(agents)} blocks completed!")
                     break
 
     except ImportError as e:
