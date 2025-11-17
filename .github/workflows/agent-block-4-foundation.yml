@@ -2,7 +2,7 @@ name: Agent Block 4 - DatabaseMaster
 
 on:
   workflow_run:
-    workflows: ["Agent Block 3 - APISpecialist"]
+    workflows: ["Agent Block 3 - Audit Log Hash-Chain System"]
     types:
       - completed
   workflow_dispatch:
