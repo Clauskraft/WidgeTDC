@@ -125,33 +125,6 @@ jobs:
             echo "validated_prs_exist=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Auto-approve validated PRs
-        if: steps.validate.outputs.validated_prs_exist == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Auto-approving validated PRs..."
-
-          while IFS='|' read -r pr_number agent block points branch; do
-            echo "Approving PR #$pr_number ($agent - Block $block - $points points)..."
-
-            gh pr review "$pr_number" --approve --body "Automatically approved by HansPedder Orchestrator
-
-          **Validation Results:**
-          - Agent: $agent
-          - Block: $block
-          - Story Points: $points
-          - Status: All checks passed
-
-          **Orchestrator Decision:** APPROVE
-          **Merge Strategy:** Squash and merge
-          **Branch:** $branch
-
-          This PR meets all quality gates and is ready for merge."
-
-            echo "PR #$pr_number approved"
-
-          done < validated_prs.txt
 
       - name: Merge validated PRs
         if: steps.validate.outputs.validated_prs_exist == 'true'
