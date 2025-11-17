@@ -139,7 +139,7 @@ export async function palEventHandler(payload: any, ctx: McpContext): Promise<an
 
 export async function palBoardActionHandler(payload: any, ctx: McpContext): Promise<any> {
   // Get recommendations
-  let profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
+  const profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
   if (!profile) {
     palRepo.createUserProfile(ctx.userId, ctx.orgId);
   }
