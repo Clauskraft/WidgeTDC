@@ -14,6 +14,7 @@ import type {
   IntegrityVerificationResult,
 } from './types';
 import { DEFAULT_RETENTION_POLICIES } from './types';
+import { createLogger } from '../core/logging';
 
 /**
  * In-memory implementation of AuditLogService
@@ -22,6 +23,7 @@ export class InMemoryAuditLogService implements AuditLogService {
   private events: AuditEvent[] = [];
   private eventCounter = 0;
   private readonly GENESIS_HASH = '0000000000000000000000000000000000000000000000000000000000000000';
+  private readonly logger = createLogger('InMemoryAuditLogService', 'warn');
 
   /**
    * Generate the next sequential event ID
@@ -276,7 +278,7 @@ export class InMemoryAuditLogService implements AuditLogService {
       // In production, this would archive to external storage
       // For in-memory implementation, we'll keep events for integrity
       // but could mark them as archived
-      console.warn(
+      this.logger.warn(
         `archiveExpiredEvents: ${expiredEvents.length} events would be archived. ` +
         `In-memory implementation does not actually remove events.`
       );
