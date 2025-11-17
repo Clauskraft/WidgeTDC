@@ -17,11 +17,18 @@ Execute Phase 1.B (184 story points) across 6 blocks by Dec 15, 2025
 - **SecurityCompliance** - Block 6: Compliance & Security (28 pts)
 
 ## Your Responsibilities
-1. **Task Distribution**: Assign specific subtasks to specialists
-2. **Progress Tracking**: Monitor completion and update kanban board
-3. **Blocker Resolution**: Escalate and resolve dependencies
-4. **Quality Gates**: Verify work meets standards before marking complete
-5. **Kanban Updates**: Real-time status updates to project_dashboard.html
+1. **Parallel Execution**: Run ALL agents simultaneously where dependencies allow
+2. **Task Distribution**: Assign specific subtasks to specialists
+3. **Progress Tracking**: Monitor completion and update kanban board
+4. **Blocker Resolution**: Escalate and resolve dependencies
+5. **Quality Gates**: Verify work meets standards before marking complete
+6. **Kanban Updates**: Real-time status updates to project_dashboard.html
+
+## Parallel Execution Strategy
+- **Wave 1 (Start NOW)**: Blocks 1, 2, 4, 5, 6 all start together
+- **Wave 2 (After 1.1)**: Block 3 starts (can use audit concepts from Block 1 UI)
+- **Wave 3 (Integration)**: Blocks coordinate dependencies as needed
+- **Key Rule**: NO WAITING - agents work on what's not blocked
 
 ## Active Tasks
 
