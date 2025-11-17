@@ -2,6 +2,7 @@
 """
 Agent Executor - Real LLM-based agent execution for WidgetTDC Cascade
 Integrates with Anthropic Claude API for real autonomous agent execution
+ENHANCED: Comprehensive error handling for all error scenarios
 """
 
 import os
@@ -20,7 +21,7 @@ except ImportError:
 
 
 class AgentExecutor:
-    """Executes agent blocks with real Claude API integration"""
+    """Executes agent blocks with real Claude API integration and error handling"""
 
     def __init__(self, model: str = "claude-opus-4-1"):
         """Initialize agent executor with LLM client"""
@@ -51,7 +52,7 @@ class AgentExecutor:
         return None
 
     def execute_agent_block(self, agent_info: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute a single agent block with real LLM"""
+        """Execute a single agent block with real LLM and comprehensive error handling"""
         agent_id = agent_info.get("id", "unknown")
         agent_name = agent_info.get("name", agent_id)
         block_num = agent_info.get("block_number", 0)
@@ -67,17 +68,57 @@ class AgentExecutor:
         try:
             # Call Claude API
             start_time = time.time()
-            message = self.client.messages.create(
-                model=self.model,
-                max_tokens=2048,
-                system=f"You are {agent_name}, block {block_num} in the WidgetTDC cascade.\n\nYour role: Autonomous agent responsible for implementation.\n\nBe concise and focus on delivering the specified functionality.",
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
+
+            try:
+                message = self.client.messages.create(
+                    model=self.model,
+                    max_tokens=2048,
+                    system=f"You are {agent_name}, block {block_num} in the WidgetTDC cascade.\n\nYour role: Autonomous agent responsible for implementation.\n\nBe concise and focus on delivering the specified functionality.",
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ]
+                )
+            except Exception as api_error:
+                # Extract error details
+                error_msg = str(api_error)
+                error_code = getattr(api_error, 'status_code', 'unknown')
+
+                # Handle specific API errors
+                if error_code == 404 or "not_found" in error_msg.lower():
+                    print(f"[ERROR] {agent_name} failed: Model not found ({self.model})")
+                    return self._create_error_result(
+                        agent_id, agent_name, block_num,
+                        f"Model '{self.model}' not available. Verify ANTHROPIC_API_KEY and model name."
+                    )
+                elif error_code == 401 or "unauthorized" in error_msg.lower():
+                    print(f"[ERROR] {agent_name} failed: Authentication error")
+                    return self._create_error_result(
+                        agent_id, agent_name, block_num,
+                        "Authentication failed. Check ANTHROPIC_API_KEY environment variable."
+                    )
+                elif error_code == 429 or "rate" in error_msg.lower():
+                    print(f"[ERROR] {agent_name} failed: Rate limited")
+                    time.sleep(2)
+                    return self._create_error_result(
+                        agent_id, agent_name, block_num,
+                        "Rate limited - will retry in next iteration"
+                    )
+                elif "connection" in error_msg.lower():
+                    print(f"[ERROR] {agent_name} failed: Connection error")
+                    return self._create_error_result(
+                        agent_id, agent_name, block_num,
+                        "Connection error to API - will retry"
+                    )
+                else:
+                    print(f"[ERROR] {agent_name} failed: API error ({error_code}) - {error_msg[:100]}")
+                    return self._create_error_result(
+                        agent_id, agent_name, block_num,
+                        f"API Error ({error_code}): {error_msg[:200]}"
+                    )
+
             execution_time = time.time() - start_time
 
             # Extract response
@@ -105,16 +146,23 @@ class AgentExecutor:
             }
 
         except Exception as e:
-            print(f"[ERROR] {agent_name} failed: {str(e)}")
-            return {
-                "success": False,
-                "agent_id": agent_id,
-                "agent_name": agent_name,
-                "block_number": block_num,
-                "error": str(e),
-                "timestamp": datetime.now().isoformat(),
-                "status": "failed"
-            }
+            print(f"[ERROR] {agent_name} failed: Unexpected error - {str(e)[:100]}")
+            return self._create_error_result(
+                agent_id, agent_name, block_num,
+                f"Unexpected error: {str(e)[:200]}"
+            )
+
+    def _create_error_result(self, agent_id: str, agent_name: str, block_num: int, error_msg: str) -> Dict[str, Any]:
+        """Helper to create consistent error results"""
+        return {
+            "success": False,
+            "agent_id": agent_id,
+            "agent_name": agent_name,
+            "block_number": block_num,
+            "error": error_msg,
+            "timestamp": datetime.now().isoformat(),
+            "status": "failed"
+        }
 
     def update_agent_state(self, agent_result: Dict[str, Any], workload: int = 0):
         """Update runtime agent state tracking"""
@@ -148,90 +196,51 @@ class AgentExecutor:
                     }
                 }
 
-            # Update agent
-            block_num = agent_result.get("block_number", 0)
-            status = "healthy" if agent_result.get("success") else "unhealthy"
-
-            state["runtime_agents"]["agents"][str(block_num)] = {
-                "agent_id": agent_result.get("agent_id"),
-                "name": agent_result.get("agent_name"),
-                "block": block_num,
-                "status": "idle" if workload == 0 else ("loaded" if workload < 70 else "overloaded"),
-                "workload": workload,
-                "health": status,
-                "completed_tasks": 1 if agent_result.get("success") else 0,
-                "failed_tasks": 0 if agent_result.get("success") else 1,
-                "token_usage": agent_result.get("tokens_used", 0)
-            }
-
-            # Update timestamp
-            state["runtime_agents"]["timestamp"] = datetime.now().isoformat()
+            # Update agent entry
+            agent_id = agent_result.get("agent_id")
+            if agent_id:
+                state["runtime_agents"]["agents"][agent_id] = {
+                    "status": agent_result.get("status", "unknown"),
+                    "timestamp": datetime.now().isoformat(),
+                    "workload": workload,
+                    "health": "healthy" if agent_result.get("success") else "unhealthy"
+                }
 
             # Save state
             self.agent_state_file.write_text(json.dumps(state, indent=2))
 
         except Exception as e:
-            print(f"[WARN] Could not update agent state: {e}")
-
-    def update_cascade_state(self, iteration: int, results: List[Dict[str, Any]]):
-        """Update cascade-level state tracking"""
-        try:
-            state = {}
-            if self.state_file.exists():
-                state = json.loads(self.state_file.read_text())
-
-            state["last_iteration"] = iteration
-            state["timestamp"] = datetime.now().isoformat()
-            state["last_iteration_results"] = results
-            state["total_tokens_used"] = self.total_tokens_used
-            state["cascade_complete"] = all(r.get("success") for r in results)
-
-            self.state_file.write_text(json.dumps(state, indent=2))
-
-        except Exception as e:
-            print(f"[WARN] Could not update cascade state: {e}")
+            print(f"[WARN] Could not update agent state: {str(e)}")
 
     def execute_cascade_iteration(self, agents: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Execute one complete cascade iteration"""
+        """Execute one cascade iteration with all agents"""
         results = []
-        completed_count = 0
-        failed_count = 0
+        succeeded = 0
+        failed = 0
 
-        print("")
-        for agent in agents:
-            result = self.execute_agent_block(agent)
+        for agent_info in agents:
+            result = self.execute_agent_block(agent_info)
             results.append(result)
 
-            # Update agent runtime state (with simulated workload)
-            workload = 0 if result.get("success") else 5  # Show as lighter workload if completed
-            self.update_agent_state(result, workload)
+            # Update state
+            self.update_agent_state(result)
 
+            # Track success/failure
             if result.get("success"):
-                completed_count += 1
+                succeeded += 1
             else:
-                failed_count += 1
+                failed += 1
 
-        print("")
-        print(f"[SUMMARY] Iteration complete: {completed_count} succeeded, {failed_count} failed")
-        print(f"[TOKENS] Total used this iteration: {sum(r.get('tokens_used', 0) for r in results)}")
-
-        # Update cascade state
-        self.update_cascade_state(1, results)
-
-        all_complete = failed_count == 0 and completed_count == len(agents)
+        # Summary
+        all_complete = failed == 0 and succeeded == len(agents)
+        print(f"\n[SUMMARY] Iteration complete: {succeeded} succeeded, {failed} failed")
+        print(f"[TOKENS] Total used this iteration: {self.total_tokens_used}")
 
         return {
-            "iteration": 1,
-            "agents_executed": len(agents),
-            "agents_succeeded": completed_count,
-            "agents_failed": failed_count,
+            "results": results,
+            "succeeded": succeeded,
+            "failed": failed,
+            "total": len(agents),
             "all_complete": all_complete,
-            "total_tokens": sum(r.get("tokens_used", 0) for r in results),
-            "results": results
+            "timestamp": datetime.now().isoformat()
         }
-
-
-if __name__ == "__main__":
-    # Test executor
-    print("Agent Executor Module")
-    print("Use: from agent_executor import AgentExecutor")
