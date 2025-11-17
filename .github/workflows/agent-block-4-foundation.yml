@@ -109,7 +109,17 @@ jobs:
                 type: DataTypes.TEXT
               },
               version: {
-          git commit -m "feat: Implement foundation systems with database layer - DatabaseMaster Block 4 (50pts)"
+                type: DataTypes.STRING(20),
+                allowNull: false
+              },
+              price: {
+                type: DataTypes.DECIMAL(10, 2),
+                allowNull: false
+              },
+              stockQuantity: {
+                type: DataTypes.INTEGER,
+                defaultValue: 0
+              },
               ownerId: {
                 type: DataTypes.UUID,
                 allowNull: false,
