@@ -42,6 +42,115 @@ class CascadeOrchestrator:
         with open(self.state_file, 'w') as f:
             json.dump(self.state, f, indent=2)
 
+    def _update_runtime_agent_state(self, block_num: int, agent_info: Dict[str, Any], status: str, **kwargs):
+        """Update runtime agent tracking in agent-state.json"""
+        try:
+            agent_state_file = Path(".claude/agent-state.json")
+            agent_state = {}
+
+            if agent_state_file.exists():
+                with open(agent_state_file, 'r') as f:
+                    agent_state = json.load(f)
+
+            # Initialize runtime_agents section if missing
+            if "runtime_agents" not in agent_state:
+                agent_state["runtime_agents"] = {
+                    "timestamp": datetime.now().isoformat(),
+                    "cascade_active": True,
+                    "agents": {},
+                    "summary": {
+                        "total_agents": 6,
+                        "idle_agents": 6,
+                        "loaded_agents": 0,
+                        "overloaded_agents": 0,
+                        "unhealthy_agents": 0,
+                        "total_workload": 0,
+                        "avg_workload": 0,
+                        "max_workload": 0
+                    },
+                    "thresholds": {
+                        "idle": 0,
+                        "loaded": 30,
+                        "overloaded": 70,
+                        "unhealthy": 90
+                    }
+                }
+
+            # Update agent status
+            block_key = str(block_num)
+            if block_key not in agent_state["runtime_agents"]["agents"]:
+                agent_state["runtime_agents"]["agents"][block_key] = {
+                    "agent_id": agent_info.get('id', f'agent-{block_num}'),
+                    "name": agent_info.get('name', f'Agent-{block_num}'),
+                    "block": block_num,
+                    "status": "idle",
+                    "workload": 0,
+                    "last_activity": datetime.now().isoformat(),
+                    "assigned_tasks": 0,
+                    "completed_tasks": 0,
+                    "failed_tasks": 0,
+                    "current_task": None,
+                    "health": "healthy",
+                    "token_usage": 0
+                }
+
+            agent = agent_state["runtime_agents"]["agents"][block_key]
+
+            # Update status
+            agent["status"] = status
+            agent["last_activity"] = datetime.now().isoformat()
+
+            if status == "loaded":
+                agent["workload"] = kwargs.get("workload", 50)
+                agent["current_task"] = kwargs.get("task", f"block-{block_num}")
+                agent["assigned_tasks"] = agent.get("assigned_tasks", 0) + 1
+            elif status == "idle":
+                agent["workload"] = 0
+                agent["current_task"] = None
+            elif status == "complete":
+                agent["status"] = "idle"
+                agent["workload"] = 0
+                agent["current_task"] = None
+                agent["completed_tasks"] = agent.get("completed_tasks", 0) + 1
+            elif status == "failed":
+                agent["status"] = "idle"
+                agent["workload"] = 0
+                agent["current_task"] = None
+                agent["failed_tasks"] = agent.get("failed_tasks", 0) + 1
+                agent["health"] = "unhealthy"
+
+            agent["token_usage"] = kwargs.get("tokens", agent.get("token_usage", 0))
+
+            # Update summary statistics
+            agents = agent_state["runtime_agents"]["agents"]
+            idle = sum(1 for a in agents.values() if a["status"] == "idle")
+            loaded = sum(1 for a in agents.values() if a["status"] == "loaded" and a["workload"] < 70)
+            overloaded = sum(1 for a in agents.values() if a["workload"] >= 70)
+            unhealthy = sum(1 for a in agents.values() if a["health"] != "healthy")
+
+            workloads = [a["workload"] for a in agents.values()]
+            total_workload = sum(workloads)
+
+            agent_state["runtime_agents"]["timestamp"] = datetime.now().isoformat()
+            agent_state["runtime_agents"]["cascade_active"] = self.state['cascade_status'] in ["RUNNING", "INITIALIZED"]
+            agent_state["runtime_agents"]["summary"] = {
+                "total_agents": len(agents),
+                "idle_agents": idle,
+                "loaded_agents": loaded,
+                "overloaded_agents": overloaded,
+                "unhealthy_agents": unhealthy,
+                "total_workload": total_workload,
+                "avg_workload": total_workload / len(agents) if agents else 0,
+                "max_workload": max(workloads) if workloads else 0
+            }
+
+            # Persist
+            with open(agent_state_file, 'w') as f:
+                json.dump(agent_state, f, indent=2)
+
+        except Exception as e:
+            self._log(f"[WARN] Failed to update runtime agent state: {e}", "WARN")
+
     def _log(self, message: str, level: str = "INFO"):
         """Log orchestrator activity"""
         timestamp = datetime.now().isoformat()
@@ -80,6 +189,9 @@ class CascadeOrchestrator:
         self.state['blocks_in_progress'].append(block_num)
         self._save_state()
 
+        # Update agent state to loaded (executing)
+        self._update_runtime_agent_state(block_num, agent, "loaded", workload=60, task=f"block-{block_num}")
+
         try:
             # In real implementation: invoke Claude with agent registry + context
             # For now, simulate execution
@@ -96,6 +208,10 @@ class CascadeOrchestrator:
             self.state['current_block'] = block_num
 
             self._log(f"[COMPLETE] Block {block_num} COMPLETE: {agent_name}")
+
+            # Update agent state to complete (idle)
+            self._update_runtime_agent_state(block_num, agent, "complete", tokens=1000)
+
             self._save_state()
             return True
 
@@ -103,6 +219,10 @@ class CascadeOrchestrator:
             self._log(f"[FAILED] Block {block_num} FAILED: {str(e)}", "ERROR")
             self.state['blocks_failed'].append(block_num)
             self.state['blocks_in_progress'].remove(block_num)
+
+            # Update agent state to failed
+            self._update_runtime_agent_state(block_num, agent, "failed")
+
             self._save_state()
             return False
 
