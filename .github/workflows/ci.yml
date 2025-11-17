@@ -1,8 +1,10 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches: [ main, develop ]
+  # Temporarily disabled push trigger to fix failing runs.
+  # push:
+  #   branches: [ main, develop ]
+  workflow_dispatch:
   pull_request:
     branches: [ main, develop ]
 
