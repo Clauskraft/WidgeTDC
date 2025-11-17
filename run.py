@@ -102,6 +102,9 @@ def run_real_agents(iterations, continuous, model):
         sys.exit(1)
 
     try:
+        import sys
+        from pathlib import Path
+        sys.path.insert(0, str(Path(__file__).parent))
         from agent_executor import AgentExecutor
         import yaml
 
