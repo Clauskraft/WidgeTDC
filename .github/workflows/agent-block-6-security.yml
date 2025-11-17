@@ -146,6 +146,9 @@ jobs:
                     args: --severity-threshold=high
           EOF
 
+      - name: Create middleware directory
+        run: mkdir -p src/middleware
+
       - name: Create security headers middleware
         run: |
           cat > src/middleware/securityHeaders.js << 'EOF'
