@@ -1,0 +1,40 @@
+{
+  "authentication": {
+    "passwordMinLength": 12,
+    "passwordRequireUppercase": true,
+    "passwordRequireLowercase": true,
+    "passwordRequireNumbers": true,
+    "passwordRequireSymbols": true,
+    "maxLoginAttempts": 5,
+    "lockoutDurationMinutes": 30,
+    "jwtExpirationHours": 24,
+    "refreshTokenExpirationDays": 7
+  },
+  "rateLimiting": {
+    "authEndpoints": {
+      "windowMs": 900000,
+      "maxRequests": 5
+    },
+    "apiEndpoints": {
+      "windowMs": 900000,
+      "maxRequests": 100
+    }
+  },
+  "headers": {
+    "hsts": true,
+    "csp": true,
+    "noSniff": true,
+    "xssFilter": true,
+    "hidePoweredBy": true
+  },
+  "inputValidation": {
+    "sanitizeHtml": true,
+    "maxBodySize": "10mb",
+    "maxUrlLength": 2048
+  },
+  "audit": {
+    "logFailedLogins": true,
+    "logApiErrors": true,
+    "logSecurityEvents": true
+  }
+}
