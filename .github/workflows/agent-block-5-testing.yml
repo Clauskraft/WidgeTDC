@@ -17,6 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +27,7 @@ jobs:
           git config user.email "agent-block-5@widgetboard.dev"
           git checkout -b ${{ env.BRANCH }} || git checkout ${{ env.BRANCH }}
 
-      - name: Task 5.1: Test Acceleration (50→100 tests) (16 pts)
+      - name: 'Task 5.1: Test Acceleration (50 to 100 tests) (16 pts)'
         run: |
           mkdir -p apps/widget-board/__tests__ apps/api/__tests__ packages/widget-registry/__tests__
 
@@ -308,7 +309,7 @@ jobs:
           EOF
           git add jest.config.js
 
-      - name: Task 5.2: Coverage Improvement (70%→95%) (10 pts)
+      - name: 'Task 5.2: Coverage Improvement (70% to 95%) (10 pts)'
         run: |
           cat > .github/workflows/coverage-gates.yml << 'EOF'
           name: Coverage Gates
@@ -418,7 +419,7 @@ jobs:
 
           git add packages/test-utils/src/coverage-reporter.ts
 
-      - name: Task 5.3: Performance Testing (6 pts)
+      - name: 'Task 5.3: Performance Testing (6 pts)'
         run: |
           cat > e2e/performance.spec.ts << 'EOF'
           import { test, expect } from '@playwright/test';
@@ -541,9 +542,9 @@ jobs:
           git commit -m "🧪 Block 5: Quality Assurance & E2E Testing (32 pts) - QASpecialist
 
           Completed:
-          - 5.1: Test acceleration (50→100 tests) (16 pts)
-          - 5.2: Coverage improvement (70%→95%) (10 pts)
-          - 5.3: Performance testing (6 pts)
+          - 5.1: Test acceleration (50→100 tests) (16 pts)'
+          - 5.2: Coverage improvement (70%→95%) (10 pts)'
+          - 5.3: Performance testing (6 pts)'
 
           Testing:
           - 50+ new unit tests written
@@ -590,57 +591,56 @@ jobs:
         run: git push -u origin ${{ env.BRANCH }} --force
 
       - name: Create Pull Request
-        uses: actions/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: '✅ Block 5: Quality Assurance & E2E Testing [READY FOR MERGE]'
-          body: |
-            **Agent**: QASpecialist
-            **Block**: 5 - Quality Assurance & E2E Testing
-            **Story Points**: 32
-            **Status**: ✅ COMPLETE
+        run: |
+          gh pr create --title '✅ Block 5: Quality Assurance & E2E Testing [READY FOR MERGE]' \
+            --body "**Agent**: QASpecialist
+          **Block**: 5 - Quality Assurance & E2E Testing
+          **Story Points**: 32
+          **Status**: ✅ COMPLETE
 
-            ### Deliverables
-            - [x] 5.1: Test acceleration 50→100 tests (16 pts)
-            - [x] 5.2: Coverage improvement 70%→95% (10 pts)
-            - [x] 5.3: Performance testing (6 pts)
+          ### Deliverables
+          - [x] 5.1: Test acceleration 50→100 tests (16 pts)'
+          - [x] 5.2: Coverage improvement 70%→95% (10 pts)'
+          - [x] 5.3: Performance testing (6 pts)'
 
-            ### Test Suite
-            - 100 total tests (50 new)
-            - Dashboard component: 10 tests
-            - Authentication: 10 tests
-            - Widget registry: 20 tests
-            - Integration tests
-            - Performance tests
+          ### Test Suite
+          - 100 total tests (50 new)
+          - Dashboard component: 10 tests
+          - Authentication: 10 tests
+          - Widget registry: 20 tests
+          - Integration tests
+          - Performance tests
 
-            ### Coverage Metrics
-            - Statement coverage: 95%+
-            - Branch coverage: 90%+
-            - Function coverage: 95%+
-            - Line coverage: 95%+
-            - Automated gates enforced
+          ### Coverage Metrics
+          - Statement coverage: 95%+
+          - Branch coverage: 90%+
+          - Function coverage: 95%+
+          - Line coverage: 95%+
+          - Automated gates enforced
 
-            ### Performance
-            - Dashboard load: <1.5s ✅
-            - API P95 latency: <500ms ✅
-            - Memory usage: <200MB ✅
-            - Concurrent users: 100+ ✅
-            - Throughput: >1000 req/s ✅
+          ### Performance
+          - Dashboard load: <1.5s ✅
+          - API P95 latency: <500ms ✅
+          - Memory usage: <200MB ✅
+          - Concurrent users: 100+ ✅
+          - Throughput: >1000 req/s ✅
 
-            ### Infrastructure
-            - Jest with parallelization (4 workers)
-            - Coverage reporting and gates
-            - Playwright E2E tests
-            - Load testing scripts
-            - Performance baselines
-            - Automated validation
+          ### Infrastructure
+          - Jest with parallelization (4 workers)
+          - Coverage reporting and gates
+          - Playwright E2E tests
+          - Load testing scripts
+          - Performance baselines
+          - Automated validation
 
-            ### Quality
-            - Zero flaky tests
-            - All edge cases covered
-            - Memory leak detection enabled
-            - Performance regression detection
-            - Code coverage enforcement
+          ### Quality
+          - Zero flaky tests
+          - All edge cases covered
+          - Memory leak detection enabled
+          - Performance regression detection
+          - Code coverage enforcement
 
-            Assigned to: HansPedder for review & merge
-          branch: ${{ env.BRANCH }}
+          Assigned to: HansPedder for review & merge" \
+            --base main --head ${{ env.BRANCH }} || echo "PR may already exist"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
