@@ -70,8 +70,8 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    permissions:
     if: "!startsWith(github.head_ref, 'agent/block-')"
+    permissions:
       contents: read
       security-events: write
     
