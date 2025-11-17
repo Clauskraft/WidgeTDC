@@ -147,16 +147,7 @@ jobs:
       - name: Commit changes
         run: |
           git add .
-          git commit -m "feat: Add React dashboard shell UI with sidebar navigation
-
-- Created Dashboard component with TypeScript
-- Implemented responsive sidebar navigation
-- Added modern CSS styling with dark sidebar theme
-- Ready for widget registry integration
-
-Agent: AlexaGPT-Frontend
-Block: 1 of 6
-Points: 18"
+          git commit -m "feat: Add React dashboard shell UI with sidebar navigation - AlexaGPT-Frontend Block 1 (18pts)"
 
       - name: Push feature branch
         run: git push origin agent/block-1-dashboard-ui

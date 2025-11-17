@@ -231,18 +231,7 @@ jobs:
       - name: Commit changes
         run: |
           git add .
-          git commit -m "feat: Implement audit log hash-chain system with GDPR compliance
-
-- Created SHA-256 hash-chain audit log system
-- Implemented immutable audit trail with cryptographic verification
-- Added GDPR context tracking for data subject operations
-- Chain integrity verification mechanism
-- GDPR export functionality for data subject access requests
-- Comprehensive unit tests for audit functionality
-
-Agent: CryptographyExpert
-Block: 3 of 6
-Points: 40"
+          git commit -m "feat: Implement audit log hash-chain system - CryptographyExpert Block 3 (40pts)"
 
       - name: Push feature branch
         run: git push origin agent/block-3-audit-log

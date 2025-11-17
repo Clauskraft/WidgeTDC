@@ -197,17 +197,7 @@ jobs:
       - name: Commit changes
         run: |
           git add .
-          git commit -m "feat: Implement Widget Registry 2.0 with versioning system
-
-- Created TypeScript types for widget metadata and versioning
-- Implemented WidgetRegistry service with filtering capabilities
-- Added version history tracking and deprecation management
-- Capability-based widget search and filtering
-- Comprehensive unit tests for registry functionality
-
-Agent: GoogleCloudArch
-Block: 2 of 6
-Points: 42"
+          git commit -m "feat: Implement Widget Registry 2.0 with versioning - GoogleCloudArch Block 2 (42pts)"
 
       - name: Push feature branch
         run: git push origin agent/block-2-widget-registry
