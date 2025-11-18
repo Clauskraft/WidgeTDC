@@ -1,0 +1,198 @@
+# WidgetTDC Agent Block Base Template
+# All agent workflow blocks inherit from this template
+# Substitution variables: BLOCK_NUMBER, AGENT_NAME, PREV_BLOCK_NUMBER, PREV_AGENT_NAME, AGENT_EMAIL
+
+name: Agent Block {{ BLOCK_NUMBER }} - {{ AGENT_NAME }}
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows: ["Agent Block {{ PREV_BLOCK_NUMBER }} - {{ PREV_AGENT_NAME }}"]
+    types: [completed]
+
+env:
+  AGENT_NAME: "{{ AGENT_NAME }}"
+  BLOCK_NUMBER: {{ BLOCK_NUMBER }}
+  STORY_POINTS: {{ STORY_POINTS }}
+  BRANCH_NAME: "agent/block-{{ BLOCK_NUMBER }}-{{ BRANCH_SLUG }}"
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: read
+
+jobs:
+  execute-block:
+    name: "{{ AGENT_NAME }} - Block {{ BLOCK_NUMBER }}"
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      # ========== SETUP PHASE ==========
+
+      - name: Pre-execution validation
+        id: validate
+        run: |
+          echo "🔍 Validating execution environment..."
+
+          # Check required environment
+          [ ! -z "${{ github.token }}" ] || (echo "❌ GitHub token missing" && exit 1)
+          [ ! -z "${{ env.AGENT_NAME }}" ] || (echo "❌ Agent name not set" && exit 1)
+
+          # Check disk space
+          DISK_AVAILABLE=$(df -h . | tail -1 | awk '{print $4}' | sed 's/G//')
+          [ "${DISK_AVAILABLE%.*}" -gt 1 ] || (echo "❌ Insufficient disk space" && exit 1)
+
+          echo "✅ Environment validation passed"
+          echo "validated=true" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Configure Git identity
+        run: |
+          git config user.name "{{ AGENT_NAME }} Agent"
+          git config user.email "{{ AGENT_EMAIL }}"
+          git config --global core.safecrlf false
+
+      - name: Create feature branch
+        run: |
+          BRANCH_NAME="${{ env.BRANCH_NAME }}"
+          git checkout -b "$BRANCH_NAME"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "✅ Branch created: $BRANCH_NAME"
+
+      # ========== AGENT-SPECIFIC EXECUTION ==========
+      # [AGENT STEPS INJECTED HERE]
+      # {{ AGENT_IMPLEMENTATION }}
+
+      # ========== VALIDATION PHASE ==========
+
+      - name: Validate created files
+        id: validate_files
+        continue-on-error: true
+        run: |
+          echo "🔍 Validating created files..."
+
+          # YAML validation
+          for file in $(git diff --cached --name-only | grep -E '\.ya?ml$'); do
+            if [ -f "$file" ]; then
+              if ! grep -q "^name:" "$file" 2>/dev/null; then
+                echo "⚠️  Warning: $file might not be valid YAML"
+              fi
+            fi
+          done
+
+          # File count check
+          FILE_COUNT=$(git diff --cached --name-only | wc -l)
+          echo "📊 Files to commit: $FILE_COUNT"
+
+          echo "✅ File validation complete"
+
+      - name: Validate no unauthorized changes
+        run: |
+          echo "🔐 Checking for unauthorized modifications..."
+
+          # Check if trying to modify main branch workflow files
+          if git diff --cached --name-only | grep -E "\.github/workflows/(ci\.yml|hanspedder)"; then
+            echo "❌ Cannot modify CI/orchestrator workflows"
+            exit 1
+          fi
+
+          # Check if trying to modify protected files
+          if git diff --cached --name-only | grep -E "(\.env|secrets|credentials|\.github/workflows/[^a])" | grep -v "agent/block"; then
+            echo "❌ Attempting to modify protected files"
+            exit 1
+          fi
+
+          echo "✅ Authorization checks passed"
+
+      # ========== COMMIT & PUSH PHASE ==========
+
+      - name: Commit changes
+        if: success()
+        run: |
+          git add .
+          git commit -m "feat: Implement block {{ BLOCK_NUMBER }} - {{ AGENT_NAME }} ({{ STORY_POINTS }}pts)
+
+          Block: {{ BLOCK_NUMBER }}
+          Agent: {{ AGENT_NAME }}
+          Story Points: {{ STORY_POINTS }}
+          Branch: ${{ env.BRANCH_NAME }}"
+
+      - name: Push feature branch
+        if: success()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          git push origin "${{ env.BRANCH_NAME }}"
+          echo "✅ Branch pushed to origin"
+
+      - name: Create Pull Request
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr create \
+            --title "Block {{ BLOCK_NUMBER }}: {{ AGENT_NAME }} - {{ PR_TITLE }}" \
+            --body "## {{ AGENT_NAME }} Agent - Block {{ BLOCK_NUMBER }}
+
+          **Story Points:** {{ STORY_POINTS }}
+          **Agent:** {{ AGENT_NAME }}
+          **Block Number:** {{ BLOCK_NUMBER }}
+
+          ### Implementation Summary
+          {{ IMPLEMENTATION_SUMMARY }}
+
+          ### Changes Made
+          {{ CHANGES_MADE }}
+
+          ### Dependencies
+          - Depends on: Block {{ PREV_BLOCK_NUMBER }} ({{ PREV_AGENT_NAME }})
+          {{ NEXT_BLOCK_DEPENDENCY }}
+
+          Agent: {{ AGENT_NAME }} | Block: {{ BLOCK_NUMBER }} | Points: {{ STORY_POINTS }}" \
+            --base main \
+            --head "${{ env.BRANCH_NAME }}"
+
+          echo "✅ Pull request created"
+
+      # ========== REPORTING & STATE UPDATE ==========
+
+      - name: Report execution status
+        if: always()
+        continue-on-error: true
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ Block {{ BLOCK_NUMBER }} execution completed successfully"
+            exit 0
+          else
+            echo "❌ Block {{ BLOCK_NUMBER }} execution failed"
+            exit 1
+          fi
+
+      - name: Update cascade state (on success)
+        if: success()
+        continue-on-error: true
+        run: |
+          # This will be called by the state manager
+          echo "📝 Cascade state update triggered"
+          # State update happens in hanspedder-orchestrator
+
+    # Error recovery & logging
+    on-error:
+      - name: Collect error information
+        if: failure()
+        continue-on-error: true
+        run: |
+          echo "## Execution Failure Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Block**: {{ BLOCK_NUMBER }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Agent**: {{ AGENT_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ❌ FAILED" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "[View full logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> $GITHUB_STEP_SUMMARY

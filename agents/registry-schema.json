@@ -1,0 +1,280 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WidgetTDC Agent Registry Schema",
+  "description": "Validates agent definitions in registry.yml",
+  "type": "object",
+  "required": ["agents", "metadata", "validation"],
+  "properties": {
+    "agents": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "agent_type",
+          "block_number",
+          "story_points",
+          "description",
+          "dependencies",
+          "capabilities",
+          "constraints",
+          "github_app_permissions_required",
+          "resources_required",
+          "implementation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9\\-]+$",
+            "description": "Unique agent identifier (kebab-case)"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Human-readable agent name"
+          },
+          "agent_type": {
+            "type": "string",
+            "enum": [
+              "frontend-architect",
+              "backend-architect",
+              "security-engineer",
+              "quality-engineer",
+              "devops-architect",
+              "system-architect",
+              "python-expert"
+            ],
+            "description": "Type of agent based on expertise"
+          },
+          "block_number": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Sequential block number in cascade"
+          },
+          "story_points": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Story points for this block"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10,
+            "description": "What this agent does"
+          },
+          "dependencies": {
+            "type": "object",
+            "required": ["blocks", "external_systems"],
+            "properties": {
+              "blocks": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "description": "Block numbers this depends on"
+              },
+              "external_systems": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "External services required"
+              }
+            }
+          },
+          "capabilities": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            },
+            "description": "What this agent can do"
+          },
+          "constraints": {
+            "type": "object",
+            "required": [
+              "max_files",
+              "max_lines_per_file",
+              "allowed_file_types",
+              "max_commit_message_length"
+            ],
+            "properties": {
+              "max_files": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum files can create"
+              },
+              "max_lines_per_file": {
+                "type": "integer",
+                "minimum": 100,
+                "description": "Maximum lines per file"
+              },
+              "allowed_file_types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^\\.\\w+$"
+                },
+                "description": "File extensions allowed"
+              },
+              "max_commit_message_length": {
+                "type": "integer",
+                "minimum": 50,
+                "description": "Max commit message length"
+              }
+            }
+          },
+          "github_app_permissions_required": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["scope", "permission", "reason"],
+              "properties": {
+                "scope": {
+                  "type": "string",
+                  "enum": ["contents", "pull-requests", "workflows", "issues", "discussions"],
+                  "description": "GitHub API scope"
+                },
+                "permission": {
+                  "type": "string",
+                  "enum": ["read", "write", "admin"],
+                  "description": "Permission level"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "Why this permission is needed"
+                }
+              }
+            }
+          },
+          "resources_required": {
+            "type": "object",
+            "required": ["npm_packages", "disk_space_mb", "execution_timeout_seconds"],
+            "properties": {
+              "npm_packages": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "disk_space_mb": {
+                "type": "integer",
+                "minimum": 10
+              },
+              "execution_timeout_seconds": {
+                "type": "integer",
+                "minimum": 60,
+                "maximum": 3600
+              }
+            }
+          },
+          "implementation": {
+            "type": "object",
+            "required": ["outputs"],
+            "properties": {
+              "outputs": {
+                "type": "object",
+                "required": ["files_created", "branch", "pr_title"],
+                "properties": {
+                  "files_created": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "branch": {
+                    "type": "string",
+                    "pattern": "^agent/block-\\d+-[a-z0-9\\-]+$"
+                  },
+                  "pr_title": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "validation": {
+            "type": "object",
+            "properties": {
+              "pre_execution": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["check", "action"],
+                  "properties": {
+                    "check": {
+                      "type": "string"
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": ["fail", "warn", "info"]
+                    }
+                  }
+                }
+              },
+              "post_execution": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "required": ["version", "cascade_id", "total_agents", "total_story_points"],
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$"
+        },
+        "cascade_id": {
+          "type": "string"
+        },
+        "total_agents": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "total_story_points": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "required_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enforce_unique_ids": {
+          "type": "boolean"
+        },
+        "enforce_unique_block_numbers": {
+          "type": "boolean"
+        },
+        "enforce_sequential_dependencies": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

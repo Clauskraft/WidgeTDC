@@ -1,0 +1,79 @@
+{
+  "cascade_id": "test-phase-runtime-tracking",
+  "started_at": "2025-11-18T00:00:00Z",
+  "current_block": 6,
+  "blocks_completed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "blocks_in_progress": [],
+  "blocks_failed": [],
+  "cascade_status": "RUNNING",
+  "last_block_output": null,
+  "iteration": 6,
+  "last_updated": "2025-11-18T00:02:54.545225",
+  "last_iteration": 1,
+  "timestamp": "2025-11-18T00:52:31.392734",
+  "last_iteration_results": [
+    {
+      "success": false,
+      "agent_id": "dashboard-shell-ui",
+      "agent_name": "AlexaGPT-Frontend",
+      "block_number": 1,
+      "error": "Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVEMtc4cFYg3qy3VCSjtT'}",
+      "timestamp": "2025-11-18T00:52:30.399557",
+      "status": "failed"
+    },
+    {
+      "success": false,
+      "agent_id": "widget-registry-v2",
+      "agent_name": "GoogleCloudArch",
+      "block_number": 2,
+      "error": "Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVEMtcn2XXvgapsnBvQSx'}",
+      "timestamp": "2025-11-18T00:52:30.568737",
+      "status": "failed"
+    },
+    {
+      "success": false,
+      "agent_id": "audit-log-hash-chain",
+      "agent_name": "CryptographyExpert",
+      "block_number": 3,
+      "error": "Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVEMtdVBjAwUYXQQgtPEx'}",
+      "timestamp": "2025-11-18T00:52:30.722401",
+      "status": "failed"
+    },
+    {
+      "success": false,
+      "agent_id": "database-foundation",
+      "agent_name": "DatabaseMaster",
+      "block_number": 4,
+      "error": "Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVEMte98MwxFEBpTGRxi6'}",
+      "timestamp": "2025-11-18T00:52:30.894563",
+      "status": "failed"
+    },
+    {
+      "success": false,
+      "agent_id": "testing-infrastructure",
+      "agent_name": "QASpecialist",
+      "block_number": 5,
+      "error": "Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVEMtet2cBZ4H7v1rGGGx'}",
+      "timestamp": "2025-11-18T00:52:31.090139",
+      "status": "failed"
+    },
+    {
+      "success": false,
+      "agent_id": "security-compliance",
+      "agent_name": "SecurityCompliance",
+      "block_number": 6,
+      "error": "Error code: 404 - {'type': 'error', 'error': {'type': 'not_found_error', 'message': 'model: claude-3-5-sonnet-20241022'}, 'request_id': 'req_011CVEMtfq5Ujk6gf77DtYcE'}",
+      "timestamp": "2025-11-18T00:52:31.382103",
+      "status": "failed"
+    }
+  ],
+  "total_tokens_used": 0,
+  "cascade_complete": false
+}
