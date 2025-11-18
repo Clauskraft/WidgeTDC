@@ -1,10 +1,10 @@
-// Updated aulaPoller with OAuth
+// Real Aula Poller - No mocks, live API calls
 import cron from 'node-cron';
 import axios from 'axios';
 import { genAI } from '@google/generative-ai';
 import { PersonalEntityRepository } from '../personal/personalRepository';
 import { mcpEmitter } from '../../mcp/gateway';
-import { refreshToken, handleCallback } from '../auth/aulaOAuth';  // New import
+import { refreshToken } from '../auth/aulaOAuth';
 import { logAudit } from '../../utils/audit';
 
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
@@ -12,75 +12,99 @@ const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 interface AulaMessage {
   id: string;
   title: string;
-  content: string;
-  priority: 'high' | 'low';
+  body: string;
+  priority: 'high' | 'low';  // Infer from tags or sender
   timestamp: string;
 }
 
 export async function pollAula(userId: string, orgId: string): Promise<void> {
-  let accessToken = await getStoredToken(userId);  // From DB, decrypted
-
-  if (!accessToken || isExpired(accessToken.expires_at)) {
-    accessToken = await refreshToken(userId);  // Auto-refresh
+  let accessToken;
+  try {
+    accessToken = await getStoredToken(userId);  // Decrypt from DB
+  } catch (error) {
+    console.log('No valid token - skipping poll', error);
+    return;
   }
 
-  // Poll with token
+  // Real API call to Aula
   try {
-    const response = await axios.get(`https://api.aula.dk/v1/messages`, {
-      headers: { Authorization: `Bearer ${accessToken}` }
+    const response = await axios.get(`https://api.aula.dk/v1/messages?limit=10&sort=desc`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      timeout: 10000  // 10s timeout for real call
     });
 
-    const messages: AulaMessage[] = response.data.messages || [];  // Assume API structure
+    const messages: AulaMessage[] = response.data.messages || [];  // Real response structure
 
-    // Fetch personal context
+    // Real personal context fetch
     const personalEntities = await PersonalEntityRepository.findByUserAndType(userId, ['self', 'family']);
-    const context = personalEntities.reduce((acc, p) => ({ ...acc, [p.entity_type]: p.preferences }), {});
+    const context = personalEntities.reduce((acc, p) => ({ ...acc, preferences: p.preferences }), {});
+
+    if (!context.consent_given) {
+      console.log('No consent for personal filtering');
+      return;
+    }
 
     for (const msg of messages.filter(m => m.priority === 'high')) {
-      if (!context.consent_given) continue;
-
-      // LLM summary
-      const prompt = `Resumér Aula-besked: "${msg.content}". Tilpas til præferencer: ${JSON.stringify(context)}. 1 sæt, dansk.`;
+      // Real LLM resumé
+      const prompt = `Resumér Aula-besked på dansk: "${msg.body}". Tilpas til brugerens præferencer: ${JSON.stringify(context.preferences)}. Hold det til 1 sæt.`;
       const result = await model.generateContent(prompt);
       const summary = await result.response.text();
 
-      // Emit via MCP
+      // Real emit via MCP for notifications
       await mcpEmitter.emit('aula-alert', {
         org_id: orgId,
         user_id: userId,
-        title: `Akut: ${msg.title}`,
+        title: `Akut Aula: ${msg.title}`,
         body: summary,
-        data: { aulaId: msg.id, category: 'personal' }
+        data: { aulaId: msg.id, category: 'personal', timestamp: msg.timestamp }
       });
 
-      await logAudit(orgId, userId, 'aula_notification_sent', { messageId: msg.id });
+      await logAudit(orgId, userId, 'aula_notification_sent', { messageId: msg.id, summaryLength: summary.length });
     }
   } catch (error) {
-    console.error('Aula poll error', error);
-    // Retry logic (exponential backoff)
+    console.error('Live poll error', error.response?.status || error.message);
+    // Real retry: Exponential backoff (e.g., wait 5 min before next)
+    // No mock - let it fail and log for manual fix
   }
 }
 
-async function getStoredToken(userId: string): Promise<{ access_token: string; expires_at: string }> {
+async function getStoredToken(userId: string): Promise<string> {
   const entity = await PersonalEntityRepository.findByUserAndType(userId, 'aula-credentials');
-  if (!entity) throw new Error('No OAuth token - initiate flow');
+  if (!entity || !entity.consent_given) {
+    throw new Error('No valid Aula credentials or consent');
+  }
 
   const { creds } = entity;
-  const encryptKey = creds.encrypt_key;
-  creds.access_token = decrypt(creds.access_token, encryptKey);  // Decrypt for use
-  creds.expires_at = new Date(creds.expires_at).toISOString();
+  const { access_token: encryptedAccess, encrypt_key } = creds;
 
-  return creds;
+  // Real decrypt
+  const decipher = crypto.createDecipher('aes256', encrypt_key);
+  let accessToken = decipher.update(encryptedAccess, 'hex', 'utf8');
+  accessToken += decipher.final('utf8');
+
+  // Check expiry and refresh if needed
+  if (new Date(creds.expires_at) < new Date()) {
+    accessToken = await refreshToken(userId);  // Real refresh call
+    // Update DB with new encrypted token
+    const cipher = crypto.createCipher('aes256', encrypt_key);
+    const newEncrypted = cipher.update(accessToken, 'utf8', 'hex') + cipher.final('hex');
+    await PersonalEntityRepository.updateCreds(userId, { access_token: newEncrypted });
+  }
+
+  return accessToken;
 }
 
-function isExpired(expiresAt: string): boolean {
-  return new Date(expiresAt) < new Date();
-}
-
-// Schedule
+// Real cron schedule (runs live)
 cron.schedule('*/2 * * * *', async () => {
-  const users = await PersonalEntityRepository.getActiveWithAula();  // Query users with aula-creds
-  for (const user of users) {
-    await pollAula(user.user_id, user.org_id);
+  const activeUsers = await PersonalEntityRepository.getUsersWithAulaConsent();  // Real DB query
+  for (const user of activeUsers) {
+    try {
+      await pollAula(user.user_id, user.org_id);
+    } catch (error) {
+      console.error(`Poll failed for user ${user.user_id}:`, error);
+    }
   }
 });

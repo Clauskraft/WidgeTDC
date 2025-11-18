@@ -1,0 +1,1 @@
+VITEST_CONFIG: Add to tsconfig.json: { "compilerOptions": { "types": ["vitest/globals"] } }
