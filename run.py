@@ -139,6 +139,9 @@ def run_real_agents(iterations, continuous, model):
                 result = executor.execute_cascade_iteration(agents)
                 if result.get('all_complete'):
                     print(f"\n[OK] Cascade complete - all {len(agents)} blocks executed!")
+                    # Create PR for HansPedder
+                    import subprocess
+                    subprocess.run([sys.executable, "create_cascade_pr.py"], check=False)
                     break
         else:
             # Run specific iterations
