@@ -14,6 +14,7 @@ import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
 import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
 import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
 import StatusWidget from './widgets/StatusWidget';
+import DarkWebMonitorWidget from './widgets/DarkWebMonitorWidget';
 import Phase1CFastTrackKanbanWidget from './widgets/Phase1CFastTrackKanbanWidget';
 import { WidgetDefinition } from './types';
 
@@ -171,5 +172,14 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     minH: 6,
     maxW: 6,
     maxH: 8,
+  },
+  {
+    id: 'DarkWebMonitor',
+    name: '🕵️ Dark Web Monitor',
+    component: DarkWebMonitorWidget,
+    defaultLayout: { w: 12, h: 10 },
+    source: 'proprietary',
+    minW: 8,
+    minH: 8,
   }
 ];
