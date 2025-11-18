@@ -1,47 +1,52 @@
+// Updated SystemSettings for OAuth
+import React, { useState } from 'react';
+import { Button } from '../components/ui/Button';
+import { useGlobalState } from '../../contexts/GlobalStateContext';  // For user/org
 
-import React from 'react';
-import { useGlobalState } from '../contexts/GlobalStateContext';
+export function SystemSettingsWidget() {
+  const { user } = useGlobalState();
+  const [loading, setLoading] = useState(false);
 
-const SystemSettingsWidget: React.FC<{ widgetId: string }> = () => {
-  const { state, setTheme, toggleReduceMotion } = useGlobalState();
+  const handleOAuth = async () => {
+    setLoading(true);
+    const authUrl = await fetch('/api/auth/aula/initiate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: user.id, orgId: user.org_id })
+    }).then(res => res.text());
 
-  const Toggle: React.FC<{label: string; description: string; checked: boolean; onChange: () => void}> = ({label, description, checked, onChange}) => (
-    <div>
-        <div className="flex items-center justify-between">
-            <span className="font-medium">{label}</span>
-            <button
-                onClick={onChange}
-                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
-                    checked ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-            >
-                <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                    checked ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-            </button>
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{description}</p>
-    </div>
-  );
+    window.location.href = authUrl;  // Redirect to Aula
+  };
+
+  const handleCallback = async (code: string, state: string) => {
+    // Called from callback URL
+    await fetch('/api/auth/aula/callback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, state, userId: user.id, orgId: user.org_id })
+    });
+    // Refresh UI or show success
+  };
+
+  // Listen for callback (hash in URL)
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.hash.substring(1));
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    if (code && state) {
+      handleCallback(code, state);
+      // Clear URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   return (
-    <div className="h-full flex flex-col -m-4">
-        <div className="p-4 space-y-6">
-            <Toggle
-                label="Dark Mode"
-                description="Skift mellem lyst og mørkt tema"
-                checked={state.theme === 'dark'}
-                onChange={() => setTheme(state.theme === 'dark' ? 'light' : 'dark')}
-            />
-            <Toggle
-                label="Reducer bevægelse"
-                description="Slå animationer og overgange fra"
-                checked={state.reduceMotion}
-                onChange={toggleReduceMotion}
-            />
-        </div>
+    <div>
+      <h4>Aula Integration</h4>
+      <Button onClick={handleOAuth} disabled={loading}>
+        {loading ? 'Authenticating...' : 'Connect Aula via OAuth'}
+      </Button>
+      <p>Status: {user.aulaConnected ? 'Connected' : 'Not Connected'}</p>
     </div>
   );
-};
-
-export default SystemSettingsWidget;
+}

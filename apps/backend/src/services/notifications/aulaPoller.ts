@@ -1,10 +1,11 @@
-// Aula Poller - Agent-generated for Epic 18
-import puppeteer from 'puppeteer';
+// Updated aulaPoller with OAuth
 import cron from 'node-cron';
+import axios from 'axios';
 import { genAI } from '@google/generative-ai';
-import { PersonalEntityRepository } from '../personal/personalRepository';  // Assume exists
-import { mcpEmitter } from '../../mcp/gateway';  // For events
-import { logAudit } from '../../utils/audit';  // Placeholder
+import { PersonalEntityRepository } from '../personal/personalRepository';
+import { mcpEmitter } from '../../mcp/gateway';
+import { refreshToken, handleCallback } from '../auth/aulaOAuth';  // New import
+import { logAudit } from '../../utils/audit';
 
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
@@ -16,59 +17,70 @@ interface AulaMessage {
   timestamp: string;
 }
 
-export async function pollAula(userId: string, orgId: string, credentials: { username: string; password: string }): Promise<void> {
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-  await page.goto('https://aula.dk/messages', { waitUntil: 'networkidle2' });
-  // Login mock - in real, use credentials
-  await page.type('#username', credentials.username);
-  await page.type('#password', credentials.password);
-  await page.click('#login-button');
+export async function pollAula(userId: string, orgId: string): Promise<void> {
+  let accessToken = await getStoredToken(userId);  // From DB, decrypted
 
-  const messages: AulaMessage[] = await page.evaluate(() => {
-    return Array.from(document.querySelectorAll('.message-item')).map(el => ({
-      id: el.id,
-      title: el.querySelector('.title')?.textContent || '',
-      content: el.querySelector('.body')?.textContent || '',
-      priority: el.classList.contains('acute') ? 'high' : 'low',
-      timestamp: new Date().toISOString()
-    }));
-  });
-  await browser.close();
+  if (!accessToken || isExpired(accessToken.expires_at)) {
+    accessToken = await refreshToken(userId);  // Auto-refresh
+  }
 
-  // Fetch personal context
-  const personalEntities = await PersonalEntityRepository.findByUserAndType(userId, ['self', 'family']);
-  const context = personalEntities.reduce((acc, p) => ({ ...acc, [p.entity_type]: p.preferences }), {});
-
-  for (const msg of messages.filter(m => m.priority === 'high')) {
-    if (!context.consent_given) continue;  // Privacy check
-
-    // LLM summary with personal
-    const prompt = `Resumér Aula-besked: "${msg.content}". Tilpas til præferencer: ${JSON.stringify(context)}. 1 sæt, dansk.`;
-    const result = await model.generateContent(prompt);
-    const summary = await result.response.text();
-
-    // Send push via MCP gateway
-    await mcpEmitter.emit('aula-alert', {
-      org_id: orgId,
-      user_id: userId,
-      title: `Akut: ${msg.title}`,
-      body: summary,
-      data: { aulaId: msg.id, category: 'personal' }
+  // Poll with token
+  try {
+    const response = await axios.get(`https://api.aula.dk/v1/messages`, {
+      headers: { Authorization: `Bearer ${accessToken}` }
     });
 
-    // Audit log
-    await logAudit(orgId, userId, 'aula_notification_sent', { messageId: msg.id });
+    const messages: AulaMessage[] = response.data.messages || [];  // Assume API structure
+
+    // Fetch personal context
+    const personalEntities = await PersonalEntityRepository.findByUserAndType(userId, ['self', 'family']);
+    const context = personalEntities.reduce((acc, p) => ({ ...acc, [p.entity_type]: p.preferences }), {});
+
+    for (const msg of messages.filter(m => m.priority === 'high')) {
+      if (!context.consent_given) continue;
+
+      // LLM summary
+      const prompt = `Resumér Aula-besked: "${msg.content}". Tilpas til præferencer: ${JSON.stringify(context)}. 1 sæt, dansk.`;
+      const result = await model.generateContent(prompt);
+      const summary = await result.response.text();
+
+      // Emit via MCP
+      await mcpEmitter.emit('aula-alert', {
+        org_id: orgId,
+        user_id: userId,
+        title: `Akut: ${msg.title}`,
+        body: summary,
+        data: { aulaId: msg.id, category: 'personal' }
+      });
+
+      await logAudit(orgId, userId, 'aula_notification_sent', { messageId: msg.id });
+    }
+  } catch (error) {
+    console.error('Aula poll error', error);
+    // Retry logic (exponential backoff)
   }
 }
 
-// Schedule every 2 min
+async function getStoredToken(userId: string): Promise<{ access_token: string; expires_at: string }> {
+  const entity = await PersonalEntityRepository.findByUserAndType(userId, 'aula-credentials');
+  if (!entity) throw new Error('No OAuth token - initiate flow');
+
+  const { creds } = entity;
+  const encryptKey = creds.encrypt_key;
+  creds.access_token = decrypt(creds.access_token, encryptKey);  // Decrypt for use
+  creds.expires_at = new Date(creds.expires_at).toISOString();
+
+  return creds;
+}
+
+function isExpired(expiresAt: string): boolean {
+  return new Date(expiresAt) < new Date();
+}
+
+// Schedule
 cron.schedule('*/2 * * * *', async () => {
-  // Poll for all users - from DB
-  const users = await getActiveUsers();  // Placeholder
+  const users = await PersonalEntityRepository.getActiveWithAula();  // Query users with aula-creds
   for (const user of users) {
-    await pollAula(user.id, user.org_id, user.aulaCreds);
+    await pollAula(user.user_id, user.org_id);
   }
 });
-
-export { pollAula };
