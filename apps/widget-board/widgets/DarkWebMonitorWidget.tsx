@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Button } from '../src/components/ui/Button'; // Adjust path if needed based on structure
-import type { DarkWebPayload } from '../utils/darkWebApi'; // Assume API type
-import { fetchDarkWebThreats } from '../utils/darkWebApi'; // Assume API function
+import { Button } from '../components/ui/Button';
 import { usePermissions } from '../contexts/PermissionContext';
 
 type ThreatLevel = 'low' | 'medium' | 'high' | 'critical';
@@ -32,92 +30,26 @@ interface ThreatItem {
   affectedEntities: number;
 }
 
-const FALLBACK_FEEDS: DarkWebFeed[] = [
-  {
-    id: 'dw-cred-markets',
-    name: 'Credential Markets Overview',
-    source: 'DarkWeb Forums & Markets',
-    lastScan: '2025-11-18T09:15:00Z',
-    threatsCount: 147,
-    credentialsLeaked: 8920,
-    regions: ['Global', 'EU', 'US'],
-    threatLevel: 'critical',
-    status: 'active',
-    avgPriceUSD: 45,
-  },
-  {
-    id: 'dw-vuln-trades',
-    name: 'Vulnerability & Exploit Kits',
-    source: 'Exploit Forums',
-    lastScan: '2025-11-18T09:10:00Z',
-    threatsCount: 23,
-    credentialsLeaked: 0,
-    regions: ['Global'],
-    threatLevel: 'high',
-    status: 'emerging',
-    avgPriceUSD: 1200,
-  },
-  {
-    id: 'dw-phishing-kits',
-    name: 'Phishing Page Templates',
-    source: 'Dark Web Shops',
-    lastScan: '2025-11-18T09:05:00Z',
-    threatsCount: 56,
-    credentialsLeaked: 0,
-    regions: ['EU', 'Asia'],
-    threatLevel: 'medium',
-    status: 'active',
-    avgPriceUSD: 150,
-  },
-];
+interface DarkWebPayload {
+  feeds: DarkWebFeed[];
+  threats: ThreatItem[];
+  metrics: {
+    totalThreats: number;
+    avgPriceUSD: number;
+    leakVelocity: number;
+    resolutionRate: number;
+  };
+}
 
-const FALLBACK_THREATS: ThreatItem[] = [
-  {
-    id: 'dw-threat-001',
-    feedId: 'dw-cred-markets',
-    title: 'Nordic Bank Exec Credentials Auction',
-    description: 'Bundle of 50+ high-priv accounts from major Nordic bank, including MFA bypass methods.',
-    severity: 'critical',
-    leakedDataType: 'credentials',
-    priceUSD: 2500,
-    detectedAt: '2025-11-18T09:12:00Z',
-    affectedEntities: 50,
+const EMPTY_PAYLOAD: DarkWebPayload = {
+  feeds: [],
+  threats: [],
+  metrics: {
+    totalThreats: 0,
+    avgPriceUSD: 0,
+    leakVelocity: 0,
+    resolutionRate: 0,
   },
-  {
-    id: 'dw-threat-002',
-    feedId: 'dw-vuln-trades',
-    title: 'Zero-Day RCE in Procurement Software',
-    description: 'Full exploit chain for remote code execution in enterprise procurement suite.',
-    severity: 'high',
-    leakedDataType: 'exploit',
-    priceUSD: 8000,
-    detectedAt: '2025-11-18T09:08:00Z',
-    affectedEntities: 1200,
-  },
-  {
-    id: 'dw-threat-003',
-    feedId: 'dw-phishing-kits',
-    title: 'Targeted Phishing Kit for Finance Sector',
-    description: 'Custom kit mimicking banking login pages, with credential harvester.',
-    severity: 'medium',
-    leakedDataType: 'phishing',
-    priceUSD: 300,
-    detectedAt: '2025-11-18T09:03:00Z',
-    affectedEntities: 200,
-  },
-];
-
-const FALLBACK_METRICS = {
-  totalThreats: 226,
-  avgPriceUSD: 890,
-  leakVelocity: 45, // per hour
-  resolutionRate: 0.72,
-};
-
-const DEFAULT_DARK_WEB_PAYLOAD: DarkWebPayload = {
-  feeds: FALLBACK_FEEDS,
-  threats: FALLBACK_THREATS,
-  metrics: FALLBACK_METRICS,
 };
 
 const severityStyles: Record<ThreatLevel, string> = {
@@ -151,37 +83,33 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
   const { hasAccess, loading } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState<ThreatLevel | 'all'>('all');
-  const [selectedFeedId, setSelectedFeedId] = useState(FALLBACK_FEEDS[0].id);
+  const [selectedFeedId, setSelectedFeedId] = useState('');
   const [autoPolling, setAutoPolling] = useState(true);
-  const [payload, setPayload] = useState<DarkWebPayload>(DEFAULT_DARK_WEB_PAYLOAD);
+  const [payload, setPayload] = useState<DarkWebPayload>(EMPTY_PAYLOAD);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const feeds = payload.feeds ?? FALLBACK_FEEDS;
-  const threats = payload.threats ?? FALLBACK_THREATS;
-  const metrics = payload.metrics ?? FALLBACK_METRICS;
+  // Assume fetchDarkWebThreats is implemented in utils/darkWebApi.ts
+  // For now, it will throw or return empty; handle in try-catch
+  const fetchDarkWebThreats = async (): Promise<DarkWebPayload> => {
+    // Placeholder: Implement real API call here, e.g., via MCP or backend
+    throw new Error('Dark web API not yet implemented');
+  };
 
   const refreshData = useCallback(async () => {
     try {
       setIsLoading(true);
-      // Mock API call; in real, await fetchDarkWebThreats()
-      // For now, use fallback with slight variation
-      const mockPayload: DarkWebPayload = {
-        ...DEFAULT_DARK_WEB_PAYLOAD,
-        metrics: {
-          ...metrics,
-          totalThreats: metrics.totalThreats + Math.floor(Math.random() * 5),
-        },
-      };
-      setPayload(mockPayload);
+      const response = await fetchDarkWebThreats();
+      setPayload(response);
       setErrorMessage(null);
     } catch (error) {
       console.warn('Dark web monitor refresh failed', error);
-      setErrorMessage('Dark web scans temporarily unavailable');
+      setPayload(EMPTY_PAYLOAD);
+      setErrorMessage('Dark web scans unavailable - API integration pending');
     } finally {
       setIsLoading(false);
     }
-  }, [metrics]);
+  }, []);
 
   useEffect(() => {
     if (loading) return;
@@ -193,6 +121,10 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
     const intervalId = setInterval(refreshData, 300000); // 5 min
     return () => clearInterval(intervalId);
   }, [autoPolling, refreshData]);
+
+  const feeds = payload.feeds;
+  const threats = payload.threats;
+  const metrics = payload.metrics;
 
   const filteredFeeds = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -207,13 +139,13 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
 
   useEffect(() => {
     if (filteredFeeds.length === 0) return;
-    if (!filteredFeeds.some(feed => feed.id === selectedFeedId)) {
+    if (!filteredFeeds.some(feed => feed.id === selectedFeedId) && filteredFeeds.length > 0) {
       setSelectedFeedId(filteredFeeds[0].id);
     }
   }, [filteredFeeds, selectedFeedId]);
 
-  const selectedFeed = filteredFeeds.find(feed => feed.id === selectedFeedId) ?? feeds[0];
-  const selectedThreats = threats.filter(item => item.feedId === selectedFeed.id).slice(0, 5);
+  const selectedFeed = feeds.find(feed => feed.id === selectedFeedId);
+  const selectedThreats = threats.filter(item => item.feedId === selectedFeed?.id ?? '').slice(0, 5);
 
   if (loading) return <div>Loading permissions...</div>;
 
@@ -279,43 +211,46 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
           </div>
 
           <div className="flex-1 overflow-auto divide-y divide-slate-100 dark:divide-slate-800">
-            {filteredFeeds.map(feed => (
-              <button
-                key={feed.id}
-                onClick={() => setSelectedFeedId(feed.id)}
-                className={`w-full text-left px-4 py-3 transition-colors focus-visible:outline-blue-500 ${
-                  feed.id === selectedFeedId ? 'bg-blue-50/70 dark:bg-blue-950/40' : ''
-                }`}
-                data-testid="dark-feed-card"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-sm">{feed.name}</p>
-                    <p className="text-xs text-slate-500">
-                      Last scan {formatDate(feed.lastScan)}
-                    </p>
-                  </div>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${severityStyles[feed.threatLevel]}`}>
-                    {feed.threatLevel.toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
-                  <span className={statusIndicators[feed.status]}>{feed.status.toUpperCase()}</span>
-                  <span>{feed.threatsCount} threats</span>
-                  <span>{feed.credentialsLeaked.toLocaleString()} creds</span>
-                  <span>Avg ${feed.avgPriceUSD}</span>
-                </div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {feed.regions.map(region => (
-                    <span key={region} className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
-                      {region}
+            {filteredFeeds.length > 0 ? (
+              filteredFeeds.map(feed => (
+                <button
+                  key={feed.id}
+                  onClick={() => setSelectedFeedId(feed.id)}
+                  className={`w-full text-left px-4 py-3 transition-colors focus-visible:outline-blue-500 ${
+                    feed.id === selectedFeedId ? 'bg-blue-50/70 dark:bg-blue-950/40' : ''
+                  }`}
+                  data-testid="dark-feed-card"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-sm">{feed.name}</p>
+                      <p className="text-xs text-slate-500">
+                        Last scan {formatDate(feed.lastScan)}
+                      </p>
+                    </div>
+                    <span className={`text-xs font-semibold px-2 py-1 rounded-full border ${severityStyles[feed.threatLevel]}`}>
+                      {feed.threatLevel.toUpperCase()}
                     </span>
-                  ))}
-                </div>
-              </button>
-            ))}
-            {filteredFeeds.length === 0 && (
-              <div className="p-6 text-center text-sm text-slate-500">No dark web feeds match the filters.</div>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
+                    <span className={statusIndicators[feed.status]}>{feed.status.toUpperCase()}</span>
+                    <span>{feed.threatsCount} threats</span>
+                    <span>{feed.credentialsLeaked.toLocaleString()} creds</span>
+                    <span>Avg ${feed.avgPriceUSD}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {feed.regions.map(region => (
+                      <span key={region} className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                        {region}
+                      </span>
+                    ))}
+                  </div>
+                </button>
+              ))
+            ) : (
+              <div className="p-6 text-center text-sm text-slate-500">
+                {isLoading ? 'Loading feeds...' : 'No dark web feeds available. API integration required.'}
+              </div>
             )}
           </div>
         </section>
@@ -332,35 +267,38 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
             <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/70 p-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h4 className="font-semibold text-sm">Latest Threats from {selectedFeed?.name}</h4>
-                  <p className="text-xs text-slate-500">{selectedFeed?.source}</p>
+                  <h4 className="font-semibold text-sm">
+                    Latest Threats from {selectedFeed ? selectedFeed.name : 'Selected Feed'}
+                  </h4>
+                  <p className="text-xs text-slate-500">{selectedFeed ? selectedFeed.source : 'Source'}</p>
                 </div>
                 <Button variant="primary" size="small" onClick={refreshData}>
                   Scan Now
                 </Button>
               </div>
               <div className="space-y-3 overflow-auto max-h-96">
-                {selectedThreats.map(threat => (
-                  <article key={threat.id} className="p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
-                    <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="font-mono text-slate-500">{threat.id}</span>
-                      <span>{formatDate(threat.detectedAt)}</span>
-                    </div>
-                    <p className="text-sm font-semibold">{threat.title}</p>
-                    <p className="text-xs text-slate-500 mt-1">{threat.description}</p>
-                    <div className="flex items-center gap-3 mt-2 text-xs">
-                      <span className={`px-2 py-0.5 rounded-full border ${severityStyles[threat.severity]}`}>
-                        {threat.severity.toUpperCase()}
-                      </span>
-                      <span className="text-slate-500">{threat.leakedDataType}</span>
-                      <span className="font-semibold">{formatPrice(threat.priceUSD)}</span>
-                      <span className="text-slate-500">{threat.affectedEntities} entities</span>
-                    </div>
-                  </article>
-                ))}
-                {selectedThreats.length === 0 && (
+                {selectedThreats.length > 0 ? (
+                  selectedThreats.map(threat => (
+                    <article key={threat.id} className="p-3 border border-slate-100 dark:border-slate-800 rounded-xl">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="font-mono text-slate-500">{threat.id}</span>
+                        <span>{formatDate(threat.detectedAt)}</span>
+                      </div>
+                      <p className="text-sm font-semibold">{threat.title}</p>
+                      <p className="text-xs text-slate-500 mt-1">{threat.description}</p>
+                      <div className="flex items-center gap-3 mt-2 text-xs">
+                        <span className={`px-2 py-0.5 rounded-full border ${severityStyles[threat.severity]}`}>
+                          {threat.severity.toUpperCase()}
+                        </span>
+                        <span className="text-slate-500">{threat.leakedDataType}</span>
+                        <span className="font-semibold">{formatPrice(threat.priceUSD)}</span>
+                        <span className="text-slate-500">{threat.affectedEntities} entities</span>
+                      </div>
+                    </article>
+                  ))
+                ) : (
                   <div className="text-sm text-slate-500 text-center py-8">
-                    No threats detected in this feed yet.
+                    {isLoading ? 'Loading threats...' : 'No threats available. Connect dark web API.'}
                   </div>
                 )}
               </div>
