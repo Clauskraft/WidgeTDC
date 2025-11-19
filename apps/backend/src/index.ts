@@ -9,6 +9,7 @@ import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
+import sysRouter from './routes/sys.js';
 import {
   cmaContextHandler,
   cmaIngestHandler,
@@ -20,7 +21,7 @@ import {
 } from './mcp/toolHandlers.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 3001; // Fixed port to avoid conflicts with exec-daemon
 
 // Middleware
 app.use(cors());
@@ -44,6 +45,7 @@ app.use('/api/memory', memoryRouter);
 app.use('/api/srag', sragRouter);
 app.use('/api/evolution', evolutionRouter);
 app.use('/api/pal', palRouter);
+app.use('/api/sys', sysRouter);
 
 // Health check
 app.get('/health', (req, res) => {

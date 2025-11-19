@@ -1,6 +1,7 @@
 import AgentChatWidget from './widgets/AgentChatWidget';
 import PromptLibraryWidget from './widgets/PromptLibraryWidget';
 import PerformanceMonitorWidget from './widgets/PerformanceMonitorWidget';
+import SystemMonitorWidget from './widgets/SystemMonitorWidget';
 import SystemSettingsWidget from './widgets/SystemSettingsWidget';
 import AgentBuilderWidget from './widgets/AgentBuilderWidget';
 import LiveConversationWidget from './widgets/LiveConversationWidget';
@@ -135,6 +136,15 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     source: 'proprietary',
     minW: 6,
     maxH: 6,
+  },
+  {
+    id: 'SystemMonitorWidget',
+    name: '🏆 System Monitor',
+    component: SystemMonitorWidget,
+    defaultLayout: { w: 8, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
   },
   {
     id: 'SystemSettingsWidget',
