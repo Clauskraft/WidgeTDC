@@ -11,7 +11,7 @@
 
 ### MCP vs Reality Gap
 - **We say**: "MCP is our foundation"
-- **Reality**: Only 1 of 23 widgets actually uses it (4%)
+- **Reality**: Only 1 of 24 widgets actually uses it (4%)
 - **Impact**: MCP infrastructure built but not integrated into products
 
 ### Security Issue Found
@@ -20,14 +20,14 @@
 - **Risk**: API key theft, unauthorized API usage, compliance issues
 
 ### Data Integrity Issue
-- **Concerning**: 6 widgets use hardcoded mock data (26% of system)
+- **Concerning**: 6 widgets use hardcoded mock data (25% of system)
 - **Examples**: Email suggestions, threat alerts, notes, procurement intelligence
 - **Status**: These widgets have comments saying "awaiting MCP integration"
 
 ### API Fragmentation
-- **Problem**: 5 widgets bypass MCP to call backend services directly
+- **Problem**: 4 widgets bypass MCP to call backend services directly
 - **Result**: Multiple API patterns, harder to maintain, harder to secure
-- **Services**: PAL, CMA Memory, Evolution, SRAG, Agent State
+- **Services**: PAL, CMA Memory, Evolution, SRAG
 
 ---
 
@@ -43,7 +43,7 @@
 - **Blocking**: Prevents moving to production
 
 **Phase 2: API CONSOLIDATION (3-5 days)**
-- Route 5 non-MCP services through MCP layer
+- Route 4 non-MCP services through MCP layer
 - Result: ✅ Unified routing, centralized auth, single monitoring point
 - **Timeline**: After Phase 1
 
@@ -161,7 +161,7 @@
 - Phase 1: 1-2 days for 1-2 developers ✅
 - Phases 2-3: 5-7 days for 3-4 developers (parallel) ✅
 - Phase 4: 3-4 days for 1-2 developers ✅
-- **Total**: ~82 developer-days (or 2-3 developers × 3 weeks)
+- **Total**: ~80 developer-days (or 2-3 developers × 3 weeks)
 
 ---
 
@@ -182,7 +182,7 @@
 ## Documentation
 
 - **Full Analysis**: `WIDGET_MCP_ADOPTION.md` (4,200+ lines)
-- **Categorization**: 6 categories, 23 widgets analyzed
+- **Categorization**: 6 categories, 24 widgets analyzed
 - **Roadmap**: 4 phases with detailed effort estimates
 - **Success Metrics**: Clear targets for 100% MCP adoption
 

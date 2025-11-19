@@ -10,7 +10,7 @@
 
 ## Request Summary
 
-I've completed Priority 1 analysis: **MCP Adoption Assessment across all 23 widgets**.
+I've completed Priority 1 analysis: **MCP Adoption Assessment across all 24 widgets**.
 
 **Finding**: MCP infrastructure is 100% built but only 4% integrated into frontend widgets. This blocks:
 - Production deployment readiness
@@ -43,10 +43,10 @@ I've completed Priority 1 analysis: **MCP Adoption Assessment across all 23 widg
 ### 🔴 INTEGRATION GAP
 **Current widget data sources:**
 - 1 widget uses MCP (4%)
-- 6 widgets use mock data (26%)
-- 5 widgets bypass MCP for direct Gemini APIs (22%)
-- 5 widgets call backend services directly without MCP (22%)
-- 5 widgets are UI-only (22%)
+- 6 widgets use mock data (25%)
+- 5 widgets bypass MCP for direct Gemini APIs (21%)
+- 4 widgets call backend services directly without MCP (17%)
+- 4 widgets are UI-only (17%)
 
 **Claim vs Reality**:
 - Claim: "MCP is the foundation of our solution"
@@ -81,14 +81,13 @@ I've completed Priority 1 analysis: **MCP Adoption Assessment across all 23 widg
 ---
 
 ### Phase 2: API CONSOLIDATION (3-5 days) - After Phase 1
-**Goal**: Unify 5 non-MCP service calls through MCP layer
+**Goal**: Unify 4 non-MCP service calls through MCP layer
 
 **Affected services**:
 - AiPalWidget: Direct calls to `/api/pal/*` → `/api/mcp/pal/*`
 - CmaDecisionWidget: Direct calls to `/api/memory/*` → `/api/mcp/memory/*`
 - EvolutionAgentWidget: Direct calls to `/api/evolution/*` → `/api/mcp/evolution/*`
 - SragGovernanceWidget: Direct calls to `/api/srag/*` → `/api/mcp/srag/*`
-- AgentStatusDashboardWidget: Direct calls to `/api/agent-state` → `/api/mcp/agent-state`
 
 **Benefit**: Unified routing, centralized auth, single monitoring point
 
@@ -125,7 +124,6 @@ I've completed Priority 1 analysis: **MCP Adoption Assessment across all 23 widg
 - StatusWidget: Verify context integration (no changes expected)
 - SystemSettingsWidget: Verify context integration (no changes expected)
 - WidgetImporterWidget: Verify MCP registration pattern
-- Phase1CFastTrackKanbanWidget: Verify UI-only implementation (no changes expected)
 
 **Questions for you**:
 1. ✅ Any additional polish/hardening needed?
@@ -240,7 +238,6 @@ I've completed Priority 1 analysis: **MCP Adoption Assessment across all 23 widg
 
 ### FINAL SUCCESS
 ✅ MCP is now actual "foundation" (not just infrastructure)
-✅ 100% widget MCP adoption (23/23)
 ✅ System ready for:
 - Multi-tenancy (Phase 2.A)
 - European Sovereign positioning
@@ -251,7 +248,7 @@ I've completed Priority 1 analysis: **MCP Adoption Assessment across all 23 widg
 ## Documents for Your Review
 
 1. **WIDGET_MCP_ADOPTION.md** - Full technical analysis
-   - All 23 widgets categorized with evidence
+   - All 24 widgets categorized with evidence
    - Security vulnerabilities detailed
    - 4-phase roadmap with effort estimates
    - Success metrics and monitoring plan

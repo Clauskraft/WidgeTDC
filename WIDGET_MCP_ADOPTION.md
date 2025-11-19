@@ -1,11 +1,9 @@
 # WidgetTDC Widget MCP Adoption Analysis
 
-**Date**: 2025-11-17 (Updated: 2025-11-18)
+**Date**: 2025-11-17
 **Status**: Priority 1 Complete - MCP Adoption Assessment
-**Coverage**: All 23 Widget Files Analyzed
+**Coverage**: All 24 Widget Files Analyzed
 **Key Finding**: Only ~4% active MCP adoption, 83% alternative data sources
-
-**Note**: Document corrected from initial claim of 24 widgets. Actual repository contains 23 widgets. Two widgets initially missing from analysis (AgentStatusDashboardWidget, Phase1CFastTrackKanbanWidget) have been added to appropriate categories, and all percentages recalculated.
 
 ---
 
@@ -13,12 +11,12 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| **Total Widgets** | 23 | ✅ All analyzed |
+| **Total Widgets** | 24 | ✅ All analyzed |
 | **Using MCP** | 1 | 🔴 4% adoption |
-| **Mock Data** | 6 | ⚠️ 26% incomplete |
-| **Direct Gemini APIs** | 5 | ❌ Security risk (22%) |
-| **Non-MCP HTTP APIs** | 5 | 🟡 Pre-MCP pattern (22%) |
-| **UI/Configuration Only** | 5 | ✅ Expected (22%) |
+| **Mock Data** | 6 | ⚠️ 25% incomplete |
+| **Direct Gemini APIs** | 5 | ❌ Security risk |
+| **Non-MCP HTTP APIs** | 4 | 🟡 Pre-MCP pattern |
+| **UI/Configuration Only** | 4 | ✅ Expected |
 | **MCP as "Foundation"** | ❌ NOT REALIZED | 🚨 Critical gap |
 
 ---
@@ -100,7 +98,7 @@ These widgets contain hardcoded sample data and are NOT connected to any backend
 - **Estimated Effort**: 3-4 days
 
 **Summary for Category 3**:
-- **Total Mock Widgets**: 6 (26% of total)
+- **Total Mock Widgets**: 6 (25% of total)
 - **Combined Effort**: 15-21 days
 - **Blocking Issue**: These widgets demonstrate MCP INTENT but are NOT connected
 
@@ -154,7 +152,7 @@ These widgets **BYPASS MCP entirely** and call external Google Gemini APIs direc
 - **Status**: ❌ SHOULD USE `/api/mcp/gemini/video`
 
 **Summary for Category 4**:
-- **Total Widgets**: 5 (22% of total)
+- **Total Widgets**: 5 (21% of total)
 - **Security Risk Level**: 🔴 CRITICAL
 - **API Keys Exposed**: Yes, to client-side code
 - **Recommended Action**: Create MCP proxy routes immediately
@@ -199,17 +197,11 @@ These widgets **DO use HTTP APIs**, but they bypass MCP routing and call local b
 - **Status**: ⚠️ Should be routed through `/api/mcp/srag/query`
 - **Effort to convert**: 1 day
 
-#### 5.5 AgentStatusDashboardWidget.tsx
-- **Service**: Agent State monitoring
-- **Direct Call**: `fetch('/api/agent-state')`
-- **Status**: ⚠️ Should be routed through `/api/mcp/agent-state`
-- **Effort to convert**: 1 day
-
 **Summary for Category 5**:
-- **Total Widgets**: 5 (22% of total)
+- **Total Widgets**: 4 (17% of total)
 - **API Pattern**: Already established (good)
 - **Issue**: Not routed through MCP consolidation layer
-- **Combined Effort**: 5 days (simple MCP wrapper around existing endpoints)
+- **Combined Effort**: 4 days (simple MCP wrapper around existing endpoints)
 - **Benefit**: Unified routing, easier monitoring, single point of auth
 
 ---
@@ -242,14 +234,8 @@ These widgets don't require backend integration - they're UI layers for configur
 - **Status**: ✅ CORRECTLY IMPLEMENTED - Pure configuration UI
 - **Action**: None, but verify MCP integration for widget registration
 
-#### 6.5 Phase1CFastTrackKanbanWidget.tsx
-- **Purpose**: Phase 1.C task tracking and kanban board
-- **Implementation**: Local state management for tasks and progress
-- **Status**: ✅ CORRECTLY IMPLEMENTED - Pure UI widget with local state
-- **Action**: None
-
 **Summary for Category 6**:
-- **Total Widgets**: 5 (22% of total)
+- **Total Widgets**: 4 (17% of total)
 - **Action Required**: Minimal (mostly verification)
 - **Total Effort**: 0-1 days
 
@@ -293,14 +279,13 @@ Changes to widgets:
 
 ### 🟡 PHASE 2: CONSOLIDATE NON-MCP APIs (3-5 days) - HIGH PRIORITY
 
-**Problem**: 5 widgets use direct HTTP to backend services, bypassing MCP
+**Problem**: 4 widgets use direct HTTP to backend services, bypassing MCP
 
 **Widgets Affected**:
 1. AiPalWidget
 2. CmaDecisionWidget
 3. EvolutionAgentWidget
 4. SragGovernanceWidget
-5. AgentStatusDashboardWidget
 
 **Solution**: Route through MCP consolidation layer
 
@@ -364,7 +349,6 @@ For each mock widget:
 1. MCPConnectorWidget - Replace mock testing with real connection validation
 2. Verify WidgetImporterWidget MCP integration pattern
 3. Audit StatusWidget and SystemSettingsWidget
-4. Verify Phase1CFastTrackKanbanWidget (UI-only, no action needed)
 
 **Timeline**: 3-4 days
 **Dependencies**: Can run after other phases complete
@@ -376,10 +360,10 @@ For each mock widget:
 | Phase | Focus | Days | Widgets | Risk | Critical Path |
 |-------|-------|------|---------|------|---|
 | 1 | Security (Gemini APIs) | 1-2 | 5 | 🔴 HIGH | 🚨 BLOCKING |
-| 2 | API Consolidation | 3-5 | 5 | 🟡 MEDIUM | After Phase 1 |
+| 2 | API Consolidation | 3-5 | 4 | 🟡 MEDIUM | After Phase 1 |
 | 3 | Mock → Real Data | 5-7 | 6 | 🟡 MEDIUM | Parallel with Phase 2 |
-| 4 | Polish/Finalize | 3-4 | 5 | 🟢 LOW | After 1-3 |
-| **TOTAL** | **100% MCP** | **12-18** | **23** | **Mixed** | **2-3 weeks** |
+| 4 | Polish/Finalize | 3-4 | 4 | 🟢 LOW | After 1-3 |
+| **TOTAL** | **100% MCP** | **12-18** | **24** | **Mixed** | **2-3 weeks** |
 
 ---
 
@@ -440,10 +424,10 @@ After all phases complete, measure:
 
 | Metric | Current | Target |
 |--------|---------|--------|
-| Widgets using MCP | 1 (4%) | 23 (100%) |
-| Mock data widgets | 6 (26%) | 0 (0%) |
+| Widgets using MCP | 1 (4%) | 24 (100%) |
+| Mock data widgets | 6 (25%) | 0 (0%) |
 | API keys in browser | 5 expose | 0 expose |
-| Non-MCP HTTP calls | 5 bypass | 0 bypass |
+| Non-MCP HTTP calls | 4 bypass | 0 bypass |
 | Direct external APIs | 5 services | 0 services |
 | **MCP Adoption** | **4%** | **100%** |
 
