@@ -3,7 +3,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input'; // Antag UI-komponent
 import { Slider } from '../components/ui/Slider'; // Antag
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table'; // Antag
-import { useMCP } from '../../src/hooks/useMCP'; // Eksisterende hook
+import { useMCP } from '../src/hooks/useMCP'; // Eksisterende hook
 
 interface ScanConfig {
   path: string; // Local (e.g., '/mnt/drive') or UNC ('\\server\\share')

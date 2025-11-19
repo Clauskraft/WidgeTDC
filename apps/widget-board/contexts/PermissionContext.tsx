@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { checkWidgetAccess, getWidgetPermissions } from '../utils/permissionsApi';
 
-interface PermissionContextType {
+export interface PermissionContextType {
   hasAccess: (resourceType: string, requiredLevel: 'read' | 'write') => Promise<boolean>;
   permissions: any[];
   loading: boolean;
 }
 
-const PermissionContext = createContext<PermissionContextType | undefined>(undefined);
+export const PermissionContext = createContext<PermissionContextType | undefined>(undefined);
 
 export const PermissionProvider: React.FC<{ children: ReactNode; widgetId: string }> = ({ children, widgetId }) => {
   const [permissions, setPermissions] = useState<any[]>([]);

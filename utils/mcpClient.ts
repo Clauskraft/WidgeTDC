@@ -486,3 +486,17 @@ export class MCPClient {
     }
   }
 }
+
+const defaultEnv = getEnvConfig();
+
+export const mcpClient = new MCPClient({
+  url: defaultEnv.MCP_SERVER_URL,
+  authToken: defaultEnv.MCP_CLIENT_SECRET,
+  autoReconnect: true,
+  maxReconnectAttempts: 3,
+  reconnectDelay: 1000,
+  heartbeatInterval: 30000,
+  requestTimeout: 10000,
+  circuitBreakerThreshold: 5,
+  circuitBreakerTimeout: 60000,
+});

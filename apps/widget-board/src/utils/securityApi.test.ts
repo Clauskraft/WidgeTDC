@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { fetchSecurityFeeds, ingestFeed, pollCertEu } from './securityApi';
 import axios from 'axios';
-import { mcpClient } from '../mcpClient';  // Mock
+import { mcpClient } from '../../../utils/mcpClient';  // Mock
 
 vi.mock('axios');
-vi.mock('../mcpClient');
+vi.mock('../../../utils/mcpClient');
 
 describe('SecurityApi', () => {
   it('fetches real feeds via MCP, falls back on error', async () => {

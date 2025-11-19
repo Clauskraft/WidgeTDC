@@ -1,24 +1,35 @@
-import { describe, it, expect, vi } from 'vitest';
-import { generateCode, refineCode } from './codeGenerator';
-import { genAI } from '@google/generative-ai';  // Mock
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { generateCode, refineCode, setEvolutionModelOverride } from './codeGenerator';
 
-vi.mock('@google/generative-ai');
+const mockModel = {
+  generateContent: vi.fn(),
+};
 
 describe('CodeGenerator', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockModel.generateContent.mockReset();
+    setEvolutionModelOverride(mockModel as any);
+  });
+
+  afterEach(() => {
+    setEvolutionModelOverride(null);
+  });
+
   it('generates valid TS code', async () => {
-    vi.mocked(genAI.getGenerativeModel).mockReturnValue({
-      generateContent: vi.fn().mockResolvedValue({
-        response: { text: () => 'export function aulaPoller() { /* code */ }' }
-      })
+    mockModel.generateContent.mockResolvedValue({
+      response: { text: () => 'export function aulaPoller() { return true; }' },
     });
     const code = await generateCode('test spec', 'test plan');
-    expect(code).toContain('export');
-    expect(code).not.toContain('error');
+    expect(code).toContain('export function aulaPoller');
+    expect(mockModel.generateContent).toHaveBeenCalled();
   });
 
   it('refines code on error', async () => {
-    // Test refineCode
+    mockModel.generateContent.mockResolvedValue({
+      response: { text: () => 'export const fixed = true;' },
+    });
     const refined = await refineCode('bad code', 'Syntax error');
-    expect(refined).toContain('export');  // Placeholder assert
+    expect(refined).toContain('export const fixed');
   });
 });

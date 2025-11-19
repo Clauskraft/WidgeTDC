@@ -1,59 +1,124 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { pollAula } from './aulaPoller';
-import puppeteer from 'puppeteer';
-import { genAI } from '@google/generative-ai';
-import * as repo from '../personal/personalRepository';
-import * as emitter from '../../mcp/gateway';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import axios from 'axios';
+import { pollAula, __setAulaModel } from './aulaPoller';
+import { PersonalEntityRepository } from '../personal/personalRepository';
+import { mcpEmitter } from '../../mcp/gateway';
+import { logAudit } from '../../utils/audit';
 
-vi.mock('puppeteer');
-vi.mock('@google/generative-ai');
-vi.mock('../personal/personalRepository');
-vi.mock('../../mcp/gateway');
+vi.mock('axios');
+vi.mock('../personal/personalRepository', () => ({
+  PersonalEntityRepository: {
+    findByUserAndType: vi.fn(),
+    updateCreds: vi.fn(),
+    getUsersWithAulaConsent: vi.fn(),
+  },
+}));
+vi.mock('../../mcp/gateway', () => ({
+  mcpEmitter: {
+    emit: vi.fn(),
+  },
+}));
+vi.mock('../../utils/audit', () => ({
+  logAudit: vi.fn(),
+}));
+vi.mock('../auth/aulaOAuth', () => ({
+  refreshToken: vi.fn().mockResolvedValue('refreshed-token'),
+}));
+
+const mockModel = {
+  generateContent: vi.fn().mockResolvedValue({
+    response: {
+      text: () => 'Personlig resumé',
+    },
+  }),
+};
 
 describe('AulaPoller', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockModel.generateContent.mockClear();
+    __setAulaModel(mockModel as any);
   });
 
-  it('polls and processes high-priority messages with personal summary', async () => {
-    vi.mocked(puppeteer.launch).mockResolvedValue({ newPage: () => Promise.resolve({
-      goto: vi.fn(),
-      evaluate: vi.fn().mockResolvedValue([{ id: '1', title: 'Test', content: 'Akut info', priority: 'high', timestamp: 'now' }]),
-      type: vi.fn(),
-      click: vi.fn()
-    } as any) } as any);
+  afterEach(() => {
+    __setAulaModel(null);
+  });
 
-    vi.mocked(genAI.getGenerativeModel).mockReturnValue({
-      generateContent: vi.fn().mockResolvedValue({ response: { text: () => 'Personlig resumé' } })
+  it('emits MCP alerts for high-priority Aula messages', async () => {
+    vi.mocked(PersonalEntityRepository.findByUserAndType).mockImplementation(async (_userId: string, types: any) => {
+      if (Array.isArray(types)) {
+        return [
+          {
+            user_id: 'user1',
+            org_id: 'org1',
+            entity_type: 'self',
+            consent_given: true,
+            preferences: { skole: 'high' },
+          },
+        ];
+      }
+      return {
+        user_id: 'user1',
+        org_id: 'org1',
+        entity_type: 'aula-credentials',
+        consent_given: true,
+        creds: {
+          access_token: 'token',
+          expires_at: new Date(Date.now() + 60_000).toISOString(),
+        },
+      };
+    });
+
+    vi.mocked(axios.get).mockResolvedValue({
+      data: {
+        messages: [
+          { id: '1', title: 'Test', body: 'Akut info', priority: 'high', timestamp: 'now' },
+        ],
+      },
     } as any);
 
-    vi.mocked(repo.PersonalEntityRepository.findByUserAndType).mockResolvedValue([{ entity_type: 'family', preferences: { skole: 'high' }, consent_given: true }]);
+    await pollAula('user1', 'org1');
 
-    vi.mocked(emitter.mcpEmitter.emit).mockResolvedValue(undefined);
-    vi.mocked(repo.logAudit).mockResolvedValue(undefined);  // Assume logAudit exists
-
-    await pollAula('user1', 'org1', { username: 'test', password: 'pass' });
-
-    expect(vi.mocked(emitter.mcpEmitter.emit)).toHaveBeenCalledWith('aula-alert', expect.objectContaining({
-      body: 'Personlig resumé'
-    }));
-    expect(vi.mocked(repo.logAudit)).toHaveBeenCalled();
+    expect(axios.get).toHaveBeenCalled();
+    expect(mcpEmitter.emit).toHaveBeenCalledWith(
+      'aula-alert',
+      expect.objectContaining({
+        user_id: 'user1',
+        org_id: 'org1',
+        body: 'Personlig resumé',
+      })
+    );
+    expect(logAudit).toHaveBeenCalledWith('org1', 'user1', 'aula_notification_sent', expect.any(Object));
   });
 
-  it('skips low-priority and no-consent messages', async () => {
-    // Mock low-priority and no consent
-    vi.mocked(puppeteer.launch).mockResolvedValue({ /* ... */ } as any);
-    vi.mocked(repo.PersonalEntityRepository.findByUserAndType).mockResolvedValue([{ consent_given: false }]);
+  it('skips processing when consent is missing', async () => {
+    vi.mocked(PersonalEntityRepository.findByUserAndType).mockResolvedValue([
+      { consent_given: false },
+    ] as any);
 
-    await pollAula('user1', 'org1', { username: 'test', password: 'pass' });
+    vi.mocked(axios.get).mockResolvedValue({
+      data: { messages: [{ id: '1', title: 'info', body: 'body', priority: 'high', timestamp: 'now' }] },
+    } as any);
 
-    expect(vi.mocked(emitter.mcpEmitter.emit)).not.toHaveBeenCalled();
+    await pollAula('user1', 'org1', { accessToken: 'token' });
+
+    expect(mcpEmitter.emit).not.toHaveBeenCalled();
+    expect(logAudit).not.toHaveBeenCalled();
   });
 
-  it('handles network error with retry', async () => {
-    vi.mocked(puppeteer.launch).mockRejectedValue(new Error('Network fail'));
+  it('logs errors when Aula API call fails', async () => {
+    vi.mocked(PersonalEntityRepository.findByUserAndType).mockResolvedValue({
+      user_id: 'user1',
+      org_id: 'org1',
+      entity_type: 'aula-credentials',
+      consent_given: true,
+      creds: {
+        access_token: 'expired',
+        expires_at: new Date(Date.now() + 60_000).toISOString(),
+      },
+    } as any);
+    vi.mocked(axios.get).mockRejectedValue(new Error('Network fail'));
 
-    // Assert no crash, log error
-    await expect(pollAula('user1', 'org1', { username: 'test', password: 'pass' })).rejects.not.toThrow();
+    await expect(pollAula('user1', 'org1')).resolves.toBeUndefined();
   });
 });
