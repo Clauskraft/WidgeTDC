@@ -39,7 +39,7 @@ sragRouter.post('/query', (req, res) => {
       });
     } else {
       // For semantic queries, search documents
-      const keywords = query.split(' ').filter(w => w.length > 3);
+      const keywords = query.split(' ').filter((w: string) => w.length > 3);
       const documents = keywords.length > 0 
         ? sragRepo.searchDocuments(request.orgId, keywords[0])
         : [];
