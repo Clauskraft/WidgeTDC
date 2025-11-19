@@ -4,7 +4,7 @@ import { WidthProvider, Responsive } from 'react-grid-layout';
 import WidgetContainer from './WidgetContainer';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 import { useGlobalState } from '../contexts/GlobalStateContext';
-import type { WidgetInstance } from '../types';
+import type { WidgetInstance, WidgetConfig } from '../types';
 import type { Layout, Layouts } from 'react-grid-layout';
 import TrashDropzone from './TrashDropzone';
 
@@ -13,11 +13,12 @@ const ResponsiveGridLayout = WidthProvider(Responsive);
 interface DashboardShellProps {
   widgets: WidgetInstance[];
   removeWidget: (widgetId: string) => void;
+  updateWidgetConfig: (widgetId: string, config: WidgetConfig) => void;
 }
 
 const LAYOUTS_STORAGE_KEY = 'widgetboard_layouts';
 
-const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }) => {
+const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, updateWidgetConfig }) => {
   const { availableWidgets } = useWidgetRegistry();
   const { state } = useGlobalState();
   const [layouts, setLayouts] = useState<Layouts>(() => {
@@ -117,13 +118,14 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget }
       if (!widgetDef) return null;
 
       return (
-        <div key={widget.id} className="ms-widget-container">
-          <WidgetContainer
-            widgetId={widget.id}
-            widgetType={widget.widgetType}
-            onRemove={() => onRemoveWidget(widget.id)}
-          />
-        </div>
+        <WidgetContainer
+          key={widget.id}
+          widgetId={widget.id}
+          widgetType={widget.widgetType}
+          config={widget.config}
+          onRemove={() => onRemoveWidget(widget.id)}
+          onConfigChange={(config) => updateWidgetConfig(widget.id, config)}
+        />
       );
     });
   };

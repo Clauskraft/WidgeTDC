@@ -10,7 +10,8 @@ const evolutionRepo = new EvolutionRepository();
 const palRepo = new PalRepository();
 
 // CMA tool handlers
-export async function cmaContextHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function cmaContextHandler(payload: any, _ctx: McpContext): Promise<any> {
+  const ctx = _ctx;
   const memories = memoryRepo.searchEntities({
     orgId: ctx.orgId,
     userId: ctx.userId,
@@ -45,7 +46,8 @@ Please provide a response considering the above context.
   };
 }
 
-export async function cmaIngestHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function cmaIngestHandler(payload: any, _ctx: McpContext): Promise<any> {
+  const ctx = _ctx;
   const entityId = memoryRepo.ingestEntity({
     orgId: ctx.orgId,
     userId: ctx.userId,
