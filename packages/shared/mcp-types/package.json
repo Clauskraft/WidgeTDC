@@ -5,7 +5,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "echo \"No tests yet\""
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@widget-tdc/domain-types": "file:../domain-types"
   },
   "devDependencies": {
     "typescript": "~5.8.2"

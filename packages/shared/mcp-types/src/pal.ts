@@ -26,10 +26,8 @@ export interface PalRecommendationsResponse {
   };
 }
 
-export interface PalUserProfile {
+export interface PalProfileUpdateInput {
   userId: string;
   orgId: string;
   preferenceTone: 'neutral' | 'friendly' | 'professional';
-  createdAt: string;
-  updatedAt: string;
 }
