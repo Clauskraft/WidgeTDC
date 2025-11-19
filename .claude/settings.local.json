@@ -22,7 +22,10 @@
       "Bash(npm run lint:*)",
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(tasklist:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd.exe /c \"rmdir /s /q node_modules\")"
     ],
     "deny": [],
     "ask": []
