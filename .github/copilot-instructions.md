@@ -8,7 +8,7 @@ WidgeTDC — GDPR COMPLIANT enterprise widget platform (TypeScript, React, Node)
 ## Teknologistak
 - TypeScript (strict)
 - React / Vite
-- Node.js 18+/20+
+- Node.js 20+
 - Vitest for tests
 - ESLint + Prettier
 

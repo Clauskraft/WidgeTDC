@@ -6,8 +6,8 @@ This guide covers deploying the WidgeTDC widget framework to production environm
 
 ## Prerequisites
 
-- Node.js 18+ LTS
-- npm 9+
+- Node.js 20+ LTS
+- npm 10+
 - PostgreSQL 14+ (recommended for production) or SQLite
 - Reverse proxy (nginx/Apache)
 - SSL certificate

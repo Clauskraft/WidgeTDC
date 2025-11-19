@@ -39,8 +39,8 @@ WidgeTDC/
 
 ### Prerequisites
 
-- Node.js 18+ 
-- npm 9+
+- Node.js 20+
+- npm 10+
 
 ### Installation
 
