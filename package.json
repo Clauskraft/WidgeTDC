@@ -7,8 +7,8 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "cd apps/widget-board && vite",
+    "build": "cd apps/widget-board && vite build",
     "build:shared": "npm run build:domain-types && npm run build:mcp-types",
     "build:domain-types": "cd packages/shared/domain-types && npm install && npm run build",
     "build:mcp-types": "cd packages/shared/mcp-types && npm install && npm run build",

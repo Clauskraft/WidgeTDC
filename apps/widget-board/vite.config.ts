@@ -5,9 +5,9 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
-    root: path.resolve(__dirname, 'apps/widget-board'),
+    root: __dirname,
     build: {
-      outDir: path.resolve(__dirname, 'dist'),
+      outDir: path.resolve(__dirname, '../../dist'),
       emptyOutDir: true,
     },
     server: {
