@@ -56,3 +56,8 @@ temp/
 
 # Build artifacts
 *.tsbuildinfo
+
+# Environment / secrets
+.env
+.env.local
+# Never store raw API keys or secrets in the repo

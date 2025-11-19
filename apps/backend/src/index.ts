@@ -9,6 +9,7 @@ import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
+import { scRouter } from './services/sc/scController.js';
 import {
   cmaContextHandler,
   cmaIngestHandler,
@@ -44,6 +45,7 @@ app.use('/api/memory', memoryRouter);
 app.use('/api/srag', sragRouter);
 app.use('/api/evolution', evolutionRouter);
 app.use('/api/pal', palRouter);
+app.use('/api/commands/sc', scRouter);
 
 // Health check
 app.get('/health', (req, res) => {
