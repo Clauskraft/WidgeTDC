@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMCP } from '../hooks/useMCP';
 
 interface Task {
@@ -23,30 +23,30 @@ const EMPTY_KANBAN: KanbanData = {
   waves: 0,
 };
 
-const KanbanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
+const KanbanWidget: React.FC = () => {
   const { send: mcpSend, isLoading } = useMCP();
   const [kanbanData, setKanbanData] = useState<KanbanData>(EMPTY_KANBAN);
   const [error, setError] = useState<string | null>(null);
 
-  const refreshKanban = async () => {
+  const refreshKanban = useCallback(async () => {
     try {
       const response = await mcpSend('kanban-service', 'kanban.get-status', { orgId: 'current' });
       setKanbanData(response.payload);
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Kanban data unavailable - MCP integration pending');
       setKanbanData(EMPTY_KANBAN);
     }
-  };
+  }, [mcpSend]);
 
   useEffect(() => {
     refreshKanban();
-  }, []);
+  }, [refreshKanban]);
 
   useEffect(() => {
     const intervalId = setInterval(refreshKanban, 30000); // Poll every 30s
     return () => clearInterval(intervalId);
-  }, [mcpSend]);
+  }, [refreshKanban]);
 
   const columns = useMemo(() => {
     const cols = ['TO DO', 'IN PROGRESS', 'BLOCKED', 'COMPLETED'].map(status => ({

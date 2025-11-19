@@ -115,7 +115,8 @@ securityRouter.get('/permissions/:widgetId', async (req, res) => {
     const { widgetId } = req.params;
     const permissions = await getWidgetPermissions(widgetId);
     res.json(permissions);
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to fetch widget permissions', error);
     res.status(500).json({ error: 'Could not fetch permissions' });
   }
 });
@@ -127,7 +128,8 @@ securityRouter.put('/permissions/:widgetId', async (req, res) => {
     const { resourceType, accessLevel, override = true } = req.body;
     await setWidgetPermission(widgetId, resourceType, accessLevel, override);
     res.json({ success: true });
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to set widget permission', error);
     res.status(500).json({ error: 'Could not set permission' });
   }
 });
@@ -138,7 +140,8 @@ securityRouter.post('/check-access', async (req, res) => {
     const { widgetId, resourceType, requiredLevel } = req.body;
     const hasAccess = await checkWidgetAccess(widgetId, resourceType, requiredLevel);
     res.json({ hasAccess });
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to check widget access', error);
     res.status(500).json({ error: 'Could not check access' });
   }
 });
@@ -149,7 +152,8 @@ securityRouter.post('/platform-defaults', async (req, res) => {
     const { resourceType, accessLevel } = req.body;
     await setPlatformDefault(resourceType, accessLevel);
     res.json({ success: true });
-  } catch (_error) {
+  } catch (error) {
+    console.error('Failed to set platform defaults', error);
     res.status(500).json({ error: 'Could not set platform default' });
   }
 });

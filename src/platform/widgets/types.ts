@@ -6,7 +6,7 @@
  * and performance monitoring as specified in SystemOverSeer Phase 1.
  */
 
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType } from 'react';
 import type { PlatformServices } from '../core/PlatformContext';
 
 /**

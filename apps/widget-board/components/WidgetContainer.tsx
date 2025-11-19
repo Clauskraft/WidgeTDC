@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 import { useWidgetAccessibility } from '../hooks/useWidgetAccessibility';
-import { useGlobalState } from '../contexts/GlobalStateContext';
 import { MicrosoftIcons } from '../assets/MicrosoftIcons';
 import WidgetConfigModal from './WidgetConfigModal';
 import type { WidgetConfig } from '../types';
@@ -23,13 +22,10 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
   onRemove,
   onConfigChange
 }) => {
-  const { availableWidgets } = useWidgetRegistry();
-  const { state } = useGlobalState();
+    const { availableWidgets } = useWidgetRegistry();
   const widgetDef = availableWidgets.find(w => w.id === widgetType);
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [scale, setScale] = useState(1);
-
-  const isDark = state.theme === 'dark';
 
   useWidgetAccessibility(widgetId, widgetDef?.name || widgetType);
 
@@ -108,14 +104,14 @@ const WidgetContainer: React.FC<WidgetContainerProps> = ({
         </div>
       </div>
 
-      <WidgetConfigModal
-        isOpen={isConfigOpen}
-        onClose={() => setIsConfigOpen(false)}
-        widgetId={widgetId}
-        widgetName={widgetDef.name}
-        initialConfig={config}
-        onSave={onConfigChange}
-      />
+        {isConfigOpen && (
+          <WidgetConfigModal
+            onClose={() => setIsConfigOpen(false)}
+            widgetName={widgetDef.name}
+            initialConfig={config}
+            onSave={onConfigChange}
+          />
+        )}
     </>
   );
 };

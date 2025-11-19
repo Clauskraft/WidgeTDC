@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from './ui/Button';
 import { setPlatformDefault, setWidgetPermission } from '../utils/permissionsApi';
 
@@ -7,26 +7,31 @@ interface SettingsPanelProps {
   onClose: () => void;
 }
 
+const resourceTypes = ['file_system', 'local_storage', 'drives', 'clipboard', 'camera'] as const;
+type ResourceType = (typeof resourceTypes)[number];
+
+const accessLevels = ['none', 'read', 'write'] as const;
+type AccessLevel = (typeof accessLevels)[number];
+
 export const SettingsPanel: React.FC<SettingsPanelProps> = ({ widgetId, onClose }) => {
-  const [resourceType, setResourceType] = useState('file_system');
-  const [accessLevel, setAccessLevel] = useState('read');
-  const [isPlatform, setIsPlatform] = useState(!widgetId);
+  const [resourceType, setResourceType] = useState<ResourceType>('file_system');
+  const [accessLevel, setAccessLevel] = useState<AccessLevel>('read');
   const [loading, setLoading] = useState(false);
 
-  const resourceTypes = ['file_system', 'local_storage', 'drives', 'clipboard', 'camera'];
-  const accessLevels = ['none', 'read', 'write'];
+  const isPlatform = !widgetId;
 
   const handleSave = async () => {
     setLoading(true);
     try {
       if (isPlatform) {
-        await setPlatformDefault(resourceType, accessLevel as any);
+        await setPlatformDefault(resourceType, accessLevel);
       } else if (widgetId) {
-        await setWidgetPermission(widgetId, resourceType, accessLevel as any, true);
+        await setWidgetPermission(widgetId, resourceType, accessLevel, true);
       }
       alert('Permissions updated successfully');
       onClose();
-    } catch (error) {
+      } catch (error) {
+        console.error('Failed to update permissions', error);
       alert('Failed to update permissions');
     } finally {
       setLoading(false);
@@ -43,9 +48,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ widgetId, onClose 
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Resource Type</label>
-            <select 
-              value={resourceType} 
-              onChange={(e) => setResourceType(e.target.value)}
+              <select
+                value={resourceType}
+                onChange={event => setResourceType(event.target.value as ResourceType)}
               className="w-full p-2 border rounded"
             >
               {resourceTypes.map(type => (
@@ -56,9 +61,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ widgetId, onClose 
           
           <div>
             <label className="block text-sm font-medium mb-1">Access Level</label>
-            <select 
-              value={accessLevel} 
-              onChange={(e) => setAccessLevel(e.target.value)}
+              <select
+                value={accessLevel}
+                onChange={event => setAccessLevel(event.target.value as AccessLevel)}
               className="w-full p-2 border rounded"
             >
               {accessLevels.map(level => (

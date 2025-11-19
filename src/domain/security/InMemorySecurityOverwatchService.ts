@@ -81,24 +81,25 @@ export class InMemorySecurityOverwatchService implements SecurityOverwatchServic
     
     results.sort((a, b) => {
       let comparison = 0;
-      switch (sortBy) {
-        case 'detectedAt':
-          comparison = a.detectedAt.getTime() - b.detectedAt.getTime();
-          break;
-        case 'riskScore':
-          comparison = a.riskScore - b.riskScore;
-          break;
-        case 'severity':
-          const severityOrder: Record<AlertSeverity, number> = {
-            critical: 4,
-            high: 3,
-            medium: 2,
-            low: 1,
-            info: 0,
-          };
-          comparison = severityOrder[a.severity] - severityOrder[b.severity];
-          break;
-      }
+        switch (sortBy) {
+          case 'detectedAt':
+            comparison = a.detectedAt.getTime() - b.detectedAt.getTime();
+            break;
+          case 'riskScore':
+            comparison = a.riskScore - b.riskScore;
+            break;
+          case 'severity': {
+            const severityOrder: Record<AlertSeverity, number> = {
+              critical: 4,
+              high: 3,
+              medium: 2,
+              low: 1,
+              info: 0,
+            };
+            comparison = severityOrder[a.severity] - severityOrder[b.severity];
+            break;
+          }
+        }
       return sortDirection === 'asc' ? comparison : -comparison;
     });
 

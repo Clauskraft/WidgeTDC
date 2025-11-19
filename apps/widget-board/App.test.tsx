@@ -1,5 +1,4 @@
 // Simple test for at sikre Microsoft look
-// @ts-nocheck
 
 describe('Microsoft Visual Style', () => {
   it('should match Microsoft design tokens', () => {

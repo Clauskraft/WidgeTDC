@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, AlertTriangle, Shield, Code, CheckCircle, XCircle, FileText } from 'lucide-react';
+import { Upload, AlertTriangle, Shield, Code, CheckCircle, FileText } from 'lucide-react';
 
 interface Finding {
   file: string;

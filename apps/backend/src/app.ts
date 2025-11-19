@@ -22,7 +22,7 @@ import { scRouter } from './services/sc/scController.js';
 // Remove toolsRegistered flag; use per-tool registration checks
 
 function ensureMcpToolsRegistered(): void {
-  const tools = [
+  const tools: Array<[string, Parameters<typeof mcpRegistry.registerTool>[1]]> = [
     ['cma.context', cmaContextHandler],
     ['cma.ingest', cmaIngestHandler],
     ['srag.query', sragQueryHandler],
@@ -33,14 +33,8 @@ function ensureMcpToolsRegistered(): void {
   ];
 
   for (const [toolName, handler] of tools) {
-    // Check if already registered; register if not
-    if (!mcpRegistry.hasTool || typeof mcpRegistry.hasTool !== 'function') {
-      // Fallback: check internal registry map (assume mcpRegistry._tools or .tools)
-      // Adjust property name as needed based on actual implementation
-      const registry = mcpRegistry.tools || mcpRegistry._tools;
-      if (registry && registry.has(toolName)) continue;
-    } else {
-      if (mcpRegistry.hasTool(toolName)) continue;
+    if (mcpRegistry.hasTool(toolName)) {
+      continue;
     }
     mcpRegistry.registerTool(toolName, handler);
   }

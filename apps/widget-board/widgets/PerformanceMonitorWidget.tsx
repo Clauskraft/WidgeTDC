@@ -1,7 +1,23 @@
 
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Metrics } from '../types';
+
+type MetricDisplayProps = {
+  label: string;
+  value: number;
+  unit: string;
+};
+
+const MetricDisplay: React.FC<MetricDisplayProps> = ({ label, value, unit }) => (
+  <div className="text-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+    <div className="text-2xl font-bold">
+      {value.toFixed(1)}
+      {unit}
+    </div>
+    <div className="text-sm text-gray-500 dark:text-gray-400">{label}</div>
+  </div>
+);
 
 const PerformanceMonitorWidget: React.FC<{ widgetId: string }> = () => {
   const [metrics, setMetrics] = useState<Metrics[]>([]);
@@ -44,13 +60,6 @@ const PerformanceMonitorWidget: React.FC<{ widgetId: string }> = () => {
       connected: { text: "Forbundet", color: "bg-green-500" },
       disconnected: { text: "Forbindelse afbrudt", color: "bg-red-500" }
   };
-
-  const MetricDisplay: React.FC<{ label: string; value: number; unit: string; }> = ({label, value, unit}) => (
-      <div className="text-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
-          <div className="text-2xl font-bold">{value.toFixed(1)}{unit}</div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">{label}</div>
-      </div>
-  );
 
   return (
     <div className="h-full flex flex-col -m-4">

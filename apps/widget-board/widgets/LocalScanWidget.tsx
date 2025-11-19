@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input'; // Antag UI-komponent
-import { Slider } from '../components/ui/Slider'; // Antag
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table'; // Antag
-import { useMCP } from '../../src/hooks/useMCP'; // Eksisterende hook
+import { Input } from '../components/ui/Input';
+import { Slider } from '../components/ui/Slider';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '../components/ui/Table';
+import { useMCP } from '../../src/hooks/useMCP';
 
 interface ScanConfig {
   path: string; // Local (e.g., '/mnt/drive') or UNC ('\\server\\share')
@@ -23,7 +24,7 @@ interface ScanResult {
 }
 
 const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
-  const { send: mcpSend, isLoading } = useMCP();
+  const { send: mcpSend } = useMCP();
   const [config, setConfig] = useState<ScanConfig>({ path: '/tmp/scan-target', depth: 3, keywords: ['threat', 'IP', 'credential'] });
   const [results, setResults] = useState<ScanResult[]>([]);
   const [autoScan, setAutoScan] = useState(false);
@@ -159,7 +160,13 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
                 <TableCell className="text-xs font-mono">{result.snippet.substring(0, 100)}...</TableCell>
               </TableRow>
             ))}
-            {results.length === 0 && <p className="text-center text-slate-500">No results yet. Start a scan!</p>}
+              {results.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-slate-500">
+                    No results yet. Start a scan!
+                  </TableCell>
+                </TableRow>
+              )}
           </TableBody>
         </Table>
       </div>

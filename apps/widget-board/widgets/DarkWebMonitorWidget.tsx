@@ -69,7 +69,7 @@ const formatDate = (value?: string) => {
   if (!value) return '—';
   try {
     return new Date(value).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  } catch (err) {
+  } catch {
     return value;
   }
 };
@@ -80,7 +80,7 @@ const formatPrice = (value?: number) => {
 };
 
 const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
-  const { hasAccess, loading } = usePermissions();
+  const { loading } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState<ThreatLevel | 'all'>('all');
   const [selectedFeedId, setSelectedFeedId] = useState('');
@@ -145,7 +145,7 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
   }, [filteredFeeds, selectedFeedId]);
 
   const selectedFeed = feeds.find(feed => feed.id === selectedFeedId);
-  const selectedThreats = threats.filter(item => item.feedId === selectedFeed?.id ?? '').slice(0, 5);
+  const selectedThreats = threats.filter(item => item.feedId === (selectedFeed?.id ?? '')).slice(0, 5);
 
   if (loading) return <div>Loading permissions...</div>;
 

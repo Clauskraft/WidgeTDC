@@ -3,28 +3,28 @@ import React from 'react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 
+type StatusItemProps = {
+  label: string;
+  value: string | number;
+  status?: 'success' | 'warning' | 'info';
+};
+
+const statusColors: Record<NonNullable<StatusItemProps['status']>, string> = {
+  success: 'text-green-600 dark:text-green-400',
+  warning: 'text-yellow-600 dark:text-yellow-400',
+  info: 'text-blue-600 dark:text-blue-400',
+};
+
+const StatusItem: React.FC<StatusItemProps> = ({ label, value, status = 'info' }) => (
+  <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
+    <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
+    <span className={`text-sm font-medium ${statusColors[status]}`}>{value}</span>
+  </div>
+);
+
 const StatusWidget: React.FC<{ widgetId: string }> = () => {
   const { availableWidgets } = useWidgetRegistry();
   const { state } = useGlobalState();
-
-  const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
-    label, 
-    value, 
-    status = 'info' 
-  }) => {
-    const statusColors = {
-      success: 'text-green-600 dark:text-green-400',
-      warning: 'text-yellow-600 dark:text-yellow-400',
-      info: 'text-blue-600 dark:text-blue-400'
-    };
-
-    return (
-      <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
-        <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
-        <span className={`text-sm font-medium ${statusColors[status]}`}>{value}</span>
-      </div>
-    );
-  };
 
   return (
     <div className="h-full flex flex-col -m-4">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Prompt } from '../types';
 import { Button } from '../components/ui/Button';
 
@@ -9,14 +9,9 @@ const MOCK_PROMPTS: Prompt[] = [
 ];
 
 const PromptLibraryWidget: React.FC<{ widgetId: string }> = () => {
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [prompts] = useState<Prompt[]>(MOCK_PROMPTS);
   const [searchTerm, setSearchTerm] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    // In a real app, this would be a fetch call
-    setPrompts(MOCK_PROMPTS);
-  }, []);
 
   const copyToClipboard = (text: string, promptId: string) => {
     navigator.clipboard.writeText(text).then(() => {

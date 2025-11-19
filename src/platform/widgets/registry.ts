@@ -10,7 +10,6 @@ import type {
   WidgetDefinition,
   WidgetManifest,
   WidgetTypeId,
-  WidgetVersion,
   WidgetValidationResult,
   WidgetSource,
 } from './types';

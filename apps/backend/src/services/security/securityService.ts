@@ -23,7 +23,6 @@ import type {
   ThreatLevel,
 } from './securityTypes.js';
 import { ingestRegistryEvent } from './activityStream.js';
-import { Client } from '@opensearch-project/opensearch';
 
 export const DEFAULT_FEEDS: SecurityFeed[] = [
   {
@@ -87,9 +86,6 @@ export async function getSecurityFeeds(): Promise<SecurityFeed[]> {
 
     // Process aggregations
     const feedsAgg = response.body.aggregations?.feeds?.buckets || [];
-    const pipelineAgg = response.body.aggregations?.pipeline?.buckets || [];
-    const statusAgg = response.body.aggregations?.status?.buckets || [];
-
     // Map to SecurityFeed format
     const feeds: SecurityFeed[] = DEFAULT_FEEDS.map(feed => ({
       ...feed,

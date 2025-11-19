@@ -1,32 +1,89 @@
-// Agent-driven code generation service
-import { genAI } from '@google/generative-ai';
-import { EvolutionPromptVersion } from '../../types';  // From shared
+import type { GenerativeModel } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+const DEFAULT_MODEL = process.env.GENAI_MODEL ?? 'gemini-1.5-pro';
 
-export async function generateCode(spec: string, testPlan: string, kpiThreshold = 80): Promise<string> {
-  const prompt = `You are Evolution Agent. Generate TypeScript code for: ${spec}.
-  Follow testplan: ${testPlan}.
-  Ensure: TS types, integration with MCP/personal_entities/4-layer.
-  Output ONLY code - no explanations.
-  KPI: Coverage >${kpiThreshold}%, no errors.`;
+let customModelProvider: (() => GenerativeModel) | null = null;
 
-  const result = await model.generateContent(prompt);
-  let code = await result.response.text();
+export const setGenerativeModelProvider = (provider: (() => GenerativeModel) | null) => {
+  customModelProvider = provider;
+};
 
-  // Post-process: Validate syntax (simple check)
-  if (!code.includes('export') || code.includes('error')) {
-    throw new Error('Generated code invalid - retrying...');
+const resolveModel = (): GenerativeModel => {
+  if (customModelProvider) {
+    return customModelProvider();
   }
 
-  // Log run for Evolution
-  // await reportRun('code-gen', { kpi: coverage });  // Placeholder
+  const apiKey = process.env.GOOGLE_API_KEY;
+  if (!apiKey) {
+    throw new Error('GOOGLE_API_KEY environment variable is required for Evolution code generation.');
+  }
+
+  const client = new GoogleGenerativeAI(apiKey);
+  return client.getGenerativeModel({ model: DEFAULT_MODEL });
+};
+
+const buildPrompt = (spec: string, testPlan: string, kpiThreshold: number): string => `You are the Evolution Agent.
+Generate modern, secure TypeScript that satisfies the following product specification:
+${spec}
+
+Acceptance criteria & test plan:
+${testPlan}
+
+Constraints:
+- Only output executable TypeScript (no markdown fences, no commentary)
+- Include exported functions/classes so tests can import them
+- Target KPI coverage >= ${kpiThreshold}%
+- Prefer pure functions and dependency injection
+`;
+
+export async function generateCode(spec: string, testPlan: string, kpiThreshold = 80): Promise<string> {
+  const model = resolveModel();
+  const prompt = buildPrompt(spec, testPlan, kpiThreshold);
+
+  const result = await model.generateContent({
+    contents: [
+      {
+        role: 'user',
+        parts: [{ text: prompt }],
+      },
+    ],
+  });
+
+  const code = result.response.text().trim();
+
+  if (!code) {
+    throw new Error('Model returned empty code.');
+  }
+
+  if (!code.includes('export')) {
+    throw new Error('Generated code must export at least one symbol.');
+  }
+
+  if (/throw\s+new\s+Error\('placeholder'\)/i.test(code)) {
+    throw new Error('Model produced placeholder content.');
+  }
 
   return code;
 }
 
 export async function refineCode(code: string, errorLog: string): Promise<string> {
-  const refinePrompt = `Refine this code: ${code}. Fix errors: ${errorLog}. Output ONLY fixed code.`;
-  // Similar genAI call...
-  return 'refined code';  // Placeholder
+  const model = resolveModel();
+  const prompt = `You previously generated the following code:\n${code}\nIt failed with:\n${errorLog}\nReturn ONLY the corrected code.`;
+
+  const result = await model.generateContent({
+    contents: [
+      {
+        role: 'user',
+        parts: [{ text: prompt }],
+      },
+    ],
+  });
+
+  const refined = result.response.text().trim();
+  if (!refined) {
+    throw new Error('Model returned empty refinement.');
+  }
+
+  return refined;
 }

@@ -99,15 +99,15 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
   private computeSimilarity(
     query: VectorEmbedding,
     candidate: VectorEmbedding,
-    metric: 'cosine' | 'euclidean' | 'dot-product' = 'cosine'
+    metric: 'cosine' | 'euclidean' | 'dot-product' = 'cosine',
   ): number {
     switch (metric) {
       case 'cosine':
         return this.cosineSimilarity(query, candidate);
-      case 'euclidean':
-        // Convert distance to similarity score (0-1)
+      case 'euclidean': {
         const distance = this.euclideanDistance(query, candidate);
         return 1 / (1 + distance);
+      }
       case 'dot-product':
         return this.dotProduct(query, candidate);
       default:

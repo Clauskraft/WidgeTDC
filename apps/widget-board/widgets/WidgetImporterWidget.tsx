@@ -91,8 +91,9 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
           } else {
             setDetectedWidgets(allWidgets);
           }
-      } catch (e: any) {
-          setScanError('Kunne ikke scanne efter widgets. Denne funktion er muligvis kun tilgængelig i en desktop-app.');
+        } catch (error) {
+            console.error('Widget scan failed:', error);
+            setScanError('Kunne ikke scanne efter widgets. Denne funktion er muligvis kun tilgængelig i en desktop-app.');
       } finally {
           setIsScanning(false);
       }

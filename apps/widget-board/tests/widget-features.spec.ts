@@ -149,10 +149,6 @@ test.describe('WidgetBoard - Microsoft Acrylic & Features', () => {
     const button = page.locator('.ms-icon-button').first();
     await expect(button).toBeVisible();
 
-    const initialBg = await button.evaluate((el) =>
-      window.getComputedStyle(el).background
-    );
-
     await button.hover();
     await page.waitForTimeout(300);
 

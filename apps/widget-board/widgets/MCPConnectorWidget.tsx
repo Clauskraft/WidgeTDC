@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { DataSource, Connection, FormField, ConnectionStatus, DataSourceCategory } from '../types';
+import type { Connection, ConnectionStatus, DataSource } from '../types';
 import { MicrosoftIcons } from '../assets/MicrosoftIcons';
 import { Button } from '../components/ui/Button';
 

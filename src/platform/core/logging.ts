@@ -38,27 +38,27 @@ class PlatformLogger implements Logger {
     return requestedLevelIndex >= currentLevelIndex;
   }
 
-  private log(level: LogLevel, message: string, metadata?: Record<string, any>): void {
-    if (!this.shouldLog(level)) {
-      return;
+    private log(level: LogLevel, message: string, metadata?: Record<string, any>): void {
+      if (!this.shouldLog(level)) {
+        return;
+      }
+
+      // In development, use console
+      // In production, this would send to a logging service
+      const consoleMethod = level === 'debug' ? 'log' : level;
+      const prefix = this.context ? `[${this.context}]` : '';
+      const metadataStr = metadata ? ` ${JSON.stringify(metadata)}` : '';
+
+      const entry: LogEntry = {
+        timestamp: new Date(),
+        level,
+        message,
+        context: this.context,
+        metadata,
+      };
+
+      console[consoleMethod](`${prefix} ${message}${metadataStr}`, entry);
     }
-
-    const entry: LogEntry = {
-      timestamp: new Date(),
-      level,
-      message,
-      context: this.context,
-      metadata,
-    };
-
-    // In development, use console
-    // In production, this would send to a logging service
-    const consoleMethod = level === 'debug' ? 'log' : level;
-    const prefix = this.context ? `[${this.context}]` : '';
-    const metadataStr = metadata ? ` ${JSON.stringify(metadata)}` : '';
-    
-    console[consoleMethod](`${prefix} ${message}${metadataStr}`);
-  }
 
   debug(message: string, metadata?: Record<string, any>): void {
     this.log('debug', message, metadata);

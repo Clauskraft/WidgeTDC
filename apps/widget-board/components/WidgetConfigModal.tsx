@@ -1,38 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save } from 'lucide-react';
+import React, { useState } from 'react';
+import { Save, X } from 'lucide-react';
 import type { WidgetConfig } from '../types';
 
 interface WidgetConfigModalProps {
-  isOpen: boolean;
   onClose: () => void;
-  widgetId: string;
   widgetName: string;
   initialConfig?: WidgetConfig;
   onSave: (config: WidgetConfig) => void;
 }
 
 const WidgetConfigModal: React.FC<WidgetConfigModalProps> = ({
-  isOpen,
   onClose,
-  widgetId,
   widgetName,
   initialConfig = {},
   onSave,
 }) => {
   const [config, setConfig] = useState<WidgetConfig>(initialConfig);
 
-  useEffect(() => {
-    setConfig(initialConfig);
-  }, [initialConfig, isOpen]);
-
-  if (!isOpen) return null;
-
   const handleSave = () => {
     onSave(config);
     onClose();
   };
 
-  const handleInputChange = (key: string, value: any) => {
+  const handleInputChange = <K extends keyof WidgetConfig>(
+    key: K,
+    value: WidgetConfig[K],
+  ) => {
     setConfig(prev => ({
       ...prev,
       [key]: value,

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import type { Email, ReplySuggestion, Tone } from '../types';
 import { Button } from '../components/ui/Button';
 
@@ -23,15 +23,10 @@ const MOCK_SUGGESTIONS: Record<string, ReplySuggestion[]> = {
 
 
 const MCPEmailRAGWidget: React.FC = () => {
-  const [emails, setEmails] = useState<Email[]>([]);
+  const [emails] = useState<Email[]>(MOCK_EMAILS);
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   const [suggestions, setSuggestions] = useState<ReplySuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    // I en rigtig app ville dette være et API-kald via MCP
-    setEmails(MOCK_EMAILS);
-  }, []);
 
   const analyzeEmail = async (email: Email) => {
     setSelectedEmail(email);

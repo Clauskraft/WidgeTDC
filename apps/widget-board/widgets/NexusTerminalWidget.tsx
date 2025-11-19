@@ -149,9 +149,9 @@ NEXUS:`,
         } else {
           throw new Error('Ollama not available');
         }
-      } catch (error) {
+        } catch (error) {
         // Fallback AI simulation for testing
-        console.log('Ollama not available, using fallback AI simulation');
+          console.log('Ollama not available, using fallback AI simulation', error);
 
         const input = currentInput.toLowerCase();
         if (input.includes('kill') && input.includes('chrome')) {

@@ -50,70 +50,74 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
   useEffect(() => {
     let mounted = true;
 
-    async function initializePlatform() {
+    const initializePlatform = async () => {
       try {
         const platformServices = await bootstrapPlatform(options);
-        
-        if (mounted) {
-          setServices(platformServices);
-          
-          // Log platform initialization to audit log
-          if (platformServices.auditLog) {
-            await platformServices.auditLog.append({
-              timestamp: new Date(),
-              domain: 'system',
-              sensitivity: 'internal',
-              actor: {
-                type: 'system',
-                id: 'platform',
-                name: 'Platform Bootstrap',
+
+        if (!mounted) {
+          return;
+        }
+
+        setServices(platformServices);
+
+        if (platformServices.auditLog) {
+          await platformServices.auditLog.append({
+            timestamp: new Date(),
+            domain: 'system',
+            sensitivity: 'internal',
+            actor: {
+              type: 'system',
+              id: 'platform',
+              name: 'Platform Bootstrap',
+            },
+            payload: {
+              action: 'platform.initialized',
+              outcome: 'success',
+              metadata: {
+                auditEnabled: options?.enableAudit !== false,
+                vectorStoreEnabled: options?.enableVectorStore !== false,
               },
-              payload: {
-                action: 'platform.initialized',
-                outcome: 'success',
-                metadata: {
-                  auditEnabled: options?.enableAudit !== false,
-                  vectorStoreEnabled: options?.enableVectorStore !== false,
-                },
-              },
-              retention: {
-                retentionDays: 365,
-                archiveBeforeDelete: true,
-                legalHold: false,
-              },
-            });
-          }
+            },
+            retention: {
+              retentionDays: 365,
+              archiveBeforeDelete: true,
+              legalHold: false,
+            },
+          });
         }
       } catch (err) {
-        if (mounted) {
-          setError(err as Error);
-          // Log error to audit log if available
-          if (typeof options?.auditLog?.append === 'function') {
-            options.auditLog.append({
-              timestamp: new Date(),
-              domain: 'system',
-              sensitivity: 'internal',
-              actor: {
-                type: 'system',
-                id: 'platform',
-                name: 'Platform Bootstrap',
-              },
-              payload: {
-                action: 'platform.initialized',
-                outcome: 'error',
-                metadata: {
-                  error: (err instanceof Error) ? err.message : String(err),
-                },
-              },
-              retention: {
-                retentionDays: 365,
-                archiveBeforeDelete: true,
-                legalHold: false,
-              },
-            });
-          }
+        if (!mounted) {
+          return;
         }
-    }
+
+        setError(err as Error);
+
+        if (typeof options?.auditLog?.append === 'function') {
+          options.auditLog.append({
+            timestamp: new Date(),
+            domain: 'system',
+            sensitivity: 'internal',
+            actor: {
+              type: 'system',
+              id: 'platform',
+              name: 'Platform Bootstrap',
+            },
+            payload: {
+              action: 'platform.initialized',
+              outcome: 'error',
+              metadata: {
+                error: err instanceof Error ? err.message : String(err),
+              },
+            },
+            retention: {
+              retentionDays: 365,
+              archiveBeforeDelete: true,
+              legalHold: false,
+            },
+          });
+        }
+      }
+    };
 
     initializePlatform();
 
@@ -126,7 +130,6 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
   useEffect(() => {
     if (error) {
       // In production, replace with secure logging service
-      // eslint-disable-next-line no-console
       console.error('Platform initialization error:', error);
     }
   }, [error]);

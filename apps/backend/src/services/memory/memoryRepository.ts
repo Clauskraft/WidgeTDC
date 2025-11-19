@@ -12,14 +12,14 @@ export class MemoryRepository {
     const tokens = encode(text).map(t => t.toString());
     const vector = new Array(768).fill(0); // 768 dimensions like text-embedding-ada-002
 
-    tokens.forEach((token, index) => {
+    tokens.forEach(token => {
       const hash = this.simpleHash(token);
       vector[hash % 768] += 1;
     });
 
     // Normalize
     const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-    return vector.map(val => val / magnitude);
+    return vector.map(val => (magnitude === 0 ? 0 : val / magnitude));
   }
 
   private simpleHash(str: string): number {

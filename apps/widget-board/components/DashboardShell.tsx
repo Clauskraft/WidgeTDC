@@ -76,19 +76,21 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
     }
   };
 
-  const onRemoveWidget = (widgetId: string) => {
-    removeWidget(widgetId);
-    // When a widget is removed, we must also update the layout state and persist it.
-    setLayouts(prev => {
-      const newLayouts = { ...prev };
-      Object.keys(newLayouts).forEach(breakpoint => {
-        // @ts-ignore
-        newLayouts[breakpoint] = newLayouts[breakpoint]?.filter(l => l.i !== widgetId);
+    const onRemoveWidget = (widgetId: string) => {
+      removeWidget(widgetId);
+      setLayouts(prev => {
+        const newLayouts: Layouts = { ...prev };
+        (Object.keys(newLayouts) as Array<keyof Layouts>).forEach(breakpoint => {
+          const layoutItems = newLayouts[breakpoint];
+          if (!layoutItems) {
+            return;
+          }
+          newLayouts[breakpoint] = layoutItems.filter(l => l.i !== widgetId);
+        });
+        localStorage.setItem(LAYOUTS_STORAGE_KEY, JSON.stringify(newLayouts));
+        return newLayouts;
       });
-      localStorage.setItem(LAYOUTS_STORAGE_KEY, JSON.stringify(newLayouts));
-      return newLayouts;
-    });
-  };
+    };
 
   const onDragStart = (layout: Layout[], oldItem: Layout) => {
     setIsDragging(true);
@@ -137,29 +139,29 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
   };
 
   // Filter layouts to ensure we only render layouts for existing widgets and apply constraints.
-  const synchronizedLayouts: Layouts = {};
-  Object.keys(layouts).forEach(breakpoint => {
-    const widgetIds = new Set(widgets.map(w => w.id));
-    // @ts-ignore
-    const filteredLayout = layouts[breakpoint]?.filter(l => widgetIds.has(l.i));
+    const synchronizedLayouts: Layouts = {};
+    (Object.keys(layouts) as Array<keyof Layouts>).forEach(breakpoint => {
+      const widgetIds = new Set(widgets.map(w => w.id));
+      const layoutItems = layouts[breakpoint] ?? [];
 
-    // @ts-ignore
-    synchronizedLayouts[breakpoint] = filteredLayout?.map(layoutItem => {
-      const widget = widgets.find(w => w.id === layoutItem.i);
-      const widgetDef = widget ? availableWidgets.find(w => w.id === widget.widgetType) : undefined;
+      const filteredLayout = layoutItems.filter(l => widgetIds.has(l.i));
 
-      if (widgetDef) {
-        return {
-          ...layoutItem,
-          minW: widgetDef.minW,
-          maxW: widgetDef.maxW,
-          minH: widgetDef.minH,
-          maxH: widgetDef.maxH,
-        };
-      }
-      return layoutItem;
+      synchronizedLayouts[breakpoint] = filteredLayout.map(layoutItem => {
+        const widget = widgets.find(w => w.id === layoutItem.i);
+        const widgetDef = widget ? availableWidgets.find(w => w.id === widget.widgetType) : undefined;
+
+        if (widgetDef) {
+          return {
+            ...layoutItem,
+            minW: widgetDef.minW,
+            maxW: widgetDef.maxW,
+            minH: widgetDef.minH,
+            maxH: widgetDef.maxH,
+          };
+        }
+        return layoutItem;
+      });
     });
-  });
 
   return (
     <div className="p-2 h-full">

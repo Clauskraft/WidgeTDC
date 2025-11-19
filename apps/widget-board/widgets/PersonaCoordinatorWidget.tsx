@@ -53,7 +53,6 @@ export const PersonaCoordinatorWidget: React.FC = () => {
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['architecture', 'security']);
   const [isReviewing, setIsReviewing] = useState(false);
   const [result, setResult] = useState<ReviewResult | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const togglePersona = (personaId: string) => {
     setSelectedPersonas((prev) =>
@@ -67,7 +66,6 @@ export const PersonaCoordinatorWidget: React.FC = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    setSelectedFile(file);
     setIsReviewing(true);
 
     try {
@@ -309,11 +307,10 @@ export const PersonaCoordinatorWidget: React.FC = () => {
 
             {/* Actions */}
             <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setResult(null);
-                  setSelectedFile(null);
-                }}
+                <button
+                  onClick={() => {
+                    setResult(null);
+                  }}
                 className="btn-secondary"
               >
                 New Review

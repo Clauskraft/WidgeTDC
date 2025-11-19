@@ -1,6 +1,5 @@
 // apps/widget-board/widgets/__tests__/LocalScanWidget.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { useMCP } from '../../../src/hooks/useMCP'; // Mock
 import LocalScanWidget from '../LocalScanWidget';
 

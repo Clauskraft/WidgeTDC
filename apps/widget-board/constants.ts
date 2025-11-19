@@ -18,7 +18,6 @@ import StatusWidget from './widgets/StatusWidget';
 // import DarkWebMonitorWidget from './widgets/DarkWebMonitorWidget'; // TODO: Create widget
 import Phase1CFastTrackKanbanWidget from './widgets/Phase1CFastTrackKanbanWidget';
 import { WidgetDefinition } from './types';
-import KanbanWidget from './widgets/KanbanWidget';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
   {

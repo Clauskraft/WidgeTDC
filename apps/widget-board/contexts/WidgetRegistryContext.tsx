@@ -71,9 +71,6 @@ const parseVersion = (versionString?: string): WidgetVersion => {
   };
 };
 
-const versionToString = (version: WidgetVersion): string =>
-  `${version.major}.${version.minor}.${version.patch}`;
-
 export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [entries, setEntries] = useState<Map<string, WidgetRegistryEntry>>(new Map());
   const versionHistoryRef = useRef<Map<string, WidgetVersion[]>>(new Map());

@@ -1,5 +1,3 @@
-import type { Layout } from 'react-grid-layout';
-// FIX: Import ComponentType to resolve 'Cannot find namespace React' error.
 import type { ComponentType } from 'react';
 
 export type Theme = 'light' | 'dark';

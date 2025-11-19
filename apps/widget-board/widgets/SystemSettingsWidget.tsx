@@ -1,5 +1,5 @@
 // Updated SystemSettings for OAuth
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import { useGlobalState } from '../contexts/GlobalStateContext';  // For user/org
 
@@ -18,15 +18,13 @@ export default function SystemSettingsWidget() {
     window.location.href = authUrl;  // Redirect to Aula
   };
 
-  const handleCallback = async (code: string, state: string) => {
-    // Called from callback URL
+  const handleCallback = useCallback(async (code: string, state: string) => {
     await fetch('/api/auth/aula/callback', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, state, userId: user.id, orgId: user.org_id })
     });
-    // Refresh UI or show success
-  };
+  }, [user.id, user.org_id]);
 
   // Listen for callback (hash in URL)
   React.useEffect(() => {
@@ -35,10 +33,9 @@ export default function SystemSettingsWidget() {
     const state = urlParams.get('state');
     if (code && state) {
       handleCallback(code, state);
-      // Clear URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, []);
+  }, [handleCallback]);
 
   return (
     <div>

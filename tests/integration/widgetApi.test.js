@@ -1,5 +1,9 @@
+require('ts-node/register/transpile-only');
+const { createApp } = require('../../apps/backend/src/app');
 const DatabaseTestHelper = require('../helpers/dbHelper');
 const APITestHelper = require('../helpers/apiHelper');
+
+const app = createApp();
 
 describe('Widget API Integration', () => {
   let dbHelper;

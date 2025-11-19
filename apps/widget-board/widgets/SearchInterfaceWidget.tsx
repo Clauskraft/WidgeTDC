@@ -242,7 +242,7 @@ const SearchInterfaceWidget: React.FC<{ widgetId: string }> = () => {
     } finally {
       setIsSearching(false);
     }
-  }, [query, severity, timeframe, sources]);
+  }, [query, severity, timeframe, sources, results.length]);
 
   return (
     <div className="h-full flex flex-col -m-4" data-testid="search-interface-widget">

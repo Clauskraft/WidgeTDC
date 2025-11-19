@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 interface TeamTask {
   name: string;
@@ -53,16 +53,11 @@ const Phase1CFastTrackKanbanWidget: React.FC<{ widgetId: string }> = () => {
     }
   });
 
-  const [completedDays, setCompletedDays] = useState(0);
   const totalDays = 8.5;
 
-  useEffect(() => {
-    // Calculate completed days
-    const completed = Object.values(tasks)
-      .filter(task => task.status === 'complete')
-      .reduce((sum, task) => sum + task.days, 0);
-    setCompletedDays(completed);
-  }, [tasks]);
+  const completedDays = Object.values(tasks)
+    .filter(task => task.status === 'complete')
+    .reduce((sum, task) => sum + task.days, 0);
 
   const statuses = ['scheduled', 'executing', 'blocked', 'complete'] as const;
   const statusLabels: Record<typeof statuses[number], string> = {

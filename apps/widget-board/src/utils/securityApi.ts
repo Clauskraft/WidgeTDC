@@ -38,7 +38,16 @@ export async function ingestFeed(feedId: string, data: any) {
 
 // Example: Poll CERT-EU RSS
 export async function pollCertEu(): Promise<NormalizedItem[]> {
-  const response = await axios.get('https://cert.europa.eu/rss');
+  await axios.get('https://cert.europa.eu/rss');
   // Parse XML to items (placeholder)
-  return [{ id: 'cert1', title: 'New Advisory', severity: 'high' as any, summary: 'Test', tags: ['gov'], feedId: 'feed-cert', dedupeHits: 0, ingestedAt: new Date().toISOString() }];
+  return [{
+    id: 'cert1',
+    title: 'New Advisory',
+    severity: 'high' as any,
+    summary: 'Test',
+    tags: ['gov'],
+    feedId: 'feed-cert',
+    dedupeHits: 0,
+    ingestedAt: new Date().toISOString(),
+  }];
 }

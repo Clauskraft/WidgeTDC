@@ -1,5 +1,5 @@
 // Dashboard Shell Enhanced Types - Phase 1.B Professionalization
-import type { Layout, Layouts } from 'react-grid-layout';
+import type { Layouts } from 'react-grid-layout';
 
 export interface LayoutTemplate {
   id: string;

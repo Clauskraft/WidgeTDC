@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { Button } from '../components/ui/Button';
 

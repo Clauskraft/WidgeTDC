@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { Request, Response } from 'express';
+import type { ParamsDictionary, Request, RequestHandler, Response } from 'express';
 
 const router = Router();
 
@@ -27,8 +27,9 @@ interface AgentQueryResponse {
   confidence: number;
 }
 
-// L1 Director Agent Query Endpoint
-router.post('/query', async (req: Request<{}, {}, AgentQueryRequest>, res: Response) => {
+type AgentQueryRouteHandler = RequestHandler<ParamsDictionary, AgentQueryResponse, AgentQueryRequest>;
+
+const handleAgentQuery: AgentQueryRouteHandler = async (req, res) => {
   try {
     const { query, userId, context } = req.body;
 
@@ -65,11 +66,12 @@ router.post('/query', async (req: Request<{}, {}, AgentQueryRequest>, res: Respo
       .filter(Boolean);
 
     const response: AgentQueryResponse = {
-      response: personaResponses.length > 0
-        ? `${personaResponses.join('\n\n')}\n\nBaseret på din forespørgsel: "${query}"`
-        : `Jeg har modtaget din forespørgsel: "${query}". Hvordan kan jeg hjælpe dig videre?`,
+      response:
+        personaResponses.length > 0
+          ? `${personaResponses.join('\n\n')}\n\nBaseret på din forespørgsel: "${query}"`
+          : `Jeg har modtaget din forespørgsel: "${query}". Hvordan kan jeg hjælpe dig videre?`,
       personas_used: personasUsed,
-      confidence: 0.85
+      confidence: 0.85,
     };
 
     res.json(response);
@@ -80,7 +82,10 @@ router.post('/query', async (req: Request<{}, {}, AgentQueryRequest>, res: Respo
       message: error instanceof Error ? error.message : 'Unknown error occurred'
     });
   }
-});
+};
+
+// L1 Director Agent Query Endpoint
+router.post('/query', handleAgentQuery);
 
 // Health check endpoint
 router.get('/health', (_req: Request, res: Response) => {

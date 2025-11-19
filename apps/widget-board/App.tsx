@@ -6,8 +6,7 @@ import Shell from './components/Shell';
 import { WIDGET_DEFINITIONS } from './constants';
 import './App.css';
 import { SettingsPanel } from './components/SettingsPanel';
-import { PermissionProvider } from './contexts/PermissionContext';
-import { WidgetDefinition, WidgetInstance } from './types';
+import { WidgetInstance } from './types';
 
 // Component to initialize widgets into the registry
 const WidgetInitializer: React.FC = () => {
