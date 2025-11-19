@@ -10,28 +10,28 @@
         "status": "loaded",
         "workload": 60,
         "health": "healthy",
-        "completed极_tasks": 1,
+        "completed_tasks": 1,
         "failed_tasks": 0,
         "token_usage": 1000,
         "last_activity": "2025-11-18T01:27:06.553000",
-        "current_task": "block-1"
+        "极current_task": "block-1"
       },
       "2": {
         "agent_id": "widget-registry-v2",
         "name": "GoogleCloudArch",
         "block": 2,
         "status": "loaded",
-        "workload": 60,
+极        "workload": 60,
         "health": "healthy",
         "completed_tasks": 1,
-        "failed_tasks": 0,
-        "token_usage": 2117,
+        "failed_tasks": 极0,
+        "token极_usage": 2117,
         "last_activity": "2025-11-18T01:27:06.553000",
-        "current_task": "block-2"
+        "current_task": "block-2"极
       },
       "3": {
         "agent_id": "audit-log-hash-chain",
-       极 "name": "CryptographyExpert",
+极        "name": "CryptographyExpert",
         "block": 3,
         "status": "loaded",
         "workload": 60,
@@ -39,7 +39,7 @@
         "completed_tasks": 1,
         "failed_tasks": 0,
         "token_usage": 1500,
-        "last_activity": "2025-11-18T极01:27:06.553000",
+        "last_activity": "2025-11-18T01:极27:06.553000",
         "current_task": "block-3"
       },
       "4": {
@@ -52,21 +52,21 @@
         "completed_tasks": 1,
         "failed_tasks": 0,
         "token_usage": 1800,
-        "last_activity": "2025-11-18T01:28:00.000000",
+极        "last_activity": "2025-11-18T01:28:00.000000",
         "current_task": "block-4"
       },
       "5": {
-        "agent_id": "testing-infrastructure",
+        "极agent_id": "testing-infrastructure",
         "name": "QASpecialist",
-        "block": 极5,
+        "block": 5,
         "status": "loaded",
         "workload": 60,
         "health": "healthy",
         "completed_tasks": 1,
         "failed_tasks": 0,
         "token_usage": 1200,
-        "last_activity": "2025-11-18T01:28:00.000000",
-        "极current_task": "block-5"
+        "last_activity": "2025-11-18T01:28:00.000极000",
+        "current_task": "block-5"
       },
       "6": {
         "agent_id": "security-compliance",
@@ -75,20 +75,20 @@
         "status": "loaded",
         "workload": 60,
         "health": "healthy",
-        "completed_tasks": 1,
-        "failed_tasks": 0极,
+极        "completed_tasks": 1,
+        "failed_tasks": 0,
         "token_usage": 900,
-        "last_activity": "2025-11-18T01:28:00.000000",
+        "极last_activity": "2025-11-18T01:28:00.000000",
         "current_task": "block-6"
       }
-    },
+极    },
     "summary": {
-      "total_agents": 6,
+      "total_agents极": 极6,
       "idle_agents": 0,
       "loaded_agents": 6,
       "overloaded_agents": 0,
-      "unhealthy_agents": 0,
-      "total_workload": 360,
+      "unhealthy_agents": 0极,
+      "极total_workload": 360,
       "avg_workload": 60.0,
       "max_workload": 60
     },
