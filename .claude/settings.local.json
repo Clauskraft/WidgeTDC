@@ -25,7 +25,9 @@
       "Bash(curl:*)",
       "Bash(tasklist:*)",
       "Bash(findstr:*)",
-      "Bash(cmd.exe /c \"rmdir /s /q node_modules\")"
+      "Bash(cmd.exe /c \"rmdir /s /q node_modules\")",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []
