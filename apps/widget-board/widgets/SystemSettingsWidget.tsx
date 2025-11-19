@@ -1,9 +1,9 @@
 // Updated SystemSettings for OAuth
 import React, { useState } from 'react';
 import { Button } from '../components/ui/Button';
-import { useGlobalState } from '../../contexts/GlobalStateContext';  // For user/org
+import { useGlobalState } from '../contexts/GlobalStateContext';  // For user/org
 
-export function SystemSettingsWidget() {
+export default function SystemSettingsWidget() {
   const { user } = useGlobalState();
   const [loading, setLoading] = useState(false);
 

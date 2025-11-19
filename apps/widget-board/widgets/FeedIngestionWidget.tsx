@@ -228,7 +228,7 @@ const formatBytes = (value?: number) => {
     return `${(value / 1_000_000_000).toFixed(1)} GB`;
   }
   if (value >= 1_000_000) {
-    return `${(value / 1_000_000_000).toFixed(1)} MB`;
+    return `${(value / 1_000_000).toFixed(1)} MB`;
   }
   return `${value.toLocaleString()} B`;
 };
@@ -404,7 +404,7 @@ const FeedIngestionWidget: React.FC<{ widgetId: string }> = () => {
                 key={feed.id}
                 onClick={() => setSelectedFeedId(feed.id)}
                 role="tab"
-                aria-selected={feed.id === selectedFeedId ? 'true' : 'false'}
+                aria-selected={feed.id === selectedFeedId}
                 className={`w-full text-left px-4 py-3 transition-colors focus-visible:outline-blue-500 ${
                   feed.id === selectedFeedId ? 'bg-blue-50/70 dark:bg-blue-950/40' : ''
                 }`}
@@ -648,3 +648,4 @@ const MetricCard: React.FC<{ label: string; value: string; helper?: string }> = 
 );
 
 export default FeedIngestionWidget;
+

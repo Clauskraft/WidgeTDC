@@ -1,15 +1,45 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import HelpModal from './HelpModal';
 import { Button } from './ui/Button';
+import { MicrosoftIcons } from '../assets/MicrosoftIcons';
 
-const Header: React.FC = () => {
-  const { state, setTheme } = useGlobalState();
+interface HeaderProps {
+  onOpenWidgetManagement: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onOpenWidgetManagement }) => {
+  const { state, setTheme, toggleReduceMotion } = useGlobalState();
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Scrolling down - hide header
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY) {
+        // Scrolling up - show header
+        setIsVisible(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   return (
     <>
-      <header className="flex-shrink-0 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+      <header
+        data-visible={isVisible}
+        className={`fixed top-0 left-0 right-0 z-30 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-transform duration-300 ${
+        isVisible ? 'translate-y-0' : '-translate-y-full'
+      }`}>
         <div className="px-6 h-16 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <svg
@@ -30,6 +60,16 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <button
+              onClick={onOpenWidgetManagement}
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all shadow-[var(--shadow-button)]"
+              title="Administrer widgets"
+            >
+              <MicrosoftIcons.Settings />
+              <span className="font-medium">Widgets</span>
+            </button>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-600"></div>
             <Button
               onClick={() => setIsHelpModalOpen(true)}
               variant="subtle"
@@ -70,9 +110,27 @@ const Header: React.FC = () => {
                 />
               </button>
             </div>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-600"></div>
+
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium">Reduce Motion</span>
+              <button
+                onClick={toggleReduceMotion}
+                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
+                  state.reduceMotion ? 'bg-blue-600' : 'bg-gray-300'
+                }`}
+              >
+                <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                  state.reduceMotion ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
           </div>
         </div>
       </header>
+      {/* Spacer to prevent content from hiding under fixed header */}
+      <div className="h-16"></div>
       <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)} />
     </>
   );

@@ -77,7 +77,7 @@ function classifyQueryType(query: string): { type: 'analytical' | 'semantic'; co
 sragRouter.post('/query', (req, res) => {
   try {
     const request: SragQueryRequest = req.body;
-    
+
     if (!request.orgId || !request.naturalLanguageQuery) {
       return res.status(400).json({
         error: 'Missing required fields: orgId, naturalLanguageQuery',
@@ -93,7 +93,7 @@ sragRouter.post('/query', (req, res) => {
     if (isAnalytical) {
       // For analytical queries, query structured facts
       const facts = sragRepo.queryFacts(request.orgId);
-      
+
       res.json({
         type: 'analytical',
         result: facts,
@@ -107,10 +107,10 @@ sragRouter.post('/query', (req, res) => {
     } else {
       // For semantic queries, search documents
       const keywords = query.split(' ').filter((w: string) => w.length > 3);
-      const documents = keywords.length > 0 
+      const documents = keywords.length > 0
         ? sragRepo.searchDocuments(request.orgId, keywords[0])
         : [];
-      
+
       res.json({
         type: 'semantic',
         result: documents,
@@ -136,7 +136,7 @@ sragRouter.post('/ingest/document', (req, res) => {
   try {
     const input = req.body;
     const docId = sragRepo.ingestDocument(input);
-    
+
     res.json({
       success: true,
       docId,
@@ -155,7 +155,7 @@ sragRouter.post('/ingest/fact', (req, res) => {
   try {
     const input = req.body;
     const factId = sragRepo.ingestFact(input);
-    
+
     res.json({
       success: true,
       factId,

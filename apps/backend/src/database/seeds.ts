@@ -119,7 +119,102 @@ export function seedDatabase() {
     priority: 'high'
   }), 'high');
 
-  console.log('Database seeded successfully');
+  // Seed security search templates if empty
+  const templateCount = db.prepare('SELECT COUNT(*) as count FROM security_search_templates').get() as { count: number };
+  if (templateCount.count === 0) {
+    const insertTemplate = db.prepare(`
+      INSERT INTO security_search_templates (id, name, description, query, severity, timeframe, sources)
+      VALUES (@id, @name, @description, @query, @severity, @timeframe, @sources)
+    `);
+    const defaultTemplates = [
+      {
+        id: 'tpl-high-fidelity',
+        name: 'High fidelity alerts',
+        description: 'Critical events touching finance or executive accounts within 24h.',
+        query: 'credential leak finance exec',
+        severity: 'critical',
+        timeframe: '24h',
+        sources: JSON.stringify(['Dark Web', 'Feed Ingestion']),
+      },
+      {
+        id: 'tpl-zero-day',
+        name: 'Zero-day exploitation',
+        description: 'Vendor advisories mentioning active exploitation or PoC for CVEs.',
+        query: 'zero-day vendor advisory exploitation',
+        severity: 'high',
+        timeframe: '7d',
+        sources: JSON.stringify(['Vendor Radar', 'CERT-EU']),
+      },
+      {
+        id: 'tpl-supply-chain',
+        name: 'Supply chain monitoring',
+        description: 'Events referencing suppliers or tier-2 SaaS incidents.',
+        query: 'supplier breach SaaS incident',
+        severity: 'all',
+        timeframe: '30d',
+        sources: JSON.stringify(['Feed Ingestion', 'Internal Telemetry']),
+      },
+    ];
+    defaultTemplates.forEach(template => insertTemplate.run(template));
+  }
+
+  // Seed activity events if empty
+  const activityCount = db.prepare('SELECT COUNT(*) as count FROM security_activity_events').get() as { count: number };
+  if (activityCount.count === 0) {
+    const insertActivity = db.prepare(`
+      INSERT INTO security_activity_events (
+        id, title, description, category, severity, source, rule, channel, payload, created_at, acknowledged
+      ) VALUES (
+        @id, @title, @description, @category, @severity, @source, @rule, @channel, @payload, @created_at, @acknowledged
+      )
+    `);
+
+    const now = new Date();
+    const sampleEvents = [
+      {
+        id: 'evt-seed-1',
+        title: 'Critical credential dump ingested',
+        description: 'Dark web feed normalized 1.2k new credentials tied to finance leadership.',
+        category: 'alert',
+        severity: 'critical',
+        source: 'Feed Ingestion',
+        rule: 'critical-credential-dump',
+        channel: 'SSE',
+        payload: JSON.stringify({ feedId: 'feed-darkweb', documents: 1200 }),
+        created_at: now.toISOString(),
+        acknowledged: 0,
+      },
+      {
+        id: 'evt-seed-2',
+        title: 'Vendor advisory indexed',
+        description: 'Vendor Radar pushed CVE-2025-1123 advisory with compensating controls.',
+        category: 'ingestion',
+        severity: 'high',
+        source: 'Vendor Radar',
+        rule: 'vendor-critical',
+        channel: 'Job',
+        payload: JSON.stringify({ cve: 'CVE-2025-1123' }),
+        created_at: new Date(now.getTime() - 5 * 60 * 1000).toISOString(),
+        acknowledged: 0,
+      },
+      {
+        id: 'evt-seed-3',
+        title: 'Automation run completed',
+        description: 'Playbook reset credentials for exposed accounts (14 targets).',
+        category: 'automation',
+        severity: 'medium',
+        source: 'Automation Engine',
+        rule: 'auto-reset',
+        channel: 'Webhook',
+        payload: JSON.stringify({ targets: 14 }),
+        created_at: new Date(now.getTime() - 12 * 60 * 1000).toISOString(),
+        acknowledged: 1,
+      },
+    ];
+    sampleEvents.forEach(event => insertActivity.run(event));
+  }
+
+  console.log('✅ Database seeded successfully');
 }
 
 // Run seeds if this file is executed directly

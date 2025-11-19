@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import DashboardShell from './DashboardShell';
 import Header from './Header';
-import { WidgetInstance } from '../types';
+import WidgetManagementPanel from './WidgetManagementPanel';
+import { WidgetInstance, WidgetConfig } from '../types';
 
 const WIDGETS_STORAGE_KEY = 'widgetboard_widgets';
 
@@ -21,6 +22,8 @@ const Shell: React.FC = () => {
       return defaultWidgets;
     }
   });
+
+  const [isWidgetManagementOpen, setIsWidgetManagementOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -42,16 +45,28 @@ const Shell: React.FC = () => {
     setWidgets(prev => prev.filter(w => w.id !== widgetId));
   };
 
+  const updateWidgetConfig = (widgetId: string, config: WidgetConfig) => {
+    setWidgets(prev => prev.map(w =>
+      w.id === widgetId ? { ...w, config } : w
+    ));
+  };
+
   return (
     <div className="h-screen w-screen flex flex-col text-gray-900 dark:text-gray-100 relative">
       <div className="ms-acrylic fixed inset-0 -z-10" />
-      <Header />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar addWidget={addWidget} />
-        <main className="flex-1 overflow-auto">
-          <DashboardShell widgets={widgets} removeWidget={removeWidget} />
-        </main>
-      </div>
+      <Header onOpenWidgetManagement={() => setIsWidgetManagementOpen(true)} />
+      <main className="flex-1 overflow-auto">
+        <DashboardShell
+          widgets={widgets}
+          removeWidget={removeWidget}
+          updateWidgetConfig={updateWidgetConfig}
+        />
+      </main>
+      <WidgetManagementPanel
+        isOpen={isWidgetManagementOpen}
+        onClose={() => setIsWidgetManagementOpen(false)}
+        addWidget={addWidget}
+      />
     </div>
   );
 };

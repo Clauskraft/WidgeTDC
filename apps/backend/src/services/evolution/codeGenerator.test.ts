@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { generateCode } from './codeGenerator';
+import { generateCode, refineCode } from './codeGenerator';
 import { genAI } from '@google/generative-ai';  // Mock
 
 vi.mock('@google/generative-ai');

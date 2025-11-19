@@ -29,9 +29,22 @@ export interface MSWidgetDetectionResult {
   confidence: number;
 }
 
+
+export type WidgetCategory =
+  | 'cybersecurity'
+  | 'ai-agents'
+  | 'media-analysis'
+  | 'productivity'
+  | 'development'
+  | 'business'
+  | 'communication'
+  | 'system'
+  | 'project-management';
+
 export interface WidgetDefinition {
   id: string;
   name: string;
+  category: WidgetCategory;
   // FIX: Use imported ComponentType.
   component: ComponentType<any>;
   defaultLayout: { w: number; h: number };
@@ -46,6 +59,11 @@ export interface WidgetDefinition {
 export interface WidgetInstance {
   id: string; // Unique instance ID, e.g., 'AgentChatWidget-1629384'
   widgetType: string; // ID from WidgetDefinition, e.g., 'AgentChatWidget'
+  config?: WidgetConfig; // Widget-specific configuration
+}
+
+export interface WidgetConfig {
+  [key: string]: any; // Generic config structure for widget-specific settings
 }
 
 export interface GroundingSource {

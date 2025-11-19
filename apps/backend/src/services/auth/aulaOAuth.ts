@@ -40,26 +40,29 @@ export async function initiateOAuth(userId: string, orgId: string): Promise<stri
   return `${AULA_CONFIG.authUrl}?${params.toString()}`;  // Real redirect URL
 }
 
-export async function handleCallback(req: any, res: any, userId: string, orgId: string): Promise<TokenResponse> {
+export async function handleCallback(req: any, res: any, userId: string, orgId: string): Promise<TokenResponse | void> {
   const { code, state } = req.query;
 
   if (!code) {
-    return res.status(400).json({ error: 'No code provided' });
+    res.status(400).json({ error: 'No code provided' });
+    return;
   }
 
   const tempState = await PersonalEntityRepository.getTempState(userId);
   if (tempState.state !== state) {
-    return res.status(400).json({ error: 'Invalid state' });
+    res.status(400).json({ error: 'Invalid state' });
+    return;
   }
 
   try {
-    const tokenResponse = await axios.post(AULA_CONFIG.tokenUrl, new URLSearchParams({
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: AULA_CONFIG.redirectUri,
-      client_id: AULA_CONFIG.clientId,
-      client_secret: AULA_CONFIG.clientSecret,
-    }), {
+    const params = new URLSearchParams();
+    params.append('grant_type', 'authorization_code');
+    params.append('code', code);
+    params.append('redirect_uri', AULA_CONFIG.redirectUri);
+    params.append('client_id', AULA_CONFIG.clientId || '');
+    params.append('client_secret', AULA_CONFIG.clientSecret || '');
+
+    const tokenResponse = await axios.post(AULA_CONFIG.tokenUrl, params, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
 
@@ -103,12 +106,15 @@ export async function refreshToken(userId: string): Promise<string> {
   const refreshToken = Buffer.from(refreshTokenEnc, 'hex').toString();  // Decrypt (simplified)
 
   try {
-    const response = await axios.post(AULA_CONFIG.tokenUrl, new URLSearchParams({
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-      client_id: AULA_CONFIG.clientId,
-      client_secret: AULA_CONFIG.clientSecret,
-    }), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    const params = new URLSearchParams();
+    params.append('grant_type', 'refresh_token');
+    params.append('refresh_token', refreshToken);
+    params.append('client_id', AULA_CONFIG.clientId || '');
+    params.append('client_secret', AULA_CONFIG.clientSecret || '');
+
+    const response = await axios.post(AULA_CONFIG.tokenUrl, params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
 
     const { access_token, expires_in } = response.data;
 
