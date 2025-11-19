@@ -96,7 +96,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 }
 
 // Evolution tool handlers
-export async function evolutionReportHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function evolutionReportHandler(payload: any, _ctx: McpContext): Promise<any> {
   const runId = evolutionRepo.recordRun(payload);
   const avgDelta = evolutionRepo.getAverageKpiDelta(payload.agentId, 10);
   
@@ -110,7 +110,7 @@ export async function evolutionReportHandler(payload: any, ctx: McpContext): Pro
   };
 }
 
-export async function evolutionGetPromptHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function evolutionGetPromptHandler(payload: any, _ctx: McpContext): Promise<any> {
   const prompt = evolutionRepo.getLatestPrompt(payload.agentId);
   
   if (!prompt) {
@@ -141,7 +141,7 @@ export async function palEventHandler(payload: any, ctx: McpContext): Promise<an
 
 export async function palBoardActionHandler(payload: any, ctx: McpContext): Promise<any> {
   // Get recommendations
-  let profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
+  const profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
   if (!profile) {
     palRepo.createUserProfile(ctx.userId, ctx.orgId);
   }

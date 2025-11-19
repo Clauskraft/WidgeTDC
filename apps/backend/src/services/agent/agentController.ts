@@ -28,7 +28,7 @@ interface AgentQueryResponse {
 }
 
 // L1 Director Agent Query Endpoint
-router.post('/query', async (req: Request<{}, {}, AgentQueryRequest>, res: Response) => {
+router.post('/query', async (req: Request<Record<string, never>, Record<string, never>, AgentQueryRequest>, res: Response) => {
   try {
     const { query, userId, context } = req.body;
 

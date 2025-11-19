@@ -3,11 +3,11 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
+  const env = loadEnv(mode, process.cwd(), '');
   return {
-    root: path.resolve(__dirname, 'apps/widget-board'),
+    root: __dirname,
     build: {
-      outDir: path.resolve(__dirname, 'dist'),
+      outDir: path.resolve(__dirname, '../../dist'),
       emptyOutDir: true,
     },
     server: {
@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, 'apps/widget-board'),
+        '@': __dirname,
       },
     },
   };

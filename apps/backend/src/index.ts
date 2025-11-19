@@ -1,8 +1,4 @@
 import { createServer } from 'http';
-import { mcpRegistry } from './mcp/mcpRegistry.js';
-import { createApp, createMcpWebSocketServer } from './app.js';
-
-const PORT = process.env.PORT || 3001;
 import { exec } from 'child_process';
 import { mcpRegistry } from './mcp/mcpRegistry.js';
 import { createApp, createMcpWebSocketServer } from './app.js';
@@ -31,36 +27,38 @@ app.get('/health', (req, res) => {
 const server = createServer(app);
 
 // 🛠️ SYSTEM EXECUTOR FUNCTION
+// Note: Currently unused but kept for future system command execution
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const executeSystemCommand = (commandIntent: string): string => {
     console.log(`⚡ EXECUTING: ${commandIntent}`);
 
     // Simple translation of "AI Intent" to system commands
     if (commandIntent.includes('KILL_CHROME')) {
-        exec('taskkill /F /IM chrome.exe', (error, stdout, stderr) => {
+        exec('taskkill /F /IM chrome.exe', (error, _stdout, _stderr) => {
             if (error) console.log('Error killing Chrome:', error);
         });
         return "Target neutralized: Google Chrome processes terminated.";
     }
     if (commandIntent.includes('OPEN_STEAM')) {
-        exec('start steam://', (error, stdout, stderr) => {
+        exec('start steam://', (error, _stdout, _stderr) => {
             if (error) console.log('Error opening Steam:', error);
         });
         return "Launching entertainment subsystem...";
     }
     if (commandIntent.includes('FLUSH_DNS')) {
-        exec('ipconfig /flushdns', (error, stdout, stderr) => {
+        exec('ipconfig /flushdns', (error, _stdout, _stderr) => {
             if (error) console.log('Error flushing DNS:', error);
         });
         return "Network cache cleared.";
     }
     if (commandIntent.includes('KILL_NODE')) {
-        exec('taskkill /F /IM node.exe', (error, stdout, stderr) => {
+        exec('taskkill /F /IM node.exe', (error, _stdout, _stderr) => {
             if (error) console.log('Error killing Node processes:', error);
         });
         return "All Node.js processes terminated.";
     }
     if (commandIntent.includes('RESTART_EXPLORER')) {
-        exec('taskkill /F /IM explorer.exe && start explorer.exe', (error, stdout, stderr) => {
+        exec('taskkill /F /IM explorer.exe && start explorer.exe', (error, _stdout, _stderr) => {
             if (error) console.log('Error restarting Explorer:', error);
         });
         return "Windows Explorer restarted.";

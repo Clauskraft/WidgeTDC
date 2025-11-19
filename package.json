@@ -2,6 +2,7 @@
   "name": "widget-tdc-monorepo",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
@@ -11,9 +12,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "cd apps/widget-board && vite",
+    "build": "cd apps/widget-board && vite build",
+    "preview": "cd apps/widget-board && vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",

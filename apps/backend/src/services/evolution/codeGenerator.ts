@@ -1,6 +1,5 @@
 // Agent-driven code generation service
 import { genAI } from '@google/generative-ai';
-import { EvolutionPromptVersion } from '../../types';  // From shared
 
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
@@ -12,7 +11,7 @@ export async function generateCode(spec: string, testPlan: string, kpiThreshold 
   KPI: Coverage >${kpiThreshold}%, no errors.`;
 
   const result = await model.generateContent(prompt);
-  let code = await result.response.text();
+  const code = await result.response.text();
 
   // Post-process: Validate syntax (simple check)
   if (!code.includes('export') || code.includes('error')) {
@@ -26,7 +25,8 @@ export async function generateCode(spec: string, testPlan: string, kpiThreshold 
 }
 
 export async function refineCode(code: string, errorLog: string): Promise<string> {
-  const refinePrompt = `Refine this code: ${code}. Fix errors: ${errorLog}. Output ONLY fixed code.`;
   // Similar genAI call...
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _refinePrompt = `Refine this code: ${code}. Fix errors: ${errorLog}. Output ONLY fixed code.`;
   return 'refined code';  // Placeholder
 }

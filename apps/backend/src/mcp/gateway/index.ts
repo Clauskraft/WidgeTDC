@@ -1,8 +1,7 @@
 // MCP API Gateway - Integrated from template
-import express, { Request, Response, NextFunction } from 'express';
-import { WebSocketServer, WebSocket } from 'ws';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { IncomingMessage } from 'http';
+import express from 'express';
+import { WebSocketServer } from 'ws';
+import jwt from 'jsonwebtoken';
 import { mcpRouter } from '../mcpRouter.js';
 
 const app = express();
@@ -44,6 +43,7 @@ wss.on('connection', (ws, req) => {
 
 // Notification route (for Epic 18)
 app.post('/api/notifications/push', authMiddleware, async (req, res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { subscription: _subscription, payload: _payload } = req.body;
   // TODO: Use web-push to send
   // TODO: Integrate with aulaPoller
