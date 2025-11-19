@@ -3,7 +3,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import { WebSocketServer, WebSocket } from 'ws';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { IncomingMessage } from 'http';
-import { mcpRouter } from '../mcpRouter.js';
+import { mcpRouter } from '../mcpRouter';
 
 const app = express();
 const server = app.listen(3001, () => console.log('MCP Gateway listening on port 3001'));
