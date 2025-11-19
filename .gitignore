@@ -57,6 +57,15 @@ temp/
 # Build artifacts
 *.tsbuildinfo
 
+# Environment / secrets
+.env
+.env.local
+# Never store raw API keys or secrets in the repo
+
+# SQLite artifacts
+apps/backend/widget-tdc.db
+apps/backend/widget-tdc.db-wal
+apps/backend/widget-tdc.db-shm
 
 DEEPSEK_API_KEY=sk-e1361f0ab7c8429286c7ed16361662c0
 

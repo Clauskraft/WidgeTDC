@@ -1,6 +1,8 @@
-import express from 'express';
-import cors from 'cors';
 import { createServer } from 'http';
+import { mcpRegistry } from './mcp/mcpRegistry.js';
+import { createApp, createMcpWebSocketServer } from './app.js';
+
+const PORT = process.env.PORT || 3001;
 import { exec } from 'child_process';
 import { getDatabase } from './database/index.js';
 import { mcpRouter } from './mcp/mcpRouter.js';
@@ -106,7 +108,7 @@ const executeSystemCommand = (commandIntent: string): string => {
 };
 
 // Initialize WebSocket server for MCP
-new MCPWebSocketServer(server);
+createMcpWebSocketServer(server);
 
 // Start server
 server.listen(PORT, () => {

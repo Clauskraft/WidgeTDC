@@ -10,7 +10,7 @@
         "status": "loaded",
         "workload": 60,
         "health": "healthy",
-        "completed极_tasks": 1,
+        "completed_tasks": 1,
         "failed_tasks": 0,
         "token_usage": 1000,
         "last_activity": "2025-11-18T01:27:06.553000",
@@ -39,6 +39,7 @@
         "completed_tasks": 1,
         "failed_tasks": 0,
         "token_usage": 1500,
+        "last_activity": "2025-11-18T01:27:06.553000",
         "last_activity": "2025-11-18T极01:27:06.553000",
         "current_task": "block-3"
       },
@@ -58,7 +59,7 @@
       "5": {
         "agent_id": "testing-infrastructure",
         "name": "QASpecialist",
-        "block": 极5,
+        "block": 5,
         "status": "loaded",
         "workload": 60,
         "health": "healthy",
@@ -66,6 +67,7 @@
         "failed_tasks": 0,
         "token_usage": 1200,
         "last_activity": "2025-11-18T01:28:00.000000",
+        "current_task": "block-5"
         "极current_task": "block-5"
       },
       "6": {
@@ -76,7 +78,8 @@
         "workload": 60,
         "health": "healthy",
         "completed_tasks": 1,
-        "failed_tasks": 0极,
+        "failed_tasks": 0,
+        "failed_tasks": 0,
         "token_usage": 900,
         "last_activity": "2025-11-18T01:28:00.000000",
         "current_task": "block-6"
