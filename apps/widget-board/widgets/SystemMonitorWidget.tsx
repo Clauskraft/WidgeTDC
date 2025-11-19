@@ -85,7 +85,7 @@ const SystemMonitorWidget: React.FC<{ widgetId: string }> = () => {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-red-500 text-sm text-center">
-          <div className="mb-2">⚠️ Failed to load system data</div>
+          <div className="mb-2">Failed to load system data</div>
           <div className="text-xs text-gray-500">{error}</div>
         </div>
       </div>

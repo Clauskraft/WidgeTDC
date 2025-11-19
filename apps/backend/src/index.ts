@@ -64,9 +64,9 @@ new MCPWebSocketServer(server);
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-  console.log(`📡 MCP WebSocket available at ws://localhost:${PORT}/mcp/ws`);
-  console.log(`🔧 Registered MCP tools:`, mcpRegistry.getRegisteredTools());
+  console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`MCP WebSocket available at ws://localhost:${PORT}/mcp/ws`);
+  console.log(`Registered MCP tools:`, mcpRegistry.getRegisteredTools());
 });
 
 // Graceful shutdown

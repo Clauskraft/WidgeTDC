@@ -2,6 +2,10 @@
 
 Fast reference for setting up a new project using the agent-based methodology.
 
+## IMPORTANT: Code Style Rules
+
+**EMOJIS ARE STRICTLY FORBIDDEN** in all code, comments, documentation, and commit messages. Never use emojis anywhere in the codebase.
+
 ## 30-Second Overview
 
 This template enables parallel development by:
@@ -37,7 +41,7 @@ Copy template to `.cursor/agents/agent-name.md`:
 
 **Domain**: [Feature Area]
 **Assignment**: Block 1 - [Feature Name] (X story points)
-**Status**: 🟡 QUEUED
+**Status**: QUEUED
 
 ## Mission
 [One sentence describing the work]
@@ -71,7 +75,7 @@ Copy `.github/workflows/agent-block-1-name.yml`:
 
 **Key sections:**
 ```yaml
-name: 📋 Agent Block 1 - [Feature Name]
+name: Agent Block 1 - [Feature Name]
 
 on:
   workflow_dispatch:
@@ -88,13 +92,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: 🌿 Create agent branch
+      - name: Create agent branch
         run: |
           git config user.name "AgentName"
           git config user.email "agent-block-1@domain.dev"
           git checkout -b ${{ env.BRANCH }}
 
-      - name: 📝 Task 1.1: [Task Name] (X pts)
+      - name: Task 1.1: [Task Name] (X pts)
         run: |
           mkdir -p path/to/files
           cat > file.ts << 'EOF'
@@ -102,9 +106,9 @@ jobs:
           EOF
           git add file.ts
 
-      - name: ✅ Commit Block 1
+      - name: Commit Block 1
         run: |
-          git commit -m "📋 Block 1: [Feature] - AgentName
+          git commit -m "Block 1: [Feature] - AgentName
 
           Completed:
           - Task 1.1: [Description]
@@ -112,13 +116,13 @@ jobs:
 
           Status: Ready for merge"
 
-      - name: 🚀 Push to agent branch
+      - name: Push to agent branch
         run: git push -u origin ${{ env.BRANCH }} --force
 
-      - name: 📢 Create Pull Request
+      - name: Create Pull Request
         uses: actions/create-pull-request@v5
         with:
-          title: '✅ Block 1: [Feature] [READY FOR MERGE]'
+          title: 'Block 1: [Feature] [READY FOR MERGE]'
           body: |
             **Agent**: AgentName
             **Block**: 1

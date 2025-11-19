@@ -23,7 +23,7 @@ import KanbanWidget from './widgets/KanbanWidget';
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
   {
     id: 'Phase1CFastTrackKanban',
-    name: '🚀 Priority 3: Phase 1.C Kanban',
+    name: 'Priority 3: Phase 1.C Kanban',
     component: Phase1CFastTrackKanbanWidget,
     defaultLayout: { w: 12, h: 12 },
     source: 'proprietary',
@@ -139,7 +139,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
   },
   {
     id: 'SystemMonitorWidget',
-    name: '🏆 System Monitor',
+    name: 'System Monitor',
     component: SystemMonitorWidget,
     defaultLayout: { w: 8, h: 12 },
     source: 'proprietary',
@@ -186,7 +186,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
   },
   {
     id: 'DarkWebMonitor',
-    name: '🕵️ Dark Web Monitor',
+    name: 'Dark Web Monitor',
     component: DarkWebMonitorWidget,
     defaultLayout: { w: 12, h: 10 },
     source: 'proprietary',
