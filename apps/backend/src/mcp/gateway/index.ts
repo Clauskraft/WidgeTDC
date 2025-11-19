@@ -1,14 +1,7 @@
 // MCP API Gateway - Integrated from template
-<<<<<<< Current (Your changes)
 import express from 'express';
 import { WebSocketServer } from 'ws';
 import jwt from 'jsonwebtoken';
-=======
-import express, { Request, Response, NextFunction } from 'express';
-import { WebSocketServer, WebSocket } from 'ws';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { IncomingMessage } from 'http';
->>>>>>> Incoming (Background Agent changes)
 import { mcpRouter } from '../mcpRouter.js';
 
 const app = express();
@@ -36,14 +29,19 @@ wss.on('connection', (ws, req) => {
   const org_id = req.url?.split('org=')[1];  // Tenant-specific
   (ws as any).org_id = org_id;
   ws.on('message', (data) => {
-    const msg = JSON.parse(data.toString());
-    if (msg.type === 'event') {
-      // Broadcast to widgets in org
-      wss.clients.forEach(client => {
-        if ((client as any).org_id === org_id && client.readyState === 1) {
-          client.send(JSON.stringify(msg));
-        }
-      });
+    try {
+      const msg = JSON.parse(data.toString());
+      if (msg.type === 'event') {
+        // Broadcast to widgets in org
+        wss.clients.forEach(client => {
+          if ((client as any).org_id === org_id && client.readyState === 1) {
+            client.send(JSON.stringify(msg));
+          }
+        });
+      }
+    } catch (error) {
+      // Invalid JSON - ignore message
+      console.error('Invalid JSON in WebSocket message:', error);
     }
   });
 });
