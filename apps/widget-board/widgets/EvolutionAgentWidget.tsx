@@ -76,7 +76,7 @@ const EvolutionAgentWidget: React.FC = () => {
       color: '#ffffff',
     }}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
-        🧬 Evolution & KPI Monitor
+        Evolution & KPI Monitor
       </h2>
 
       <div style={{ marginBottom: '20px' }}>
@@ -206,7 +206,7 @@ const EvolutionAgentWidget: React.FC = () => {
                   Status
                 </div>
                 <div style={{ fontSize: '16px', fontWeight: '600' }}>
-                  {needsRefinement ? '⚠️ Needs Refinement' : '✅ Performing Well'}
+                  {needsRefinement ? 'Needs Refinement' : 'Performing Well'}
                 </div>
               </div>
             </div>

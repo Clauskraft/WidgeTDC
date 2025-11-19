@@ -62,7 +62,7 @@ const SragGovernanceWidget: React.FC = () => {
       color: '#ffffff',
     }}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
-        📊 SRAG Data Governance
+        SRAG Data Governance
       </h2>
 
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
@@ -151,7 +151,7 @@ const SragGovernanceWidget: React.FC = () => {
               fontSize: '12px',
               fontWeight: '600',
             }}>
-              {result.type === 'analytical' ? '📈 SQL' : '🔍 Semantic'}
+              {result.type === 'analytical' ? 'SQL' : 'Semantic'}
             </div>
           </div>
 

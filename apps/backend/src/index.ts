@@ -9,6 +9,7 @@ import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
+import sysRouter from './routes/sys.js';
 import {
   cmaContextHandler,
   cmaIngestHandler,
@@ -23,7 +24,7 @@ import { agentRouter } from './services/agent/agentController.js';
 import { scRouter } from './services/sc/scController.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 3001; // Fixed port to avoid conflicts with exec-daemon
 
 // Middleware
 app.use(cors());
@@ -50,6 +51,7 @@ app.use('/api/pal', palRouter);
 app.use('/api/security', securityRouter);
 app.use('/api/agent', agentRouter);
 app.use('/api/commands/sc', scRouter);
+app.use('/api/sys', sysRouter);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -68,9 +70,9 @@ new MCPWebSocketServer(server);
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-  console.log(`📡 MCP WebSocket available at ws://localhost:${PORT}/mcp/ws`);
-  console.log(`🔧 Registered MCP tools:`, mcpRegistry.getRegisteredTools());
+  console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`MCP WebSocket available at ws://localhost:${PORT}/mcp/ws`);
+  console.log(`Registered MCP tools:`, mcpRegistry.getRegisteredTools());
 });
 
 // Graceful shutdown
