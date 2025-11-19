@@ -11,6 +11,7 @@
 ## 🌟 Features
 
 ### Core Capabilities
+
 - **🎯 Widget-Based Architecture**: Modular, customizable dashboard with 10+ pre-built widgets
 - **🔐 Enterprise Security**: Zero-trust architecture with JWT authentication, rate limiting, and CSP
 - **🤖 AI Integration**: Powered by Gemini AI for intelligent features
@@ -21,6 +22,7 @@
 - **🎨 Modern UI**: Microsoft Fluent Design-inspired interface
 
 ### Enterprise Features
+
 - **OAuth 2.0 Authentication**: Secure authentication with PKCE
 - **Circuit Breaker Pattern**: Fault tolerance for external services
 - **Comprehensive Logging**: Structured logging with sensitive data redaction
@@ -33,6 +35,7 @@
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ or 20+
 - npm 9+
 - Git
@@ -176,7 +179,7 @@ services:
   widgetboard:
     build: .
     ports:
-      - "80:80"
+      - '80:80'
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     restart: unless-stopped
@@ -184,22 +187,23 @@ services:
 
 ## 📦 Available Widgets
 
-| Widget | Description | Status |
-|--------|-------------|--------|
-| Agent Chat | AI-powered conversational interface | ✅ Active |
-| Agent Builder | Create custom AI agents | ✅ Active |
-| Email RAG | Intelligent email response suggestions | ✅ Active |
-| MCP Connector | Data source connections | ✅ Active |
-| Performance Monitor | System metrics dashboard | ✅ Active |
-| Prompt Library | Reusable prompt templates | ✅ Active |
-| System Settings | Application configuration | ✅ Active |
-| Widget Importer | Import Microsoft widgets | ✅ Active |
-| Live Conversation | Real-time voice/text chat | ✅ Active |
-| Image Analyzer | AI-powered image analysis | ✅ Active |
+| Widget              | Description                            | Status    |
+| ------------------- | -------------------------------------- | --------- |
+| Agent Chat          | AI-powered conversational interface    | ✅ Active |
+| Agent Builder       | Create custom AI agents                | ✅ Active |
+| Email RAG           | Intelligent email response suggestions | ✅ Active |
+| MCP Connector       | Data source connections                | ✅ Active |
+| Performance Monitor | System metrics dashboard               | ✅ Active |
+| Prompt Library      | Reusable prompt templates              | ✅ Active |
+| System Settings     | Application configuration              | ✅ Active |
+| Widget Importer     | Import Microsoft widgets               | ✅ Active |
+| Live Conversation   | Real-time voice/text chat              | ✅ Active |
+| Image Analyzer      | AI-powered image analysis              | ✅ Active |
 
 ## 🔐 Security
 
 ### Security Features
+
 - ✅ Input sanitization (XSS prevention)
 - ✅ URL validation (SSRF prevention)
 - ✅ File path sanitization (directory traversal prevention)
@@ -230,18 +234,21 @@ See [SECURITY.md](SECURITY.md) for our complete security policy.
 ## 🛠️ Technology Stack
 
 ### Frontend
+
 - **React 19** - UI framework
 - **TypeScript 5.8** - Type safety
 - **Vite 6** - Build tool and dev server
 - **react-grid-layout** - Dashboard layout system
 
 ### Development
+
 - **Vitest** - Unit testing framework
 - **ESLint** - Code linting with security rules
 - **Prettier** - Code formatting
 - **Testing Library** - Component testing utilities
 
 ### Enterprise Features
+
 - **WebSocket (WSS)** - Real-time communication
 - **JWT** - Authentication tokens
 - **Circuit Breaker** - Fault tolerance
@@ -249,13 +256,13 @@ See [SECURITY.md](SECURITY.md) for our complete security policy.
 
 ## 📊 Performance Metrics
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| First Contentful Paint | < 1.5s | ✅ |
-| Largest Contentful Paint | < 2.5s | ✅ |
-| Time to Interactive | < 3.5s | ✅ |
-| Test Coverage | > 70% | 🎯 |
-| Security Score | A+ | ✅ |
+| Metric                   | Target | Status |
+| ------------------------ | ------ | ------ |
+| First Contentful Paint   | < 1.5s | ✅     |
+| Largest Contentful Paint | < 2.5s | ✅     |
+| Time to Interactive      | < 3.5s | ✅     |
+| Test Coverage            | > 70%  | 🎯     |
+| Security Score           | A+     | ✅     |
 
 ## 🤝 Contributing
 
@@ -291,18 +298,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🗺️ Roadmap
 
 ### Q1 2025
+
 - [ ] Kubernetes deployment manifests
 - [ ] Advanced analytics dashboard
 - [ ] Plugin marketplace
 - [ ] Mobile responsive design
 
 ### Q2 2025
+
 - [ ] Offline mode with service workers
 - [ ] Real-time collaboration
 - [ ] Multi-language support (i18n)
 - [ ] Accessibility improvements (WCAG 2.1 AA)
 
 ### Q3 2025
+
 - [ ] Advanced RAG features
 - [ ] Custom widget SDK
 - [ ] Enhanced monitoring and alerting

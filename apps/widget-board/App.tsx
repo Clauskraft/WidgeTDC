@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { WidgetRegistryProvider, useWidgetRegistry } from './contexts/WidgetRegistryContext';
 import { GlobalStateProvider } from './contexts/GlobalStateContext';
@@ -13,11 +12,11 @@ const WidgetInitializer: React.FC = () => {
   useEffect(() => {
     // Prevent re-registering widgets
     if (availableWidgets.length === 0) {
-        WIDGET_DEFINITIONS.forEach(widget => {
-            registerWidget(widget);
-        });
+      WIDGET_DEFINITIONS.forEach(widget => {
+        registerWidget(widget);
+      });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registerWidget]);
 
   return null;

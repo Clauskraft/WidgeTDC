@@ -9,7 +9,7 @@ const memoryRepo = new MemoryRepository();
 memoryRouter.post('/ingest', (req, res) => {
   try {
     const input: MemoryEntityInput = req.body;
-    
+
     if (!input.orgId || !input.entityType || !input.content) {
       return res.status(400).json({
         error: 'Missing required fields: orgId, entityType, content',
@@ -17,7 +17,7 @@ memoryRouter.post('/ingest', (req, res) => {
     }
 
     const entityId = memoryRepo.ingestEntity(input);
-    
+
     res.json({
       success: true,
       id: entityId,
@@ -35,7 +35,7 @@ memoryRouter.post('/ingest', (req, res) => {
 memoryRouter.post('/contextual-prompt', (req, res) => {
   try {
     const request: CmaContextRequest = req.body;
-    
+
     if (!request.orgId || !request.userId || !request.userQuery) {
       return res.status(400).json({
         error: 'Missing required fields: orgId, userId, userQuery',
@@ -51,9 +51,9 @@ memoryRouter.post('/contextual-prompt', (req, res) => {
     });
 
     // Build contextual prompt
-    const memoryContext = memories.map(m => 
-      `[${m.entity_type}] ${m.content} (importance: ${m.importance})`
-    ).join('\n');
+    const memoryContext = memories
+      .map(m => `[${m.entity_type}] ${m.content} (importance: ${m.importance})`)
+      .join('\n');
 
     const prompt = `
 Context from memory:
@@ -91,7 +91,7 @@ memoryRouter.post('/search', (req, res) => {
   try {
     const query = req.body;
     const memories = memoryRepo.searchEntities(query);
-    
+
     res.json({
       success: true,
       memories,

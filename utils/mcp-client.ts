@@ -21,8 +21,8 @@ export enum ConnectionState {
  * Circuit breaker states
  */
 enum CircuitState {
-  CLOSED = 'closed',    // Normal operation
-  OPEN = 'open',        // Failing, reject requests
+  CLOSED = 'closed', // Normal operation
+  OPEN = 'open', // Failing, reject requests
   HALF_OPEN = 'half_open', // Testing if service recovered
 }
 
@@ -147,11 +147,14 @@ export class MCPClient {
   private reconnectAttempts: number = 0;
   private reconnectTimer: number | null = null;
   private heartbeatTimer: number | null = null;
-  private pendingRequests: Map<string, {
-    resolve: (value: any) => void;
-    reject: (reason: any) => void;
-    timeout: number;
-  }> = new Map();
+  private pendingRequests: Map<
+    string,
+    {
+      resolve: (value: any) => void;
+      reject: (reason: any) => void;
+      timeout: number;
+    }
+  > = new Map();
   private circuitBreaker: CircuitBreaker;
   private eventHandlers: Map<string, Set<(data: any) => void>> = new Map();
 
@@ -224,11 +227,11 @@ export class MCPClient {
           resolve();
         };
 
-        this.ws.onmessage = (event) => {
+        this.ws.onmessage = event => {
           this.handleMessage(event.data);
         };
 
-        this.ws.onerror = (error) => {
+        this.ws.onerror = error => {
           this.emit('error', error);
           reject(error);
         };
@@ -236,7 +239,6 @@ export class MCPClient {
         this.ws.onclose = () => {
           this.handleDisconnection();
         };
-
       } catch (error) {
         reject(error);
       }
@@ -271,7 +273,6 @@ export class MCPClient {
       if (message.type === 'event' && message.method) {
         this.emit(message.method, message.params);
       }
-
     } catch (error) {
       console.error('Failed to parse MCP message:', error);
     }
@@ -321,11 +322,14 @@ export class MCPClient {
     // Exponential backoff: first retry happens at base delay (reconnectDelay), subsequent retries double the delay
     const delay = this.config.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
 
-    this.reconnectTimer = window.setTimeout(() => {
-      this.connect().catch(() => {
-        // Will be handled by attemptReconnect being called again
-      });
-    }, Math.min(delay, 30000)); // Max 30 seconds
+    this.reconnectTimer = window.setTimeout(
+      () => {
+        this.connect().catch(() => {
+          // Will be handled by attemptReconnect being called again
+        });
+      },
+      Math.min(delay, 30000)
+    ); // Max 30 seconds
   }
 
   /**

@@ -3,26 +3,26 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      root: path.resolve(__dirname, 'apps/widget-board'),
-      build: {
-        outDir: path.resolve(__dirname, 'dist'),
-        emptyOutDir: true,
+  const env = loadEnv(mode, '.', '');
+  return {
+    root: path.resolve(__dirname, 'apps/widget-board'),
+    build: {
+      outDir: path.resolve(__dirname, 'dist'),
+      emptyOutDir: true,
+    },
+    server: {
+      port: 8888,
+      host: '0.0.0.0',
+    },
+    plugins: [react()],
+    define: {
+      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, 'apps/widget-board'),
       },
-      server: {
-        port: 8888,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, 'apps/widget-board'),
-        }
-      }
-    };
+    },
+  };
 });

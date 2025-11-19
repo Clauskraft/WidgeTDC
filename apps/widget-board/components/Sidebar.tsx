@@ -17,7 +17,7 @@ const Sidebar: React.FC<SidebarProps> = ({ addWidget }) => {
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-lg font-semibold">Widgets</h2>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto p-4">
         <div className="space-y-2">
           {availableWidgets.map(widget => (
@@ -51,9 +51,11 @@ const Sidebar: React.FC<SidebarProps> = ({ addWidget }) => {
               state.reduceMotion ? 'bg-blue-600' : 'bg-gray-300'
             }`}
           >
-            <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-              state.reduceMotion ? 'translate-x-6' : 'translate-x-1'
-            }`} />
+            <span
+              className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
+                state.reduceMotion ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
           </button>
         </div>
       </div>

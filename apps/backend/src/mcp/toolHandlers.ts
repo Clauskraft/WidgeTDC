@@ -18,9 +18,9 @@ export async function cmaContextHandler(payload: any, ctx: McpContext): Promise<
     limit: 5,
   });
 
-  const memoryContext = memories.map(m => 
-    `[${m.entity_type}] ${m.content} (importance: ${m.importance})`
-  ).join('\n');
+  const memoryContext = memories
+    .map(m => `[${m.entity_type}] ${m.content} (importance: ${m.importance})`)
+    .join('\n');
 
   const prompt = `
 Context from memory:
@@ -77,10 +77,8 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
     };
   } else {
     const keywords = query.split(' ').filter((w: string) => w.length > 3);
-    const documents = keywords.length > 0 
-      ? sragRepo.searchDocuments(ctx.orgId, keywords[0])
-      : [];
-    
+    const documents = keywords.length > 0 ? sragRepo.searchDocuments(ctx.orgId, keywords[0]) : [];
+
     return {
       type: 'semantic',
       result: documents,
@@ -97,7 +95,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 export async function evolutionReportHandler(payload: any, ctx: McpContext): Promise<any> {
   const runId = evolutionRepo.recordRun(payload);
   const avgDelta = evolutionRepo.getAverageKpiDelta(payload.agentId, 10);
-  
+
   return {
     runId,
     evaluation: {
@@ -110,7 +108,7 @@ export async function evolutionReportHandler(payload: any, ctx: McpContext): Pro
 
 export async function evolutionGetPromptHandler(payload: any, ctx: McpContext): Promise<any> {
   const prompt = evolutionRepo.getLatestPrompt(payload.agentId);
-  
+
   if (!prompt) {
     throw new Error('No prompt found for agent');
   }
@@ -147,8 +145,9 @@ export async function palBoardActionHandler(payload: any, ctx: McpContext): Prom
   const focusWindows = palRepo.getFocusWindows(ctx.userId, ctx.orgId);
   const stressDistribution = palRepo.getStressLevelDistribution(ctx.userId, ctx.orgId, 24);
 
-  const highStressCount = stressDistribution.find((d: any) => d.detected_stress_level === 'high')?.count || 0;
-  
+  const highStressCount =
+    stressDistribution.find((d: any) => d.detected_stress_level === 'high')?.count || 0;
+
   const boardAdjustments = [];
 
   if (highStressCount > 3) {
@@ -161,17 +160,16 @@ export async function palBoardActionHandler(payload: any, ctx: McpContext): Prom
   const now = new Date();
   const currentWeekday = now.getDay() || 7;
   const currentHour = now.getHours();
-  
-  const currentFocusWindow = focusWindows.find((fw: any) => 
-    fw.weekday === currentWeekday && 
-    fw.start_hour <= currentHour && 
-    fw.end_hour > currentHour
+
+  const currentFocusWindow = focusWindows.find(
+    (fw: any) =>
+      fw.weekday === currentWeekday && fw.start_hour <= currentHour && fw.end_hour > currentHour
   );
 
   if (currentFocusWindow) {
     boardAdjustments.push({
       actionType: 'isolate_widget_view',
-      message: 'You\'re in a focus window.',
+      message: "You're in a focus window.",
     });
   }
 

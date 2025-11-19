@@ -7,8 +7,8 @@ import { WidgetInstance } from '../types';
 const WIDGETS_STORAGE_KEY = 'widgetboard_widgets';
 
 const defaultWidgets: WidgetInstance[] = [
-    { id: 'chat-1', widgetType: 'AgentChatWidget' },
-    { id: 'prompt-library-1', widgetType: 'PromptLibraryWidget' }
+  { id: 'chat-1', widgetType: 'AgentChatWidget' },
+  { id: 'prompt-library-1', widgetType: 'PromptLibraryWidget' },
 ];
 
 const Shell: React.FC = () => {
@@ -17,7 +17,7 @@ const Shell: React.FC = () => {
       const savedWidgets = localStorage.getItem(WIDGETS_STORAGE_KEY);
       return savedWidgets ? JSON.parse(savedWidgets) : defaultWidgets;
     } catch (error) {
-      console.error("Could not parse widgets from localStorage", error);
+      console.error('Could not parse widgets from localStorage', error);
       return defaultWidgets;
     }
   });
@@ -26,7 +26,7 @@ const Shell: React.FC = () => {
     try {
       localStorage.setItem(WIDGETS_STORAGE_KEY, JSON.stringify(widgets));
     } catch (error) {
-      console.error("Could not save widgets to localStorage", error);
+      console.error('Could not save widgets to localStorage', error);
     }
   }, [widgets]);
 

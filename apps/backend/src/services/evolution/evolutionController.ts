@@ -9,7 +9,7 @@ const evolutionRepo = new EvolutionRepository();
 evolutionRouter.post('/report-run', (req, res) => {
   try {
     const report: AgentRunReport = req.body;
-    
+
     if (!report.agentId || !report.promptVersion || !report.kpiName) {
       return res.status(400).json({
         error: 'Missing required fields: agentId, promptVersion, kpiName',
@@ -17,11 +17,11 @@ evolutionRouter.post('/report-run', (req, res) => {
     }
 
     const runId = evolutionRepo.recordRun(report);
-    
+
     // Check if refinement is needed
     const avgDelta = evolutionRepo.getAverageKpiDelta(report.agentId, 10);
     const threshold = 0.0; // If average KPI delta is negative, consider refinement
-    
+
     const needsRefinement = avgDelta < threshold;
 
     res.json({
@@ -31,7 +31,7 @@ evolutionRouter.post('/report-run', (req, res) => {
         agentId: report.agentId,
         needsRefinement,
         averageKpiDelta: avgDelta,
-        reason: needsRefinement 
+        reason: needsRefinement
           ? 'Average KPI delta is below threshold, consider prompt refinement'
           : 'Performance is acceptable',
       },
@@ -50,7 +50,7 @@ evolutionRouter.get('/prompt/:agentId', (req, res) => {
   try {
     const { agentId } = req.params;
     const prompt = evolutionRepo.getLatestPrompt(agentId);
-    
+
     if (!prompt) {
       return res.status(404).json({
         error: 'No prompt found for agent',
@@ -81,7 +81,7 @@ evolutionRouter.get('/prompts/:agentId', (req, res) => {
   try {
     const { agentId } = req.params;
     const prompts = evolutionRepo.getAllPrompts(agentId);
-    
+
     res.json({
       success: true,
       prompts: prompts.map(p => ({
@@ -106,7 +106,7 @@ evolutionRouter.get('/prompts/:agentId', (req, res) => {
 evolutionRouter.post('/prompt', (req, res) => {
   try {
     const { agentId, promptText, createdBy } = req.body;
-    
+
     if (!agentId || !promptText) {
       return res.status(400).json({
         error: 'Missing required fields: agentId, promptText',
@@ -115,7 +115,7 @@ evolutionRouter.post('/prompt', (req, res) => {
 
     const promptId = evolutionRepo.createPrompt(agentId, promptText, createdBy);
     const newPrompt = evolutionRepo.getLatestPrompt(agentId);
-    
+
     res.json({
       success: true,
       promptId,
@@ -135,9 +135,9 @@ evolutionRouter.get('/runs/:agentId', (req, res) => {
   try {
     const { agentId } = req.params;
     const limit = parseInt(req.query.limit as string) || 10;
-    
+
     const runs = evolutionRepo.getRecentRuns(agentId, limit);
-    
+
     res.json({
       success: true,
       runs,

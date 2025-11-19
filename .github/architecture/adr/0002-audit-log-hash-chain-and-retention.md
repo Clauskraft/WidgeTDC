@@ -1,11 +1,13 @@
 # ADR-0002: Audit Log Hash-Chain and Retention
 
 ## Status
+
 Accepted
 
 ## Context
 
 Enterprise platforms require comprehensive audit logging for:
+
 - **Security Monitoring**: Track all security-relevant events
 - **Compliance**: Meet GDPR, ISO 27001, SOC 2, and other regulatory requirements
 - **Forensics**: Investigate incidents and trace actions
@@ -15,6 +17,7 @@ Enterprise platforms require comprehensive audit logging for:
 ### Current State
 
 No formal audit logging system exists in the platform. Some components log to console, but there is:
+
 - No structured event format
 - No integrity verification
 - No retention management
@@ -24,6 +27,7 @@ No formal audit logging system exists in the platform. Some components log to co
 ### Requirements
 
 **Functional**:
+
 - Append-only event log (immutable history)
 - Cryptographic integrity verification
 - Retention policies based on sensitivity
@@ -32,6 +36,7 @@ No formal audit logging system exists in the platform. Some components log to co
 - Export for compliance reporting
 
 **Non-Functional**:
+
 - < 10ms append latency (P95)
 - < 100ms query latency (P95)
 - GDPR Article 5(1)(e) compliance (storage limitation)
@@ -39,6 +44,7 @@ No formal audit logging system exists in the platform. Some components log to co
 - SOC 2 CC6.8 (audit logs)
 
 **Compliance Requirements**:
+
 - **GDPR**: Purpose limitation, storage limitation, data minimization
 - **ISO 27001**: Logging of user activities, exceptions, faults, and events
 - **SOC 2**: Monitoring of system components, logging of changes
@@ -59,26 +65,26 @@ We will implement a **hash-chain audit log** with **retention-aware policies** a
 
 ### Type System (`src/platform/audit/types.ts`)
 
-````typescript
+```typescript
 // Audit event with hash-chain
 interface AuditEvent {
-  id: AuditEventId;              // Sequential: AE000000000001, AE000000000002, ...
-  timestamp: Date;               // ISO 8601 timestamp
-  domain: AuditDomain;           // Functional area: authentication, widget-lifecycle, etc.
+  id: AuditEventId; // Sequential: AE000000000001, AE000000000002, ...
+  timestamp: Date; // ISO 8601 timestamp
+  domain: AuditDomain; // Functional area: authentication, widget-lifecycle, etc.
   sensitivity: AuditSensitivity; // GDPR-aware: public, internal, confidential, restricted, pii
-  actor: AuditActor;            // Who performed the action
-  payload: AuditEventPayload;   // What was done (privacy-aware)
-  previousHash: string;         // SHA-256 hash of previous event (hex)
-  hash: string;                 // SHA-256 hash of this event (hex)
-  retention: AuditRetention;    // Retention policy
-  tags?: string[];              // For filtering
+  actor: AuditActor; // Who performed the action
+  payload: AuditEventPayload; // What was done (privacy-aware)
+  previousHash: string; // SHA-256 hash of previous event (hex)
+  hash: string; // SHA-256 hash of this event (hex)
+  retention: AuditRetention; // Retention policy
+  tags?: string[]; // For filtering
 }
 
 // Privacy-aware payload (no raw sensitive content)
 interface AuditEventPayload {
-  action: string;               // e.g., "widget.created", "user.login"
-  resourceType?: string;        // e.g., "widget", "user", "template"
-  resourceId?: string;          // ID only, not content
+  action: string; // e.g., "widget.created", "user.login"
+  resourceType?: string; // e.g., "widget", "user", "template"
+  resourceId?: string; // ID only, not content
   outcome: 'success' | 'failure' | 'partial';
   metadata?: Record<string, unknown>; // Additional context (no PII)
   error?: { code: string; message: string };
@@ -86,44 +92,44 @@ interface AuditEventPayload {
 
 // Retention policy by sensitivity
 interface AuditRetention {
-  retentionDays: number;        // How long to keep
+  retentionDays: number; // How long to keep
   archiveBeforeDelete: boolean; // Archive before deletion
-  archiveLocation?: string;     // Where to archive
-  legalHold: boolean;          // Cannot be deleted (litigation, investigation)
+  archiveLocation?: string; // Where to archive
+  legalHold: boolean; // Cannot be deleted (litigation, investigation)
 }
-````
+```
 
 **Default Retention Policies**:
 
-````typescript
+```typescript
 const DEFAULT_RETENTION_POLICIES = {
   public: {
-    retentionDays: 90,          // 3 months
+    retentionDays: 90, // 3 months
     archiveBeforeDelete: false,
     legalHold: false,
   },
   internal: {
-    retentionDays: 365,         // 1 year
+    retentionDays: 365, // 1 year
     archiveBeforeDelete: true,
     legalHold: false,
   },
   confidential: {
-    retentionDays: 730,         // 2 years
+    retentionDays: 730, // 2 years
     archiveBeforeDelete: true,
     legalHold: false,
   },
   restricted: {
-    retentionDays: 2555,        // 7 years (common legal requirement)
+    retentionDays: 2555, // 7 years (common legal requirement)
     archiveBeforeDelete: true,
     legalHold: true,
   },
   pii: {
-    retentionDays: 365,         // 1 year (GDPR: only as long as necessary)
+    retentionDays: 365, // 1 year (GDPR: only as long as necessary)
     archiveBeforeDelete: true,
     legalHold: false,
   },
 };
-````
+```
 
 ### Hash-Chain Implementation
 
@@ -136,7 +142,7 @@ const DEFAULT_RETENTION_POLICIES = {
 
 **Serialization for Hashing**:
 
-````typescript
+```typescript
 function serializeForHash(event: Omit<AuditEvent, 'hash'>): string {
   return JSON.stringify({
     id: event.id,
@@ -156,44 +162,49 @@ async function computeHash(content: string): Promise<string> {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
-````
+```
 
 ### Service Interface
 
-````typescript
+```typescript
 interface AuditLogService {
   // Append event (generates ID, hash, previousHash)
   append(event: Omit<AuditEvent, 'id' | 'hash' | 'previousHash'>): Promise<AuditEvent>;
-  
+
   // Query events
   query(query: AuditQuery): Promise<AuditEvent[]>;
-  
+
   // Get by ID
   getById(id: AuditEventId): Promise<AuditEvent | undefined>;
-  
+
   // Verify hash-chain integrity
-  verifyIntegrity(options?: { from?: AuditEventId; to?: AuditEventId }): Promise<IntegrityVerificationResult>;
-  
+  verifyIntegrity(options?: {
+    from?: AuditEventId;
+    to?: AuditEventId;
+  }): Promise<IntegrityVerificationResult>;
+
   // Get statistics
   getStatistics(): Promise<AuditStatistics>;
-  
+
   // Archive expired events
   archiveExpiredEvents(dryRun?: boolean): Promise<number>;
-  
+
   // Export for compliance reporting
   exportEvents(query: AuditQuery, format: 'json' | 'csv'): Promise<string>;
 }
-````
+```
 
 ### Implementation Details
 
 **Phase 1**: In-memory implementation (`InMemoryAuditLogService.ts`)
+
 - Stores events in memory (Map)
 - Full hash-chain verification
 - Retention policy simulation
 - Suitable for development and testing
 
 **Phase 2+**: Production implementations
+
 - PostgreSQL with append-only table
 - Event sourcing with Kafka/EventStoreDB
 - Immutable storage (WORM - Write Once Read Many)
@@ -210,29 +221,31 @@ interface AuditLogService {
 **Example: Privacy-Aware Events**
 
 ✅ **Good** (Privacy-Aware):
-````typescript
+
+```typescript
 {
   action: "widget.created",
   resourceType: "widget",
   resourceId: "WDG00001234",
   metadata: { widgetType: "AgentChatWidget", author: "USR00005678" }
 }
-````
+```
 
 ❌ **Bad** (Contains PII/Content):
-````typescript
+
+```typescript
 {
   action: "widget.created",
   resourceType: "widget",
   resourceId: "WDG00001234",
-  metadata: { 
+  metadata: {
     widgetType: "AgentChatWidget",
     authorName: "John Doe",           // PII
     authorEmail: "john@example.com",  // PII
     configContent: "{ ... }"          // Sensitive content
   }
 }
-````
+```
 
 ## Consequences
 
@@ -263,17 +276,21 @@ interface AuditLogService {
 ## Alternatives Considered
 
 ### Alternative 1: Simple Logging (Console/File)
+
 **Rejected**: No integrity verification, no retention management, no compliance support
 
 ### Alternative 2: Blockchain-Based Audit Log
+
 **Rejected**: Overkill for this use case, high complexity and cost, limited query capabilities
 
 ### Alternative 3: Event Sourcing Without Hash-Chain
+
 **Rejected**: Doesn't provide tamper detection, reduced integrity guarantees
 
 ## Implementation Notes
 
 ### Phase 1 (Current)
+
 - ✅ Define audit types and interfaces
 - ✅ Implement in-memory service with hash-chain
 - ✅ Implement integrity verification
@@ -281,6 +298,7 @@ interface AuditLogService {
 - ✅ Document privacy guidelines
 
 ### Phase 2 (Future)
+
 - Persistent storage (PostgreSQL/EventStoreDB)
 - External archival integration
 - Compliance reporting dashboard
@@ -288,6 +306,7 @@ interface AuditLogService {
 - Right to erasure workflows
 
 ### Phase 3 (Future)
+
 - Real-time audit streaming
 - Anomaly detection
 - AI-powered audit analysis
@@ -296,6 +315,7 @@ interface AuditLogService {
 ## Compliance Mapping
 
 ### GDPR
+
 - **Article 5(1)(a)**: Lawfulness, fairness, transparency → Explicit event purpose
 - **Article 5(1)(c)**: Data minimization → Store IDs, not content
 - **Article 5(1)(e)**: Storage limitation → Retention policies
@@ -303,12 +323,14 @@ interface AuditLogService {
 - **Article 32**: Security of processing → Hash-chain integrity
 
 ### ISO 27001
+
 - **A.12.4.1**: Event logging → Comprehensive event capture
 - **A.12.4.2**: Protection of log information → Hash-chain immutability
 - **A.12.4.3**: Administrator and operator logs → Actor tracking
 - **A.12.4.4**: Clock synchronization → ISO 8601 timestamps
 
 ### SOC 2
+
 - **CC6.8**: Monitoring of system components → Event domains cover all components
 - **CC7.2**: Detection of anomalous events → Query and analysis capabilities
 - **CC8.1**: Identification of changes → Widget lifecycle events

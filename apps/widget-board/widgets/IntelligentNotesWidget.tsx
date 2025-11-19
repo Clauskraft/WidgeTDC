@@ -1,7 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Button } from '../components/ui/Button';
 
-type NoteSource = 'Microsoft OneNote' | 'Google Keep' | 'Apple Notes' | 'Evernote' | 'Local Files' | 'Email';
+type NoteSource =
+  | 'Microsoft OneNote'
+  | 'Google Keep'
+  | 'Apple Notes'
+  | 'Evernote'
+  | 'Local Files'
+  | 'Email';
 
 type ComplianceStatus = 'clean' | 'review' | 'restricted';
 
@@ -25,7 +31,7 @@ const SOURCE_OPTIONS: NoteSource[] = [
   'Apple Notes',
   'Evernote',
   'Local Files',
-  'Email'
+  'Email',
 ];
 
 const SAMPLE_NOTES: NoteRecord[] = [
@@ -97,7 +103,10 @@ const SAMPLE_NOTES: NoteRecord[] = [
 ];
 
 const complianceLabels: Record<ComplianceStatus, { label: string; color: string }> = {
-  clean: { label: 'Ingen findings', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10' },
+  clean: {
+    label: 'Ingen findings',
+    color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
+  },
   review: { label: 'Kræver review', color: 'text-amber-600 bg-amber-50 dark:bg-amber-500/10' },
   restricted: { label: 'Restriktioner', color: 'text-rose-600 bg-rose-50 dark:bg-rose-500/10' },
 };
@@ -106,7 +115,7 @@ const retentionLabel: Record<NoteRecord['retention'], string> = {
   '30d': '30 dage',
   '90d': '90 dage',
   '1y': '1 år',
-  'archive': 'Arkiv',
+  archive: 'Arkiv',
 };
 
 const IntelligentNotesWidget: React.FC<{ widgetId: string }> = () => {
@@ -128,13 +137,17 @@ const IntelligentNotesWidget: React.FC<{ widgetId: string }> = () => {
   }, [query, selectedSources, flaggedOnly, retentionFilter]);
 
   const summary = useMemo(() => {
-    const distribution = SOURCE_OPTIONS.reduce<Record<NoteSource, number>>((acc, source) => {
-      acc[source] = SAMPLE_NOTES.filter(note => note.source === source).length;
-      return acc;
-    }, {} as Record<NoteSource, number>);
+    const distribution = SOURCE_OPTIONS.reduce<Record<NoteSource, number>>(
+      (acc, source) => {
+        acc[source] = SAMPLE_NOTES.filter(note => note.source === source).length;
+        return acc;
+      },
+      {} as Record<NoteSource, number>
+    );
 
     const flagged = SAMPLE_NOTES.filter(note => note.compliance !== 'clean');
-    const avgRisk = SAMPLE_NOTES.reduce((sum, note) => sum + note.riskScore, 0) / SAMPLE_NOTES.length;
+    const avgRisk =
+      SAMPLE_NOTES.reduce((sum, note) => sum + note.riskScore, 0) / SAMPLE_NOTES.length;
 
     return { distribution, flagged: flagged.length, avgRisk: Math.round(avgRisk) };
   }, []);
@@ -150,7 +163,10 @@ const IntelligentNotesWidget: React.FC<{ widgetId: string }> = () => {
         thematicTags.set(tag, (thematicTags.get(tag) || 0) + 1);
       });
     });
-    const topTags = [...thematicTags.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([tag]) => tag);
+    const topTags = [...thematicTags.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 2)
+      .map(([tag]) => tag);
     return `Fokusområder: ${topTags.join(', ') || 'n/a'}. Højeste risikonote er "${highestRisk.title}" fra ${highestRisk.source} med score ${highestRisk.riskScore}.`;
   }, [filteredNotes]);
 
@@ -171,7 +187,8 @@ const IntelligentNotesWidget: React.FC<{ widgetId: string }> = () => {
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
         <h3 className="text-lg font-semibold">Intelligent Notes Aggregator</h3>
         <p className="text-sm text-gray-600 dark:text-gray-300">
-          Saml noter på tværs af OneNote, Keep, Apple Notes, Evernote, lokale filer og mails med automatisk compliance scanning.
+          Saml noter på tværs af OneNote, Keep, Apple Notes, Evernote, lokale filer og mails med
+          automatisk compliance scanning.
         </p>
         <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
           <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -265,17 +282,23 @@ const IntelligentNotesWidget: React.FC<{ widgetId: string }> = () => {
                   <div>
                     <p className="text-sm font-semibold">{note.title}</p>
                     <p className="text-xs text-gray-500">
-                      {note.source} • Opdateret {new Date(note.updatedAt).toLocaleDateString()} • {note.owner}
+                      {note.source} • Opdateret {new Date(note.updatedAt).toLocaleDateString()} •{' '}
+                      {note.owner}
                     </p>
                   </div>
                   <span className={`px-2 py-1 text-xs rounded-full ${compliance.color}`}>
                     {compliance.label}
                   </span>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200 mt-3 line-clamp-2">{note.body}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-200 mt-3 line-clamp-2">
+                  {note.body}
+                </p>
                 <div className="flex flex-wrap items-center gap-2 mt-3 text-xs">
                   {note.tags.map(tag => (
-                    <span key={tag} className="px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-200">
+                    <span
+                      key={tag}
+                      className="px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-200"
+                    >
                       #{tag}
                     </span>
                   ))}
@@ -284,9 +307,15 @@ const IntelligentNotesWidget: React.FC<{ widgetId: string }> = () => {
                   <span className="text-gray-500">Bilag: {note.attachments}</span>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Button variant="primary" size="small">Åbn kilde</Button>
-                  <Button variant="subtle" size="small">Del sikkert</Button>
-                  <Button variant="subtle" size="small">Flag til compliance</Button>
+                  <Button variant="primary" size="small">
+                    Åbn kilde
+                  </Button>
+                  <Button variant="subtle" size="small">
+                    Del sikkert
+                  </Button>
+                  <Button variant="subtle" size="small">
+                    Flag til compliance
+                  </Button>
                 </div>
               </div>
             );

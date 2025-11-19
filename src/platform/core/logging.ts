@@ -1,6 +1,6 @@
 /**
  * Platform Logging Service
- * 
+ *
  * Simple logging abstraction that can be configured for different environments.
  * In production, this can be wired to external logging services.
  */
@@ -56,7 +56,7 @@ class PlatformLogger implements Logger {
     const consoleMethod: 'log' | 'info' | 'warn' | 'error' = level === 'debug' ? 'log' : level;
     const prefix = this.context ? `[${this.context}]` : '';
     const metadataStr = metadata ? ` ${JSON.stringify(metadata)}` : '';
-    
+
     // Type-safe console method call
     if (consoleMethod in console && typeof console[consoleMethod] === 'function') {
       console[consoleMethod](`${prefix} ${message}${metadataStr}`);

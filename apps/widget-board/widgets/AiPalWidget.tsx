@@ -27,18 +27,26 @@ const AiPalWidget: React.FC = () => {
   const [recommendations, setRecommendations] = useState<Recommendations | null>(null);
   const [loading, setLoading] = useState(false);
   const [eventType, setEventType] = useState('meeting');
-  const [eventPayload, setEventPayload] = useState(JSON.stringify({
-    title: 'Team Meeting',
-    duration: 30
-  }, null, 2));
+  const [eventPayload, setEventPayload] = useState(
+    JSON.stringify(
+      {
+        title: 'Team Meeting',
+        duration: 30,
+      },
+      null,
+      2
+    )
+  );
   const [stressLevel, setStressLevel] = useState<'low' | 'medium' | 'high'>('low');
 
   const loadRecommendations = async () => {
     setLoading(true);
-    
+
     try {
-      const response = await fetch('http://localhost:3001/api/pal/recommendations?userId=user-1&orgId=org-1');
-      
+      const response = await fetch(
+        'http://localhost:3001/api/pal/recommendations?userId=user-1&orgId=org-1'
+      );
+
       if (response.ok) {
         const data = await response.json();
         setRecommendations(data);
@@ -60,7 +68,7 @@ const AiPalWidget: React.FC = () => {
   const recordEvent = async () => {
     try {
       const payload = JSON.parse(eventPayload);
-      
+
       await fetch('http://localhost:3001/api/pal/event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,22 +95,28 @@ const AiPalWidget: React.FC = () => {
 
   const getActionIcon = (actionType: string) => {
     switch (actionType) {
-      case 'mute_notifications': return '🔇';
-      case 'isolate_widget_view': return '🎯';
-      case 'show_nudge': return '💡';
-      default: return '📌';
+      case 'mute_notifications':
+        return '🔇';
+      case 'isolate_widget_view':
+        return '🎯';
+      case 'show_nudge':
+        return '💡';
+      default:
+        return '📌';
     }
   };
 
   return (
-    <div style={{
-      padding: '20px',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#1a1a1a',
-      color: '#ffffff',
-    }}>
+    <div
+      style={{
+        padding: '20px',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        backgroundColor: '#1a1a1a',
+        color: '#ffffff',
+      }}
+    >
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
         🤖 AI PAL - Your Personal Assistant
       </h2>
@@ -115,18 +129,21 @@ const AiPalWidget: React.FC = () => {
         <>
           {/* Current Focus Window */}
           {recommendations.focusWindow && (
-            <div style={{
-              marginBottom: '20px',
-              padding: '15px',
-              backgroundColor: '#10b981',
-              borderRadius: '8px',
-            }}>
+            <div
+              style={{
+                marginBottom: '20px',
+                padding: '15px',
+                backgroundColor: '#10b981',
+                borderRadius: '8px',
+              }}
+            >
               <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '5px' }}>
                 🎯 Focus Time Active
               </div>
               <div style={{ fontSize: '13px' }}>
-                {getWeekdayName(recommendations.focusWindow.weekday)} {' '}
-                {recommendations.focusWindow.startHour}:00 - {recommendations.focusWindow.endHour}:00
+                {getWeekdayName(recommendations.focusWindow.weekday)}{' '}
+                {recommendations.focusWindow.startHour}:00 - {recommendations.focusWindow.endHour}
+                :00
               </div>
             </div>
           )}
@@ -151,11 +168,13 @@ const AiPalWidget: React.FC = () => {
                     <div style={{ fontSize: '14px', marginBottom: '5px' }}>
                       {getActionIcon(action.actionType)} {action.message}
                     </div>
-                    <div style={{
-                      display: 'flex',
-                      gap: '8px',
-                      marginTop: '10px',
-                    }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        gap: '8px',
+                        marginTop: '10px',
+                      }}
+                    >
                       <button
                         style={{
                           flex: 1,
@@ -199,11 +218,13 @@ const AiPalWidget: React.FC = () => {
               <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
                 Reminders
               </h3>
-              <div style={{
-                backgroundColor: '#2a2a2a',
-                borderRadius: '8px',
-                padding: '12px',
-              }}>
+              <div
+                style={{
+                  backgroundColor: '#2a2a2a',
+                  borderRadius: '8px',
+                  padding: '12px',
+                }}
+              >
                 {recommendations.reminders.map((reminder, index) => (
                   <div
                     key={index}
@@ -211,7 +232,8 @@ const AiPalWidget: React.FC = () => {
                       fontSize: '13px',
                       marginBottom: index < recommendations.reminders.length - 1 ? '8px' : 0,
                       paddingBottom: index < recommendations.reminders.length - 1 ? '8px' : 0,
-                      borderBottom: index < recommendations.reminders.length - 1 ? '1px solid #444' : 'none',
+                      borderBottom:
+                        index < recommendations.reminders.length - 1 ? '1px solid #444' : 'none',
                     }}
                   >
                     💡 {reminder}
@@ -223,15 +245,15 @@ const AiPalWidget: React.FC = () => {
 
           {/* Profile */}
           <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
-              Profile
-            </h3>
-            <div style={{
-              backgroundColor: '#2a2a2a',
-              borderRadius: '8px',
-              padding: '12px',
-              fontSize: '13px',
-            }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>Profile</h3>
+            <div
+              style={{
+                backgroundColor: '#2a2a2a',
+                borderRadius: '8px',
+                padding: '12px',
+                fontSize: '13px',
+              }}
+            >
               Tone: <strong>{recommendations.profile.preferenceTone}</strong>
             </div>
           </div>
@@ -241,18 +263,20 @@ const AiPalWidget: React.FC = () => {
             <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
               Record Activity
             </h3>
-            <div style={{
-              backgroundColor: '#2a2a2a',
-              borderRadius: '8px',
-              padding: '12px',
-            }}>
+            <div
+              style={{
+                backgroundColor: '#2a2a2a',
+                borderRadius: '8px',
+                padding: '12px',
+              }}
+            >
               <div style={{ marginBottom: '10px' }}>
                 <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>
                   Event Type
                 </label>
                 <select
                   value={eventType}
-                  onChange={(e) => setEventType(e.target.value)}
+                  onChange={e => setEventType(e.target.value)}
                   style={{
                     width: '100%',
                     padding: '8px',
@@ -276,7 +300,7 @@ const AiPalWidget: React.FC = () => {
                 </label>
                 <select
                   value={stressLevel}
-                  onChange={(e) => setStressLevel(e.target.value as any)}
+                  onChange={e => setStressLevel(e.target.value as any)}
                   style={{
                     width: '100%',
                     padding: '8px',
@@ -299,7 +323,7 @@ const AiPalWidget: React.FC = () => {
                 </label>
                 <textarea
                   value={eventPayload}
-                  onChange={(e) => setEventPayload(e.target.value)}
+                  onChange={e => setEventPayload(e.target.value)}
                   style={{
                     width: '100%',
                     minHeight: '60px',
@@ -335,11 +359,13 @@ const AiPalWidget: React.FC = () => {
           </div>
         </>
       ) : (
-        <div style={{
-          textAlign: 'center',
-          padding: '20px',
-          color: '#888',
-        }}>
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '20px',
+            color: '#888',
+          }}
+        >
           No recommendations available
         </div>
       )}

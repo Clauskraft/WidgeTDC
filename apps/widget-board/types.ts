@@ -1,4 +1,3 @@
-
 import type { Layout } from 'react-grid-layout';
 // FIX: Import ComponentType to resolve 'Cannot find namespace React' error.
 import type { ComponentType } from 'react';
@@ -30,7 +29,6 @@ export interface MSWidgetDetectionResult {
   confidence: number;
 }
 
-
 export interface WidgetDefinition {
   id: string;
   name: string;
@@ -51,8 +49,8 @@ export interface WidgetInstance {
 }
 
 export interface GroundingSource {
-    uri: string;
-    title: string;
+  uri: string;
+  title: string;
 }
 
 export interface Message {
@@ -64,9 +62,9 @@ export interface Message {
 }
 
 export interface TranscriptEntry {
-    speaker: 'user' | 'model';
-    text: string;
-    isFinal: boolean;
+  speaker: 'user' | 'model';
+  text: string;
+  isFinal: boolean;
 }
 
 export interface Prompt {
@@ -94,10 +92,10 @@ export interface ToolSuggestion {
 }
 
 export interface Agent {
-    id: string;
-    name: string;
-    instruction: string;
-    tools: string[];
+  id: string;
+  name: string;
+  instruction: string;
+  tools: string[];
 }
 
 // MCP Connector Widget Types

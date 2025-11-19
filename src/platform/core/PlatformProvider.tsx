@@ -1,6 +1,6 @@
 /**
  * Platform Provider Component
- * 
+ *
  * React provider that instantiates and provides platform services
  * to the component tree via Context API.
  */
@@ -20,20 +20,20 @@ const PlatformContext = createContext<PlatformServices | undefined>(undefined);
 export interface PlatformProviderProps {
   /** Child components */
   children: ReactNode;
-  
+
   /** Bootstrap options */
   options?: PlatformBootstrapOptions;
 }
 
 /**
  * Platform Provider Component
- * 
+ *
  * Wraps the application with platform services context.
- * 
+ *
  * @example
  * ```tsx
  * import { PlatformProvider } from '@/src/platform/core/PlatformProvider';
- * 
+ *
  * function App() {
  *   return (
  *     <PlatformProvider>
@@ -53,10 +53,10 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
     async function initializePlatform() {
       try {
         const platformServices = await bootstrapPlatform(options);
-        
+
         if (mounted) {
           setServices(platformServices);
-          
+
           // Log platform initialization to audit log
           if (platformServices.auditLog) {
             await platformServices.auditLog.append({
@@ -102,7 +102,7 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
                 action: 'platform.initialized',
                 outcome: 'error',
                 metadata: {
-                  error: (err instanceof Error) ? err.message : String(err),
+                  error: err instanceof Error ? err.message : String(err),
                 },
               },
               retention: {
@@ -113,6 +113,7 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
             });
           }
         }
+      }
     }
 
     initializePlatform();
@@ -137,7 +138,8 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
       <div style={{ padding: '20px', color: 'red' }}>
         <h2>Platform Initialization Error</h2>
         <p>
-          An unexpected error occurred during platform initialization. Please contact support or try again later.
+          An unexpected error occurred during platform initialization. Please contact support or try
+          again later.
         </p>
       </div>
     );
@@ -152,57 +154,53 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
     );
   }
 
-  return (
-    <PlatformContext.Provider value={services}>
-      {children}
-    </PlatformContext.Provider>
-  );
+  return <PlatformContext.Provider value={services}>{children}</PlatformContext.Provider>;
 }
 
 /**
  * Hook to access platform services
- * 
+ *
  * @returns Platform services
  * @throws Error if used outside PlatformProvider
- * 
+ *
  * @example
  * ```tsx
  * function MyComponent() {
  *   const { auditLog, widgetRegistry } = usePlatform();
- *   
+ *
  *   const handleAction = async () => {
  *     await auditLog.append({
  *       // ... audit event
  *     });
  *   };
- *   
+ *
  *   return <div>...</div>;
  * }
  * ```
  */
 export function usePlatform(): PlatformServices {
   const context = useContext(PlatformContext);
-  
+
   if (context === undefined) {
     throw new Error('usePlatform must be used within a PlatformProvider');
   }
-  
+
   return context;
 }
 
 /**
  * Hook to access a specific platform service
- * 
+ *
  * @param serviceName Name of the service to access
  * @returns The requested service
  * @throws Error if used outside PlatformProvider
- * 
+ *
  * @example
  * ```tsx
  * function MyComponent() {
  *   const auditLog = usePlatformService('auditLog');
  *   const vectorStore = usePlatformService('vectorStore');
- *   
+ *
  *   // Use services...
  * }
  * ```

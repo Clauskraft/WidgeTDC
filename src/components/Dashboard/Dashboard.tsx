@@ -14,10 +14,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ title = 'WidgetTDC Dashboa
         </div>
         <nav className="sidebar-nav">
           <ul>
-            <li><a href="#widgets">Widgets</a></li>
-            <li><a href="#registry">Registry</a></li>
-            <li><a href="#audit">Audit Log</a></li>
-            <li><a href="#settings">Settings</a></li>
+            <li>
+              <a href="#widgets">Widgets</a>
+            </li>
+            <li>
+              <a href="#registry">Registry</a>
+            </li>
+            <li>
+              <a href="#audit">Audit Log</a>
+            </li>
+            <li>
+              <a href="#settings">Settings</a>
+            </li>
           </ul>
         </nav>
       </aside>

@@ -5,25 +5,33 @@ export class SragRepository {
   private db = getDatabase();
 
   ingestDocument(input: RawDocumentInput): number {
-    const result = this.db.prepare(`
+    const result = this.db
+      .prepare(
+        `
       INSERT INTO raw_documents (org_id, source_type, source_path, content)
       VALUES (?, ?, ?, ?)
-    `).run(input.orgId, input.sourceType, input.sourcePath, input.content);
+    `
+      )
+      .run(input.orgId, input.sourceType, input.sourcePath, input.content);
 
     return result.lastInsertRowid as number;
   }
 
   ingestFact(input: StructuredFactInput): number {
-    const result = this.db.prepare(`
+    const result = this.db
+      .prepare(
+        `
       INSERT INTO structured_facts (org_id, doc_id, fact_type, json_payload, occurred_at)
       VALUES (?, ?, ?, ?, ?)
-    `).run(
-      input.orgId,
-      input.docId || null,
-      input.factType,
-      JSON.stringify(input.jsonPayload),
-      input.occurredAt || null
-    );
+    `
+      )
+      .run(
+        input.orgId,
+        input.docId || null,
+        input.factType,
+        JSON.stringify(input.jsonPayload),
+        input.occurredAt || null
+      );
 
     return result.lastInsertRowid as number;
   }
@@ -45,7 +53,7 @@ export class SragRepository {
     params.push(limit);
 
     const rows = this.db.prepare(sql).all(...params);
-    
+
     // Parse JSON payloads
     return rows.map((row: any) => ({
       ...row,
@@ -54,20 +62,28 @@ export class SragRepository {
   }
 
   searchDocuments(orgId: string, keyword: string, limit: number = 10): any[] {
-    const rows = this.db.prepare(`
+    const rows = this.db
+      .prepare(
+        `
       SELECT id, org_id, source_type, source_path, content, created_at
       FROM raw_documents
       WHERE org_id = ? AND content LIKE ?
       ORDER BY created_at DESC
       LIMIT ?
-    `).all(orgId, `%${keyword}%`, limit);
+    `
+      )
+      .all(orgId, `%${keyword}%`, limit);
 
     return rows;
   }
 
   getDocumentById(id: number): any {
-    return this.db.prepare(`
+    return this.db
+      .prepare(
+        `
       SELECT * FROM raw_documents WHERE id = ?
-    `).get(id);
+    `
+      )
+      .get(id);
   }
 }

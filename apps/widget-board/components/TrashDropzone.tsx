@@ -6,18 +6,20 @@ interface TrashDropzoneProps {
   isActive: boolean;
 }
 
-const TrashDropzone = forwardRef<HTMLDivElement, TrashDropzoneProps>(({ isVisible, isActive }, ref) => {
-  const classes = `trash-dropzone ${isVisible ? 'is-visible' : ''} ${isActive ? 'is-active' : ''}`;
+const TrashDropzone = forwardRef<HTMLDivElement, TrashDropzoneProps>(
+  ({ isVisible, isActive }, ref) => {
+    const classes = `trash-dropzone ${isVisible ? 'is-visible' : ''} ${isActive ? 'is-active' : ''}`;
 
-  return (
-    <div ref={ref} className={classes}>
-      <div className="trash-icon">
-        <MicrosoftIcons.Trash />
+    return (
+      <div ref={ref} className={classes}>
+        <div className="trash-icon">
+          <MicrosoftIcons.Trash />
+        </div>
+        <span className="font-semibold text-lg">Træk hertil for at slette</span>
       </div>
-      <span className="font-semibold text-lg">Træk hertil for at slette</span>
-    </div>
-  );
-});
+    );
+  }
+);
 
 TrashDropzone.displayName = 'TrashDropzone';
 

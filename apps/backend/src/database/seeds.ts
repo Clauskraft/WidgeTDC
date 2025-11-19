@@ -2,7 +2,7 @@ import { getDatabase } from './index.js';
 
 export function seedDatabase() {
   const db = getDatabase();
-  
+
   console.log('Seeding database...');
 
   // Seed memory entities
@@ -21,7 +21,7 @@ export function seedDatabase() {
   for (const mem of memories) {
     const result = memoryInsert.run(...mem);
     const entityId = result.lastInsertRowid;
-    
+
     // Add tags
     db.prepare(`INSERT INTO memory_tags (entity_id, tag) VALUES (?, ?)`).run(entityId, 'technical');
   }
@@ -32,10 +32,18 @@ export function seedDatabase() {
     VALUES (?, ?, ?, ?)
   `);
 
-  docInsert.run('org-1', 'meeting_notes', '/meetings/2024-01-15.md', 
-    'Team discussed widget architecture. Decided on React + TypeScript. Backend will use Node.js with Express.');
-  docInsert.run('org-1', 'contract', '/contracts/supplier-a.pdf',
-    'Supplier A contract for cloud services. Annual cost: $50,000. Renewal date: 2025-01-01.');
+  docInsert.run(
+    'org-1',
+    'meeting_notes',
+    '/meetings/2024-01-15.md',
+    'Team discussed widget architecture. Decided on React + TypeScript. Backend will use Node.js with Express.'
+  );
+  docInsert.run(
+    'org-1',
+    'contract',
+    '/contracts/supplier-a.pdf',
+    'Supplier A contract for cloud services. Annual cost: $50,000. Renewal date: 2025-01-01.'
+  );
 
   // Seed structured facts
   const factInsert = db.prepare(`
@@ -43,18 +51,30 @@ export function seedDatabase() {
     VALUES (?, ?, ?, ?, ?)
   `);
 
-  factInsert.run('org-1', 1, 'TechStack', JSON.stringify({
-    frontend: 'React + TypeScript',
-    backend: 'Node.js + Express',
-    database: 'SQLite'
-  }), '2024-01-15');
+  factInsert.run(
+    'org-1',
+    1,
+    'TechStack',
+    JSON.stringify({
+      frontend: 'React + TypeScript',
+      backend: 'Node.js + Express',
+      database: 'SQLite',
+    }),
+    '2024-01-15'
+  );
 
-  factInsert.run('org-1', 2, 'SupplierKpi', JSON.stringify({
-    supplier: 'Supplier A',
-    service: 'Cloud Services',
-    annualCost: 50000,
-    renewalDate: '2025-01-01'
-  }), '2024-01-01');
+  factInsert.run(
+    'org-1',
+    2,
+    'SupplierKpi',
+    JSON.stringify({
+      supplier: 'Supplier A',
+      service: 'Cloud Services',
+      annualCost: 50000,
+      renewalDate: '2025-01-01',
+    }),
+    '2024-01-01'
+  );
 
   // Seed agent prompts
   const promptInsert = db.prepare(`
@@ -62,13 +82,19 @@ export function seedDatabase() {
     VALUES (?, ?, ?, ?)
   `);
 
-  promptInsert.run('procurement-agent', 1, 
+  promptInsert.run(
+    'procurement-agent',
+    1,
     'You are a procurement intelligence agent. Analyze supplier data and provide cost optimization recommendations.',
-    'system');
-  
-  promptInsert.run('cma-agent', 1,
+    'system'
+  );
+
+  promptInsert.run(
+    'cma-agent',
+    1,
     'You are a contextual memory agent. Use historical context to enhance decision making.',
-    'system');
+    'system'
+  );
 
   // Seed agent runs
   const runInsert = db.prepare(`
@@ -76,12 +102,15 @@ export function seedDatabase() {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
 
-  runInsert.run('procurement-agent', 1, 
-    'Analyze Q1 spending', 
+  runInsert.run(
+    'procurement-agent',
+    1,
+    'Analyze Q1 spending',
     'Recommended 3 cost reduction opportunities',
     'cost_savings',
     0.15,
-    JSON.stringify({ quarter: 'Q1', year: 2024 }));
+    JSON.stringify({ quarter: 'Q1', year: 2024 })
+  );
 
   // Seed PAL user profiles
   const profileInsert = db.prepare(`
@@ -109,15 +138,27 @@ export function seedDatabase() {
     VALUES (?, ?, ?, ?, ?)
   `);
 
-  eventInsert.run('user-1', 'org-1', 'meeting', JSON.stringify({
-    title: 'Team standup',
-    duration: 30
-  }), 'low');
+  eventInsert.run(
+    'user-1',
+    'org-1',
+    'meeting',
+    JSON.stringify({
+      title: 'Team standup',
+      duration: 30,
+    }),
+    'low'
+  );
 
-  eventInsert.run('user-1', 'org-1', 'email', JSON.stringify({
-    subject: 'Urgent: Production issue',
-    priority: 'high'
-  }), 'high');
+  eventInsert.run(
+    'user-1',
+    'org-1',
+    'email',
+    JSON.stringify({
+      subject: 'Urgent: Production issue',
+      priority: 'high',
+    }),
+    'high'
+  );
 
   console.log('✅ Database seeded successfully');
 }
