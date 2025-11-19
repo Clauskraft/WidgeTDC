@@ -3,7 +3,6 @@ import { mcpRegistry } from './mcp/mcpRegistry.js';
 import { createApp, createMcpWebSocketServer } from './app.js';
 
 const PORT = process.env.PORT || 3001;
-const app = createApp();
 import { exec } from 'child_process';
 import { getDatabase } from './database/index.js';
 import { mcpRouter } from './mcp/mcpRouter.js';
