@@ -22,12 +22,14 @@
       "Bash(npm run lint:*)",
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
-      "Bash(curl:*)",
-      "Bash(tasklist:*)",
-      "Bash(findstr:*)",
-      "Bash(cmd.exe /c \"rmdir /s /q node_modules\")",
-      "Bash(git checkout:*)",
-      "Bash(git pull:*)"
+      "Bash(gh pr merge:*)",
+      "Bash(gh pr view:*)",
+      "Bash(git pull:*)",
+      "Bash(gh pr list:*)",
+      "mcp__serena__think_about_task_adherence",
+      "Bash(npm cache clean:*)",
+      "Bash(npm run build:shared:*)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

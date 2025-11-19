@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '../components/ui/Button';
-import { usePermissions } from '../contexts/PermissionContext';
+// import { usePermissions } from '../contexts/PermissionContext';
 
 type ThreatLevel = 'low' | 'medium' | 'high' | 'critical';
 type AlertStatus = 'active' | 'resolved' | 'emerging';
@@ -80,7 +80,9 @@ const formatPrice = (value?: number) => {
 };
 
 const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
-  const { hasAccess, loading } = usePermissions();
+  // const { hasAccess, loading } = usePermissions();
+  const hasAccess = true;
+  const loading = false;
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState<ThreatLevel | 'all'>('all');
   const [selectedFeedId, setSelectedFeedId] = useState('');

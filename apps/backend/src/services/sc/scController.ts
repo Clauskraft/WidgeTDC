@@ -73,7 +73,7 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
     }
 
     const file = req.file;
-    const _fileContent = file.buffer.toString('utf-8');
+    const fileContent = file.buffer?.toString('utf-8') ?? '';
     const fileName = file.originalname;
 
     console.log('Code analysis requested:', {
@@ -85,9 +85,16 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
     // TODO: Integrate with actual code analysis service (e.g., ESLint, SonarQube, custom security scanner)
     // For now, return mock analysis results
 
+    if (!fileContent) {
+      return res.status(400).json({
+        error: 'Empty file',
+        message: 'Uploaded file does not contain any readable content'
+      });
+    }
+
     // Simulate finding issues based on common patterns
     const findings: Finding[] = [];
-    const lines = _fileContent.split('\n');
+    const lines = fileContent.split('\n');
 
     // Mock security checks
     lines.forEach((line, index) => {
@@ -146,8 +153,7 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
     };
 
     // Calculate overall score (0-100)
-    // Calculate total issues for logging
-    // const totalIssues = summary.criticalIssues + summary.highIssues + summary.mediumIssues + summary.lowIssues;
+    const totalIssues = summary.criticalIssues + summary.highIssues + summary.mediumIssues + summary.lowIssues;
     const weightedScore =
       (summary.criticalIssues * 20) +
       (summary.highIssues * 10) +
@@ -182,7 +188,7 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
     }
 
     const file = req.file;
-    const _fileContent = file.buffer.toString('utf-8');
+    const fileContent = file.buffer.toString('utf-8');
     const fileName = file.originalname;
 
     // Parse personas from request
@@ -275,9 +281,8 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
       .map(p => personaFeedbackMap[p]);
 
     // Find consensus and disagreements
-    // Collect all recommendations and concerns for potential aggregation
-    // const allRecommendations = personas.flatMap(p => p.recommendations);
-    // const allConcerns = personas.flatMap(p => p.concerns);
+    const allRecommendations = personas.flatMap(p => p.recommendations);
+    const allConcerns = personas.flatMap(p => p.concerns);
 
     const consensus = [
       'Systemet har et solidt fundament med god separation of concerns',

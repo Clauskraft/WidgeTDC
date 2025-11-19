@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useMCP, MCPMessage } from '../src/hooks/useMCP';
 
-interface MCPMessage {
-  id: string;
-  sourceId: string;
-  targetId: string;
-  tool: string;
-  payload: any;
-  createdAt: string;
+interface InspectorMessage extends MCPMessage {
   result?: any;
   success?: boolean;
 }
 
 const McpRouterWidget: React.FC = () => {
-  const [messages, setMessages] = useState<MCPMessage[]>([]);
+  const [messages, setMessages] = useState<InspectorMessage[]>([]);
   const [tools, setTools] = useState<string[]>([]);
   const [filterTool, setFilterTool] = useState('');
   const [filterSource, setFilterSource] = useState('');
@@ -24,11 +19,29 @@ const McpRouterWidget: React.FC = () => {
     userQuery: 'Test query',
     keywords: ['test']
   }, null, 2));
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { send: mcpSend, isLoading: isSending } = useMCP();
 
   useEffect(() => {
+    const loadTools = async () => {
+      try {
+        const response = await fetch('/api/mcp/tools');
+        if (!response.ok) {
+          throw new Error('Failed to load tools');
+        }
+        const data = await response.json();
+        const toolNames: string[] = data.tools || [];
+        setTools(toolNames);
+        if (toolNames.length > 0) {
+          setTestTool((current) => (toolNames.includes(current) ? current : toolNames[0]));
+        }
+      } catch (err) {
+        console.error('Failed to load tools:', err);
+        setError('Kunne ikke hente MCP værktøjer');
+      }
+    };
+
     loadTools();
   }, []);
 
@@ -36,53 +49,37 @@ const McpRouterWidget: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const loadTools = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/mcp/tools');
-      if (response.ok) {
-        const data = await response.json();
-        setTools(data.tools || []);
-      }
-    } catch (err) {
-      console.error('Failed to load tools:', err);
-    }
-  };
-
   const sendTestMessage = async () => {
-    setLoading(true);
     setError('');
     
     try {
-      const payload = JSON.parse(testPayload);
-      
-      const message: Partial<MCPMessage> = {
-        id: `msg-${Date.now()}`,
+      let payload: unknown;
+      try {
+        payload = JSON.parse(testPayload);
+      } catch {
+        setError('Payload skal være gyldig JSON');
+        return;
+      }
+
+      const targetId = testTool.split('.')[0];
+      const response = await mcpSend(targetId, testTool, payload, {
         sourceId: 'mcp-inspector',
-        targetId: testTool.split('.')[0],
+      });
+      
+      const resultMessage: InspectorMessage = {
+        id: response?.messageId ?? `msg-${Date.now()}`,
+        sourceId: 'mcp-inspector',
+        targetId,
         tool: testTool,
         payload,
         createdAt: new Date().toISOString(),
+        result: response?.result,
+        success: response?.success ?? true,
       };
 
-      const response = await fetch('http://localhost:3001/api/mcp/route', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(message),
-      });
-
-      const data = await response.json();
-      
-      const resultMessage: MCPMessage = {
-        ...message as MCPMessage,
-        result: data.result,
-        success: data.success,
-      };
-
-      setMessages([...messages, resultMessage]);
+      setMessages((prev) => [...prev, resultMessage]);
     } catch (err: any) {
       setError(err.message || 'Failed to send message');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -189,23 +186,23 @@ const McpRouterWidget: React.FC = () => {
           />
         </div>
 
-        <button
-          onClick={sendTestMessage}
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: loading ? '#555' : '#8b5cf6',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '13px',
-            fontWeight: '600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loading ? 'Sending...' : 'Send Test Message'}
-        </button>
+          <button
+            onClick={sendTestMessage}
+            disabled={isSending}
+            style={{
+              width: '100%',
+              padding: '10px',
+              backgroundColor: isSending ? '#555' : '#8b5cf6',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '4px',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: isSending ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {isSending ? 'Sending...' : 'Send Test Message'}
+          </button>
 
         {error && (
           <div style={{
