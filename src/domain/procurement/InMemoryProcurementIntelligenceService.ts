@@ -1,6 +1,6 @@
 /**
  * In-Memory Procurement Intelligence Service
- *
+ * 
  * Development implementation of ProcurementIntelligenceService
  */
 
@@ -61,7 +61,9 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
 
     // Filter by CPV codes
     if (query.cpvCodes && query.cpvCodes.length > 0) {
-      results = results.filter(t => t.cpvCodes.some(code => query.cpvCodes!.includes(code)));
+      results = results.filter(t => 
+        t.cpvCodes.some(code => query.cpvCodes!.includes(code))
+      );
     }
 
     // Filter by value range
@@ -90,17 +92,16 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
     // Text search
     if (query.query) {
       const searchLower = query.query.toLowerCase();
-      results = results.filter(
-        t =>
-          t.title.toLowerCase().includes(searchLower) ||
-          t.description.toLowerCase().includes(searchLower)
+      results = results.filter(t => 
+        t.title.toLowerCase().includes(searchLower) ||
+        t.description.toLowerCase().includes(searchLower)
       );
     }
 
     // Sort
     const sortBy = query.sortBy || 'publishedAt';
     const sortDirection = query.sortDirection || 'desc';
-
+    
     results.sort((a, b) => {
       let comparison = 0;
       switch (sortBy) {
@@ -130,10 +131,7 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
     return this.bids.get(id);
   }
 
-  async listBids(filters?: {
-    status?: BidStatus | BidStatus[];
-    tenderId?: TenderId;
-  }): Promise<Bid[]> {
+  async listBids(filters?: { status?: BidStatus | BidStatus[]; tenderId?: TenderId }): Promise<Bid[]> {
     let results = Array.from(this.bids.values());
 
     if (filters?.status) {
@@ -153,7 +151,7 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
   ): Promise<Bid> {
     const id = this.generateBidId();
     const now = new Date();
-
+    
     const { deadline, submitted, ...rest } = bid;
 
     const completeBid: Bid = {
@@ -194,11 +192,7 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
     return this.suppliers.get(id);
   }
 
-  async listSuppliers(filters?: {
-    country?: string;
-    riskLevel?: RiskLevel;
-    sector?: string;
-  }): Promise<Supplier[]> {
+  async listSuppliers(filters?: { country?: string; riskLevel?: RiskLevel; sector?: string }): Promise<Supplier[]> {
     let results = Array.from(this.suppliers.values());
 
     if (filters?.country) {
@@ -285,9 +279,9 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
       }
     }
 
-    const activeTenders = Array.from(this.tenders.values()).filter(
-      t => t.status === 'open' || t.status === 'closing-soon'
-    ).length;
+    const activeTenders = Array.from(this.tenders.values())
+      .filter(t => t.status === 'open' || t.status === 'closing-soon')
+      .length;
 
     const totalBids = this.bids.size;
     const winRate = totalBids > 0 ? (awardedBids / totalBids) * 100 : 0;
@@ -331,7 +325,9 @@ export class InMemoryProcurementIntelligenceService implements ProcurementIntell
       },
     ];
 
-    return category ? allTrends.filter(t => t.category === category) : allTrends;
+    return category 
+      ? allTrends.filter(t => t.category === category)
+      : allTrends;
   }
 
   async monitorTenderSources(): Promise<number> {

@@ -1,6 +1,6 @@
 /**
  * In-Memory Audit Log Service
- *
+ * 
  * Development implementation of AuditLogService with full hash-chain
  * integrity verification and retention-aware design.
  */
@@ -14,7 +14,6 @@ import type {
   IntegrityVerificationResult,
 } from './types';
 import { DEFAULT_RETENTION_POLICIES } from './types';
-import { createLogger } from '../core/logging';
 
 /**
  * In-memory implementation of AuditLogService
@@ -22,9 +21,7 @@ import { createLogger } from '../core/logging';
 export class InMemoryAuditLogService implements AuditLogService {
   private events: AuditEvent[] = [];
   private eventCounter = 0;
-  private readonly GENESIS_HASH =
-    '0000000000000000000000000000000000000000000000000000000000000000';
-  private readonly logger = createLogger('InMemoryAuditLogService', 'warn');
+  private readonly GENESIS_HASH = '0000000000000000000000000000000000000000000000000000000000000000';
 
   /**
    * Generate the next sequential event ID
@@ -62,8 +59,9 @@ export class InMemoryAuditLogService implements AuditLogService {
 
   async append(event: Omit<AuditEvent, 'id' | 'hash' | 'previousHash'>): Promise<AuditEvent> {
     const id = this.generateEventId();
-    const previousHash =
-      this.events.length > 0 ? this.events[this.events.length - 1].hash : this.GENESIS_HASH;
+    const previousHash = this.events.length > 0 
+      ? this.events[this.events.length - 1].hash 
+      : this.GENESIS_HASH;
 
     // Use default retention policy if not provided
     const retention = event.retention || DEFAULT_RETENTION_POLICIES[event.sensitivity];
@@ -97,8 +95,8 @@ export class InMemoryAuditLogService implements AuditLogService {
 
     // Filter by sensitivity
     if (query.sensitivity) {
-      const sensitivities = Array.isArray(query.sensitivity)
-        ? query.sensitivity
+      const sensitivities = Array.isArray(query.sensitivity) 
+        ? query.sensitivity 
         : [query.sensitivity];
       results = results.filter(e => sensitivities.includes(e.sensitivity));
     }
@@ -144,7 +142,9 @@ export class InMemoryAuditLogService implements AuditLogService {
 
     // Filter by tags
     if (query.tags && query.tags.length > 0) {
-      results = results.filter(e => e.tags && query.tags!.some(tag => e.tags!.includes(tag)));
+      results = results.filter(e => 
+        e.tags && query.tags!.some(tag => e.tags!.includes(tag))
+      );
     }
 
     // Sort
@@ -164,10 +164,7 @@ export class InMemoryAuditLogService implements AuditLogService {
     return this.events.find(e => e.id === id);
   }
 
-  async verifyIntegrity(options?: {
-    from?: AuditEventId;
-    to?: AuditEventId;
-  }): Promise<IntegrityVerificationResult> {
+  async verifyIntegrity(options?: { from?: AuditEventId; to?: AuditEventId }): Promise<IntegrityVerificationResult> {
     const errors: string[] = [];
     const brokenChainAt: number[] = [];
 
@@ -210,7 +207,7 @@ export class InMemoryAuditLogService implements AuditLogService {
         brokenChainAt.push(i);
         errors.push(
           `Event ${event.id} has incorrect previousHash. ` +
-            `Expected: ${expectedPreviousHash}, Got: ${event.previousHash}`
+          `Expected: ${expectedPreviousHash}, Got: ${event.previousHash}`
         );
       }
 
@@ -231,7 +228,8 @@ export class InMemoryAuditLogService implements AuditLogService {
       if (event.hash !== computedHash) {
         brokenChainAt.push(i);
         errors.push(
-          `Event ${event.id} has incorrect hash. ` + `Expected: ${computedHash}, Got: ${event.hash}`
+          `Event ${event.id} has incorrect hash. ` +
+          `Expected: ${computedHash}, Got: ${event.hash}`
         );
       }
     }
@@ -262,8 +260,7 @@ export class InMemoryAuditLogService implements AuditLogService {
       bySensitivity: bySensitivity as any,
       byOutcome: byOutcome as any,
       firstEventAt: this.events.length > 0 ? this.events[0].timestamp : undefined,
-      lastEventAt:
-        this.events.length > 0 ? this.events[this.events.length - 1].timestamp : undefined,
+      lastEventAt: this.events.length > 0 ? this.events[this.events.length - 1].timestamp : undefined,
     };
   }
 
@@ -279,9 +276,9 @@ export class InMemoryAuditLogService implements AuditLogService {
       // In production, this would archive to external storage
       // For in-memory implementation, we'll keep events for integrity
       // but could mark them as archived
-      this.logger.warn(
+      console.warn(
         `archiveExpiredEvents: ${expiredEvents.length} events would be archived. ` +
-          `In-memory implementation does not actually remove events.`
+        `In-memory implementation does not actually remove events.`
       );
     }
 
@@ -300,12 +297,9 @@ export class InMemoryAuditLogService implements AuditLogService {
       }
 
       const headers = 'id,timestamp,domain,sensitivity,actor,action,outcome\n';
-      const rows = events
-        .map(
-          e =>
-            `${e.id},${e.timestamp.toISOString()},${e.domain},${e.sensitivity},${e.actor.id},${e.payload.action},${e.payload.outcome}`
-        )
-        .join('\n');
+      const rows = events.map(e => 
+        `${e.id},${e.timestamp.toISOString()},${e.domain},${e.sensitivity},${e.actor.id},${e.payload.action},${e.payload.outcome}`
+      ).join('\n');
 
       return headers + rows;
     }

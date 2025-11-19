@@ -1,6 +1,6 @@
 /**
  * In-Memory Notes Aggregator Service
- *
+ * 
  * Development implementation of NotesAggregatorService
  */
 
@@ -39,13 +39,15 @@ export class InMemoryNotesAggregatorService implements NotesAggregatorService {
 
     // Filter by tags
     if (query.tags && query.tags.length > 0) {
-      results = results.filter(n => query.tags!.some(tag => n.tags.includes(tag)));
+      results = results.filter(n => 
+        query.tags!.some(tag => n.tags.includes(tag))
+      );
     }
 
     // Filter by categories
     if (query.categories && query.categories.length > 0) {
-      results = results.filter(
-        n => n.categories && query.categories!.some(cat => n.categories!.includes(cat))
+      results = results.filter(n => 
+        n.categories && query.categories!.some(cat => n.categories!.includes(cat))
       );
     }
 
@@ -71,17 +73,16 @@ export class InMemoryNotesAggregatorService implements NotesAggregatorService {
     // Text search (simple substring match)
     if (query.query) {
       const searchLower = query.query.toLowerCase();
-      results = results.filter(
-        n =>
-          n.title.toLowerCase().includes(searchLower) ||
-          n.content.toLowerCase().includes(searchLower)
+      results = results.filter(n => 
+        n.title.toLowerCase().includes(searchLower) ||
+        n.content.toLowerCase().includes(searchLower)
       );
     }
 
     // Sort
     const sortBy = query.sortBy || 'updatedAt';
     const sortDirection = query.sortDirection || 'desc';
-
+    
     results.sort((a, b) => {
       let comparison = 0;
       switch (sortBy) {
@@ -122,7 +123,7 @@ export class InMemoryNotesAggregatorService implements NotesAggregatorService {
   async createNote(note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>): Promise<Note> {
     const id = this.generateNoteId();
     const now = new Date();
-
+    
     const completeNote: Note = {
       ...note,
       id,
@@ -193,7 +194,7 @@ export class InMemoryNotesAggregatorService implements NotesAggregatorService {
 
     for (const note of this.notes.values()) {
       bySource[note.source] = (bySource[note.source] || 0) + 1;
-
+      
       if (note.categories) {
         for (const category of note.categories) {
           byCategory[category] = (byCategory[category] || 0) + 1;

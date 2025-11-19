@@ -7,22 +7,18 @@ This document establishes the governance framework for the WidgeTDC enterprise p
 ## Command Structure
 
 ### System Director
-
 **Role**: Strategic oversight and quality gate approval  
 **Authority**: Final approval for phase transitions, major architecture changes, and resource allocation  
 **Responsibilities**:
-
 - Define strategic direction and success metrics
 - Approve phase completions through quality gates
 - Resolve escalated technical or resource conflicts
 - Ensure alignment with business objectives
 
 ### Project Manager
-
 **Role**: Timeline, budget, and resource management  
 **Authority**: Day-to-day project execution decisions  
 **Responsibilities**:
-
 - Manage sprint planning and task allocation
 - Track progress against milestones
 - Coordinate cross-functional team activities
@@ -30,11 +26,9 @@ This document establishes the governance framework for the WidgeTDC enterprise p
 - Manage risk register and mitigation plans
 
 ### Chief Architect
-
 **Role**: Technical vision and architecture decisions  
 **Authority**: All technical and architectural decisions  
 **Responsibilities**:
-
 - Define and maintain platform architecture
 - Review and approve all ADRs (Architecture Decision Records)
 - Ensure technical consistency across phases
@@ -49,11 +43,9 @@ This document establishes the governance framework for the WidgeTDC enterprise p
 **UX Architect**: User experience, accessibility, design systems
 
 ### Specialist Team
-
 **Role**: Domain-specific expertise  
 **Authority**: Recommendations within domain  
 **Responsibilities**:
-
 - MCP Integration Experts
 - Vector Database Engineers
 - AI/ML Specialists
@@ -65,9 +57,7 @@ This document establishes the governance framework for the WidgeTDC enterprise p
 Each phase must pass defined quality gates before proceeding to the next phase.
 
 ### Phase 1: Foundation Enhancement
-
 **Quality Gate Criteria**:
-
 - ✅ All TypeScript contracts compile without errors
 - ✅ Audit log passes hash-chain integrity tests
 - ✅ Vector store passes similarity search tests
@@ -79,9 +69,7 @@ Each phase must pass defined quality gates before proceeding to the next phase.
 **Approval Required**: Chief Architect + System Director
 
 ### Phase 2: Core Widget Enterprise Upgrade
-
 **Quality Gate Criteria**:
-
 - Widget audit decoration functional
 - Agent Chat Enterprise features operational
 - Prompt Library versioning working
@@ -92,9 +80,7 @@ Each phase must pass defined quality gates before proceeding to the next phase.
 **Approval Required**: Chief Architect + UX Architect + System Director
 
 ### Phase 3: New Enterprise Widgets
-
 **Quality Gate Criteria**:
-
 - Notes Aggregator multi-source sync functional
 - Security Overwatch real-time monitoring operational
 - Procurement Intelligence TED integration working
@@ -105,9 +91,7 @@ Each phase must pass defined quality gates before proceeding to the next phase.
 **Approval Required**: Chief Architect + Domain Experts + System Director
 
 ### Phase 4: Advanced Enterprise Features
-
 **Quality Gate Criteria**:
-
 - Vector database integration operational
 - Hybrid search performance meets targets
 - MCP ecosystem connectors functional
@@ -121,35 +105,35 @@ Each phase must pass defined quality gates before proceeding to the next phase.
 
 ### Performance Requirements
 
-```typescript
+````typescript
 const PERFORMANCE_BASELINES = {
   startup: {
-    coldStart: 2000, // ms - Maximum cold start time
-    warmStart: 500, // ms - Maximum warm start time
-    target: 1500, // ms - Target cold start time
+    coldStart: 2000,        // ms - Maximum cold start time
+    warmStart: 500,         // ms - Maximum warm start time
+    target: 1500,           // ms - Target cold start time
   },
   ui: {
-    interaction: 100, // ms - Maximum UI interaction response
-    render: 16, // ms - Target render time (60 FPS)
-    layoutShift: 0.1, // CLS - Maximum cumulative layout shift
+    interaction: 100,       // ms - Maximum UI interaction response
+    render: 16,             // ms - Target render time (60 FPS)
+    layoutShift: 0.1,       // CLS - Maximum cumulative layout shift
   },
   api: {
-    response: 200, // ms - Maximum API response time
-    p95: 300, // ms - 95th percentile response time
-    timeout: 5000, // ms - Request timeout
+    response: 200,          // ms - Maximum API response time
+    p95: 300,               // ms - 95th percentile response time
+    timeout: 5000,          // ms - Request timeout
   },
   memory: {
-    baseline: 500, // MB - Maximum baseline memory usage
-    perWidget: 50, // MB - Maximum memory per widget
-    leak: 0, // MB/hour - Maximum acceptable memory leak
+    baseline: 500,          // MB - Maximum baseline memory usage
+    perWidget: 50,          // MB - Maximum memory per widget
+    leak: 0,                // MB/hour - Maximum acceptable memory leak
   },
   audit: {
-    appendLatency: 10, // ms - Maximum audit log append latency
-    queryLatency: 100, // ms - Maximum audit log query latency
-    integrityCheck: 5000, // ms - Maximum integrity verification time
+    appendLatency: 10,      // ms - Maximum audit log append latency
+    queryLatency: 100,      // ms - Maximum audit log query latency
+    integrityCheck: 5000,   // ms - Maximum integrity verification time
   },
 };
-```
+````
 
 ### Security Requirements
 
@@ -170,31 +154,31 @@ const PERFORMANCE_BASELINES = {
 
 ### Logging and Monitoring
 
-```typescript
+````typescript
 const LOGGING_BASELINES = {
   audit: {
     retention: {
-      public: 90, // days - Public audit events
-      internal: 365, // days - Internal audit events
-      confidential: 730, // days - Confidential audit events
-      restricted: 2555, // days - Restricted/PII events (7 years)
+      public: 90,           // days - Public audit events
+      internal: 365,        // days - Internal audit events
+      confidential: 730,    // days - Confidential audit events
+      restricted: 2555,     // days - Restricted/PII events (7 years)
     },
     integrity: {
       verificationInterval: 3600, // seconds - Hash-chain verification interval
-      alertOnFailure: true, // Alert on integrity failure
+      alertOnFailure: true,       // Alert on integrity failure
     },
   },
   application: {
-    level: 'info', // Minimum log level for production
-    retention: 30, // days - Application log retention
-    sampling: 1.0, // Sampling rate (1.0 = 100%)
+    level: 'info',          // Minimum log level for production
+    retention: 30,          // days - Application log retention
+    sampling: 1.0,          // Sampling rate (1.0 = 100%)
   },
   performance: {
-    metricsInterval: 60, // seconds - Metrics collection interval
-    tracesSampling: 0.1, // Trace sampling rate (0.1 = 10%)
+    metricsInterval: 60,    // seconds - Metrics collection interval
+    tracesSampling: 0.1,    // Trace sampling rate (0.1 = 10%)
   },
 };
-```
+````
 
 ## Architecture Decision Records (ADRs)
 
@@ -209,38 +193,31 @@ const LOGGING_BASELINES = {
 
 ### ADR Template
 
-```markdown
+````markdown
 # ADR-XXXX: [Title]
 
 ## Status
-
 [Proposed | Accepted | Rejected | Superseded | Deprecated]
 
 ## Context
-
 [Background and problem statement]
 
 ## Decision
-
 [The decision that was made]
 
 ## Consequences
-
 [Positive and negative consequences of the decision]
 
 ## Alternatives Considered
-
 [Other options that were evaluated]
 
 ## References
-
 [Links to related documents, issues, or discussions]
-```
+````
 
 ### When to Write an ADR
 
 Required for:
-
 - Changes to core platform architecture
 - Introduction of new dependencies or frameworks
 - Changes to security or compliance approach
@@ -250,7 +227,6 @@ Required for:
 - Testing strategy changes
 
 Not required for:
-
 - Bug fixes without architectural impact
 - UI/UX improvements within existing patterns
 - Documentation updates
@@ -260,19 +236,16 @@ Not required for:
 ## Change Control Process
 
 ### Minor Changes
-
 **Definition**: Bug fixes, documentation, configuration  
 **Approval**: Team lead review  
 **Testing**: Automated tests + manual verification
 
 ### Major Changes
-
 **Definition**: New features, refactoring, dependency changes  
 **Approval**: Chief Architect review + ADR if architectural  
 **Testing**: Full test suite + integration tests + security scan
 
 ### Breaking Changes
-
 **Definition**: API changes, platform upgrades, security changes  
 **Approval**: Chief Architect + Security Architect + System Director  
 **Testing**: Full test suite + migration tests + rollback tests  
@@ -315,7 +288,6 @@ All code changes undergo security review:
 ## Documentation Standards
 
 All platform components must include:
-
 - Interface/API documentation with examples
 - Architecture diagrams (C4 model preferred)
 - Security considerations
@@ -326,7 +298,6 @@ All platform components must include:
 ## Success Metrics
 
 ### Technical Metrics
-
 - **Uptime**: 99.99% availability
 - **Performance**: < 100ms UI response (95th percentile)
 - **Security**: Zero critical vulnerabilities
@@ -334,7 +305,6 @@ All platform components must include:
 - **Audit Coverage**: 100% of security-relevant actions
 
 ### Business Metrics
-
 - **User Adoption**: > 70% of target users within 90 days
 - **Customer Satisfaction**: Net Promoter Score > 50
 - **Time to Market**: Phase 1-3 within 6 months

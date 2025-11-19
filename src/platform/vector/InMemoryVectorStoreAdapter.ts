@@ -1,6 +1,6 @@
 /**
  * In-Memory Vector Store Adapter
- *
+ * 
  * Development implementation of VectorStoreAdapter with cosine similarity search,
  * metadata filtering, and optional keyword boosting for hybrid search.
  */
@@ -121,7 +121,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
   private computeKeywordScore(content: string, keywords: string): number {
     const contentLower = content.toLowerCase();
     const keywordTokens = keywords.toLowerCase().split(/\s+/);
-
+    
     let matches = 0;
     for (const token of keywordTokens) {
       if (contentLower.includes(token)) {
@@ -138,7 +138,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
   private matchesFilters(record: VectorRecord, filters: MetadataFilter[]): boolean {
     for (const filter of filters) {
       const value = record.metadata[filter.field];
-
+      
       switch (filter.operator) {
         case 'eq':
           if (value !== filter.value) return false;
@@ -191,7 +191,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
   async upsert(record: Omit<VectorRecord, 'createdAt' | 'updatedAt'>): Promise<VectorRecord> {
     const key = this.getKey(record.id, record.namespace);
     const existing = this.records.get(key);
-
+    
     const now = new Date();
     const completeRecord: VectorRecord = {
       ...record,
@@ -205,7 +205,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
 
   async batchUpsert(operation: VectorBatchUpsert): Promise<VectorRecord[]> {
     const results: VectorRecord[] = [];
-
+    
     for (const record of operation.records) {
       const recordWithNamespace = {
         ...record,
@@ -236,7 +236,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
     // Compute scores
     for (const candidate of candidates) {
       const vectorScore = this.computeSimilarity(query.embedding, candidate.embedding, metric);
-
+      
       let finalScore = vectorScore;
       let keywordScore: number | undefined;
 
@@ -255,12 +255,10 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
       results.push({
         record: candidate,
         score: finalScore,
-        explanation: query.keywords
-          ? {
-              vectorScore,
-              keywordScore,
-            }
-          : { vectorScore },
+        explanation: query.keywords ? {
+          vectorScore,
+          keywordScore,
+        } : { vectorScore },
       });
     }
 
@@ -271,10 +269,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
     return results.slice(0, query.topK);
   }
 
-  async getById(
-    id: VectorRecordId,
-    namespace?: VectorNamespace
-  ): Promise<VectorRecord | undefined> {
+  async getById(id: VectorRecordId, namespace?: VectorNamespace): Promise<VectorRecord | undefined> {
     const key = this.getKey(id, namespace);
     return this.records.get(key);
   }
@@ -286,7 +281,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
 
   async batchDelete(operation: VectorBatchDelete): Promise<number> {
     let deleted = 0;
-
+    
     for (const id of operation.ids) {
       const success = await this.deleteById(id, operation.namespace);
       if (success) deleted++;
@@ -297,7 +292,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
 
   async deleteNamespace(namespace: VectorNamespace): Promise<number> {
     let deleted = 0;
-
+    
     for (const [key, record] of this.records.entries()) {
       if (record.namespace === namespace) {
         this.records.delete(key);
@@ -310,7 +305,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
 
   async listNamespaces(): Promise<VectorNamespace[]> {
     const namespaces = new Set<VectorNamespace>();
-
+    
     for (const record of this.records.values()) {
       if (record.namespace) {
         namespaces.add(record.namespace);
@@ -323,7 +318,7 @@ export class InMemoryVectorStoreAdapter implements VectorStoreAdapter {
   async getStatistics(): Promise<VectorStoreStatistics> {
     const byNamespace: Record<VectorNamespace, number> = {};
     let vectorDimension: number | undefined;
-
+    
     for (const record of this.records.values()) {
       if (record.namespace) {
         byNamespace[record.namespace] = (byNamespace[record.namespace] || 0) + 1;

@@ -1,6 +1,6 @@
 /**
  * Platform Context and Services Bootstrap
- *
+ * 
  * Central platform context that wires together all enterprise services
  * (audit, widgets, shell, agents, prompts, vectors, domain services).
  */
@@ -36,28 +36,28 @@ export interface PromptLibraryService {
 export interface PlatformServices {
   /** Audit log service for compliance and monitoring */
   auditLog: AuditLogService;
-
+  
   /** Widget registry for dynamic widget management */
   widgetRegistry: WidgetRegistry;
-
+  
   /** Platform shell for dashboard and layout management */
   platformShell: PlatformShell;
-
+  
   /** Agent chat service for AI interactions (Phase 2+) */
   agentChat: AgentChatService;
-
+  
   /** Prompt library service for prompt management (Phase 2+) */
   promptLibrary: PromptLibraryService;
-
+  
   /** Vector store adapter for semantic search (Phase 4+) */
   vectorStore: VectorStoreAdapter;
-
+  
   /** Notes aggregator service for multi-source note management */
   notesAggregator: NotesAggregatorService;
-
+  
   /** Security overwatch service for threat monitoring */
   securityOverwatch: SecurityOverwatchService;
-
+  
   /** Procurement intelligence service for tender management */
   procurementIntelligence: ProcurementIntelligenceService;
 }
@@ -68,17 +68,17 @@ export interface PlatformServices {
 export interface PlatformBootstrapOptions {
   /** Whether to enable audit logging */
   enableAudit?: boolean;
-
+  
   /** Whether to enable vector store */
   enableVectorStore?: boolean;
-
+  
   /** Custom service implementations */
   customServices?: Partial<PlatformServices>;
 }
 
 /**
  * Bootstrap the platform with all services
- *
+ * 
  * @param options Bootstrap options
  * @returns Platform services container
  */
@@ -87,29 +87,23 @@ export async function bootstrapPlatform(
 ): Promise<PlatformServices> {
   // Services will be instantiated by PlatformProvider
   // This function provides a factory pattern for service creation
-
+  
   // Import implementations dynamically to avoid circular dependencies
   const { InMemoryAuditLogService } = await import('../audit/InMemoryAuditLogService');
   const { InMemoryVectorStoreAdapter } = await import('../vector/InMemoryVectorStoreAdapter');
-  const { InMemoryNotesAggregatorService } = await import(
-    '../../domain/notes/InMemoryNotesAggregatorService'
-  );
-  const { InMemorySecurityOverwatchService } = await import(
-    '../../domain/security/InMemorySecurityOverwatchService'
-  );
-  const { InMemoryProcurementIntelligenceService } = await import(
-    '../../domain/procurement/InMemoryProcurementIntelligenceService'
-  );
-
+  const { InMemoryNotesAggregatorService } = await import('../../domain/notes/InMemoryNotesAggregatorService');
+  const { InMemorySecurityOverwatchService } = await import('../../domain/security/InMemorySecurityOverwatchService');
+  const { InMemoryProcurementIntelligenceService } = await import('../../domain/procurement/InMemoryProcurementIntelligenceService');
+  
   // Create default implementations
-  const auditLog =
-    options.enableAudit !== false ? new InMemoryAuditLogService() : createNoOpAuditLog();
-
-  const vectorStore =
-    options.enableVectorStore !== false
-      ? new InMemoryVectorStoreAdapter()
-      : createNoOpVectorStore();
-
+  const auditLog = options.enableAudit !== false 
+    ? new InMemoryAuditLogService()
+    : createNoOpAuditLog();
+  
+  const vectorStore = options.enableVectorStore !== false
+    ? new InMemoryVectorStoreAdapter()
+    : createNoOpVectorStore();
+  
   const widgetRegistry = createInMemoryWidgetRegistry();
   const platformShell = createInMemoryPlatformShell();
   const agentChat = createPlaceholderAgentChat();
@@ -117,7 +111,7 @@ export async function bootstrapPlatform(
   const notesAggregator = new InMemoryNotesAggregatorService();
   const securityOverwatch = new InMemorySecurityOverwatchService();
   const procurementIntelligence = new InMemoryProcurementIntelligenceService();
-
+  
   return {
     auditLog,
     widgetRegistry,
@@ -137,7 +131,7 @@ export async function bootstrapPlatform(
  */
 function createNoOpAuditLog(): AuditLogService {
   return {
-    append: async () => ({}) as any,
+    append: async () => ({} as any),
     query: async () => [],
     getById: async () => undefined,
     verifyIntegrity: async () => ({ valid: true, eventsVerified: 0, verifiedAt: new Date() }),
@@ -157,7 +151,7 @@ function createNoOpAuditLog(): AuditLogService {
  */
 function createNoOpVectorStore(): VectorStoreAdapter {
   return {
-    upsert: async () => ({}) as any,
+    upsert: async () => ({} as any),
     batchUpsert: async () => [],
     search: async () => [],
     getById: async () => undefined,
@@ -179,9 +173,9 @@ function createNoOpVectorStore(): VectorStoreAdapter {
  */
 function createInMemoryWidgetRegistry(): WidgetRegistry {
   const registry = new Map();
-
+  
   return {
-    register: async definition => {
+    register: async (definition) => {
       registry.set(definition.manifest.id, {
         definition,
         registeredAt: new Date(),
@@ -190,9 +184,9 @@ function createInMemoryWidgetRegistry(): WidgetRegistry {
       });
       return { valid: true, errors: [], warnings: [] };
     },
-    unregister: async id => registry.delete(id),
-    get: async id => registry.get(id),
-    query: async query => {
+    unregister: async (id) => registry.delete(id),
+    get: async (id) => registry.get(id),
+    query: async (query) => {
       let results = Array.from(registry.values());
       if (query.id) results = results.filter(e => e.definition.manifest.id === query.id);
       if (query.enabled !== undefined) results = results.filter(e => e.enabled === query.enabled);
@@ -206,7 +200,7 @@ function createInMemoryWidgetRegistry(): WidgetRegistry {
       entry.enabled = enabled;
       return true;
     },
-    has: async id => registry.has(id),
+    has: async (id) => registry.has(id),
     count: async () => registry.size,
   };
 }
@@ -220,7 +214,7 @@ function createInMemoryPlatformShell(): PlatformShell {
     layout: [],
     lastModified: new Date(),
   };
-
+  
   const templates = new Map();
   let preferences = {
     theme: 'light' as const,
@@ -238,13 +232,13 @@ function createInMemoryPlatformShell(): PlatformShell {
       enabled: true,
     },
   };
-
+  
   return {
     getDashboardState: async () => dashboardState,
-    updateDashboardState: async state => {
+    updateDashboardState: async (state) => {
       dashboardState = { ...dashboardState, ...state, lastModified: new Date() };
     },
-    saveTemplate: async template => {
+    saveTemplate: async (template) => {
       const id = `TPL${Date.now()}`;
       const fullTemplate = {
         ...template,
@@ -255,14 +249,14 @@ function createInMemoryPlatformShell(): PlatformShell {
       templates.set(id, fullTemplate);
       return fullTemplate;
     },
-    loadTemplate: async templateId => {
+    loadTemplate: async (templateId) => {
       const template = templates.get(templateId);
       return !!template;
     },
     listTemplates: async () => Array.from(templates.values()),
-    deleteTemplate: async templateId => templates.delete(templateId),
+    deleteTemplate: async (templateId) => templates.delete(templateId),
     getPreferences: async () => preferences,
-    updatePreferences: async prefs => {
+    updatePreferences: async (prefs) => {
       preferences = { ...preferences, ...prefs };
     },
     getCollaborationState: async () => ({
@@ -271,8 +265,10 @@ function createInMemoryPlatformShell(): PlatformShell {
       conflictResolution: 'last-write-wins' as const,
     }),
     updateCollaborationState: async () => {},
-    exportDashboard: async format => {
-      return format === 'json' ? JSON.stringify(dashboardState, null, 2) : 'theme: light\n';
+    exportDashboard: async (format) => {
+      return format === 'json' 
+        ? JSON.stringify(dashboardState, null, 2)
+        : 'theme: light\n';
     },
     importDashboard: async () => true,
   };
@@ -283,7 +279,7 @@ function createInMemoryPlatformShell(): PlatformShell {
  */
 function createPlaceholderAgentChat(): AgentChatService {
   return {
-    sendMessage: async message => {
+    sendMessage: async (message) => {
       return `Echo: ${message} (Placeholder - Phase 2 implementation pending)`;
     },
   };
@@ -293,10 +289,12 @@ function createPlaceholderAgentChat(): AgentChatService {
  * Create placeholder prompt library service (Phase 2)
  */
 function createPlaceholderPromptLibrary(): PromptLibraryService {
-  const prompts = new Map([['default', { id: 'default', text: 'You are a helpful assistant.' }]]);
-
+  const prompts = new Map([
+    ['default', { id: 'default', text: 'You are a helpful assistant.' }],
+  ]);
+  
   return {
-    getPrompt: async id => prompts.get(id),
+    getPrompt: async (id) => prompts.get(id),
     listPrompts: async () => Array.from(prompts.values()).map(p => ({ id: p.id, title: p.id })),
   };
 }
