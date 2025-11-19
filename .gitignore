@@ -61,3 +61,8 @@ temp/
 .env
 .env.local
 # Never store raw API keys or secrets in the repo
+
+# SQLite artifacts
+apps/backend/widget-tdc.db
+apps/backend/widget-tdc.db-wal
+apps/backend/widget-tdc.db-shm
