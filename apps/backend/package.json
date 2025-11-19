@@ -16,7 +16,8 @@
     "cors": "^2.8.5",
     "ws": "^8.14.2",
     "better-sqlite3": "^9.2.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "gpt-3-encoder": "^1.1.4"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
