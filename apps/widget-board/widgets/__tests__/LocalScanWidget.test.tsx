@@ -1,13 +1,21 @@
 // apps/widget-board/widgets/__tests__/LocalScanWidget.test.tsx
-import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { useMCP } from '../../../src/hooks/useMCP'; // Mock
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { beforeEach, vi } from 'vitest';
 import LocalScanWidget from '../LocalScanWidget';
 
-vi.mock('../../../src/hooks/useMCP');
+const mockMcpSend = vi.fn();
 
-const mockMcpSend = jest.fn();
-(useMCP as jest.Mock).mockReturnValue({ send: mockMcpSend });
+vi.mock('../../src/hooks/useMCP', () => ({
+  useMCP: () => ({
+    send: mockMcpSend,
+    isLoading: false,
+  }),
+}));
+
+beforeEach(() => {
+  mockMcpSend.mockReset();
+  mockMcpSend.mockResolvedValue({ payload: { files: [] } });
+});
 
 describe('LocalScanWidget', () => {
   it('renders form and triggers scan', async () => {
@@ -16,28 +24,44 @@ describe('LocalScanWidget', () => {
     expect(screen.getByPlaceholderText(/Keywords/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByText(/Start Scan/i));
-    expect(mockMcpSend).toHaveBeenCalledWith('scanner-service', 'scan.local-drive', expect.objectContaining({ path: '/tmp/scan-target' }));
+    await waitFor(() =>
+      expect(mockMcpSend).toHaveBeenCalledWith(
+        'scanner-service',
+        'scan.local-drive',
+        expect.objectContaining({ path: '/tmp/scan-target' })
+      )
+    );
   });
 
   it('toggles auto-scan and updates UI', async () => {
-    render(<LocalScanWidget widgetId="test" />);
-    const checkbox = screen.getByLabelText(/Auto-scan/i);
-    fireEvent.click(checkbox);
-    expect(checkbox).toBeChecked();
-
-    // Simulate poll interval (mock setInterval)
-    const { container } = render(<LocalScanWidget widgetId="test" />);
-    expect(container).toHaveTextContent(/Auto-scan active/);
+      render(<LocalScanWidget widgetId="test" />);
+      const checkbox = screen.getByLabelText(/Auto-scan/i);
+      fireEvent.click(checkbox);
+      expect(checkbox).toBeChecked();
+      expect(await screen.findByText(/Auto-scan active/i)).toBeInTheDocument();
   });
 
   it('displays results with images', async () => {
-    mockMcpSend.mockResolvedValue({ payload: { files: [{ name: 'test.jpg', threatScore: 5, hasImage: true, imageAnalysis: { ocrText: 'Threat' }, fullPath: '/test' }] } });
+    mockMcpSend.mockResolvedValue({
+      payload: {
+        files: [
+          {
+            name: 'test.jpg',
+            threatScore: 5,
+            hasImage: true,
+            imageAnalysis: { ocrText: 'Threat', score: 0.8 },
+            fullPath: '/test',
+            snippet: 'Sample snippet',
+          },
+        ],
+      },
+    });
 
     render(<LocalScanWidget widgetId="test" />);
     fireEvent.click(screen.getByText(/Start Scan/i));
 
-    expect(screen.getByText(/test.jpg/)).toBeInTheDocument();
-    expect(screen.getByText(/OCR: Threat/)).toBeInTheDocument();
+    expect(await screen.findByText(/test.jpg/)).toBeInTheDocument();
+    expect(await screen.findByText(/OCR: Threat/)).toBeInTheDocument();
   });
 
   it('handles errors discreetly', async () => {
@@ -46,6 +70,6 @@ describe('LocalScanWidget', () => {
     render(<LocalScanWidget widgetId="test" />);
     fireEvent.click(screen.getByText(/Start Scan/i));
 
-    expect(screen.getByText(/Scan failed/)).toBeInTheDocument();
+    expect(await screen.findByText(/Scan failed/)).toBeInTheDocument();
   });
 });

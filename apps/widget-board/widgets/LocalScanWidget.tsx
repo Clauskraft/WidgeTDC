@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input'; // Antag UI-komponent
-import { Slider } from '../components/ui/Slider'; // Antag
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table'; // Antag
 import { useMCP } from '../src/hooks/useMCP'; // Eksisterende hook
 
 interface ScanConfig {
@@ -24,7 +21,12 @@ interface ScanResult {
 
 const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
   const { send: mcpSend, isLoading } = useMCP();
-  const [config, setConfig] = useState<ScanConfig>({ path: '/tmp/scan-target', depth: 3, keywords: ['threat', 'IP', 'credential'] });
+  const [config, setConfig] = useState<ScanConfig>({
+    path: '/tmp/scan-target',
+    depth: 3,
+    keywords: ['threat', 'IP', 'credential'],
+    intervalMin: 30,
+  });
   const [results, setResults] = useState<ScanResult[]>([]);
   const [autoScan, setAutoScan] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -43,7 +45,7 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
   };
 
   // Trigger scan via MCP
-  const triggerScan = useCallback(async () => {
+    const triggerScan = useCallback(async () => {
     if (!config.path) {
       setError('Path required');
       return;
@@ -51,13 +53,14 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
     setScanning(true);
     setError(null);
     try {
-      const response = await mcpSend('scanner-service', 'scan.local-drive', {
+        const response = await mcpSend('scanner-service', 'scan.local-drive', {
         path: config.path,
         depth: config.depth,
         keywords: config.keywords,
         orgId: 'current', // Multi-tenant
       });
-      setResults(response.payload.files || []);
+        const files = response?.payload?.files;
+        setResults(Array.isArray(files) ? files : []);
     } catch (err) {
       setError(`Scan failed: ${err.message}. Check access rights.`);
       // Discreet: No alert, just log
@@ -76,95 +79,125 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
     return () => clearInterval(interval);
   }, [autoScan, config.intervalMin, triggerScan]);
 
-  // Render results table
-  return (
-    <div className="h-full flex flex-col p-4 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
-      <header className="mb-4">
-        <h3 className="text-lg font-semibold">Local Drive Scanner</h3>
-        <p className="text-sm text-slate-500">Discreet scan of local/network drives for cyber threats. Auto-polling enabled.</p>
-      </header>
+    // Render results table
+    const autoScanToggleId = `auto-scan-toggle-${widgetId}`;
 
-      {/* Config Form */}
-      <div className="space-y-4 mb-4">
-        <Input
-          placeholder="Path (e.g., /mnt/drive or \\server\\share)"
-          value={config.path}
-          onChange={(e) => saveConfig({ ...config, path: e.target.value })}
-        />
-        <div className="flex gap-2 items-center">
-          <label>Depth (1-5 levels):</label>
-          <Slider
-            value={[config.depth]}
-            onValueChange={(v) => saveConfig({ ...config, depth: v[0] })}
-            min={1}
-            max={5}
-            step={1}
-          />
-        </div>
-        <Input
-          placeholder="Keywords (comma-separated: threat, IP, credential)"
-          value={config.keywords.join(', ')}
-          onChange={(e) => saveConfig({ ...config, keywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) })}
-        />
-        <div className="flex gap-2 items-center">
+    return (
+      <div className="h-full flex flex-col p-4 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+        <header className="mb-4">
+          <h3 className="text-lg font-semibold">Local Drive Scanner</h3>
+          <p className="text-sm text-slate-500">
+            Discreet scan of local/network drives for cyber threats. Auto-polling enabled.
+          </p>
+        </header>
+
+        <div className="space-y-4 mb-4">
           <input
-            type="checkbox"
-            checked={autoScan}
-            onChange={(e) => setAutoScan(e.target.checked)}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            placeholder="Path (e.g., /mnt/drive or \\server\\share)"
+            value={config.path}
+            onChange={event => saveConfig({ ...config, path: event.target.value })}
           />
-          <label>Auto-scan every {config.intervalMin || 30} min</label>
+          <div className="flex gap-3 items-center">
+            <label className="text-sm text-slate-600">Depth (1-5 levels):</label>
+            <input
+              type="range"
+              min={1}
+              max={5}
+              step={1}
+              value={config.depth}
+              onChange={event => saveConfig({ ...config, depth: Number(event.target.value) })}
+              aria-label="Scan depth"
+            />
+            <span className="text-sm font-medium">{config.depth}</span>
+          </div>
+          <input
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+            placeholder="Keywords (comma-separated: threat, IP, credential)"
+            value={config.keywords.join(', ')}
+            onChange={event =>
+              saveConfig({
+                ...config,
+                keywords: event.target.value
+                  .split(',')
+                  .map(keyword => keyword.trim())
+                  .filter(Boolean),
+              })
+            }
+          />
+          <div className="flex gap-2 items-center">
+            <input
+              id={autoScanToggleId}
+              type="checkbox"
+              checked={autoScan}
+              onChange={event => setAutoScan(event.target.checked)}
+            />
+            <label htmlFor={autoScanToggleId}>Auto-scan every {config.intervalMin || 30} min</label>
+          </div>
+          <Button onClick={triggerScan} disabled={scanning || !config.path} variant="primary">
+            {scanning ? 'Scanning...' : 'Start Scan'}
+          </Button>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {autoScan && (
+            <p className="text-xs text-slate-500">Auto-scan active – Next in {config.intervalMin} min.</p>
+          )}
         </div>
-        <Button onClick={triggerScan} disabled={scanning || !config.path} variant="primary">
-          {scanning ? 'Scanning...' : 'Start Scan'}
-        </Button>
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-        {autoScan && <p className="text-xs text-slate-500">Auto-scan active – Next in {config.intervalMin} min.</p>}
-      </div>
 
-      {/* Results Table */}
-      <div className="flex-1 overflow-auto">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHead>File Name</TableHead>
-              <TableHead>Path</TableHead>
-              <TableHead>Threat Score (0-10)</TableHead>
-              <TableHead>Size</TableHead>
-              <TableHead>Image Analysis</TableHead>
-              <TableHead>Snippet</TableHead>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.map((result) => (
-              <TableRow key={result.fullPath}>
-                <TableCell>{result.name}</TableCell>
-                <TableCell className="text-xs">{result.fullPath}</TableCell>
-                <TableCell>
-                  <Badge variant={result.threatScore > 5 ? 'destructive' : 'default'}>
-                    {result.threatScore}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-xs">{(result.sizeBytes / 1024).toFixed(1)} KB</TableCell>
-                <TableCell className="text-xs">
-                  {result.hasImage && result.imageAnalysis ? (
-                    <div>
-                      <p>OCR: {result.imageAnalysis.ocrText?.substring(0, 50)}...</p>
-                      <p>Alt: {result.imageAnalysis.altText || 'N/A'}</p>
-                      <p>Score: {result.imageAnalysis.score}</p>
-                    </div>
-                  ) : (
-                    'N/A'
-                  )}
-                </TableCell>
-                <TableCell className="text-xs font-mono">{result.snippet.substring(0, 100)}...</TableCell>
-              </TableRow>
-            ))}
-            {results.length === 0 && <p className="text-center text-slate-500">No results yet. Start a scan!</p>}
-          </TableBody>
-        </Table>
+        <div className="flex-1 overflow-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-50">
+                <th className="text-left p-2">File Name</th>
+                <th className="text-left p-2">Path</th>
+                <th className="text-left p-2">Threat Score (0-10)</th>
+                <th className="text-left p-2">Size</th>
+                <th className="text-left p-2">Image Analysis</th>
+                <th className="text-left p-2">Snippet</th>
+              </tr>
+            </thead>
+            <tbody>
+              {results.map(result => (
+                <tr key={result.fullPath} className="border-t border-slate-100">
+                  <td className="p-2 font-medium">{result.name}</td>
+                  <td className="p-2 text-xs">{result.fullPath}</td>
+                  <td className="p-2">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        result.threatScore > 7 ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'
+                      }`}
+                    >
+                      {result.threatScore}
+                    </span>
+                  </td>
+                  <td className="p-2 text-xs">{(result.sizeBytes / 1024).toFixed(1)} KB</td>
+                  <td className="p-2 text-xs">
+                    {result.hasImage && result.imageAnalysis ? (
+                      <div className="space-y-1">
+                        <p>OCR: {result.imageAnalysis.ocrText?.substring(0, 50) || 'N/A'}</p>
+                        <p>Alt: {result.imageAnalysis.altText || 'N/A'}</p>
+                        <p>Score: {(result.imageAnalysis.score * 100).toFixed(0)}%</p>
+                      </div>
+                    ) : (
+                      'N/A'
+                    )}
+                  </td>
+                  <td className="p-2 text-xs font-mono">
+                    {result.snippet ? `${result.snippet.substring(0, 100)}...` : '—'}
+                  </td>
+                </tr>
+              ))}
+              {results.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center text-slate-500 py-6">
+                    No results yet. Start a scan!
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default LocalScanWidget;

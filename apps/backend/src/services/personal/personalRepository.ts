@@ -104,8 +104,6 @@ export const PersonalEntityRepository = {
     };
   },
 
-  async findByUserAndType(userId: string, types: string): Promise<PersonalEntity | null>;
-  async findByUserAndType(userId: string, types: string[]): Promise<PersonalEntity[]>;
   async findByUserAndType(
     userId: string,
     types: string | string[]

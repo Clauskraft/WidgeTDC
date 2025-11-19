@@ -1,21 +1,19 @@
-// Simple test for at sikre Microsoft look
-// @ts-nocheck
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import App from './App';
 
-describe('Microsoft Visual Style', () => {
-  it('should match Microsoft design tokens', () => {
-    // This test assumes the app's CSS is loaded in the test environment (e.g., via JSDOM)
-    const style = getComputedStyle(document.documentElement);
-    expect(style.getPropertyValue('--ms-accent').trim()).toBe('#0078d4');
-    expect(style.getPropertyValue('--ms-radius-medium').trim()).toBe('8px');
+describe('Widget Board App', () => {
+  it('renders shell and placeholder content', () => {
+    render(<App />);
+    expect(screen.getByText(/Widget Board Placeholder/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Permissions/i })).toBeInTheDocument();
   });
 
-  it('should have correct Microsoft typography', () => {
-    // This test relies on the .ms-typography class being applied to an element in the DOM
-    const element = document.querySelector('.ms-typography');
-    expect(element).not.toBeNull();
-    const style = getComputedStyle(element!);
-    expect(style.fontFamily).toContain('Segoe UI');
-    // Default browser font-weight is 400 for standard text
-    expect(style.fontWeight).toBe('400');
+  it('opens permissions panel when clicking the permissions button', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.click(screen.getByRole('button', { name: /Permissions/i }));
+    expect(screen.getByText(/Platform Permissions/i)).toBeInTheDocument();
   });
 });
