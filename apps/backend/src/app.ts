@@ -18,6 +18,9 @@ import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
 import { scRouter } from './services/sc/scController.js';
+import { securityRouter } from './services/security/securityController.js';
+import { agentRouter } from './services/agent/agentController.js';
+import sysRouter from './routes/sys.js';
 
 // Remove toolsRegistered flag; use per-tool registration checks
 
@@ -60,7 +63,19 @@ export function createApp() {
   app.use('/api/srag', sragRouter);
   app.use('/api/evolution', evolutionRouter);
   app.use('/api/pal', palRouter);
+  app.use('/api/security', securityRouter);
+  app.use('/api/agent', agentRouter);
   app.use('/api/commands/sc', scRouter);
+  app.use('/api/sys', sysRouter);
+
+  // Health check
+  app.get('/health', (req, res) => {
+    res.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      registeredTools: mcpRegistry.getRegisteredTools(),
+    });
+  });
 
   return app;
 }
