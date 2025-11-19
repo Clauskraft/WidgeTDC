@@ -1,8 +1,8 @@
 // MCP API Gateway - Integrated from template
 import express from 'express';
 import { WebSocketServer } from 'ws';
-import jwt from 'jsonwebtoken';  // For auth
-import { mcpRouter } from '../mcpRouter';  // MCP router
+import jwt from 'jsonwebtoken';
+import { mcpRouter } from '../mcpRouter.js';
 
 const app = express();
 const server = app.listen(3001);
