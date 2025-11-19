@@ -87,7 +87,7 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
 
     // Simulate finding issues based on common patterns
     const findings: Finding[] = [];
-    const lines = fileContent.split('\n');
+    const lines = _fileContent.split('\n');
 
     // Mock security checks
     lines.forEach((line, index) => {

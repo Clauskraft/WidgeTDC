@@ -46,16 +46,33 @@ export function getSecurityTemplates(): SecuritySearchTemplate[] {
   const rows = db
     .prepare<[], RawTemplateRow>('SELECT * FROM security_search_templates ORDER BY created_at DESC')
     .all();
-  return rows.map(row => ({
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    query: row.query,
-    severity: row.severity as SecuritySearchTemplate['severity'],
-    timeframe: row.timeframe,
-    sources: JSON.parse(row.sources) as string[],
-    createdAt: row.created_at,
-  }));
+  return rows.map(row => {
+    try {
+      return {
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        query: row.query,
+        severity: row.severity as SecuritySearchTemplate['severity'],
+        timeframe: row.timeframe,
+        sources: JSON.parse(row.sources) as string[],
+        createdAt: row.created_at,
+      };
+    } catch (error) {
+      // Fallback to empty array if JSON parse fails
+      console.error('Error parsing sources JSON:', error);
+      return {
+        id: row.id,
+        name: row.name,
+        description: row.description,
+        query: row.query,
+        severity: row.severity as SecuritySearchTemplate['severity'],
+        timeframe: row.timeframe,
+        sources: [],
+        createdAt: row.created_at,
+      };
+    }
+  });
 }
 
 export function recordSearchHistory(entry: Omit<SearchHistoryEntry, 'ranAt'> & { ranAt?: string }): SearchHistoryEntry {
@@ -92,16 +109,33 @@ export function getSearchHistory(limit = 6): SearchHistoryEntry[] {
     `)
     .all(limit);
 
-  return rows.map(row => ({
-    id: row.id,
-    query: row.query,
-    severity: row.severity,
-    timeframe: row.timeframe,
-    sources: JSON.parse(row.sources) as string[],
-    results: row.results_count,
-    latencyMs: row.latency_ms,
-    ranAt: row.created_at,
-  }));
+  return rows.map(row => {
+    try {
+      return {
+        id: row.id,
+        query: row.query,
+        severity: row.severity,
+        timeframe: row.timeframe,
+        sources: JSON.parse(row.sources) as string[],
+        results: row.results_count,
+        latencyMs: row.latency_ms,
+        ranAt: row.created_at,
+      };
+    } catch (error) {
+      // Fallback to empty array if JSON parse fails
+      console.error('Error parsing sources JSON:', error);
+      return {
+        id: row.id,
+        query: row.query,
+        severity: row.severity,
+        timeframe: row.timeframe,
+        sources: [],
+        results: row.results_count,
+        latencyMs: row.latency_ms,
+        ranAt: row.created_at,
+      };
+    }
+  });
 }
 
 export function persistActivityEvent(event: SecurityActivityEvent): void {
@@ -160,19 +194,30 @@ export function listActivityEvents(filter: ActivityFilter = {}): SecurityActivit
     `)
     .all(...params, limit);
 
-  return rows.map(row => ({
-    id: row.id,
-    title: row.title,
-    description: row.description,
-    category: row.category as SecurityActivityEvent['category'],
-    severity: row.severity as SecurityActivityEvent['severity'],
-    source: row.source,
-    rule: row.rule ?? undefined,
-    channel: row.channel as SecurityActivityEvent['channel'],
-    payload: row.payload ? (JSON.parse(row.payload) as Record<string, unknown>) : undefined,
-    createdAt: row.created_at,
-    acknowledged: Boolean(row.acknowledged),
-  }));
+  return rows.map(row => {
+    let payload: Record<string, unknown> | undefined = undefined;
+    if (row.payload) {
+      try {
+        payload = JSON.parse(row.payload) as Record<string, unknown>;
+      } catch (error) {
+        console.error('Error parsing payload JSON:', error);
+        payload = undefined;
+      }
+    }
+    return {
+      id: row.id,
+      title: row.title,
+      description: row.description,
+      category: row.category as SecurityActivityEvent['category'],
+      severity: row.severity as SecurityActivityEvent['severity'],
+      source: row.source,
+      rule: row.rule ?? undefined,
+      channel: row.channel as SecurityActivityEvent['channel'],
+      payload,
+      createdAt: row.created_at,
+      acknowledged: Boolean(row.acknowledged),
+    };
+  });
 }
 
 export function setActivityAcknowledged(id: string, acknowledged: boolean): SecurityActivityEvent | null {
@@ -192,6 +237,15 @@ export function setActivityAcknowledged(id: string, acknowledged: boolean): Secu
     return null;
   }
 
+  let payload: Record<string, unknown> | undefined = undefined;
+  if (row.payload) {
+    try {
+      payload = JSON.parse(row.payload) as Record<string, unknown>;
+    } catch (error) {
+      console.error('Error parsing payload JSON:', error);
+      payload = undefined;
+    }
+  }
   return {
     id: row.id,
     title: row.title,
@@ -201,7 +255,7 @@ export function setActivityAcknowledged(id: string, acknowledged: boolean): Secu
     source: row.source,
     rule: row.rule ?? undefined,
     channel: row.channel as SecurityActivityEvent['channel'],
-    payload: row.payload ? (JSON.parse(row.payload) as Record<string, unknown>) : undefined,
+    payload,
     createdAt: row.created_at,
     acknowledged: Boolean(row.acknowledged),
   };
