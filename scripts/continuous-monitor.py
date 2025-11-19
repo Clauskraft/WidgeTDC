@@ -92,6 +92,8 @@ class AgentMonitor:
             script_success = self.run_monitor()
             direct_check = self.check_agent_state_directly()
             
+            if not script_success:
+                self.log("WARNING: Monitor script failed - check logs and agent status")
             if not direct_check:
                 self.log("WARNING: Some agents may be idle - consider manual intervention")
             
