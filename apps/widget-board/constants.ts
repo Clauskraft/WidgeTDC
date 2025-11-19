@@ -2,6 +2,7 @@ import AgentChatWidget from './widgets/AgentChatWidget';
 import PromptLibraryWidget from './widgets/PromptLibraryWidget';
 import PerformanceMonitorWidget from './widgets/PerformanceMonitorWidget';
 import SystemMonitorWidget from './widgets/SystemMonitorWidget';
+import NexusTerminalWidget from './widgets/NexusTerminalWidget';
 import SystemSettingsWidget from './widgets/SystemSettingsWidget';
 import AgentBuilderWidget from './widgets/AgentBuilderWidget';
 import LiveConversationWidget from './widgets/LiveConversationWidget';
@@ -145,6 +146,15 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     source: 'proprietary',
     minW: 6,
     minH: 10,
+  },
+  {
+    id: 'NexusTerminalWidget',
+    name: 'NEXUS Terminal',
+    component: NexusTerminalWidget,
+    defaultLayout: { w: 8, h: 8 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 6,
   },
   {
     id: 'SystemSettingsWidget',
