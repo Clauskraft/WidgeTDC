@@ -1,7 +1,7 @@
 #!/bin/bash
 # Setup cron job for 15-minute agent monitoring
 
-CRON_JOB="*/15 * * * * cd /workspace && ./scripts/monitor-agents.sh >> .claude/logs/cron-monitor.log 2>&1"
+CRON_JOB="*/15 * * * * cd \"\${WORKSPACE_DIR:-$(pwd)}\" && ./scripts/monitor-agents.sh >> .claude/logs/cron-monitor.log 2>&1"
 CRON_FILE="/tmp/widgettdc-cron"
 
 # Create the cron job entry
