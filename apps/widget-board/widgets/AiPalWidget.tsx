@@ -87,10 +87,10 @@ const AiPalWidget: React.FC = () => {
 
   const getActionIcon = (actionType: string) => {
     switch (actionType) {
-      case 'mute_notifications': return '🔇';
-      case 'isolate_widget_view': return '🎯';
-      case 'show_nudge': return '💡';
-      default: return '📌';
+      case 'mute_notifications': return '';
+      case 'isolate_widget_view': return '';
+      case 'show_nudge': return '';
+      default: return '';
     }
   };
 
@@ -104,7 +104,7 @@ const AiPalWidget: React.FC = () => {
       color: '#ffffff',
     }}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
-        🤖 AI PAL - Your Personal Assistant
+        AI PAL - Your Personal Assistant
       </h2>
 
       {loading ? (
@@ -122,7 +122,7 @@ const AiPalWidget: React.FC = () => {
               borderRadius: '8px',
             }}>
               <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '5px' }}>
-                🎯 Focus Time Active
+                Focus Time Active
               </div>
               <div style={{ fontSize: '13px' }}>
                 {getWeekdayName(recommendations.focusWindow.weekday)} {' '}
@@ -214,7 +214,7 @@ const AiPalWidget: React.FC = () => {
                       borderBottom: index < recommendations.reminders.length - 1 ? '1px solid #444' : 'none',
                     }}
                   >
-                    💡 {reminder}
+                    {reminder}
                   </div>
                 ))}
               </div>

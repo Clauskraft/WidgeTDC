@@ -1,0 +1,16 @@
+{
+  "cascade_id": "phase-1b",
+  "started_at": "2025-11-18T00:00:00Z",
+  "current_block": 0,
+  "blocks_completed": [],
+  "blocks_in_progress": [],
+  "blocks_failed": [],
+  "cascade_status": "INITIALIZED",
+  "last_block_output": null,
+  "iteration": 极,
+  "last_updated": "2025-11-18T00:00:00Z",
+  "timestamp": "2025-11-18T00:00:00Z",
+  "last_iteration_results": [],
+  "total_tokens_used": 0,
+  "cascade_complete": false
+}

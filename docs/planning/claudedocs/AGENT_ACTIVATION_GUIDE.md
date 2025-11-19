@@ -240,6 +240,7 @@ Need immediate attention - 1h response SLA"
 ## 🔄 WEEK1 ACTIVATION PLAN
 
 ### Monday: Project Kickoff
+
 ```
 1. @Cursor activate as lead
 2. Review project with HansPedder2
@@ -248,6 +249,7 @@ Need immediate attention - 1h response SLA"
 ```
 
 ### Tuesday-Wednesday: Team Onboarding
+
 ```
 1. @DataEngineer onboard
 2. @MLEngineer onboard
@@ -257,6 +259,7 @@ Need immediate attention - 1h response SLA"
 ```
 
 ### Thursday: Sprint Planning
+
 ```
 1. @Cursor coordinates sprint planning
 2. Team breaks down EPIC 2, 3, 4 tasks
@@ -266,6 +269,7 @@ Need immediate attention - 1h response SLA"
 ```
 
 ### Friday: Sprint Start
+
 ```
 1. First daily standup
 2. Work begins on Sprint 1
@@ -307,6 +311,7 @@ Need immediate attention - 1h response SLA"
 ## 🆘 TROUBLESHOOTING
 
 ### Agent Not Responding Clearly?
+
 ```
 Provide more context in prompt:
 - Reference specific docs
@@ -316,6 +321,7 @@ Provide more context in prompt:
 ```
 
 ### Blockers Not Being Tracked?
+
 ```
 Ensure agent has updated:
 - claudedocs/BLOCKERS_LOG.md
@@ -325,6 +331,7 @@ Ensure agent has updated:
 ```
 
 ### Communication Breaking Down?
+
 ```
 Re-establish protocol:
 1. Reference communication protocol in agent config

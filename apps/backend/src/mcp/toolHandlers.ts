@@ -10,7 +10,8 @@ const evolutionRepo = new EvolutionRepository();
 const palRepo = new PalRepository();
 
 // CMA tool handlers
-export async function cmaContextHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function cmaContextHandler(payload: any, _ctx: McpContext): Promise<any> {
+  const ctx = _ctx;
   const memories = memoryRepo.searchEntities({
     orgId: ctx.orgId,
     userId: ctx.userId,
@@ -45,7 +46,8 @@ Please provide a response considering the above context.
   };
 }
 
-export async function cmaIngestHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function cmaIngestHandler(payload: any, _ctx: McpContext): Promise<any> {
+  const ctx = _ctx;
   const entityId = memoryRepo.ingestEntity({
     orgId: ctx.orgId,
     userId: ctx.userId,
@@ -139,7 +141,7 @@ export async function palEventHandler(payload: any, ctx: McpContext): Promise<an
 
 export async function palBoardActionHandler(payload: any, ctx: McpContext): Promise<any> {
   // Get recommendations
-  const profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
+  let profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
   if (!profile) {
     palRepo.createUserProfile(ctx.userId, ctx.orgId);
   }

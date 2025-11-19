@@ -175,7 +175,10 @@ const ProcurementIntelligenceWidget: React.FC<{ widgetId: string }> = () => {
               0
             );
             return (
-              <div key={region} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900/40">
+              <div
+                key={region}
+                className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900/40"
+              >
                 <p className="text-sm font-semibold">{region}</p>
                 <p className="text-2xl font-bold">€{regionBudget.toFixed(1)}M</p>
                 <p className="text-xs text-gray-500">Aggregeret værdi</p>
@@ -186,12 +189,16 @@ const ProcurementIntelligenceWidget: React.FC<{ widgetId: string }> = () => {
 
         <section className="space-y-3">
           {filteredOpportunities.map(opp => (
-            <div key={opp.id} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900/60">
+            <div
+              key={opp.id}
+              className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 bg-white dark:bg-gray-900/60"
+            >
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold">{opp.title}</p>
                   <p className="text-xs text-gray-500">
-                    {opp.portal} • {opp.region} • Deadline {new Date(opp.deadline).toLocaleDateString()}
+                    {opp.portal} • {opp.region} • Deadline{' '}
+                    {new Date(opp.deadline).toLocaleDateString()}
                   </p>
                 </div>
                 <span
@@ -211,9 +218,15 @@ const ProcurementIntelligenceWidget: React.FC<{ widgetId: string }> = () => {
                 <span>Bid lead: {opp.owner}</span>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button variant="primary" size="small">Åbn tidslinje</Button>
-                <Button variant="subtle" size="small">Del compliance checklist</Button>
-                <Button variant="subtle" size="small">Forbered dokumentpakke</Button>
+                <Button variant="primary" size="small">
+                  Åbn tidslinje
+                </Button>
+                <Button variant="subtle" size="small">
+                  Del compliance checklist
+                </Button>
+                <Button variant="subtle" size="small">
+                  Forbered dokumentpakke
+                </Button>
               </div>
             </div>
           ))}

@@ -125,7 +125,7 @@ function validateSecurity(config: Partial<EnvConfig>, errors: string[]): void {
     
     // CSP should be enabled in production
     if (!config.ENABLE_CSP) {
-      console.warn('⚠️  Content Security Policy is disabled in production');
+      console.warn('Content Security Policy is disabled in production');
     }
     
     // Debug mode should be disabled in production
@@ -269,7 +269,7 @@ export function loadEnvConfig(): EnvConfig {
       throw new ValidationError(errors);
     } else {
       // In development, just warn
-      console.warn('⚠️  Environment validation warnings:');
+      console.warn('Environment validation warnings:');
       errors.forEach(error => console.warn(`   - ${error}`));
     }
   }

@@ -3,34 +3,38 @@
 Agent Executor - Real LLM-based agent execution for WidgetTDC Cascade
 Integrates with Anthropic Claude API for real autonomous agent execution
 ENHANCED: Comprehensive error handling for all error scenarios
+FIXED: Encoding issues, model name, state parsing
 """
-
 import os
 import json
 import time
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+
+# Fix Windows encoding issue
+sys.stdout.reconfigure(encoding='utf-8')
 
 try:
     from anthropic import Anthropic
 except ImportError:
     print("Error: anthropic package not found")
-    print("Install with: pip install -r requirements.txt")
+    print("Install with: pip install anthropic")
     exit(1)
 
 
 class AgentExecutor:
     """Executes agent blocks with real Claude API integration and error handling"""
 
-    def __init__(self, model: str = "claude-opus-4-1"):
+    def __init__(self, model: str = "claude-3-5-sonnet-20241022"):
         """Initialize agent executor with LLM client"""
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY environment variable not set")
 
         self.client = Anthropic(api_key=api_key)
-        self.model = model
+        self.model = model  # Fixed to valid model
         self.state_file = Path(".claude/agent-cascade-state.json")
         self.agent_state_file = Path(".claude/agent-state.json")
         self.agents_dir = Path("agents")
@@ -46,7 +50,7 @@ class AgentExecutor:
         prompt_file = self.agents_dir / f"{agent_id}.md"
 
         if prompt_file.exists():
-            return prompt_file.read_text()
+            return prompt_file.read_text(encoding='utf-8')
 
         print(f"[WARN] Prompt file not found for agent {agent_id}: {prompt_file}")
         return None
@@ -165,12 +169,16 @@ class AgentExecutor:
         }
 
     def update_agent_state(self, agent_result: Dict[str, Any], workload: int = 0):
-        """Update runtime agent state tracking"""
+        """Update runtime agent state tracking with improved error handling"""
         try:
             # Load existing state
             state = {}
             if self.agent_state_file.exists():
-                state = json.loads(self.agent_state_file.read_text())
+                try:
+                    state = json.loads(self.agent_state_file.read_text(encoding='utf-8'))
+                except json.JSONDecodeError as e:
+                    print(f"[WARN] Invalid JSON in agent state: {e}. Starting fresh.")
+                    state = {}
 
             # Initialize runtime_agents if needed
             if "runtime_agents" not in state:
@@ -207,7 +215,7 @@ class AgentExecutor:
                 }
 
             # Save state
-            self.agent_state_file.write_text(json.dumps(state, indent=2))
+            self.agent_state_file.write_text(json.dumps(state, indent=2, ensure_ascii=False), encoding='utf-8')
 
         except Exception as e:
             print(f"[WARN] Could not update agent state: {str(e)}")
@@ -244,3 +252,46 @@ class AgentExecutor:
             "all_complete": all_complete,
             "timestamp": datetime.now().isoformat()
         }
+
+
+def main():
+    """Main entry point for testing"""
+    import sys
+
+    # Check API key
+    if not os.getenv("ANTHROPIC_API_KEY"):
+        print("Error: ANTHROPIC_API_KEY environment variable not set")
+        print("Please set: export ANTHROPIC_API_KEY='sk-...'")
+        sys.exit(1)
+
+    executor = AgentExecutor()
+
+    # Load registry
+    import yaml
+    with open("agents/registry.yml", 'r', encoding='utf-8') as f:
+        registry = yaml.safe_load(f)
+
+    agents = sorted(registry.get('agents', []), key=lambda a: a.get('block_number', 999))
+
+    print(f"Loaded {len(agents)} agents")
+    print("Starting real agent execution...\n")
+
+    # Execute iterations
+    max_iterations = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+
+    for iteration in range(max_iterations):
+        print(f"\n{'='*70}")
+        print(f"ITERATION {iteration + 1}/{max_iterations}")
+        print(f"{'='*70}\n")
+
+        result = executor.execute_cascade_iteration(agents)
+
+        if result.get('all_complete'):
+            print(f"\nAll {len(agents)} agents completed successfully!")
+            break
+
+    print("\nAgent execution complete!")
+
+
+if __name__ == "__main__":
+    main()

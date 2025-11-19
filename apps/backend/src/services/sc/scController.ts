@@ -12,6 +12,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (_req, file, cb) => {
+    // Accept code files and documents
     const allowedExtensions = ['.js', '.ts', '.tsx', '.jsx', '.py', '.java', '.cs', '.go', '.md', '.txt', '.pdf', '.docx'];
     const ext = path.extname(file.originalname).toLowerCase();
 
@@ -21,6 +22,7 @@ const upload = multer({
       cb(new Error('Invalid file type. Allowed: ' + allowedExtensions.join(', ')));
     }
   },
+  }
 });
 
 interface Finding {
@@ -61,17 +63,20 @@ interface ReviewResult {
   overallScore: number;
 }
 
+// Code Analysis Endpoint
 router.post('/analyze', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
         error: 'No file uploaded',
         message: 'Please upload a code file for analysis',
+        message: 'Please upload a code file for analysis'
       });
     }
 
     const file = req.file;
     const fileContent = file.buffer.toString('utf-8');
+    const _fileContent = file.buffer.toString('utf-8');
     const fileName = file.originalname;
 
     console.log('Code analysis requested:', {
@@ -83,6 +88,17 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
     const findings: Finding[] = [];
     const lines = fileContent.split('\n');
 
+      mimeType: file.mimetype
+    });
+
+    // TODO: Integrate with actual code analysis service (e.g., ESLint, SonarQube, custom security scanner)
+    // For now, return mock analysis results
+
+    // Simulate finding issues based on common patterns
+    const findings: Finding[] = [];
+    const lines = fileContent.split('\n');
+
+    // Mock security checks
     lines.forEach((line, index) => {
       if (line.includes('eval(') || line.includes('innerHTML')) {
         findings.push({
@@ -92,6 +108,7 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
           category: 'Security - XSS',
           description: 'Potential XSS vulnerability detected',
           remediation: 'Use secure alternatives like textContent or sanitize user input',
+          remediation: 'Use secure alternatives like textContent or sanitize user input'
         });
       }
 
@@ -103,6 +120,7 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
           category: 'Security - SQL Injection',
           description: 'Potential SQL injection vulnerability',
           remediation: 'Use parameterized queries or prepared statements',
+          remediation: 'Use parameterized queries or prepared statements'
         });
       }
 
@@ -114,6 +132,7 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
           category: 'Code Quality',
           description: 'Console.log statement found',
           remediation: 'Remove console.log or replace with proper logging',
+          remediation: 'Remove console.log or replace with proper logging'
         });
       }
 
@@ -129,6 +148,12 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
       }
     });
 
+          remediation: 'Use specific types instead of any'
+        });
+      }
+    });
+
+    // Calculate summary
     const summary = {
       criticalIssues: findings.filter(f => f.severity === 'critical').length,
       highIssues: findings.filter(f => f.severity === 'high').length,
@@ -143,12 +168,25 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
       summary.mediumIssues * 5 +
       summary.lowIssues * 2;
 
+      totalFiles: 1
+    };
+
+    // Calculate overall score (0-100)
+    // Calculate total issues for logging
+    // const totalIssues = summary.criticalIssues + summary.highIssues + summary.mediumIssues + summary.lowIssues;
+    const weightedScore =
+      (summary.criticalIssues * 20) +
+      (summary.highIssues * 10) +
+      (summary.mediumIssues * 5) +
+      (summary.lowIssues * 2);
     const overallScore = Math.max(0, Math.min(100, 100 - weightedScore));
 
     const result: AnalysisResult = {
       summary,
       findings: findings.slice(0, 20),
       overallScore,
+      findings: findings.slice(0, 20), // Limit to 20 findings
+      overallScore
     };
 
     res.json(result);
@@ -161,12 +199,19 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
   }
 });
 
+      message: error instanceof Error ? error.message : 'Unknown error occurred'
+    });
+  }
+});
+
+// Spec Panel Multi-Expert Review Endpoint
 router.post('/spec-panel', upload.single('file'), async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
         error: 'No file uploaded',
         message: 'Please upload a specification document for review',
+        message: 'Please upload a specification document for review'
       });
     }
 
@@ -178,6 +223,16 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
     try {
       selectedPersonas = req.body.personas ? JSON.parse(req.body.personas) : ['architecture', 'security'];
     } catch (_error) {
+    const _fileContent = file.buffer.toString('utf-8');
+    const fileName = file.originalname;
+
+    // Parse personas from request
+    let selectedPersonas: string[] = [];
+    try {
+      selectedPersonas = req.body.personas
+        ? JSON.parse(req.body.personas)
+        : ['architecture', 'security'];
+    } catch (e) {
       selectedPersonas = ['architecture', 'security'];
     }
 
@@ -187,12 +242,19 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
       personas: selectedPersonas,
     });
 
+      personas: selectedPersonas
+    });
+
+    // TODO: Integrate with actual multi-expert review system (e.g., CGentCore business panel)
+    // For now, return mock expert feedback
+
     const personaFeedbackMap: Record<string, PersonaFeedback> = {
       architecture: {
         persona: 'architecture',
         role: 'Architecture Expert',
         feedback:
           'Systemdesignet viser god separation of concerns. Dog mangler der detaljer omkring skalering og fejlhåndtering ved høj belastning.',
+        feedback: 'Systemdesignet viser god separation of concerns. Dog mangler der detaljer omkring skalering og fejlhåndtering ved høj belastning.',
         confidence: 0.82,
         recommendations: [
           'Implementér circuit breaker pattern til eksterne API-kald',
@@ -203,23 +265,33 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
           'Manglende beskrivelse af disaster recovery strategi',
           'Uklart hvordan microservices kommunikerer ved netværksfejl',
         ],
+          'Tilføj caching-lag for at reducere database-belastning'
+        ],
+        concerns: [
+          'Manglende beskrivelse af disaster recovery strategi',
+          'Uklart hvordan microservices kommunikerer ved netværksfejl'
+        ]
       },
       security: {
         persona: 'security',
         role: 'Security Expert',
         feedback:
           'Sikkerhedsaspekterne er overordnet acceptable, men der mangler konkrete detaljer om authentication og authorization flow.',
+        feedback: 'Sikkerhedsaspekterne er overordnet acceptable, men der mangler konkrete detaljer om authentication og authorization flow.',
         confidence: 0.75,
         recommendations: [
           'Implementér OAuth 2.0 med PKCE for frontend authentication',
           'Brug JWT med kort levetid og refresh tokens',
           'Tilføj rate limiting på alle API endpoints',
+          'Tilføj rate limiting på alle API endpoints'
         ],
         concerns: [
           'Ingen beskrivelse af encryption at rest',
           'Manglende detaljer om GDPR compliance',
           'Uklart hvordan sensitiv data håndteres i logs',
         ],
+          'Uklart hvordan sensitiv data håndteres i logs'
+        ]
       },
       backend: {
         persona: 'backend',
@@ -232,6 +304,12 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
           'Tilføj API versioning fra start',
         ],
         concerns: ['Manglende beskrivelse af database indexing strategi', 'Uklart hvordan N+1 query problemet undgås'],
+          'Tilføj API versioning fra start'
+        ],
+        concerns: [
+          'Manglende beskrivelse af database indexing strategi',
+          'Uklart hvordan N+1 query problemet undgås'
+        ]
       },
       frontend: {
         persona: 'frontend',
@@ -242,6 +320,7 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
           'Implementér WCAG 2.1 Level AA standarder',
           'Brug progressive enhancement for bedre compatibility',
           'Tilføj offline-first capabilities med service workers',
+          'Tilføj offline-first capabilities med service workers'
         ],
         concerns: [
           'Ingen beskrivelse af keyboard navigation',
@@ -251,6 +330,12 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
       },
     };
 
+          'Uklart hvordan fejl præsenteres for brugeren'
+        ]
+      }
+    };
+
+    // Build response based on selected personas
     const personas: PersonaFeedback[] = selectedPersonas
       .filter(p => personaFeedbackMap[p])
       .map(p => personaFeedbackMap[p]);
@@ -259,6 +344,15 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
       'Systemet har et solidt fundament med god separation of concerns',
       'Der er behov for mere detaljering omkring fejlhåndtering og resiliens',
       'Sikkerhed og performance skal prioriteres højere i implementeringsfasen',
+    // Find consensus and disagreements
+    // Collect all recommendations and concerns for potential aggregation
+    // const allRecommendations = personas.flatMap(p => p.recommendations);
+    // const allConcerns = personas.flatMap(p => p.concerns);
+
+    const consensus = [
+      'Systemet har et solidt fundament med god separation of concerns',
+      'Der er behov for mere detaljering omkring fejlhåndtering og resiliens',
+      'Sikkerhed og performance skal prioriteres højere i implementeringsfasen'
     ];
 
     const disagreements = [
@@ -267,6 +361,10 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
       'Trade-off mellem kompleksitet og fleksibilitet i arkitekturen',
     ];
 
+      'Trade-off mellem kompleksitet og fleksibilitet i arkitekturen'
+    ];
+
+    // Calculate overall score based on confidence
     const avgConfidence = personas.reduce((sum, p) => sum + p.confidence, 0) / personas.length;
     const overallScore = Math.round(avgConfidence * 100);
 
@@ -279,6 +377,11 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
       disagreements,
       personas,
       overallScore,
+      summary: `${personas.length} eksperter har gennemgået specifikationen. Overordnet vurdering: God struktur med behov for flere tekniske detaljer.`,
+      consensus,
+      disagreements,
+      personas,
+      overallScore
     };
 
     res.json(result);
@@ -291,12 +394,19 @@ router.post('/spec-panel', upload.single('file'), async (req: Request, res: Resp
   }
 });
 
+      message: error instanceof Error ? error.message : 'Unknown error occurred'
+    });
+  }
+});
+
+// Health check endpoint
 router.get('/health', (_req: Request, res: Response) => {
   res.json({
     status: 'ok',
     service: 'sc',
     endpoints: ['/analyze', '/spec-panel'],
     timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   });
 });
 

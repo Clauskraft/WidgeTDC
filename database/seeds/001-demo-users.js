@@ -1,5 +1,5 @@
 module.exports = {
-  up: async (queryInterface) => {
+  up: async queryInterface => {
     await queryInterface.bulkInsert('users', [
       {
         id: '550e8400-e29b-41d4-a716-446655440000',
@@ -9,7 +9,7 @@ module.exports = {
         role: 'admin',
         is_verified: true,
         created_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       },
       {
         id: '550e8400-e29b-41d4-a716-446655440001',
@@ -19,11 +19,11 @@ module.exports = {
         role: 'developer',
         is_verified: true,
         created_at: new Date(),
-        updated_at: new Date()
-      }
+        updated_at: new Date(),
+      },
     ]);
   },
-  down: async (queryInterface) => {
+  down: async queryInterface => {
     await queryInterface.bulkDelete('users', null, {});
-  }
+  },
 };

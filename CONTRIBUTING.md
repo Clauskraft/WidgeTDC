@@ -6,6 +6,10 @@ Thank you for your interest in contributing to WidgetBoard! This document provid
 
 We are committed to providing a welcoming and inclusive environment. Please be respectful and professional in all interactions.
 
+## Code Style Guidelines
+
+**EMOJIS ARE STRICTLY FORBIDDEN** in all code, comments, documentation, and commit messages. Never use emojis anywhere in the codebase.
+
 ## Getting Started
 
 ### Prerequisites
@@ -370,4 +374,4 @@ Contributors will be recognized in:
 - Release notes
 - GitHub contributors page
 
-Thank you for contributing to WidgetBoard! 🎉
+Thank you for contributing to WidgetBoard!
