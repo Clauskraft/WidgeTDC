@@ -34,18 +34,15 @@ WidgeTDC/
 **Purpose**: Enhance decision-making with hyper-contextual memory
 
 **Database Tables**:
-
 - `memory_entities`: Stores decisions, preferences, KPIs
 - `memory_relations`: Links between memory entities
 - `memory_tags`: Tags for quick search
 
 **MCP Tools**:
-
 - `cma.context`: Get contextual prompt with relevant memories
 - `cma.ingest`: Store new memory entity
 
 **API Endpoints**:
-
 - `POST /api/memory/ingest`: Store memory
 - `POST /api/memory/contextual-prompt`: Get contextual prompt
 - `POST /api/memory/search`: Search memories
@@ -55,22 +52,18 @@ WidgeTDC/
 **Purpose**: Convert unstructured data to relational structures and route queries
 
 **Database Tables**:
-
 - `raw_documents`: Original unstructured documents
 - `structured_facts`: Normalized relational facts
 
 **MCP Tools**:
-
 - `srag.query`: Query data (analytical or semantic)
 
 **API Endpoints**:
-
 - `POST /api/srag/query`: Execute natural language query
 - `POST /api/srag/ingest/document`: Ingest raw document
 - `POST /api/srag/ingest/fact`: Ingest structured fact
 
 **Query Types**:
-
 - **Analytical**: SQL-based queries against structured_facts
 - **Semantic**: Vector/LLM-based search on raw_documents
 
@@ -79,24 +72,20 @@ WidgeTDC/
 **Purpose**: Monitor agent outputs and auto-adjust prompts based on KPIs
 
 **Database Tables**:
-
 - `agent_prompts`: Versioned prompts for agents
 - `agent_runs`: Historical agent execution records
 
 **MCP Tools**:
-
 - `evolution.report-run`: Report agent execution results
 - `evolution.get-prompt`: Get latest prompt version
 
 **API Endpoints**:
-
 - `POST /api/evolution/report-run`: Report agent run with KPI
 - `GET /api/evolution/prompt/:agentId`: Get latest prompt
 - `POST /api/evolution/prompt`: Create new prompt version
 - `GET /api/evolution/runs/:agentId`: Get run history
 
 **Evolution Logic**:
-
 - Tracks average KPI delta over last N runs
 - Triggers refinement when performance drops below threshold
 - Automatically versions prompts
@@ -106,13 +95,11 @@ WidgeTDC/
 **Purpose**: Unified communication layer for widgets and agents
 
 **Components**:
-
 - `mcpRegistry`: Tool registration and routing
 - `mcpRouter`: HTTP API for MCP messages
 - `mcpWebsocketServer`: Real-time WebSocket communication
 
 **MCP Message Format**:
-
 ```typescript
 interface MCPMessage {
   id: string;
@@ -126,7 +113,6 @@ interface MCPMessage {
 ```
 
 **API Endpoints**:
-
 - `POST /api/mcp/route`: Route MCP message
 - `GET /api/mcp/tools`: List available tools
 - `WS /mcp/ws`: WebSocket for real-time messages
@@ -136,18 +122,15 @@ interface MCPMessage {
 **Purpose**: Learn user patterns and optimize workflow proactively
 
 **Database Tables**:
-
 - `pal_user_profiles`: User preferences
 - `pal_focus_windows`: Scheduled focus times
 - `pal_events`: User activity events
 
 **MCP Tools**:
-
 - `pal.event`: Record user event
 - `pal.board-action`: Get board adjustment recommendations
 
 **API Endpoints**:
-
 - `POST /api/pal/event`: Record event
 - `GET /api/pal/recommendations`: Get personalized recommendations
 - `GET /api/pal/profile`: Get user profile
@@ -155,7 +138,6 @@ interface MCPMessage {
 - `POST /api/pal/focus-window`: Add focus window
 
 **Recommendations**:
-
 - Mute notifications during high stress
 - Isolate widgets during focus windows
 - Contextual reminders based on patterns
@@ -165,7 +147,6 @@ interface MCPMessage {
 The system uses SQLite for lightweight data storage. All tables are defined in `apps/backend/src/database/schema.sql`.
 
 ### Key Design Decisions:
-
 - SQLite for simplicity and portability
 - JSON payloads in `structured_facts` for flexibility
 - Indexed columns for performance (org_id, user_id, tags)
@@ -173,7 +154,6 @@ The system uses SQLite for lightweight data storage. All tables are defined in `
 ## Getting Started
 
 ### Prerequisites
-
 - Node.js 18+
 - npm 9+
 
@@ -220,13 +200,11 @@ node dist/database/seeds.js
 ## API Documentation
 
 ### Health Check
-
 ```bash
 GET http://localhost:3001/health
 ```
 
 ### Example: Store Memory
-
 ```bash
 POST http://localhost:3001/api/memory/ingest
 Content-Type: application/json
@@ -242,7 +220,6 @@ Content-Type: application/json
 ```
 
 ### Example: Query SRAG
-
 ```bash
 POST http://localhost:3001/api/srag/query
 Content-Type: application/json
@@ -254,7 +231,6 @@ Content-Type: application/json
 ```
 
 ### Example: MCP Message
-
 ```bash
 POST http://localhost:3001/api/mcp/route
 Content-Type: application/json

@@ -27,11 +27,11 @@ const EvolutionAgentWidget: React.FC = () => {
   const loadAgentData = async () => {
     setLoading(true);
     setError('');
-
+    
     try {
       // Load current prompt
       const promptResponse = await fetch(`http://localhost:3001/api/evolution/prompt/${agentId}`);
-
+      
       if (promptResponse.ok) {
         const promptData = await promptResponse.json();
         setCurrentPrompt(promptData.prompt);
@@ -40,10 +40,8 @@ const EvolutionAgentWidget: React.FC = () => {
       }
 
       // Load recent runs
-      const runsResponse = await fetch(
-        `http://localhost:3001/api/evolution/runs/${agentId}?limit=5`
-      );
-
+      const runsResponse = await fetch(`http://localhost:3001/api/evolution/runs/${agentId}?limit=5`);
+      
       if (runsResponse.ok) {
         const runsData = await runsResponse.json();
         setRecentRuns(runsData.runs || []);
@@ -69,25 +67,25 @@ const EvolutionAgentWidget: React.FC = () => {
   const needsRefinement = avgKpi < 0;
 
   return (
-    <div
-      style={{
-        padding: '20px',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#1a1a1a',
-        color: '#ffffff',
-      }}
-    >
+    <div style={{
+      padding: '20px',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#1a1a1a',
+      color: '#ffffff',
+    }}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
         🧬 Evolution & KPI Monitor
       </h2>
 
       <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Agent ID</label>
+        <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
+          Agent ID
+        </label>
         <select
           value={agentId}
-          onChange={e => setAgentId(e.target.value)}
+          onChange={(e) => setAgentId(e.target.value)}
           style={{
             width: '100%',
             padding: '10px',
@@ -106,15 +104,13 @@ const EvolutionAgentWidget: React.FC = () => {
       </div>
 
       {error && (
-        <div
-          style={{
-            padding: '10px',
-            backgroundColor: '#ff3333',
-            borderRadius: '4px',
-            marginBottom: '15px',
-            fontSize: '14px',
-          }}
-        >
+        <div style={{
+          padding: '10px',
+          backgroundColor: '#ff3333',
+          borderRadius: '4px',
+          marginBottom: '15px',
+          fontSize: '14px',
+        }}>
           {error}
         </div>
       )}
@@ -128,55 +124,48 @@ const EvolutionAgentWidget: React.FC = () => {
           {/* Current Prompt */}
           {currentPrompt ? (
             <div style={{ marginBottom: '20px' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  marginBottom: '10px',
-                }}
-              >
-                <h3 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>Current Prompt</h3>
-                <div
-                  style={{
-                    padding: '4px 12px',
-                    backgroundColor: '#3b82f6',
-                    borderRadius: '12px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                  }}
-                >
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '10px',
+              }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
+                  Current Prompt
+                </h3>
+                <div style={{
+                  padding: '4px 12px',
+                  backgroundColor: '#3b82f6',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                }}>
                   v{currentPrompt.version}
                 </div>
               </div>
-              <div
-                style={{
-                  backgroundColor: '#2a2a2a',
-                  borderRadius: '4px',
-                  padding: '12px',
-                  fontSize: '13px',
-                  maxHeight: '120px',
-                  overflowY: 'auto',
-                }}
-              >
+              <div style={{
+                backgroundColor: '#2a2a2a',
+                borderRadius: '4px',
+                padding: '12px',
+                fontSize: '13px',
+                maxHeight: '120px',
+                overflowY: 'auto',
+              }}>
                 {currentPrompt.promptText}
               </div>
               <div style={{ fontSize: '11px', color: '#888', marginTop: '5px' }}>
-                Created by {currentPrompt.createdBy} •{' '}
-                {new Date(currentPrompt.createdAt).toLocaleString()}
+                Created by {currentPrompt.createdBy} • {new Date(currentPrompt.createdAt).toLocaleString()}
               </div>
             </div>
           ) : (
-            <div
-              style={{
-                padding: '15px',
-                backgroundColor: '#2a2a2a',
-                borderRadius: '4px',
-                marginBottom: '20px',
-                color: '#888',
-                fontSize: '14px',
-              }}
-            >
+            <div style={{
+              padding: '15px',
+              backgroundColor: '#2a2a2a',
+              borderRadius: '4px',
+              marginBottom: '20px',
+              color: '#888',
+              fontSize: '14px',
+            }}>
               No prompt found for this agent
             </div>
           )}
@@ -186,43 +175,36 @@ const EvolutionAgentWidget: React.FC = () => {
             <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
               Performance Status
             </h3>
-            <div
-              style={{
-                display: 'flex',
-                gap: '10px',
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  padding: '15px',
-                  backgroundColor: '#2a2a2a',
-                  borderRadius: '4px',
-                }}
-              >
+            <div style={{
+              display: 'flex',
+              gap: '10px',
+            }}>
+              <div style={{
+                flex: 1,
+                padding: '15px',
+                backgroundColor: '#2a2a2a',
+                borderRadius: '4px',
+              }}>
                 <div style={{ fontSize: '12px', color: '#888', marginBottom: '5px' }}>
                   Avg KPI Delta
                 </div>
-                <div
-                  style={{
-                    fontSize: '24px',
-                    fontWeight: '600',
-                    color: avgKpi >= 0 ? '#10b981' : '#ef4444',
-                  }}
-                >
-                  {avgKpi >= 0 ? '+' : ''}
-                  {(avgKpi * 100).toFixed(1)}%
+                <div style={{
+                  fontSize: '24px',
+                  fontWeight: '600',
+                  color: avgKpi >= 0 ? '#10b981' : '#ef4444',
+                }}>
+                  {avgKpi >= 0 ? '+' : ''}{(avgKpi * 100).toFixed(1)}%
                 </div>
               </div>
-              <div
-                style={{
-                  flex: 1,
-                  padding: '15px',
-                  backgroundColor: needsRefinement ? '#dc2626' : '#10b981',
-                  borderRadius: '4px',
-                }}
-              >
-                <div style={{ fontSize: '12px', marginBottom: '5px' }}>Status</div>
+              <div style={{
+                flex: 1,
+                padding: '15px',
+                backgroundColor: needsRefinement ? '#dc2626' : '#10b981',
+                borderRadius: '4px',
+              }}>
+                <div style={{ fontSize: '12px', marginBottom: '5px' }}>
+                  Status
+                </div>
                 <div style={{ fontSize: '16px', fontWeight: '600' }}>
                   {needsRefinement ? '⚠️ Needs Refinement' : '✅ Performing Well'}
                 </div>
@@ -236,29 +218,25 @@ const EvolutionAgentWidget: React.FC = () => {
               Recent Runs ({recentRuns.length})
             </h3>
             {recentRuns.length === 0 ? (
-              <div
-                style={{
-                  padding: '20px',
-                  backgroundColor: '#2a2a2a',
-                  borderRadius: '4px',
-                  color: '#888',
-                  fontSize: '14px',
-                  textAlign: 'center',
-                }}
-              >
+              <div style={{
+                padding: '20px',
+                backgroundColor: '#2a2a2a',
+                borderRadius: '4px',
+                color: '#888',
+                fontSize: '14px',
+                textAlign: 'center',
+              }}>
                 No runs recorded yet
               </div>
             ) : (
-              <div
-                style={{
-                  flex: 1,
-                  backgroundColor: '#2a2a2a',
-                  borderRadius: '4px',
-                  padding: '10px',
-                  overflowY: 'auto',
-                }}
-              >
-                {recentRuns.map(run => (
+              <div style={{
+                flex: 1,
+                backgroundColor: '#2a2a2a',
+                borderRadius: '4px',
+                padding: '10px',
+                overflowY: 'auto',
+              }}>
+                {recentRuns.map((run) => (
                   <div
                     key={run.id}
                     style={{
@@ -269,23 +247,20 @@ const EvolutionAgentWidget: React.FC = () => {
                       borderLeft: `3px solid ${run.kpi_delta >= 0 ? '#10b981' : '#ef4444'}`,
                     }}
                   >
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '5px',
-                      }}
-                    >
-                      <span style={{ fontSize: '13px', fontWeight: '600' }}>{run.kpi_name}</span>
-                      <span
-                        style={{
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          color: run.kpi_delta >= 0 ? '#10b981' : '#ef4444',
-                        }}
-                      >
-                        {run.kpi_delta >= 0 ? '+' : ''}
-                        {(run.kpi_delta * 100).toFixed(1)}%
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '5px',
+                    }}>
+                      <span style={{ fontSize: '13px', fontWeight: '600' }}>
+                        {run.kpi_name}
+                      </span>
+                      <span style={{
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        color: run.kpi_delta >= 0 ? '#10b981' : '#ef4444',
+                      }}>
+                        {run.kpi_delta >= 0 ? '+' : ''}{(run.kpi_delta * 100).toFixed(1)}%
                       </span>
                     </div>
                     <div style={{ fontSize: '11px', color: '#888' }}>

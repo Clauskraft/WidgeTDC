@@ -14,21 +14,9 @@ import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
 import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
 import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
 import StatusWidget from './widgets/StatusWidget';
-import DarkWebMonitorWidget from './widgets/DarkWebMonitorWidget';
-import Phase1CFastTrackKanbanWidget from './widgets/Phase1CFastTrackKanbanWidget';
 import { WidgetDefinition } from './types';
-import KanbanWidget from './widgets/KanbanWidget';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
-  {
-    id: 'Phase1CFastTrackKanban',
-    name: '🚀 Priority 3: Phase 1.C Kanban',
-    component: Phase1CFastTrackKanbanWidget,
-    defaultLayout: { w: 12, h: 12 },
-    source: 'proprietary',
-    minW: 8,
-    minH: 8,
-  },
   {
     id: 'AgentChatWidget',
     name: 'Chat Agent',
@@ -173,14 +161,5 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     minH: 6,
     maxW: 6,
     maxH: 8,
-  },
-  {
-    id: 'DarkWebMonitor',
-    name: '🕵️ Dark Web Monitor',
-    component: DarkWebMonitorWidget,
-    defaultLayout: { w: 12, h: 10 },
-    source: 'proprietary',
-    minW: 8,
-    minH: 8,
   }
 ];

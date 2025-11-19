@@ -9,7 +9,7 @@ const palRepo = new PalRepository();
 palRouter.post('/event', (req, res) => {
   try {
     const event: PalEventInput = req.body;
-
+    
     if (!event.userId || !event.orgId || !event.eventType) {
       return res.status(400).json({
         error: 'Missing required fields: userId, orgId, eventType',
@@ -17,7 +17,7 @@ palRouter.post('/event', (req, res) => {
     }
 
     const eventId = palRepo.recordEvent(event);
-
+    
     res.json({
       success: true,
       eventId,
@@ -35,7 +35,7 @@ palRouter.post('/event', (req, res) => {
 palRouter.get('/recommendations', (req, res) => {
   try {
     const { userId, orgId } = req.query;
-
+    
     if (!userId || !orgId) {
       return res.status(400).json({
         error: 'Missing required query params: userId, orgId',
@@ -52,21 +52,16 @@ palRouter.get('/recommendations', (req, res) => {
 
     // Get focus windows
     const focusWindows = palRepo.getFocusWindows(userId as string, orgId as string);
-
+    
     // Get recent events
     const recentEvents = palRepo.getRecentEvents(userId as string, orgId as string, 10);
-
+    
     // Get stress level distribution
-    const stressDistribution = palRepo.getStressLevelDistribution(
-      userId as string,
-      orgId as string,
-      24
-    );
+    const stressDistribution = palRepo.getStressLevelDistribution(userId as string, orgId as string, 24);
 
     // Simple heuristic: if high stress events in last 24h, suggest muting
-    const highStressCount =
-      stressDistribution.find((d: any) => d.detected_stress_level === 'high')?.count || 0;
-
+    const highStressCount = stressDistribution.find((d: any) => d.detected_stress_level === 'high')?.count || 0;
+    
     const boardAdjustments: PalBoardAction[] = [];
     const reminders: string[] = [];
 
@@ -81,16 +76,17 @@ palRouter.get('/recommendations', (req, res) => {
     const now = new Date();
     const currentWeekday = now.getDay() || 7; // Sunday = 7
     const currentHour = now.getHours();
-
-    const currentFocusWindow = focusWindows.find(
-      (fw: any) =>
-        fw.weekday === currentWeekday && fw.start_hour <= currentHour && fw.end_hour > currentHour
+    
+    const currentFocusWindow = focusWindows.find((fw: any) => 
+      fw.weekday === currentWeekday && 
+      fw.start_hour <= currentHour && 
+      fw.end_hour > currentHour
     );
 
     if (currentFocusWindow) {
       boardAdjustments.push({
         actionType: 'isolate_widget_view',
-        message: "You're in a focus window. Showing only essential widgets.",
+        message: 'You\'re in a focus window. Showing only essential widgets.',
       });
     }
 
@@ -124,7 +120,7 @@ palRouter.get('/recommendations', (req, res) => {
 palRouter.get('/profile', (req, res) => {
   try {
     const { userId, orgId } = req.query;
-
+    
     if (!userId || !orgId) {
       return res.status(400).json({
         error: 'Missing required query params: userId, orgId',
@@ -132,7 +128,7 @@ palRouter.get('/profile', (req, res) => {
     }
 
     let profile = palRepo.getUserProfile(userId as string, orgId as string);
-
+    
     if (!profile) {
       // Create default profile
       palRepo.createUserProfile(userId as string, orgId as string);
@@ -156,7 +152,7 @@ palRouter.get('/profile', (req, res) => {
 palRouter.put('/profile', (req, res) => {
   try {
     const { userId, orgId, preferenceTone } = req.body;
-
+    
     if (!userId || !orgId || !preferenceTone) {
       return res.status(400).json({
         error: 'Missing required fields: userId, orgId, preferenceTone',
@@ -164,7 +160,7 @@ palRouter.put('/profile', (req, res) => {
     }
 
     palRepo.updateUserProfile(userId, orgId, preferenceTone);
-
+    
     res.json({
       success: true,
     });
@@ -181,21 +177,15 @@ palRouter.put('/profile', (req, res) => {
 palRouter.post('/focus-window', (req, res) => {
   try {
     const { userId, orgId, weekday, startHour, endHour } = req.body;
-
-    if (
-      !userId ||
-      !orgId ||
-      weekday === undefined ||
-      startHour === undefined ||
-      endHour === undefined
-    ) {
+    
+    if (!userId || !orgId || weekday === undefined || startHour === undefined || endHour === undefined) {
       return res.status(400).json({
         error: 'Missing required fields: userId, orgId, weekday, startHour, endHour',
       });
     }
 
     const windowId = palRepo.addFocusWindow(userId, orgId, weekday, startHour, endHour);
-
+    
     res.json({
       success: true,
       windowId,

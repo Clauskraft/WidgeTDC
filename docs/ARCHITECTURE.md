@@ -39,33 +39,28 @@ WidgetBoard is an enterprise-grade, widget-based dashboard platform built with R
 ## Core Components
 
 ### 1. Application Layer
-
 - Root application with context providers
 - Shell with header, sidebar, and dashboard
 - Widget initialization and management
 
 ### 2. Widget System
-
 - Central registry for widget definitions
 - Dynamic widget loading and lifecycle
 - 10+ specialized widgets (Chat, Email RAG, Performance Monitor, etc.)
 
 ### 3. Security Layer
-
 - Input sanitization and validation
 - Rate limiting and circuit breaker
 - JWT authentication
 - Sensitive data redaction
 
 ### 4. Communication Layer
-
 - MCP Client with WebSocket
 - Automatic reconnection
 - Request/response handling
 - Event subscription
 
 ### 5. Logging System
-
 - Structured logging with context
 - Multiple transports
 - Performance monitoring
@@ -80,20 +75,17 @@ User Action → Widget → Context → MCP Client → WebSocket → Server → R
 ## Security Architecture
 
 ### Defense in Depth
-
 1. Input sanitization (XSS, SQLi prevention)
 2. WSS with JWT authentication
 3. RBAC and feature flags
 4. Data encryption and redaction
 
 ### Circuit Breaker Pattern
-
 - CLOSED: Normal operation
 - OPEN: Reject requests after failures
 - HALF_OPEN: Test recovery
 
 ## Performance Targets
-
 - FCP: < 1.5s
 - LCP: < 2.5s
 - TTI: < 3.5s

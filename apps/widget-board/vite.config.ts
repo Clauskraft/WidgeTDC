@@ -5,8 +5,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
   return {
+    root: path.resolve(__dirname, 'apps/widget-board'),
+    build: {
+      outDir: path.resolve(__dirname, 'dist'),
+      emptyOutDir: true,
+    },
     server: {
-      port: 3000,
+      port: 8888,
       host: '0.0.0.0',
     },
     plugins: [react()],
@@ -16,7 +21,7 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, 'apps/widget-board'),
       },
     },
   };

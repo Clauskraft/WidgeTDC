@@ -12,11 +12,11 @@ export function getDatabase(): Database.Database {
   if (!db) {
     db = new Database('widget-tdc.db');
     db.pragma('journal_mode = WAL');
-
+    
     // Initialize schema
     const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
     db.exec(schema);
-
+    
     console.log('Database initialized successfully');
   }
   return db;

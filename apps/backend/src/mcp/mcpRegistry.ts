@@ -15,7 +15,7 @@ class MCPRegistry {
 
   async route(message: MCPMessage): Promise<any> {
     const handler = this.tools.get(message.tool);
-
+    
     if (!handler) {
       throw new Error(`No handler registered for tool: ${message.tool}`);
     }

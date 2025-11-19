@@ -19,7 +19,7 @@ const CmaDecisionWidget: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
+    
     try {
       const response = await fetch('http://localhost:3001/api/memory/contextual-prompt', {
         method: 'POST',
@@ -29,10 +29,7 @@ const CmaDecisionWidget: React.FC = () => {
           userId: 'user-1',
           userQuery: question,
           widgetData: widgetData,
-          keywords: keywords
-            .split(',')
-            .map(k => k.trim())
-            .filter(k => k),
+          keywords: keywords.split(',').map(k => k.trim()).filter(k => k),
         }),
       });
 
@@ -51,16 +48,14 @@ const CmaDecisionWidget: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        padding: '20px',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#1a1a1a',
-        color: '#ffffff',
-      }}
-    >
+    <div style={{
+      padding: '20px',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#1a1a1a',
+      color: '#ffffff',
+    }}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
         🧠 CMA Decision Assistant
       </h2>
@@ -72,7 +67,7 @@ const CmaDecisionWidget: React.FC = () => {
           </label>
           <textarea
             value={question}
-            onChange={e => setQuestion(e.target.value)}
+            onChange={(e) => setQuestion(e.target.value)}
             placeholder="What decision do you need help with?"
             style={{
               width: '100%',
@@ -96,7 +91,7 @@ const CmaDecisionWidget: React.FC = () => {
           <input
             type="text"
             value={widgetData}
-            onChange={e => setWidgetData(e.target.value)}
+            onChange={(e) => setWidgetData(e.target.value)}
             placeholder="Any additional context..."
             style={{
               width: '100%',
@@ -117,7 +112,7 @@ const CmaDecisionWidget: React.FC = () => {
           <input
             type="text"
             value={keywords}
-            onChange={e => setKeywords(e.target.value)}
+            onChange={(e) => setKeywords(e.target.value)}
             placeholder="decision, architecture, budget..."
             style={{
               width: '100%',
@@ -151,15 +146,13 @@ const CmaDecisionWidget: React.FC = () => {
       </form>
 
       {error && (
-        <div
-          style={{
-            padding: '10px',
-            backgroundColor: '#ff3333',
-            borderRadius: '4px',
-            marginBottom: '15px',
-            fontSize: '14px',
-          }}
-        >
+        <div style={{
+          padding: '10px',
+          backgroundColor: '#ff3333',
+          borderRadius: '4px',
+          marginBottom: '15px',
+          fontSize: '14px',
+        }}>
           {error}
         </div>
       )}
@@ -169,16 +162,14 @@ const CmaDecisionWidget: React.FC = () => {
           <h3 style={{ fontSize: '16px', marginBottom: '10px', fontWeight: '600' }}>
             📚 Related Memories ({memories.length})
           </h3>
-          <div
-            style={{
-              maxHeight: '150px',
-              overflowY: 'auto',
-              backgroundColor: '#2a2a2a',
-              borderRadius: '4px',
-              padding: '10px',
-            }}
-          >
-            {memories.map(memory => (
+          <div style={{
+            maxHeight: '150px',
+            overflowY: 'auto',
+            backgroundColor: '#2a2a2a',
+            borderRadius: '4px',
+            padding: '10px',
+          }}>
+            {memories.map((memory) => (
               <div
                 key={memory.id}
                 style={{
@@ -187,7 +178,9 @@ const CmaDecisionWidget: React.FC = () => {
                   borderBottom: '1px solid #444',
                 }}
               >
-                <div style={{ fontSize: '13px', color: '#ccc' }}>{memory.content}</div>
+                <div style={{ fontSize: '13px', color: '#ccc' }}>
+                  {memory.content}
+                </div>
                 <div style={{ fontSize: '11px', color: '#888', marginTop: '5px' }}>
                   Importance: {'⭐'.repeat(memory.importance)}
                 </div>
@@ -202,18 +195,16 @@ const CmaDecisionWidget: React.FC = () => {
           <h3 style={{ fontSize: '16px', marginBottom: '10px', fontWeight: '600' }}>
             💡 Contextual Prompt
           </h3>
-          <div
-            style={{
-              flex: 1,
-              backgroundColor: '#2a2a2a',
-              borderRadius: '4px',
-              padding: '15px',
-              fontSize: '13px',
-              lineHeight: '1.6',
-              overflowY: 'auto',
-              whiteSpace: 'pre-wrap',
-            }}
-          >
+          <div style={{
+            flex: 1,
+            backgroundColor: '#2a2a2a',
+            borderRadius: '4px',
+            padding: '15px',
+            fontSize: '13px',
+            lineHeight: '1.6',
+            overflowY: 'auto',
+            whiteSpace: 'pre-wrap',
+          }}>
             {prompt}
           </div>
         </div>

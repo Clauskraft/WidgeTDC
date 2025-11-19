@@ -78,37 +78,38 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
   const [entries, setEntries] = useState<Map<string, WidgetRegistryEntry>>(new Map());
   const versionHistoryRef = useRef<Map<string, WidgetVersion[]>>(new Map());
 
-  const registerWidget = useCallback(
-    (widget: WidgetDefinition, version?: WidgetVersion, source: string = 'builtin') => {
-      const widgetVersion = version || parseVersion(widget.id);
-      const now = new Date();
+  const registerWidget = useCallback((
+    widget: WidgetDefinition,
+    version?: WidgetVersion,
+    source: string = 'builtin'
+  ) => {
+    const widgetVersion = version || parseVersion(widget.id);
+    const now = new Date();
 
-      const entry: WidgetRegistryEntry = {
-        ...widget,
-        version: widgetVersion,
-        enabled: true,
-        registeredAt: now,
-        updatedAt: now,
-        source: source as 'builtin' | 'dynamic' | 'remote' | 'marketplace',
-      };
+    const entry: WidgetRegistryEntry = {
+      ...widget,
+      version: widgetVersion,
+      enabled: true,
+      registeredAt: now,
+      updatedAt: now,
+      source: source as 'builtin' | 'dynamic' | 'remote' | 'marketplace',
+    };
 
-      setEntries(prev => {
-        const updated = new Map(prev);
-        const existing = updated.get(widget.id);
+    setEntries(prev => {
+      const updated = new Map(prev);
+      const existing = updated.get(widget.id);
 
-        if (existing) {
-          // Track version history
-          const history = versionHistoryRef.current.get(widget.id) || [];
-          history.push(existing.version);
-          versionHistoryRef.current.set(widget.id, history);
-        }
+      if (existing) {
+        // Track version history
+        const history = versionHistoryRef.current.get(widget.id) || [];
+        history.push(existing.version);
+        versionHistoryRef.current.set(widget.id, history);
+      }
 
-        updated.set(widget.id, entry);
-        return updated;
-      });
-    },
-    []
-  );
+      updated.set(widget.id, entry);
+      return updated;
+    });
+  }, []);
 
   const unregisterWidget = useCallback((widgetId: string) => {
     setEntries(prev => {
@@ -129,98 +130,75 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
     });
   }, []);
 
-  const getWidget = useCallback(
-    (widgetId: string) => {
-      return entries.get(widgetId);
-    },
-    [entries]
-  );
+  const getWidget = useCallback((widgetId: string) => {
+    return entries.get(widgetId);
+  }, [entries]);
 
-  const queryWidgets = useCallback(
-    (query: WidgetRegistryQuery) => {
-      const results: WidgetRegistryEntry[] = [];
+  const queryWidgets = useCallback((query: WidgetRegistryQuery) => {
+    const results: WidgetRegistryEntry[] = [];
 
-      for (const entry of entries.values()) {
-        if (query.id && entry.id !== query.id) continue;
-        if (query.enabled !== undefined && entry.enabled !== query.enabled) continue;
-        if (query.source && entry.source !== query.source) continue;
-        if (query.search) {
-          const searchLower = query.search.toLowerCase();
-          if (
-            !entry.name.toLowerCase().includes(searchLower) &&
-            !entry.id.toLowerCase().includes(searchLower)
-          ) {
-            continue;
-          }
+    for (const entry of entries.values()) {
+      if (query.id && entry.id !== query.id) continue;
+      if (query.enabled !== undefined && entry.enabled !== query.enabled) continue;
+      if (query.source && entry.source !== query.source) continue;
+      if (query.search) {
+        const searchLower = query.search.toLowerCase();
+        if (!entry.name.toLowerCase().includes(searchLower) &&
+            !entry.id.toLowerCase().includes(searchLower)) {
+          continue;
         }
+      }
+      results.push(entry);
+    }
+
+    return results;
+  }, [entries]);
+
+  const findByCapability = useCallback((capability: string) => {
+    const results: WidgetRegistryEntry[] = [];
+
+    for (const entry of entries.values()) {
+      // Check if widget supports this capability through metadata
+      if (entry.id.toLowerCase().includes(capability.toLowerCase())) {
         results.push(entry);
       }
+    }
 
-      return results;
-    },
-    [entries]
-  );
+    return results;
+  }, [entries]);
 
-  const findByCapability = useCallback(
-    (capability: string) => {
-      const results: WidgetRegistryEntry[] = [];
+  const getWidgetVersions = useCallback((widgetId: string) => {
+    const current = entries.get(widgetId);
+    const history = versionHistoryRef.current.get(widgetId) || [];
+    return current ? [...history, current.version] : history;
+  }, [entries]);
 
-      for (const entry of entries.values()) {
-        // Check if widget supports this capability through metadata
-        if (entry.id.toLowerCase().includes(capability.toLowerCase())) {
-          results.push(entry);
-        }
+  const rollbackToVersion = useCallback((widgetId: string, version: WidgetVersion) => {
+    const current = entries.get(widgetId);
+    if (!current) return;
+
+    // For now, just update the version - full rollback would need version snapshots
+    setEntries(prev => {
+      const updated = new Map(prev);
+      updated.set(widgetId, { ...current, version, updatedAt: new Date() });
+      return updated;
+    });
+  }, [entries]);
+
+  const updateMetrics = useCallback((widgetId: string, metrics: Partial<WidgetPerformanceMetrics>) => {
+    setEntries(prev => {
+      const updated = new Map(prev);
+      const entry = updated.get(widgetId);
+      if (entry) {
+        entry.metrics = { ...entry.metrics, ...metrics, lastUpdated: new Date() };
       }
+      return updated;
+    });
+  }, []);
 
-      return results;
-    },
-    [entries]
-  );
-
-  const getWidgetVersions = useCallback(
-    (widgetId: string) => {
-      const current = entries.get(widgetId);
-      const history = versionHistoryRef.current.get(widgetId) || [];
-      return current ? [...history, current.version] : history;
-    },
-    [entries]
-  );
-
-  const rollbackToVersion = useCallback(
-    (widgetId: string, version: WidgetVersion) => {
-      const current = entries.get(widgetId);
-      if (!current) return;
-
-      // For now, just update the version - full rollback would need version snapshots
-      setEntries(prev => {
-        const updated = new Map(prev);
-        updated.set(widgetId, { ...current, version, updatedAt: new Date() });
-        return updated;
-      });
-    },
-    [entries]
-  );
-
-  const updateMetrics = useCallback(
-    (widgetId: string, metrics: Partial<WidgetPerformanceMetrics>) => {
-      setEntries(prev => {
-        const updated = new Map(prev);
-        const entry = updated.get(widgetId);
-        if (entry) {
-          entry.metrics = { ...entry.metrics, ...metrics, lastUpdated: new Date() };
-        }
-        return updated;
-      });
-    },
-    []
-  );
-
-  const getMetrics = useCallback(
-    (widgetId: string) => {
-      return entries.get(widgetId)?.metrics;
-    },
-    [entries]
-  );
+  const getMetrics = useCallback((widgetId: string) => {
+    return entries.get(widgetId)?.metrics;
+  }, [entries]);
 
   const setEnabled = useCallback((widgetId: string, enabled: boolean) => {
     setEntries(prev => {
@@ -257,7 +235,11 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
     clear,
   };
 
-  return <WidgetRegistryContext.Provider value={value}>{children}</WidgetRegistryContext.Provider>;
+  return (
+    <WidgetRegistryContext.Provider value={value}>
+      {children}
+    </WidgetRegistryContext.Provider>
+  );
 };
 
 export const useWidgetRegistry = () => {

@@ -108,7 +108,6 @@ CMD ["node", "apps/backend/dist/index.js"]
 ```
 
 Run:
-
 ```bash
 docker build -t widgettdc-backend -f apps/backend/Dockerfile .
 docker run -d -p 3001:3001 --name widgettdc-backend widgettdc-backend
@@ -131,7 +130,7 @@ Create `/etc/nginx/sites-available/widgettdc`:
 server {
     listen 80;
     server_name yourdomain.com;
-
+    
     # Redirect to HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -139,21 +138,21 @@ server {
 server {
     listen 443 ssl http2;
     server_name yourdomain.com;
-
+    
     ssl_certificate /path/to/cert.pem;
     ssl_certificate_key /path/to/key.pem;
-
+    
     # Frontend
     location / {
         root /var/www/widgettdc/dist;
         try_files $uri $uri/ /index.html;
-
+        
         # Security headers
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-XSS-Protection "1; mode=block" always;
     }
-
+    
     # Backend API
     location /api/ {
         proxy_pass http://localhost:3001;
@@ -166,7 +165,7 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-
+    
     # WebSocket
     location /mcp/ws {
         proxy_pass http://localhost:3001;
@@ -179,7 +178,6 @@ server {
 ```
 
 Enable and restart:
-
 ```bash
 ln -s /etc/nginx/sites-available/widgettdc /etc/nginx/sites-enabled/
 nginx -t
@@ -397,7 +395,6 @@ sqlite3 widget-tdc.db ".schema"
 ## Support
 
 For production issues:
-
 1. Check logs (PM2, nginx, application)
 2. Verify environment variables
 3. Test database connectivity

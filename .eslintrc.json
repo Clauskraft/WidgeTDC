@@ -15,7 +15,12 @@
     "plugin:security/recommended",
     "prettier"
   ],
-  "plugins": ["@typescript-eslint", "react", "react-hooks", "security"],
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-hooks",
+    "security"
+  ],
   "env": {
     "browser": true,
     "es2022": true,
@@ -51,5 +56,10 @@
     "no-implied-eval": "error",
     "no-new-func": "error"
   },
-  "ignorePatterns": ["node_modules/", "dist/", "*.config.js", "*.config.ts"]
+  "ignorePatterns": [
+    "node_modules/",
+    "dist/",
+    "*.config.js",
+    "*.config.ts"
+  ]
 }

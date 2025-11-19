@@ -9,20 +9,17 @@
 ## Environment Configuration
 
 1. Copy `.env.example` to `.env.local`:
-
 ```bash
 cp .env.example .env.local
 ```
 
 2. Configure required variables:
-
 ```env
 GEMINI_API_KEY=your_api_key_here
 VITE_MCP_SERVER_URL=wss://your-mcp-server.com/mcp
 ```
 
 3. Validate configuration:
-
 ```bash
 npm run build
 ```

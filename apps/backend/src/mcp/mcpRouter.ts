@@ -9,7 +9,7 @@ export const mcpRouter = Router();
 mcpRouter.post('/route', async (req, res) => {
   try {
     const message: MCPMessage = req.body;
-
+    
     // Validate message
     if (!message.tool || !message.payload) {
       return res.status(400).json({

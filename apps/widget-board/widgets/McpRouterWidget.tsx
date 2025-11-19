@@ -18,18 +18,12 @@ const McpRouterWidget: React.FC = () => {
   const [filterSource, setFilterSource] = useState('');
   const [filterTarget, setFilterTarget] = useState('');
   const [testTool, setTestTool] = useState('cma.context');
-  const [testPayload, setTestPayload] = useState(
-    JSON.stringify(
-      {
-        orgId: 'org-1',
-        userId: 'user-1',
-        userQuery: 'Test query',
-        keywords: ['test'],
-      },
-      null,
-      2
-    )
-  );
+  const [testPayload, setTestPayload] = useState(JSON.stringify({
+    orgId: 'org-1',
+    userId: 'user-1',
+    userQuery: 'Test query',
+    keywords: ['test']
+  }, null, 2));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -57,10 +51,10 @@ const McpRouterWidget: React.FC = () => {
   const sendTestMessage = async () => {
     setLoading(true);
     setError('');
-
+    
     try {
       const payload = JSON.parse(testPayload);
-
+      
       const message: Partial<MCPMessage> = {
         id: `msg-${Date.now()}`,
         sourceId: 'mcp-inspector',
@@ -77,9 +71,9 @@ const McpRouterWidget: React.FC = () => {
       });
 
       const data = await response.json();
-
+      
       const resultMessage: MCPMessage = {
-        ...(message as MCPMessage),
+        ...message as MCPMessage,
         result: data.result,
         success: data.success,
       };
@@ -100,16 +94,14 @@ const McpRouterWidget: React.FC = () => {
   });
 
   return (
-    <div
-      style={{
-        padding: '20px',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        backgroundColor: '#1a1a1a',
-        color: '#ffffff',
-      }}
-    >
+    <div style={{
+      padding: '20px',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      backgroundColor: '#1a1a1a',
+      color: '#ffffff',
+    }}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
         🔌 MCP Inspector
       </h2>
@@ -119,14 +111,12 @@ const McpRouterWidget: React.FC = () => {
         <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>
           Available Tools ({tools.length})
         </h3>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-          }}
-        >
-          {tools.map(tool => (
+        <div style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+        }}>
+          {tools.map((tool) => (
             <div
               key={tool}
               style={{
@@ -144,21 +134,23 @@ const McpRouterWidget: React.FC = () => {
       </div>
 
       {/* Test Message */}
-      <div
-        style={{
-          marginBottom: '20px',
-          padding: '15px',
-          backgroundColor: '#2a2a2a',
-          borderRadius: '4px',
-        }}
-      >
-        <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>Test Message</h3>
-
+      <div style={{
+        marginBottom: '20px',
+        padding: '15px',
+        backgroundColor: '#2a2a2a',
+        borderRadius: '4px',
+      }}>
+        <h3 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>
+          Test Message
+        </h3>
+        
         <div style={{ marginBottom: '10px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>Tool</label>
+          <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>
+            Tool
+          </label>
           <select
             value={testTool}
-            onChange={e => setTestTool(e.target.value)}
+            onChange={(e) => setTestTool(e.target.value)}
             style={{
               width: '100%',
               padding: '8px',
@@ -169,10 +161,8 @@ const McpRouterWidget: React.FC = () => {
               fontSize: '13px',
             }}
           >
-            {tools.map(tool => (
-              <option key={tool} value={tool}>
-                {tool}
-              </option>
+            {tools.map((tool) => (
+              <option key={tool} value={tool}>{tool}</option>
             ))}
           </select>
         </div>
@@ -183,7 +173,7 @@ const McpRouterWidget: React.FC = () => {
           </label>
           <textarea
             value={testPayload}
-            onChange={e => setTestPayload(e.target.value)}
+            onChange={(e) => setTestPayload(e.target.value)}
             style={{
               width: '100%',
               minHeight: '100px',
@@ -218,33 +208,29 @@ const McpRouterWidget: React.FC = () => {
         </button>
 
         {error && (
-          <div
-            style={{
-              marginTop: '10px',
-              padding: '8px',
-              backgroundColor: '#ff3333',
-              borderRadius: '4px',
-              fontSize: '12px',
-            }}
-          >
+          <div style={{
+            marginTop: '10px',
+            padding: '8px',
+            backgroundColor: '#ff3333',
+            borderRadius: '4px',
+            fontSize: '12px',
+          }}>
             {error}
           </div>
         )}
       </div>
 
       {/* Filters */}
-      <div
-        style={{
-          marginBottom: '15px',
-          display: 'flex',
-          gap: '10px',
-        }}
-      >
+      <div style={{
+        marginBottom: '15px',
+        display: 'flex',
+        gap: '10px',
+      }}>
         <input
           type="text"
           placeholder="Filter by tool..."
           value={filterTool}
-          onChange={e => setFilterTool(e.target.value)}
+          onChange={(e) => setFilterTool(e.target.value)}
           style={{
             flex: 1,
             padding: '8px',
@@ -259,7 +245,7 @@ const McpRouterWidget: React.FC = () => {
           type="text"
           placeholder="Filter by source..."
           value={filterSource}
-          onChange={e => setFilterSource(e.target.value)}
+          onChange={(e) => setFilterSource(e.target.value)}
           style={{
             flex: 1,
             padding: '8px',
@@ -274,7 +260,7 @@ const McpRouterWidget: React.FC = () => {
           type="text"
           placeholder="Filter by target..."
           value={filterTarget}
-          onChange={e => setFilterTarget(e.target.value)}
+          onChange={(e) => setFilterTarget(e.target.value)}
           style={{
             flex: 1,
             padding: '8px',
@@ -289,14 +275,12 @@ const McpRouterWidget: React.FC = () => {
 
       {/* Message Stream */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '10px',
-          }}
-        >
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '10px',
+        }}>
           <h3 style={{ fontSize: '14px', fontWeight: '600', margin: 0 }}>
             Message Stream ({filteredMessages.length})
           </h3>
@@ -316,21 +300,19 @@ const McpRouterWidget: React.FC = () => {
           </button>
         </div>
 
-        <div
-          style={{
-            flex: 1,
-            backgroundColor: '#2a2a2a',
-            borderRadius: '4px',
-            padding: '10px',
-            overflowY: 'auto',
-          }}
-        >
+        <div style={{
+          flex: 1,
+          backgroundColor: '#2a2a2a',
+          borderRadius: '4px',
+          padding: '10px',
+          overflowY: 'auto',
+        }}>
           {filteredMessages.length === 0 ? (
             <div style={{ color: '#888', fontSize: '13px', textAlign: 'center', padding: '20px' }}>
               No messages yet. Send a test message to see it here.
             </div>
           ) : (
-            filteredMessages.map(msg => (
+            filteredMessages.map((msg) => (
               <div
                 key={msg.id}
                 style={{
@@ -341,13 +323,11 @@ const McpRouterWidget: React.FC = () => {
                   borderLeft: `3px solid ${msg.success ? '#10b981' : '#ef4444'}`,
                 }}
               >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '5px',
-                  }}
-                >
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginBottom: '5px',
+                }}>
                   <span style={{ fontSize: '12px', fontWeight: '600', color: '#8b5cf6' }}>
                     {msg.tool}
                   </span>
@@ -359,18 +339,16 @@ const McpRouterWidget: React.FC = () => {
                   {msg.sourceId} → {msg.targetId}
                 </div>
                 {msg.result && (
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      fontSize: '11px',
-                      fontFamily: 'monospace',
-                      backgroundColor: '#0a0a0a',
-                      padding: '8px',
-                      borderRadius: '4px',
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                    }}
-                  >
+                  <div style={{
+                    marginTop: '8px',
+                    fontSize: '11px',
+                    fontFamily: 'monospace',
+                    backgroundColor: '#0a0a0a',
+                    padding: '8px',
+                    borderRadius: '4px',
+                    maxHeight: '150px',
+                    overflowY: 'auto',
+                  }}>
                     <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
                       {JSON.stringify(msg.result, null, 2)}
                     </pre>
