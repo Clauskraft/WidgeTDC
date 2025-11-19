@@ -13,8 +13,8 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 ## Getting Started
 
 ### Prerequisites
-- Node.js 18+ or 20+
-- npm 9+
+- Node.js 20+
+- npm 10+
 - Git
 - Familiarity with React, TypeScript, and modern web development
 

@@ -2,8 +2,8 @@
 
 ## Prerequisites
 
-- Node.js 18+ or 20+
-- npm 9+
+- Node.js 20+
+- npm 10+
 - Environment variables configured
 
 ## Environment Configuration
