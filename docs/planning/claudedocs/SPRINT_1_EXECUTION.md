@@ -13,15 +13,15 @@
 
 ### Sprint Metric Dashboard
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| **Velocity** | 20-25 points | 🎯 IN PROGRESS |
-| **Capacity** | 400 agent-hours | 🟢 ALLOCATED |
-| **Team Size** | 8 agents | ✅ FULL |
-| **Code Coverage** | >85% | 📊 BASELINE |
-| **Retrieval Latency** | <200ms | ⏳ TARGET |
-| **Accuracy Target** | >90% | 🎯 GOAL |
-| **Blockers** | 0 active | 🟢 CLEAN |
+| Metric                | Target          | Status         |
+| --------------------- | --------------- | -------------- |
+| **Velocity**          | 20-25 points    | 🎯 IN PROGRESS |
+| **Capacity**          | 400 agent-hours | 🟢 ALLOCATED   |
+| **Team Size**         | 8 agents        | ✅ FULL        |
+| **Code Coverage**     | >85%            | 📊 BASELINE    |
+| **Retrieval Latency** | <200ms          | ⏳ TARGET      |
+| **Accuracy Target**   | >90%            | 🎯 GOAL        |
+| **Blockers**          | 0 active        | 🟢 CLEAN       |
 
 ---
 
@@ -34,6 +34,7 @@
 **Tasks**:
 
 **TASK 1: Data Sources Inventory (6 points)**
+
 - [ ] Analyze project requirements and data needs
 - [ ] Identify all potential internal data sources
 - [ ] Research external data APIs (public + commercial)
@@ -45,6 +46,7 @@
 - **Acceptance**: All sources documented with access method, volume estimate, latency profile
 
 **TASK 2: Ingestion Architecture Design (6 points)**
+
 - [ ] Design end-to-end data flow (source → extraction → validation → indexing)
 - [ ] Plan ETL pipeline architecture (batch vs streaming decision)
 - [ ] Design error handling and retry logic
@@ -56,6 +58,7 @@
 - **Acceptance**: Architecture documented with clear technology choices and SLAs
 
 **TASK 3: Quality Metrics Definition (6 points)**
+
 - [ ] Define data quality metrics (completeness, accuracy, timeliness, consistency)
 - [ ] Establish validation rules and thresholds
 - [ ] Plan quality monitoring dashboards
@@ -77,6 +80,7 @@
 **Tasks**:
 
 **TASK 1: VectorDB Selection & Evaluation (6 points)**
+
 - [ ] Evaluate VectorDB options: Pinecone, Weaviate, Milvus, Qdrant, Chroma
 - [ ] Create comparison matrix (cost, scalability, latency, features, operational complexity)
 - [ ] Run proof-of-concept queries against sample data
@@ -88,6 +92,7 @@
 - **Acceptance**: Comparison is comprehensive, recommendation is justified with trade-offs clear
 
 **TASK 2: Chunking Strategy & Embedding Model Selection (6 points)**
+
 - [ ] Design chunking strategy (chunk size, overlap, content-aware chunking)
 - [ ] Evaluate embedding models (OpenAI, Google, Cohere, local/open-source)
 - [ ] Test embedding quality with sample documents
@@ -99,6 +104,7 @@
 - **Acceptance**: Strategy is reproducible, tested on real data, performance validated
 
 **TASK 3: RAGAS Evaluation Framework (6 points)**
+
 - [ ] Design RAGAS evaluation metrics (context relevance, answer relevancy, faithfulness)
 - [ ] Set performance thresholds (target >0.85 overall)
 - [ ] Plan evaluation dataset creation (golden QA pairs)
@@ -120,6 +126,7 @@
 **Tasks**:
 
 **TASK 1: LLM Provider Evaluation & Selection (6 points)**
+
 - [ ] Evaluate LLM providers: OpenAI GPT-4, Anthropic Claude, Google Gemini, local (Ollama/Llama2)
 - [ ] Create comparison matrix (cost, quality, latency, context window, rate limits)
 - [ ] Test prompt quality with sample queries
@@ -131,6 +138,7 @@
 - **Acceptance**: Comparison is data-driven, recommendation considers cost/performance trade-offs
 
 **TASK 2: API Design & OpenAPI Specification (6 points)**
+
 - [ ] Design REST API endpoints (POST /query, POST /feedback, GET /health, GET /metrics)
 - [ ] Define request/response schemas (with examples)
 - [ ] Plan error handling and status codes
@@ -142,6 +150,7 @@
 - **Acceptance**: API follows REST conventions, documentation is complete, examples are realistic
 
 **TASK 3: RAG Chain Orchestration & Prompt Engineering (6 points)**
+
 - [ ] Design RAG chain flow (retrieval → context assembly → prompt construction → LLM call)
 - [ ] Create prompt templates (system prompt, few-shot examples, context injection)
 - [ ] Plan streaming response handling
@@ -163,6 +172,7 @@
 **Tasks**:
 
 **TASK 1: Test Strategy & Quality Framework (5 points)**
+
 - [ ] Design comprehensive test strategy (unit, integration, E2E, performance, security)
 - [ ] Define quality metrics (>85% code coverage, <200ms latency, >90% accuracy, RAGAS >0.85)
 - [ ] Plan test tooling and infrastructure
@@ -174,6 +184,7 @@
 - **Acceptance**: Strategy is comprehensive, metrics are measurable, gates are enforced
 
 **TASK 2: Definition of Done (DoD) Template & Enforcement (5 points)**
+
 - [ ] Create Definition of Done checklist (must-haves for every story)
 - [ ] Include: code review, tests >85%, documentation, merged, staged, etc.
 - [ ] Plan DoD enforcement mechanism (checklist in PR template)
@@ -185,6 +196,7 @@
 - **Acceptance**: DoD is non-negotiable, enforcement is automated, compliance target 100%
 
 **TASK 3: RAGAS Metrics & Monitoring Setup (6 points)**
+
 - [ ] Implement RAGAS evaluation metrics
 - [ ] Create evaluation dataset (golden QA pairs)
 - [ ] Setup monitoring dashboards (real-time metrics)
@@ -206,6 +218,7 @@
 **Tasks**:
 
 **TASK 1: Infrastructure Architecture Design (5 points)**
+
 - [ ] Design cloud architecture (dev/staging/production)
 - [ ] Plan resource requirements (compute, storage, networking)
 - [ ] Design network security (VPC, security groups, WAF)
@@ -217,6 +230,7 @@
 - **Acceptance**: Architecture is production-ready, security is hardened, scalability planned
 
 **TASK 2: CI/CD Pipeline Design & Staging Environment (5 points)**
+
 - [ ] Design CI/CD pipeline (GitHub Actions/GitLab/Cloud Build)
 - [ ] Plan build → test → deploy stages
 - [ ] Setup staging environment (fully operational, mirrors production)
@@ -228,6 +242,7 @@
 - **Acceptance**: Pipeline is automated, staging is live, deployments are reversible
 
 **TASK 3: Monitoring & Observability Setup (6 points)**
+
 - [ ] Design monitoring architecture (metrics, logs, traces)
 - [ ] Setup monitoring tools (Prometheus, ELK, Jaeger, DataDog)
 - [ ] Create dashboards (system health, performance, errors)
@@ -249,6 +264,7 @@
 **Tasks**:
 
 **TASK 1: Codebase Pattern Analysis (4 points)**
+
 - [ ] Analyze emerging code patterns in Sprint 1 work
 - [ ] Identify reusable functions across modules
 - [ ] Suggest refactoring opportunities for code quality
@@ -259,6 +275,7 @@
 - **Acceptance**: Analysis is thorough, suggestions are actionable, metrics are tracked
 
 **TASK 2: Architecture Optimization Recommendations (4 points)**
+
 - [ ] Design systematic refactoring approach
 - [ ] Suggest module extraction and consolidation
 - [ ] Plan API standardization across agents
@@ -279,6 +296,7 @@
 **Tasks**:
 
 **TASK 1: UI Pattern Analysis (4 points)**
+
 - [ ] Analyze emerging UI components in Sprint 1 development
 - [ ] Identify component reuse opportunities
 - [ ] Suggest design system foundation
@@ -289,6 +307,7 @@
 - **Acceptance**: Analysis covers all UI layers, duplication metrics tracked
 
 **TASK 2: Design System Foundation (4 points)**
+
 - [ ] Create component library structure
 - [ ] Establish design tokens and style guide
 - [ ] Plan Storybook setup for documentation
@@ -309,6 +328,7 @@
 **Tasks**:
 
 **TASK 1: Architecture Security Review (6 points)**
+
 - [ ] Review system architecture for security vulnerabilities
 - [ ] Conduct threat modeling (STRIDE framework)
 - [ ] Assess OWASP Top 10 compliance
@@ -320,6 +340,7 @@
 - **Acceptance**: Threat model is comprehensive, risks are quantified
 
 **TASK 2: Code Security Baseline (6 points)**
+
 - [ ] Review emerging code for security issues
 - [ ] Scan for dependency vulnerabilities
 - [ ] Assess secrets management approach
@@ -394,6 +415,7 @@ Day 10: 0 points remaining ✅
 ## 🎯 SPRINT 1 SUCCESS DEFINITION
 
 **Completed Successfully When**:
+
 1. ✅ All 6 core EPICs have detailed designs documented
 2. ✅ Data sources identified and architecture validated
 3. ✅ VectorDB selected with performance baseline established
@@ -409,15 +431,15 @@ Day 10: 0 points remaining ✅
 
 ## 📅 KEY DATES
 
-| Date | Milestone | Status |
-|------|-----------|--------|
-| 2025-11-24 | Sprint 1 Kickoff | 🟢 LIVE |
-| 2025-11-27 | Tech decisions due (VectorDB, LLM) | 📅 TARGET |
-| 2025-11-28 | Test strategy, infrastructure design | 📅 TARGET |
+| Date       | Milestone                                    | Status    |
+| ---------- | -------------------------------------------- | --------- |
+| 2025-11-24 | Sprint 1 Kickoff                             | 🟢 LIVE   |
+| 2025-11-27 | Tech decisions due (VectorDB, LLM)           | 📅 TARGET |
+| 2025-11-28 | Test strategy, infrastructure design         | 📅 TARGET |
 | 2025-12-01 | API design, evaluation framework, monitoring | 📅 TARGET |
-| 2025-12-05 | Security baseline complete | 📅 TARGET |
-| 2025-12-08 | Sprint 1 Review & Retrospective | 🎉 END |
-| 2025-12-09 | Sprint 2 Planning Begins | 📅 NEXT |
+| 2025-12-05 | Security baseline complete                   | 📅 TARGET |
+| 2025-12-08 | Sprint 1 Review & Retrospective              | 🎉 END    |
+| 2025-12-09 | Sprint 2 Planning Begins                     | 📅 NEXT   |
 
 ---
 
@@ -430,6 +452,6 @@ Day 10: 0 points remaining ✅
 
 **Status**: 🟢 **SPRINT 1 GO**
 
-*Updated: 2025-11-18*
-*Authority: HansPedder2 ✅*
-*Lead: Cursor*
+_Updated: 2025-11-18_
+_Authority: HansPedder2 ✅_
+_Lead: Cursor_

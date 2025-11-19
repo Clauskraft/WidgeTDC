@@ -11,14 +11,17 @@ Use this template for each essential component. Copy and modify for each of the 
 **Last Updated**: 2025-11-16
 
 ### Overview
+
 [Brief description of component purpose and usage]
 
 ### Component Purpose
+
 - **Primary Use**: [What is this component for?]
 - **When to Use**: [Scenarios where this component is appropriate]
 - **When NOT to Use**: [Scenarios where alternatives should be preferred]
 
 ### Visual States
+
 - **Default**: [Description]
 - **Hover**: [Description]
 - **Active/Focus**: [Description]
@@ -27,6 +30,7 @@ Use this template for each essential component. Copy and modify for each of the 
 - **Error**: [If applicable]
 
 ### Accessibility Requirements (WCAG 2.1 AA)
+
 - **Keyboard Navigation**: [Tab order, keyboard shortcuts]
 - **Screen Reader Support**: [ARIA labels, roles]
 - **Color Contrast**: [Minimum 4.5:1 for text]
@@ -34,12 +38,14 @@ Use this template for each essential component. Copy and modify for each of the 
 - **Touch Targets**: [Minimum 44px x 44px]
 
 ### Design Tokens Used
+
 - **Colors**: [Primary, Secondary, etc.]
 - **Typography**: [H5, body-medium, etc.]
 - **Spacing**: [sm, md, lg, etc.]
 - **Icons**: [If applicable - sizes used]
 
 ### Component Props
+
 ```typescript
 interface [ComponentName]Props {
   // Core props
@@ -55,21 +61,25 @@ interface [ComponentName]Props {
 ```
 
 ### Dark Mode Support
+
 - **Background**: [Token name]
 - **Text**: [Token name]
 - **Borders**: [Token name]
 - **Hover State**: [Token name]
 
 ### Performance Considerations
+
 - **Render Optimization**: [memoization strategy]
 - **Bundle Impact**: [Estimated size]
 - **Animation Approach**: [CSS vs JS]
 
 ### Related Components
+
 - [Component A]
 - [Component B]
 
 ### Examples
+
 ```jsx
 // Basic usage
 <[ComponentName] />
@@ -86,6 +96,7 @@ interface [ComponentName]Props {
 ```
 
 ### Testing Checklist
+
 - [ ] Visual regression tested
 - [ ] Keyboard navigation works
 - [ ] Screen reader tested
@@ -98,6 +109,7 @@ interface [ComponentName]Props {
 - [ ] Disabled state clear
 
 ### Notes
+
 [Any additional notes or special considerations]
 
 ---

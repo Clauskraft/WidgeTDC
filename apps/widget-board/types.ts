@@ -1,4 +1,3 @@
-
 import type { Layout } from 'react-grid-layout';
 // FIX: Import ComponentType to resolve 'Cannot find namespace React' error.
 import type { ComponentType } from 'react';
@@ -31,9 +30,21 @@ export interface MSWidgetDetectionResult {
 }
 
 
+export type WidgetCategory =
+  | 'cybersecurity'
+  | 'ai-agents'
+  | 'media-analysis'
+  | 'productivity'
+  | 'development'
+  | 'business'
+  | 'communication'
+  | 'system'
+  | 'project-management';
+
 export interface WidgetDefinition {
   id: string;
   name: string;
+  category: WidgetCategory;
   // FIX: Use imported ComponentType.
   component: ComponentType<any>;
   defaultLayout: { w: number; h: number };
@@ -48,11 +59,16 @@ export interface WidgetDefinition {
 export interface WidgetInstance {
   id: string; // Unique instance ID, e.g., 'AgentChatWidget-1629384'
   widgetType: string; // ID from WidgetDefinition, e.g., 'AgentChatWidget'
+  config?: WidgetConfig; // Widget-specific configuration
+}
+
+export interface WidgetConfig {
+  [key: string]: any; // Generic config structure for widget-specific settings
 }
 
 export interface GroundingSource {
-    uri: string;
-    title: string;
+  uri: string;
+  title: string;
 }
 
 export interface Message {
@@ -64,9 +80,9 @@ export interface Message {
 }
 
 export interface TranscriptEntry {
-    speaker: 'user' | 'model';
-    text: string;
-    isFinal: boolean;
+  speaker: 'user' | 'model';
+  text: string;
+  isFinal: boolean;
 }
 
 export interface Prompt {
@@ -94,10 +110,10 @@ export interface ToolSuggestion {
 }
 
 export interface Agent {
-    id: string;
-    name: string;
-    instruction: string;
-    tools: string[];
+  id: string;
+  name: string;
+  instruction: string;
+  tools: string[];
 }
 
 // MCP Connector Widget Types

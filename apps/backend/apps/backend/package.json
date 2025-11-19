@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "axios": "^1.13.2",
+    "geoip-lite": "^1.4.10",
+    "systeminformation": "^5.27.11"
+  },
+  "devDependencies": {
+    "@types/geoip-lite": "^1.4.4"
+  }
+}

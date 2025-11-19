@@ -77,6 +77,18 @@ npm run dev
 
 Frontend runs on `http://localhost:5173`
 
+### Environment Variables
+
+Backend (`apps/backend/.env` or shell):
+
+- `OPENSEARCH_NODE`, `OPENSEARCH_USERNAME`, `OPENSEARCH_PASSWORD`, `OPENSEARCH_FEED_INDEX` – live threat feed index
+- `MINIO_ENDPOINT`, `MINIO_PORT`, `MINIO_USE_SSL`, `MINIO_ACCESS_KEY`, `MINIO_SECRET_KEY`, `MINIO_BUCKET` – archive storage
+- `SECURITY_ACTIVITY_RETENTION_DAYS`, `SECURITY_ACTIVITY_HEARTBEAT_MS` – activity stream tuning
+
+Frontend (`apps/widget-board/.env`):
+
+- `VITE_WIDGET_API_URL` – points to the backend origin (defaults to `window.location.origin`)
+
 ### Seeding Test Data
 
 ```bash
@@ -152,6 +164,34 @@ Personal workflow optimization and stress management.
 **API:**
 - `GET /api/pal/recommendations`
 - `POST /api/pal/event`
+
+## 🛡️ Security Intelligence Widgets (Track 2.B)
+
+Phase 2 introduces the Cyberstreams security widgets described in `BACKLOG_UPDATE.txt` and `PHASE2_OUTLINE.txt`. They are now implemented inside `apps/widget-board` and backed by the existing Widget Registry 2.0.
+
+### 1. Feed Ingestion Widget
+
+- Multi-source RSS + streaming ingestion with threat-level classification
+- Normalization pipeline visualizing RSS poller → NLP tagger → OpenSearch → MinIO archive
+- Duplicate detection controls with adjustable similarity thresholds
+- Live metrics (docs/hr, ingestion latency, dedupe efficiency, backlog minutes)
+- Feed-specific detail panel showing cadence, coverage regions, connected services
+
+### 2. Search Interface Widget
+
+- Advanced query builder targeting OpenSearch (`ti-feeds` index)
+- Saved query templates (high-fidelity alerts, zero-day exploitation, supply chain)
+- Source scoping across Feed Ingestion, Dark Web, Vendor Radar, CERT-EU, internal telemetry
+- Highlighted search results with severity/status chips and scoring
+- Search audit log capturing filters, latency, and result counts for compliance
+
+### 3. Activity Stream Widget
+
+- Server-sent events style live stream covering ingestion, alerts, automation, and audit categories
+- Severity/category filters with pause/resume controls and SLA metrics
+- Acknowledgement workflow for SOC operators
+- Displays channel origin (SSE/Webhook/Job) and rule identifiers for traceability
+- Bounded event buffer with automatic rotation to protect UI performance
 
 ## 🔧 API Documentation
 

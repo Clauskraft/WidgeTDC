@@ -10,16 +10,16 @@
 
 ## 📊 PROJECT AT A GLANCE
 
-| Metric | Status | Target |
-|--------|--------|--------|
-| Overall Completion | 0% | 100% (Mar 2026) |
-| System Status | 🟢 ACTIVE | ✅ |
-| Blockers | 0 | 0 |
-| Team Size (Total) | 1 (Cursor) | ✅ 10 ASSIGNED (2 leadership + 5 core + 3 specialized) |
-| Team Recruitment | ✅ COMPLETE - ALL POSITIONS FILLED | Go-Live Ready |
-| Global AI Agents | 🥇 8 Top-Tier AI Agents | From: Google, OpenAI, Microsoft, DeepSeek, Apple |
-| Sprint 1 Start | 🟢 2025-11-24 LIVE | ACTIVE - 8 agents deployed |
-| Go-Live | 📅 2026-03-01 | Production deployment |
+| Metric             | Status                             | Target                                                 |
+| ------------------ | ---------------------------------- | ------------------------------------------------------ |
+| Overall Completion | 0%                                 | 100% (Mar 2026)                                        |
+| System Status      | 🟢 ACTIVE                          | ✅                                                     |
+| Blockers           | 0                                  | 0                                                      |
+| Team Size (Total)  | 1 (Cursor)                         | ✅ 10 ASSIGNED (2 leadership + 5 core + 3 specialized) |
+| Team Recruitment   | ✅ COMPLETE - ALL POSITIONS FILLED | Go-Live Ready                                          |
+| Global AI Agents   | 🥇 8 Top-Tier AI Agents            | From: Google, OpenAI, Microsoft, DeepSeek, Apple       |
+| Sprint 1 Start     | 🟢 2025-11-24 LIVE                 | ACTIVE - 8 agents deployed                             |
+| Go-Live            | 📅 2026-03-01                      | Production deployment                                  |
 
 ---
 
@@ -28,6 +28,7 @@
 **Formål:** Implementer en scalerbar RAG-løsning (Retrieval-Augmented Generation) med 100% transparens over projektstatus.
 
 **Kernekrav:**
+
 - ✅ Fuld gennemsigtighed i realtid
 - ✅ Central "single source of truth"
 - ✅ Alle interessenter har synlighed
@@ -58,6 +59,7 @@
 ## 📝 MASTER BACKLOG (Hierarkisk)
 
 ### EPIC 1: Projekt Setup & Foundation
+
 - [ ] **P0** - Etabler projektrepo & struktur (8h)
   - Ejer: Cursor
   - Status: NOT STARTED
@@ -74,6 +76,7 @@
   - DoD: Team defineret, medlemmer onboardet
 
 ### EPIC 2: Data Pipeline
+
 - [ ] **P0** - Valg & opsætning af data sources (12h)
   - Ejer: TBD
   - Status: NOT STARTED
@@ -90,6 +93,7 @@
   - DoD: Kvalitet valideret, metrics etableret
 
 ### EPIC 3: Vector Database & Retrieval
+
 - [ ] **P0** - VectorDB valg & opsætning (8h)
   - Ejer: TBD
   - Status: NOT STARTED
@@ -106,6 +110,7 @@
   - DoD: Relevans >90%, performance <200ms
 
 ### EPIC 4: LLM Integration
+
 - [ ] **P0** - LLM valg & prompt engineering (12h)
   - Ejer: TBD
   - Status: NOT STARTED
@@ -122,6 +127,7 @@
   - DoD: Performance targets nået
 
 ### EPIC 5: Evaluation & Quality
+
 - [ ] **P0** - RAGAS evaluation setup (12h)
   - Ejer: TBD
   - Status: NOT STARTED
@@ -133,6 +139,7 @@
   - DoD: Dashboards live, alerts konfigureret
 
 ### EPIC 6: API & Deployment
+
 - [ ] **P0** - API design & implementation (20h)
   - Ejer: TBD
   - Status: NOT STARTED
@@ -184,11 +191,12 @@ Key Milestones:
 
 ## 🚨 BLOCKERS & IMPEDIMENTS
 
-| # | Blocker | Status | Owner | Affected | Date |
-|---|---------|--------|-------|----------|------|
-| B1 | Ingen – grønt projekt! | RESOLVED | - | - | 2025-11-17 |
+| #   | Blocker                | Status   | Owner | Affected | Date       |
+| --- | ---------------------- | -------- | ----- | -------- | ---------- |
+| B1  | Ingen – grønt projekt! | RESOLVED | -     | -        | 2025-11-17 |
 
 **Blocker Escalation Path:**
+
 1. Team medlem rapporterer blocker
 2. Escalerer til Implementation Lead (Cursor)
 3. Hvis critical: escalerer til HansPedder2
@@ -199,9 +207,11 @@ Key Milestones:
 ## 🎬 SPRINT PLANNING
 
 ### Sprint 1 (Nov 20 - Dec 3)
+
 **Focus:** Foundation & Setup
 
 **Opgaver:**
+
 - [ ] Repo struktur etableret
 - [ ] Transparens dashboard live
 - [ ] Team onboardet
@@ -215,26 +225,29 @@ Key Milestones:
 ## 🤝 TEAM COMPOSITION - 🥇 GLOBAL TOP-TIER AI AGENTS
 
 ### Leadership
-| Role | Agent | Status | Authority |
-|------|-------|--------|-----------|
-| Project Director | HansPedder2 (Owner) | ✅ ACTIVE | SUPREME - Final decisions |
-| Implementation Lead | Cursor (Claude) | ✅ ACTIVE | Tactical execution |
+
+| Role                | Agent               | Status    | Authority                 |
+| ------------------- | ------------------- | --------- | ------------------------- |
+| Project Director    | HansPedder2 (Owner) | ✅ ACTIVE | SUPREME - Final decisions |
+| Implementation Lead | Cursor (Claude)     | ✅ ACTIVE | Tactical execution        |
 
 ### Core Engineering Team (5 Global Top-Tier AI Agents)
-| Role | Agent | Status | Provider | Specialty |
-|------|-------|--------|----------|-----------|
-| Data Engineer | Gemini 2.0 | ✅ ASSIGNED | Google | Multimodal data, ETL architecture |
-| ML Engineer | GPT-4 o1 | ✅ ASSIGNED | OpenAI | Advanced reasoning, VectorDB |
-| Backend Engineer | Copilot Pro | ✅ ASSIGNED | Microsoft | Enterprise APIs, LLM integration |
-| QA Engineer | DeepSeek R1 | ✅ ASSIGNED | DeepSeek | Quality reasoning, test strategy |
-| DevOps Engineer | Apple Intelligence | ✅ ASSIGNED | Apple | Privacy-first infrastructure, CI/CD |
+
+| Role             | Agent              | Status      | Provider  | Specialty                           |
+| ---------------- | ------------------ | ----------- | --------- | ----------------------------------- |
+| Data Engineer    | Gemini 2.0         | ✅ ASSIGNED | Google    | Multimodal data, ETL architecture   |
+| ML Engineer      | GPT-4 o1           | ✅ ASSIGNED | OpenAI    | Advanced reasoning, VectorDB        |
+| Backend Engineer | Copilot Pro        | ✅ ASSIGNED | Microsoft | Enterprise APIs, LLM integration    |
+| QA Engineer      | DeepSeek R1        | ✅ ASSIGNED | DeepSeek  | Quality reasoning, test strategy    |
+| DevOps Engineer  | Apple Intelligence | ✅ ASSIGNED | Apple     | Privacy-first infrastructure, CI/CD |
 
 ### Specialized Experts (3 Global Top-Tier AI Agents)
-| Role | Agent | Status | Provider | Specialty |
-|------|-------|--------|----------|-----------|
-| Function Cloning Expert | DeepSeek | ✅ ASSIGNED | DeepSeek | Code pattern recognition |
-| Frontend Cloning Expert | Gemini UI | ✅ ASSIGNED | Google | UI architecture, design systems |
-| Security Expert | OpenAI Security | ✅ ASSIGNED | OpenAI | Ethical security, threat modeling |
+
+| Role                    | Agent           | Status      | Provider | Specialty                         |
+| ----------------------- | --------------- | ----------- | -------- | --------------------------------- |
+| Function Cloning Expert | DeepSeek        | ✅ ASSIGNED | DeepSeek | Code pattern recognition          |
+| Frontend Cloning Expert | Gemini UI       | ✅ ASSIGNED | Google   | UI architecture, design systems   |
+| Security Expert         | OpenAI Security | ✅ ASSIGNED | OpenAI   | Ethical security, threat modeling |
 
 **See**: 📄 [AI_AGENT_TEAM_ROSTER.md](AI_AGENT_TEAM_ROSTER.md) - Full team details and global rankings
 
@@ -243,18 +256,21 @@ Key Milestones:
 ## 📊 SUCCESS METRICS
 
 ### Technical Metrics
+
 - Retrieval accuracy: >90%
 - Query latency: <200ms (p95)
 - System uptime: >99.5%
 - Answer relevancy (RAGAS): >0.85
 
 ### Project Metrics
+
 - Milestone delivery on-time: 100%
 - Blocker resolution time: <24h
 - Team utilization: >80%
 - Code coverage: >85%
 
 ### Business Metrics
+
 - Go-live on schedule (Mar 2026)
 - Cost within budget
 - Team satisfaction: >8/10
@@ -275,6 +291,7 @@ Key Milestones:
 **Hvornår:** Dagligt standup + ugentlig executive report
 
 ### Daily Standup Template
+
 ```
 Date: YYYY-MM-DD
 Status: 🟢 On Track / 🟡 At Risk / 🔴 Off Track
@@ -285,6 +302,7 @@ Metrics: [Key metrics]
 ```
 
 ### Weekly Executive Report
+
 ```
 Week of: YYYY-MM-DD
 Overall Status: [Status]
@@ -324,11 +342,13 @@ For **ALLE** opgaver gælder:
 ## 🎓 PROJECT GOVERNANCE
 
 **Decision Authority:**
+
 1. HansPedder2 (Project Director) - FINAL
 2. Cursor (Implementation Lead) - Tactical
 3. Team (Specialists) - Technical
 
 **Escalation Path:**
+
 - Technical issue → Cursor decides
 - Resource conflict → Cursor → HansPedder2
 - Strategic change → HansPedder2 decides
@@ -342,5 +362,5 @@ For **ALLE** opgaver gælder:
 
 ---
 
-*This document is the "single source of truth" for RAG project status.*
-*All stakeholders monitor this document for project updates.*
+_This document is the "single source of truth" for RAG project status._
+_All stakeholders monitor this document for project updates._

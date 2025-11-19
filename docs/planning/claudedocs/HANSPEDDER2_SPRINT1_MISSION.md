@@ -25,6 +25,7 @@ Your role is NOT to do the work - it's to **enable the team to deliver excellenc
 **Specific Tasks**:
 
 **TASK 1: Technology Decision Authority (3-4 hours)**
+
 - [ ] Review VectorDB selection report (MLEngineer delivers Nov 27)
   - Understand trade-offs: Pinecone vs Weaviate vs Milvus vs Qdrant
   - Assess cost implications and operational complexity
@@ -44,6 +45,7 @@ Your role is NOT to do the work - it's to **enable the team to deliver excellenc
   - **Decision Required By**: Nov 28 EOD
 
 **Success Criteria**:
+
 - All critical tech decisions made by Day 3
 - Decisions documented with rationale
 - No rework required due to misalignment
@@ -52,6 +54,7 @@ Your role is NOT to do the work - it's to **enable the team to deliver excellenc
 ---
 
 **TASK 2: Budget & Resource Alignment (2-3 hours)**
+
 - [ ] Review infrastructure cost projections
   - Confirm within budget parameters
   - Identify any cost optimization opportunities
@@ -68,6 +71,7 @@ Your role is NOT to do the work - it's to **enable the team to deliver excellenc
   - Tools and tooling
 
 **Success Criteria**:
+
 - Budget alignment confirmed
 - Cost projections realistic
 - No spending surprises
@@ -75,6 +79,7 @@ Your role is NOT to do the work - it's to **enable the team to deliver excellenc
 ---
 
 **TASK 3: Company Stakeholder Communication (3-4 hours)**
+
 - [ ] Executive summary: Project kickoff to company (if needed)
   - What is RAG and why does it matter?
   - Timeline: Go-live Mar 2026
@@ -92,6 +97,7 @@ Your role is NOT to do the work - it's to **enable the team to deliver excellenc
 - [ ] Board/stakeholder alignment meetings (as needed)
 
 **Success Criteria**:
+
 - All stakeholders informed and aligned
 - Transparency maintained
 - No surprises or misalignments
@@ -106,6 +112,7 @@ Your role is NOT to do the work - it's to **enable the team to deliver excellenc
 **Authority**: You can override any decision, approve exceptions, allocate emergency resources
 
 **Escalation Path** (when team cannot resolve):
+
 ```
 Team Member → Cursor (Implementation Lead)
                 ↓
@@ -134,12 +141,14 @@ Team Member → Cursor (Implementation Lead)
    - Emergency priorities? → Arbitrate
 
 **Daily Standup Attendance**:
+
 - **Time**: 09:00 UTC daily
 - **Duration**: 15 minutes
 - **Your Role**: Observer + escalation authority
 - **If Blocker Emerges**: Resolve in real-time or schedule decision
 
 **SLA for Blocker Resolution**:
+
 - CRITICAL blocker reported → You decide within 15 minutes
 - HIGH blocker reported → You decide within 1 hour
 - MEDIUM blocker reported → You decide within 4 hours
@@ -154,6 +163,7 @@ Team Member → Cursor (Implementation Lead)
 **Quality Gates You Own**:
 
 **TASK: Code Review Authority** (ongoing)
+
 - [ ] You don't need to review code personally, BUT
 - [ ] QAEngineer (DeepSeek R1) enforces >85% coverage
 - [ ] You spot-check that Definition of Done is real
@@ -161,22 +171,25 @@ Team Member → Cursor (Implementation Lead)
 - [ ] Escalate if quality is compromised
 
 **TASK: Architecture Review** (Day 4-5)
+
 - [ ] Review all architecture documents (data, retrieval, API, infrastructure)
 - [ ] Ensure designs are production-ready
 - [ ] Flag any concerns about scalability or reliability
 - [ ] Approve or request redesign
 
 **TASK: Security Compliance** (Day 5-6)
+
 - [ ] SecurityExpert delivers threat model and baseline
 - [ ] Review for any critical gaps
 - [ ] Approve security posture
 - [ ] Determine risk acceptance level
 
 **Success Criteria**:
+
 - All architecture passes quality review
 - Security posture acceptable
 - Team understands quality is non-negotiable
-- >85% code coverage becomes team culture
+- > 85% code coverage becomes team culture
 
 ---
 
@@ -185,6 +198,7 @@ Team Member → Cursor (Implementation Lead)
 **Your Role**: Create audit trail, ensure decisions are documented
 
 **What Gets Documented**:
+
 - ✅ Every technology decision (VectorDB, LLM, infrastructure)
 - ✅ Every budget decision
 - ✅ Every blocker and resolution
@@ -192,6 +206,7 @@ Team Member → Cursor (Implementation Lead)
 - ✅ Every exception or deviation from plan
 
 **Where It's Recorded**: `claudedocs/DECISION_LOG.md`
+
 - Every decision logged with:
   - Date, title, owner, rationale
   - Alternative considered, why chosen
@@ -199,6 +214,7 @@ Team Member → Cursor (Implementation Lead)
   - Status and outcome
 
 **Why This Matters**:
+
 - 100% transparency for audit
 - Learning for future projects
 - Evidence of decision quality
@@ -215,6 +231,7 @@ Team Member → Cursor (Implementation Lead)
 **Specific Actions**:
 
 **TASK: First Sprint Kickoff Message** (Day 1)
+
 - [ ] Send message to all 8 agents
   - Welcome to WidgetTDC
   - Your role and why you matter
@@ -223,6 +240,7 @@ Team Member → Cursor (Implementation Lead)
   - We WILL deliver this
 
 **TASK: Weekly Leadership Check-in** (every Friday)
+
 - [ ] 10-minute call with Cursor (lead)
   - How is team morale?
   - Any team issues beyond work?
@@ -230,12 +248,14 @@ Team Member → Cursor (Implementation Lead)
   - What needs leadership attention?
 
 **TASK: Celebrate Milestones** (on completion)
+
 - [ ] Day 2 milestone met? → Acknowledge team
 - [ ] Tech decisions done? → Thank decision team
 - [ ] Security baseline done? → Recognize security expert
 - [ ] Sprint 1 complete? → Celebrate with team
 
 **Success Criteria**:
+
 - Team feels supported and empowered
 - Morale is high
 - Engagement is strong
@@ -247,14 +267,14 @@ Team Member → Cursor (Implementation Lead)
 
 **Required Decisions From You**:
 
-| Decision | Owner | Due Date | Status |
-|----------|-------|----------|--------|
-| VectorDB Approval | You + MLEngineer | Nov 27 | ⏳ PENDING |
-| LLM Provider Approval | You + BackendEngineer | Nov 27 | ⏳ PENDING |
-| Infrastructure Approval | You + DevOpsEngineer | Nov 28 | ⏳ PENDING |
-| Budget Final Approval | You | Nov 28 | ⏳ PENDING |
-| Security Posture Acceptance | You + SecurityExpert | Dec 6 | ⏳ PENDING |
-| Sprint 1 Completion Approval | You | Dec 8 | ⏳ PENDING |
+| Decision                     | Owner                 | Due Date | Status     |
+| ---------------------------- | --------------------- | -------- | ---------- |
+| VectorDB Approval            | You + MLEngineer      | Nov 27   | ⏳ PENDING |
+| LLM Provider Approval        | You + BackendEngineer | Nov 27   | ⏳ PENDING |
+| Infrastructure Approval      | You + DevOpsEngineer  | Nov 28   | ⏳ PENDING |
+| Budget Final Approval        | You                   | Nov 28   | ⏳ PENDING |
+| Security Posture Acceptance  | You + SecurityExpert  | Dec 6    | ⏳ PENDING |
+| Sprint 1 Completion Approval | You                   | Dec 8    | ⏳ PENDING |
 
 **Zero Decisions Can Be Delegated** - These require your authority as owner
 
@@ -263,28 +283,36 @@ Team Member → Cursor (Implementation Lead)
 ## 🎤 HANSPEDDER2 COMMUNICATION CADENCE
 
 ### Daily (09:00 UTC)
+
 **Action**: Attend standup (15 min)
+
 - Observe team status
 - Identify any escalations
 - Watch for blockers
 - Show leadership presence
 
 ### Weekly (Every Monday)
+
 **Action**: Executive report to stakeholders (30 min)
+
 - Status update
 - Completed items
 - Risks/blockers
 - Next week priorities
 
 ### Weekly (Every Friday)
+
 **Action**: 1-on-1 with Cursor (10 min)
+
 - Team morale check
 - Any issues to address
 - What's going great
 - Anything you need to handle
 
 ### As-Needed
+
 **Action**: Blocker escalations (5-15 min)
+
 - Team reports blocker they can't resolve
 - You make decision within SLA
 - Issue resolved immediately
@@ -293,15 +321,15 @@ Team Member → Cursor (Implementation Lead)
 
 ## 📈 YOUR SUCCESS METRICS AS PROJECT DIRECTOR
 
-| Metric | Target | How Measured |
-|--------|--------|--------------|
-| Decision turnaround | <4 hours | Blocker log |
-| Team satisfaction | >90% | Weekly feedback |
-| Budget adherence | Within 5% | Cost tracking |
-| Quality standards | >85% coverage | QA reports |
-| Schedule adherence | On time | Milestone completion |
-| Stakeholder alignment | 100% | Executive feedback |
-| Zero surprises | 100% | Transparency log |
+| Metric                | Target        | How Measured         |
+| --------------------- | ------------- | -------------------- |
+| Decision turnaround   | <4 hours      | Blocker log          |
+| Team satisfaction     | >90%          | Weekly feedback      |
+| Budget adherence      | Within 5%     | Cost tracking        |
+| Quality standards     | >85% coverage | QA reports           |
+| Schedule adherence    | On time       | Milestone completion |
+| Stakeholder alignment | 100%          | Executive feedback   |
+| Zero surprises        | 100%          | Transparency log     |
 
 ---
 
@@ -310,21 +338,25 @@ Team Member → Cursor (Implementation Lead)
 **Your Emergency Authority**:
 
 **Scenario 1: Project at Risk**
+
 - Cursor reports: "We're going off track"
 - Your action: Immediate decision authority
 - You can: Add resources, extend timeline, reduce scope, whatever needed
 
 **Scenario 2: Team Conflict**
+
 - Two agents disagree on architecture
 - Your action: Hear both sides, make decision
 - You decide: Which approach wins, why, how team moves forward
 
 **Scenario 3: Budget Overrun**
+
 - Infrastructure costs higher than expected
 - Your action: Approve increase, reduce scope, find savings
 - You decide: Path forward
 
 **Scenario 4: Quality Slipping**
+
 - Code coverage dropping below 85%
 - Your action: Halt deployment, require remediation
 - You decide: Fix or pivot
@@ -334,26 +366,31 @@ Team Member → Cursor (Implementation Lead)
 ## 📍 YOUR ALIGNMENT POINTS
 
 ### Point 1: Vision Alignment
+
 **Mission**: WidgetTDC RAG becomes standard for company AI strategy
 **Your Role**: Guard that vision, ensure every decision supports it
 **Daily Check**: "Does this decision move us toward the vision?"
 
 ### Point 2: Team Alignment
+
 **Mission**: Build world-class AI team that can execute at scale
 **Your Role**: Enable, support, celebrate, remove obstacles
 **Daily Check**: "Are we making it easy for the team to win?"
 
 ### Point 3: Stakeholder Alignment
+
 **Mission**: Build trust with company leadership on execution
 **Your Role**: Over-communicate, be transparent, deliver predictably
 **Daily Check**: "Would stakeholders be comfortable with our progress?"
 
 ### Point 4: Quality Alignment
+
 **Mission**: Ship production-ready RAG system with 0 critical issues
 **Your Role**: Demand excellence, enforce standards, accept no shortcuts
 **Daily Check**: "Would I be comfortable running this system for our customers?"
 
 ### Point 5: Timeline Alignment
+
 **Mission**: Deliver go-live Mar 2026 on schedule
 **Your Role**: Remove blockers, make hard trade-off decisions, keep team focused
 **Daily Check**: "Are we on track for December milestone?"
@@ -363,6 +400,7 @@ Team Member → Cursor (Implementation Lead)
 ## ✅ HANSPEDDER2 SPRINT 1 READINESS
 
 **You Are Ready When**:
+
 - [ ] You understand the RAG system architecture
 - [ ] You've read all 3 tech selection reports by Nov 27
 - [ ] You've reviewed Decision Log procedures
@@ -433,5 +471,5 @@ Remove blockers, don't create them.
 **Authority**: ✅ **AUTHORIZED**
 **Timeline**: 📅 **2025-11-24 to 2025-12-08**
 
-*Updated: 2025-11-18*
-*Team**: Waiting for your leadership*
+_Updated: 2025-11-18_
+_Team\*\*: Waiting for your leadership_

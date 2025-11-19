@@ -110,3 +110,52 @@ CREATE TABLE IF NOT EXISTS pal_events (
 CREATE INDEX IF NOT EXISTS idx_pal_profiles_user ON pal_user_profiles(user_id, org_id);
 CREATE INDEX IF NOT EXISTS idx_pal_focus_windows_user ON pal_focus_windows(user_id);
 CREATE INDEX IF NOT EXISTS idx_pal_events_user ON pal_events(user_id, org_id);
+
+-- Security Intelligence tables
+CREATE TABLE IF NOT EXISTS security_search_templates (
+  id            TEXT PRIMARY KEY,
+  name          TEXT NOT NULL,
+  description   TEXT NOT NULL,
+  query         TEXT NOT NULL,
+  severity      TEXT NOT NULL DEFAULT 'all',
+  timeframe     TEXT NOT NULL DEFAULT '24h',
+  sources       TEXT NOT NULL DEFAULT '[]',
+  created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS security_search_history (
+  id             TEXT PRIMARY KEY,
+  query          TEXT NOT NULL,
+  severity       TEXT NOT NULL,
+  timeframe      TEXT NOT NULL,
+  sources        TEXT NOT NULL,
+  results_count  INTEGER NOT NULL DEFAULT 0,
+  latency_ms     INTEGER NOT NULL DEFAULT 0,
+  created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_security_search_history_created ON security_search_history(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS security_activity_events (
+  id             TEXT PRIMARY KEY,
+  title          TEXT NOT NULL,
+  description    TEXT NOT NULL,
+  category       TEXT NOT NULL,
+  severity       TEXT NOT NULL,
+  source         TEXT NOT NULL,
+  rule           TEXT,
+  channel        TEXT NOT NULL DEFAULT 'SSE',
+  payload        TEXT,
+  created_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  acknowledged   INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_security_activity_events_created ON security_activity_events(created_at DESC);
+
+CREATE TABLE IF NOT EXISTS widget_permissions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  widget_id TEXT NOT NULL,
+  resource_type TEXT NOT NULL, -- e.g., 'file_system', 'local_storage', 'drives'
+  access_level TEXT NOT NULL CHECK (access_level IN ('none', 'read', 'write')), -- none, read, write
+  override BOOLEAN DEFAULT 0, -- 0 for platform default, 1 for widget-specific override
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(widget_id, resource_type)
+);

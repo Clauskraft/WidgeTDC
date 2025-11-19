@@ -1,186 +1,420 @@
-/* Microsoft Fluent Design Tokens */
-:root {
-  /* === MICROSOFT FARVER === */
-  --ms-surface: #f3f3f3;
-  --ms-surface-alt: #fafafa;
-  --ms-accent: #0078d4;
-  --ms-accent-light: #e1f3fc;
-  --ms-text-primary: #000000;
-  --ms-text-secondary: #616161;
-  --ms-border: #e1e1e1;
-  
-  /* === MICROSOFT SKALING === */
-  --ms-base-unit: 4px;
-  --ms-spacing-xs: calc(var(--ms-base-unit) * 2);  /* 8px */
-  --ms-spacing-sm: calc(var(--ms-base-unit) * 4);  /* 16px */
-  --ms-spacing-md: calc(var(--ms-base-unit) * 6);  /* 24px */
-  
-  /* === MICROSOFT RADII === */
-  --ms-radius-small: 4px;
-  --ms-radius-medium: 8px;
-  --ms-radius-large: 12px;
-  
-  /* === MICROSOFT SHADOWS === */
-  --ms-shadow-1: 0 1.6px 3.6px rgba(0,0,0,0.07), 0 0.3px 0.9px rgba(0,0,0,0.1);
-  --ms-shadow-2: 0 3.2px 7.2px rgba(0,0,0,0.08), 0 0.6px 1.8px rgba(0,0,0,0.11);
+/* TDC Erhverv Design System */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  /* === MICROSOFT TYPOGRAPHY === */
-  --ms-typography: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
-  
-  /* === ACCESSIBILITY TOKENS === */
-  --ms-high-contrast-border: 2px solid currentColor;
-  --ms-focus-outline: 2px solid var(--ms-accent);
-}
+@layer base {
+  :root {
+    /* === COLOR SYSTEM (HSL Format) === */
+    --background: 0 0% 100%;
+    --foreground: 240 100% 37.5%;
 
-/* Dark mode tokens */
-.dark {
-  --ms-surface: #202020;
-  --ms-surface-alt: #2d2d2d;
-  --ms-text-primary: #ffffff;
-  --ms-text-secondary: #a5a5a5;
-  --ms-border: #484848;
-}
+    --card: 0 0% 100%;
+    --card-foreground: 240 100% 37.5%;
 
-.ms-typography {
-  font-family: var(--ms-typography);
-}
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 100% 37.5%;
 
-/* Microsofts gennemsigtige blur effect */
-.ms-acrylic {
-  background: rgba(243, 243, 243, 0.85); /* Fluent surface with opacity */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 230 45% 12%;
+    --primary-light: 210 100% 45%;
+    --primary-brand: 240 100% 50%;
 
-/* Fallback for browsers without backdrop-filter */
-@supports not (backdrop-filter: blur(20px)) {
-  .ms-acrylic {
-    background: var(--ms-surface);
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 240 100% 37.5%;
+
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 210 100% 95%;
+    --accent-foreground: 240 100% 37.5%;
+
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 240 100% 37.5%;
+
+    /* === SHADOWS === */
+    --shadow-card: 0 4px 20px hsl(240 100% 37.5% / 0.1);
+    --shadow-hero: 0 25px 50px hsl(240 100% 37.5% / 0.15);
+    --shadow-button: 0 8px 25px hsl(240 100% 37.5% / 0.2);
+
+    /* === SPACING & RADIUS === */
+    --radius: 0.5rem;
+
+    /* === GRADIENTS === */
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 50%) 0%, hsl(240 100% 50%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(210 100% 95%) 0%, hsl(240 100% 95%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(230 45% 12%) 0%, hsl(210 100% 50%) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(210 100% 98%) 0%, hsl(240 100% 98%) 100%);
+  }
+
+  .dark {
+    --background: 230 45% 12%;
+    --foreground: 0 0% 100%;
+
+    --card: 240 38% 15%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 240 38% 15%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --primary-dark: 230 45% 8%;
+    --primary-light: 210 100% 60%;
+
+    --secondary: 240 38% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 38% 20%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 210 100% 25%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 240 30% 25%;
+    --input: 240 30% 25%;
+    --ring: 210 100% 50%;
+
+    --shadow-card: 0 4px 20px hsl(0 0% 0% / 0.3);
+    --shadow-hero: 0 25px 50px hsl(0 0% 0% / 0.5);
+    --shadow-button: 0 8px 25px hsl(0 0% 0% / 0.4);
   }
 }
 
-/* Dark mode acrylic */
-.dark .ms-acrylic {
-  background: rgba(32, 32, 32, 0.85);
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Segoe UI", "Segoe UI Web (West European)", -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+  }
 }
 
-.ms-widget-container {
-  background: var(--ms-surface-alt);
-  border: 1px solid var(--ms-border);
-  border-radius: var(--ms-radius-medium);
-  box-shadow: var(--ms-shadow-1);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-  overflow: hidden;
+/* === WIDGET CARD STYLES === */
+.widget-card {
+  @apply relative rounded-lg border border-border/20 bg-card/5 p-6;
+  @apply backdrop-blur-sm transition-all duration-300;
+  box-shadow: var(--shadow-card);
 }
 
-.ms-widget-container:hover {
-  box-shadow: var(--ms-shadow-2);
-  transform: translateY(-1px);
+.widget-card:hover {
+  @apply scale-[1.02] -translate-y-1;
+  box-shadow: var(--shadow-hero);
 }
 
-/* Widget header - Microsoft style */
-.ms-widget-header {
-  padding: var(--ms-spacing-sm);
-  border-bottom: 1px solid var(--ms-border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.widget-card-header {
+  @apply flex items-center gap-3 mb-4;
 }
 
-.ms-widget-title {
-  font: var(--ms-typography);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ms-text-primary);
+.widget-card-icon {
+  @apply p-2 rounded-lg;
+  background: var(--gradient-primary);
 }
 
-.ms-widget-actions {
-  display: flex;
-  gap: var(--ms-spacing-xs);
+.widget-card-title {
+  @apply text-lg font-semibold text-card-foreground;
 }
 
-.ms-icon-button {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--ms-radius-small);
-  border: none;
-  background: transparent;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.widget-card-content {
+  @apply text-sm text-muted-foreground;
 }
 
-.ms-icon-button:hover {
-  background: rgba(0,0,0,0.05);
+/* === ANIMATIONS === */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.dark .ms-icon-button:hover {
-  background: rgba(255,255,255,0.1);
+@keyframes slide-in {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
-/* Bedre end Microsofts default focus */
-.ms-focusable:focus-visible {
-  outline: var(--ms-focus-outline);
-  outline-offset: 2px;
-  border-radius: var(--ms-radius-small);
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+/* === BUTTON STYLES === */
+.btn-primary {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  @apply bg-primary text-primary-foreground;
+  box-shadow: var(--shadow-button);
+}
+
+.btn-primary:hover {
+  @apply scale-105;
+  filter: brightness(1.1);
+}
+
+.btn-secondary {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  @apply bg-secondary text-secondary-foreground border border-border;
+}
+
+.btn-secondary:hover {
+  @apply bg-accent;
+}
+
+/* === LOADING SKELETON === */
+.skeleton {
+  @apply animate-pulse bg-muted rounded;
+}
+
+.skeleton-shimmer {
+  @apply relative overflow-hidden;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  @apply absolute inset-0;
+  background: linear-gradient(90deg, transparent, hsl(var(--background) / 0.5), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* === ACCESSIBILITY === */
+.focusable:focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2;
 }
 
 /* High contrast mode support */
 @media (prefers-contrast: high) {
-  .ms-focusable:focus-visible {
-    outline: var(--ms-high-contrast-border);
-    background-color: transparent;
+  .widget-card {
+    @apply border-2 border-foreground;
+  }
+
+  .focusable:focus-visible {
+    @apply outline outline-2 outline-foreground;
   }
 }
 
-/* Microsoft-style animation, men med reduced motion support */
+/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .ms-widget-container,
-  .trash-dropzone {
-    transition: none !important;
-    animation: none !important;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  
-  .ms-widget-container:hover {
-    transform: none;
+
+  .widget-card:hover {
+    @apply scale-100 translate-y-0;
   }
 }
 
-/* Papirkurv til træk-og-slip sletning */
+/* === DRAG AND DROP TRASH ZONE === */
 .trash-dropzone {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 120px;
-    background-color: rgba(30, 41, 59, 0.8);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    z-index: 1000;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    transform: translateY(100%);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    gap: 1rem;
+  @apply fixed bottom-0 left-0 right-0;
+  @apply h-32 bg-slate-900/80 backdrop-blur-md;
+  @apply flex items-center justify-center gap-4;
+  @apply text-white z-[1000];
+  @apply transition-transform duration-300;
+  @apply border-t border-white/20;
+  transform: translateY(100%);
 }
 
 .trash-dropzone.is-visible {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 .trash-dropzone.is-active {
-    background-color: rgba(220, 38, 38, 0.9);
+  @apply bg-destructive/90;
 }
 
 .trash-dropzone .trash-icon {
-    transition: transform 0.2s ease;
+  @apply transition-transform duration-200;
 }
 
 .trash-dropzone.is-active .trash-icon {
-    transform: scale(1.2);
+  @apply scale-125;
+}
+
+/* === MICROSOFT FLUENT ACRYLIC EFFECT === */
+.ms-acrylic {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.7) 0%,
+    rgba(255, 255, 255, 0.5) 100%
+  );
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+}
+
+.dark .ms-acrylic {
+  background: linear-gradient(
+    135deg,
+    rgba(10, 14, 46, 0.8) 0%,
+    rgba(10, 14, 46, 0.6) 100%
+  );
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+}
+
+/* === WIDGET CONTAINER ACRYLIC === */
+.ms-widget-container {
+  @apply rounded-lg border transition-all duration-300;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .ms-widget-container {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.ms-widget-container:hover {
+  @apply shadow-[var(--shadow-hero)];
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .ms-widget-container:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* === WIDGET HEADER ACRYLIC === */
+.ms-widget-header {
+  @apply flex items-center justify-between p-3 rounded-t-lg;
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(147, 51, 234, 0.1) 100%
+  );
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .ms-widget-header {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.15) 0%,
+    rgba(147, 51, 234, 0.15) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ms-widget-title {
+  @apply text-sm font-semibold;
+  color: hsl(var(--foreground));
+}
+
+.ms-widget-actions {
+  @apply flex items-center gap-1;
+}
+
+/* === MICROSOFT ICON BUTTON STYLE === */
+.ms-icon-button {
+  @apply p-1.5 rounded transition-all duration-200;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .ms-icon-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ms-icon-button:hover:not(:disabled) {
+  @apply scale-110;
+  background: rgba(59, 130, 246, 0.4);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.dark .ms-icon-button:hover:not(:disabled) {
+  background: rgba(59, 130, 246, 0.3);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.ms-icon-button:disabled {
+  @apply opacity-40 cursor-not-allowed;
+}
+
+/* === FOCUS RING SYSTEM === */
+.ms-focusable:focus-visible {
+  @apply outline-none;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--primary));
+}
+
+/* === DRAG HANDLE === */
+.widget-drag-handle {
+  cursor: move !important;
 }
