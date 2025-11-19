@@ -119,7 +119,7 @@ export function seedDatabase() {
     priority: 'high'
   }), 'high');
 
-  console.log('✅ Database seeded successfully');
+  console.log('Database seeded successfully');
 }
 
 // Run seeds if this file is executed directly

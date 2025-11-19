@@ -103,7 +103,7 @@ const Phase1CFastTrackKanbanWidget: React.FC<{ widgetId: string }> = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900 rounded-lg border border-blue-200 dark:border-blue-700">
         <div>
-          <h2 className="font-bold text-blue-900 dark:text-blue-100">🚀 Priority 3: Phase 1.C Fast-Track</h2>
+          <h2 className="font-bold text-blue-900 dark:text-blue-100">Priority 3: Phase 1.C Fast-Track</h2>
           <p className="text-sm text-blue-700 dark:text-blue-300">Nov 18-22, 2025 | 4 Teams | 8.5 Person-Days</p>
         </div>
         <div className="text-right">
@@ -159,7 +159,7 @@ const Phase1CFastTrackKanbanWidget: React.FC<{ widgetId: string }> = () => {
                       }}
                     >
                       <div className="font-semibold text-xs">{task.name}</div>
-                      <div className="text-xs opacity-75">👤 {task.lead}</div>
+                      <div className="text-xs opacity-75">{task.lead}</div>
                       <div className="text-xs opacity-60 mt-1 space-y-0.5">
                         {task.subtasks.map((subtask, idx) => (
                           <div key={idx}>• {subtask}</div>
@@ -179,8 +179,8 @@ const Phase1CFastTrackKanbanWidget: React.FC<{ widgetId: string }> = () => {
 
       {/* Footer Info */}
       <div className="px-4 pb-4 text-xs opacity-75 bg-gray-50 dark:bg-gray-800 rounded p-3">
-        <p>✅ Klik på kort for at opdatere status: Planlagt → Kørende → Blokeret → Færdig</p>
-        <p>📅 Deadline: Fredag, Nov 22 - Alle leverancer skal være færdige</p>
+        <p>Klik på kort for at opdatere status: Planlagt → Kørende → Blokeret → Færdig</p>
+        <p>Deadline: Fredag, Nov 22 - Alle leverancer skal være færdige</p>
       </div>
     </div>
   );

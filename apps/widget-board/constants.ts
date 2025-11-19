@@ -1,6 +1,8 @@
 import AgentChatWidget from './widgets/AgentChatWidget';
 import PromptLibraryWidget from './widgets/PromptLibraryWidget';
 import PerformanceMonitorWidget from './widgets/PerformanceMonitorWidget';
+import SystemMonitorWidget from './widgets/SystemMonitorWidget';
+import NexusTerminalWidget from './widgets/NexusTerminalWidget';
 import SystemSettingsWidget from './widgets/SystemSettingsWidget';
 import AgentBuilderWidget from './widgets/AgentBuilderWidget';
 import LiveConversationWidget from './widgets/LiveConversationWidget';
@@ -14,9 +16,21 @@ import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
 import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
 import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
 import StatusWidget from './widgets/StatusWidget';
+import DarkWebMonitorWidget from './widgets/DarkWebMonitorWidget';
+import Phase1CFastTrackKanbanWidget from './widgets/Phase1CFastTrackKanbanWidget';
 import { WidgetDefinition } from './types';
+import KanbanWidget from './widgets/KanbanWidget';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
+  {
+    id: 'Phase1CFastTrackKanban',
+    name: 'Priority 3: Phase 1.C Kanban',
+    component: Phase1CFastTrackKanbanWidget,
+    defaultLayout: { w: 12, h: 12 },
+    source: 'proprietary',
+    minW: 8,
+    minH: 8,
+  },
   {
     id: 'AgentChatWidget',
     name: 'Chat Agent',
@@ -125,6 +139,24 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     maxH: 6,
   },
   {
+    id: 'SystemMonitorWidget',
+    name: 'System Monitor',
+    component: SystemMonitorWidget,
+    defaultLayout: { w: 8, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
+    id: 'NexusTerminalWidget',
+    name: 'NEXUS Terminal',
+    component: NexusTerminalWidget,
+    defaultLayout: { w: 8, h: 8 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 6,
+  },
+  {
     id: 'SystemSettingsWidget',
     name: 'Systemindstillinger',
     component: SystemSettingsWidget,
@@ -161,5 +193,14 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     minH: 6,
     maxW: 6,
     maxH: 8,
+  },
+  {
+    id: 'DarkWebMonitor',
+    name: 'Dark Web Monitor',
+    component: DarkWebMonitorWidget,
+    defaultLayout: { w: 12, h: 10 },
+    source: 'proprietary',
+    minW: 8,
+    minH: 8,
   }
 ];
