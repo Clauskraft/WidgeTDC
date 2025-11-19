@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input'; // Antag UI-komponent
 import { Slider } from '../components/ui/Slider'; // Antag
+import { Badge } from '../components/ui/Badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table'; // Antag
-import { useMCP } from '../../src/hooks/useMCP'; // Eksisterende hook
+import { useMCP } from '../src/hooks/useMCP'; // Eksisterende hook
 
 interface ScanConfig {
   path: string; // Local (e.g., '/mnt/drive') or UNC ('\\server\\share')
@@ -24,7 +25,12 @@ interface ScanResult {
 
 const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
   const { send: mcpSend, isLoading } = useMCP();
-  const [config, setConfig] = useState<ScanConfig>({ path: '/tmp/scan-target', depth: 3, keywords: ['threat', 'IP', 'credential'] });
+    const [config, setConfig] = useState<ScanConfig>({
+      path: '/tmp/scan-target',
+      depth: 3,
+      keywords: ['threat', 'IP', 'credential'],
+      intervalMin: 30,
+    });
   const [results, setResults] = useState<ScanResult[]>([]);
   const [autoScan, setAutoScan] = useState(false);
   const [scanning, setScanning] = useState(false);
@@ -106,14 +112,14 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
           value={config.keywords.join(', ')}
           onChange={(e) => saveConfig({ ...config, keywords: e.target.value.split(',').map(k => k.trim()).filter(Boolean) })}
         />
-        <div className="flex gap-2 items-center">
-          <input
-            type="checkbox"
-            checked={autoScan}
-            onChange={(e) => setAutoScan(e.target.checked)}
-          />
-          <label>Auto-scan every {config.intervalMin || 30} min</label>
-        </div>
+          <label className="flex gap-2 items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={autoScan}
+              onChange={(e) => setAutoScan(e.target.checked)}
+            />
+            <span>Auto-scan every {config.intervalMin || 30} min</span>
+          </label>
         <Button onClick={triggerScan} disabled={scanning || !config.path} variant="primary">
           {scanning ? 'Scanning...' : 'Start Scan'}
         </Button>
@@ -123,44 +129,51 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
 
       {/* Results Table */}
       <div className="flex-1 overflow-auto">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHead>File Name</TableHead>
-              <TableHead>Path</TableHead>
-              <TableHead>Threat Score (0-10)</TableHead>
-              <TableHead>Size</TableHead>
-              <TableHead>Image Analysis</TableHead>
-              <TableHead>Snippet</TableHead>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {results.map((result) => (
-              <TableRow key={result.fullPath}>
-                <TableCell>{result.name}</TableCell>
-                <TableCell className="text-xs">{result.fullPath}</TableCell>
-                <TableCell>
-                  <Badge variant={result.threatScore > 5 ? 'destructive' : 'default'}>
-                    {result.threatScore}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-xs">{(result.sizeBytes / 1024).toFixed(1)} KB</TableCell>
-                <TableCell className="text-xs">
-                  {result.hasImage && result.imageAnalysis ? (
-                    <div>
-                      <p>OCR: {result.imageAnalysis.ocrText?.substring(0, 50)}...</p>
-                      <p>Alt: {result.imageAnalysis.altText || 'N/A'}</p>
-                      <p>Score: {result.imageAnalysis.score}</p>
-                    </div>
-                  ) : (
-                    'N/A'
-                  )}
-                </TableCell>
-                <TableCell className="text-xs font-mono">{result.snippet.substring(0, 100)}...</TableCell>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableHeader>File Name</TableHeader>
+                <TableHeader>Path</TableHeader>
+                <TableHeader>Threat Score (0-10)</TableHeader>
+                <TableHeader>Size</TableHeader>
+                <TableHeader>Image Analysis</TableHeader>
+                <TableHeader>Snippet</TableHeader>
               </TableRow>
-            ))}
-            {results.length === 0 && <p className="text-center text-slate-500">No results yet. Start a scan!</p>}
-          </TableBody>
+            </TableHead>
+            <TableBody>
+              {results.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-slate-500">
+                    No results yet. Start a scan!
+                  </TableCell>
+                </TableRow>
+              ) : (
+                results.map(result => (
+                  <TableRow key={result.fullPath}>
+                    <TableCell>{result.name}</TableCell>
+                    <TableCell className="text-xs">{result.fullPath}</TableCell>
+                    <TableCell>
+                      <Badge variant={result.threatScore > 5 ? 'destructive' : 'default'}>
+                        {result.threatScore}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs">{(result.sizeBytes / 1024).toFixed(1)} KB</TableCell>
+                    <TableCell className="text-xs">
+                      {result.hasImage && result.imageAnalysis ? (
+                        <div>
+                          <p>OCR: {result.imageAnalysis.ocrText?.substring(0, 50)}...</p>
+                          <p>Alt: {result.imageAnalysis.altText || 'N/A'}</p>
+                          <p>Score: {result.imageAnalysis.score}</p>
+                        </div>
+                      ) : (
+                        'N/A'
+                      )}
+                    </TableCell>
+                    <TableCell className="text-xs font-mono">{result.snippet.substring(0, 100)}...</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
         </Table>
       </div>
     </div>

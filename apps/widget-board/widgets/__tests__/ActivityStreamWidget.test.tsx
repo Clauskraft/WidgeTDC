@@ -2,6 +2,17 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ActivityStreamWidget from '../ActivityStreamWidget';
 
+vi.mock('../../utils/securityApi', () => ({
+  fetchSecurityActivity: vi.fn().mockResolvedValue({
+    events: [
+      { id: 'evt-1', title: 'Credential dump', severity: 'critical', timestamp: new Date().toISOString(), source: 'Dark Web' },
+      { id: 'evt-2', title: 'Phishing domain', severity: 'medium', timestamp: new Date().toISOString(), source: 'OSINT' },
+    ],
+  }),
+  acknowledgeActivityEvent: vi.fn().mockResolvedValue({}),
+  getActivityStreamUrl: vi.fn().mockReturnValue('wss://example.com/activity'),
+}));
+
 describe('ActivityStreamWidget', () => {
   it('smoke test: renders live stream header and events', () => {
     render(<ActivityStreamWidget widgetId="activity-test" />);

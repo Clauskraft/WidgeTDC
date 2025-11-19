@@ -1,195 +1,16 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '../components/ui/Button';
-import type { SecurityFeedsPayload } from '../utils/securityApi';
-import { fetchSecurityFeeds } from '../utils/securityApi';
+import {
+  DEFAULT_FEED_PAYLOAD,
+  fetchSecurityFeeds,
+  type SecurityFeedsPayload,
+  type FeedSource,
+  type PipelineStage,
+  type NormalizedItem,
+  type ThreatLevel,
+  type FeedStatus,
+} from '../utils/securityApi';
 import { usePermissions } from '../contexts/PermissionContext';
-
-type ThreatLevel = 'low' | 'medium' | 'high' | 'critical';
-type FeedStatus = 'healthy' | 'warning' | 'error';
-
-interface FeedSource {
-  id: string;
-  name: string;
-  endpoint: string;
-  cadence: string;
-  lastFetched: string;
-  tags: string[];
-  threatLevel: ThreatLevel;
-  status: FeedStatus;
-  documentsPerHour: number;
-  duplicatesPerHour: number;
-  backlogMinutes: number;
-  regions: string[];
-}
-
-interface PipelineStage {
-  id: string;
-  name: string;
-  service: string;
-  status: FeedStatus;
-  latencyMs: number;
-}
-
-interface NormalizedItem {
-  id: string;
-  feedId: string;
-  title: string;
-  severity: ThreatLevel;
-  summary: string;
-  tags: string[];
-  dedupeHits: number;
-  ingestedAt: string;
-}
-
-const FALLBACK_FEEDS: FeedSource[] = [
-  {
-    id: 'feed-darkweb',
-    name: 'Dark Web Credential Markets',
-    endpoint: 'https://cyberstreams.darkfeeds/api/v2',
-    cadence: 'Every 2 min',
-    lastFetched: '2025-11-18T08:22:00Z',
-    tags: ['dark-web', 'credentials', 'leak'],
-    threatLevel: 'critical',
-    status: 'healthy',
-    documentsPerHour: 420,
-    duplicatesPerHour: 11,
-    backlogMinutes: 2,
-    regions: ['EU-West', 'US-East'],
-  },
-  {
-    id: 'feed-cert',
-    name: 'CERT-EU Advisories',
-    endpoint: 'https://cert.europa.eu/rss',
-    cadence: 'Every 15 min',
-    lastFetched: '2025-11-18T08:15:00Z',
-    tags: ['gov', 'advisory'],
-    threatLevel: 'high',
-    status: 'healthy',
-    documentsPerHour: 96,
-    duplicatesPerHour: 2,
-    backlogMinutes: 0,
-    regions: ['EU-West'],
-  },
-  {
-    id: 'feed-vuln',
-    name: 'Vendor Vulnerability Radar',
-    endpoint: 'https://vendors.cyberstreams.io/vuln',
-    cadence: 'Every 5 min',
-    lastFetched: '2025-11-18T08:20:00Z',
-    tags: ['patch', 'vendor', 'advisory'],
-    threatLevel: 'medium',
-    status: 'warning',
-    documentsPerHour: 210,
-    duplicatesPerHour: 19,
-    backlogMinutes: 8,
-    regions: ['Global'],
-  },
-  {
-    id: 'feed-ics',
-    name: 'ICS / OT Telemetry',
-    endpoint: 'wss://ot.cyberstreams.io/stream',
-    cadence: 'Streaming',
-    lastFetched: '2025-11-18T08:21:00Z',
-    tags: ['ics', 'ot', 'anomaly'],
-    threatLevel: 'high',
-    status: 'healthy',
-    documentsPerHour: 310,
-    duplicatesPerHour: 4,
-    backlogMinutes: 1,
-    regions: ['EU-North', 'US-Central'],
-  },
-  {
-    id: 'feed-finsec',
-    name: 'Financial Sector OSINT',
-    endpoint: 'https://finsec-osint.cyberstreams.io/rss',
-    cadence: 'Every 30 min',
-    lastFetched: '2025-11-18T07:55:00Z',
-    tags: ['finance', 'osint'],
-    threatLevel: 'low',
-    status: 'healthy',
-    documentsPerHour: 62,
-    duplicatesPerHour: 1,
-    backlogMinutes: 0,
-    regions: ['Global'],
-  },
-];
-
-const FALLBACK_PIPELINE: PipelineStage[] = [
-  { id: 'ingest', name: 'Ingest', service: 'RSS Poller', status: 'healthy', latencyMs: 120 },
-  { id: 'normalize', name: 'Normalize', service: 'Feed Normalizer', status: 'healthy', latencyMs: 150 },
-  { id: 'tag', name: 'Tag', service: 'NLP Tagger', status: 'healthy', latencyMs: 90 },
-  { id: 'classify', name: 'Classify', service: 'Threat Classifier', status: 'warning', latencyMs: 210 },
-  { id: 'index', name: 'Index', service: 'OpenSearch Writer', status: 'healthy', latencyMs: 80 },
-  { id: 'archive', name: 'Archive', service: 'MinIO Bucket', status: 'healthy', latencyMs: 65 },
-];
-
-const FALLBACK_DOCUMENTS: NormalizedItem[] = [
-  {
-    id: 'ti-90311',
-    feedId: 'feed-darkweb',
-    title: 'APT41 credential bundle targeting Nordic finance leadership',
-    severity: 'critical',
-    summary: 'Fresh dump with 1.2k employee accounts and MFA reset instructions.',
-    tags: ['APT41', 'credential', 'darkweb'],
-    dedupeHits: 3,
-    ingestedAt: '2025-11-18T08:18:00Z',
-  },
-  {
-    id: 'ti-90302',
-    feedId: 'feed-cert',
-    title: 'CERT-EU advisory on OpenSSL CVE-2025-1123',
-    severity: 'high',
-    summary: 'Advisory with mitigation steps and detection artifacts.',
-    tags: ['CVE-2025-1123', 'openssl', 'patch'],
-    dedupeHits: 0,
-    ingestedAt: '2025-11-18T08:11:00Z',
-  },
-  {
-    id: 'ti-90277',
-    feedId: 'feed-vuln',
-    title: 'Vendor bulletin: Zero-day exploitation of procurement suite',
-    severity: 'medium',
-    summary: 'Vendor confirms limited exploitation with SQL injection payload.',
-    tags: ['procurement', 'zero-day'],
-    dedupeHits: 1,
-    ingestedAt: '2025-11-18T08:05:00Z',
-  },
-  {
-    id: 'ti-90241',
-    feedId: 'feed-ics',
-    title: 'ICS anomaly: PLC config drift detected in EU wind farm',
-    severity: 'high',
-    summary: 'Deviation in firmware hash and unexpected Modbus command burst.',
-    tags: ['ICS', 'OT', 'anomaly'],
-    dedupeHits: 0,
-    ingestedAt: '2025-11-18T08:02:00Z',
-  },
-];
-
-const FALLBACK_METRICS = {
-  documentsIndexed: 98231,
-  ingestionLatency: 380,
-  dedupeRate: 0.89,
-  backlogMinutes: 6,
-};
-
-const FALLBACK_ARCHIVE = {
-  sizeBytes: 1_900_000_000_000,
-  retentionDays: 60,
-  objectCount: 18_240,
-};
-
-const DEFAULT_FEED_PAYLOAD: SecurityFeedsPayload = {
-  feeds: FALLBACK_FEEDS,
-  pipelineStages: FALLBACK_PIPELINE,
-  normalizedDocuments: FALLBACK_DOCUMENTS,
-  metrics: FALLBACK_METRICS,
-  archive: FALLBACK_ARCHIVE,
-  environment: {
-    openSearchConnected: false,
-    minioConnected: false,
-  },
-};
 
 const severityStyles: Record<ThreatLevel, string> = {
   low: 'bg-emerald-100 text-emerald-600 border-emerald-200',
@@ -237,16 +58,16 @@ const FeedIngestionWidget: React.FC<{ widgetId: string }> = () => {
   const { loading } = usePermissions();
   const [searchTerm, setSearchTerm] = useState('');
   const [levelFilter, setLevelFilter] = useState<ThreatLevel | 'all'>('all');
-  const [selectedFeedId, setSelectedFeedId] = useState(FALLBACK_FEEDS[0].id);
+  const [selectedFeedId, setSelectedFeedId] = useState(DEFAULT_FEED_PAYLOAD.feeds[0].id);
   const [autoPolling, setAutoPolling] = useState(true);
   const [feedPayload, setFeedPayload] = useState<SecurityFeedsPayload>(DEFAULT_FEED_PAYLOAD);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const feeds = feedPayload.feeds ?? FALLBACK_FEEDS;
-  const normalizedDocuments = feedPayload.normalizedDocuments ?? FALLBACK_DOCUMENTS;
-  const metrics = feedPayload.metrics ?? FALLBACK_METRICS;
-  const archive = feedPayload.archive ?? FALLBACK_ARCHIVE;
-  const pipelineStages = feedPayload.pipelineStages ?? FALLBACK_PIPELINE;
+  const feeds = feedPayload.feeds ?? DEFAULT_FEED_PAYLOAD.feeds;
+  const normalizedDocuments = feedPayload.normalizedDocuments ?? DEFAULT_FEED_PAYLOAD.normalizedDocuments;
+  const metrics = feedPayload.metrics ?? DEFAULT_FEED_PAYLOAD.metrics;
+  const archive = feedPayload.archive ?? DEFAULT_FEED_PAYLOAD.archive;
+  const pipelineStages = feedPayload.pipelineStages ?? DEFAULT_FEED_PAYLOAD.pipelineStages;
 
   const refreshFeeds = useCallback(async () => {
     try {

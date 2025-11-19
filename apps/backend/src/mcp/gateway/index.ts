@@ -1,13 +1,14 @@
 // MCP API Gateway - Integrated from template
-import express, { Request, Response, NextFunction } from 'express';
-import { WebSocketServer, WebSocket } from 'ws';
-import jwt, { JwtPayload } from 'jsonwebtoken';
-import { IncomingMessage } from 'http';
+import express from 'express';
+import { WebSocketServer } from 'ws';
+import jwt from 'jsonwebtoken';
+import { EventEmitter } from 'events';
 import { mcpRouter } from '../mcpRouter.js';
 
 const app = express();
 const server = app.listen(3001);
 const wss = new WebSocketServer({ server });
+export const mcpEmitter = new EventEmitter();
 
 // Auth middleware (multi-tenant)
 const authMiddleware = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -29,7 +30,7 @@ app.use('/api/mcp', authMiddleware, mcpRouter);
 wss.on('connection', (ws, req) => {
   const org_id = req.url?.split('org=')[1];  // Tenant-specific
   (ws as any).org_id = org_id;
-  ws.on('message', (data) => {
+    ws.on('message', (data) => {
     const msg = JSON.parse(data.toString());
     if (msg.type === 'event') {
       // Broadcast to widgets in org
@@ -38,6 +39,7 @@ wss.on('connection', (ws, req) => {
           client.send(JSON.stringify(msg));
         }
       });
+        mcpEmitter.emit(msg.method, msg.params);
     }
   });
 });

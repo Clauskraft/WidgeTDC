@@ -1,6 +1,7 @@
 // Real Aula Poller - No mocks, live API calls
 import cron from 'node-cron';
 import axios from 'axios';
+import crypto from 'crypto';
 import { genAI } from '@google/generative-ai';
 import { PersonalEntityRepository } from '../personal/personalRepository';
 import { mcpEmitter } from '../../mcp/gateway';
@@ -39,18 +40,24 @@ export async function pollAula(userId: string, orgId: string): Promise<void> {
     const messages: AulaMessage[] = response.data.messages || [];  // Real response structure
 
     // Real personal context fetch
-    const personalEntities = await PersonalEntityRepository.findByUserAndType(userId, ['self', 'family']);
-    const context = personalEntities.reduce((acc, p) => ({ ...acc, preferences: p.preferences }), {});
-
-    if (!context.consent_given) {
-      console.log('No consent for personal filtering');
-      return;
-    }
+      const personalEntities = await PersonalEntityRepository.findManyByUserAndTypes(userId, ['self', 'family']);
+      const hasConsent = personalEntities.some(entity => entity.consent_given);
+      if (!hasConsent) {
+        console.log('No consent for personal filtering');
+        return;
+      }
+      const context = personalEntities.reduce(
+        (acc, entity) => ({
+          ...acc,
+          preferences: { ...(acc.preferences ?? {}), ...(entity.preferences ?? {}) },
+        }),
+        {} as { preferences?: Record<string, unknown> }
+      );
 
     for (const msg of messages.filter(m => m.priority === 'high')) {
       // Real LLM resumé
       const prompt = `Resumér Aula-besked på dansk: "${msg.body}". Tilpas til brugerens præferencer: ${JSON.stringify(context.preferences)}. Hold det til 1 sæt.`;
-      const result = await model.generateContent(prompt);
+        const result = await model.generateContent(prompt);
       const summary = await result.response.text();
 
       // Real emit via MCP for notifications
@@ -78,20 +85,35 @@ async function getStoredToken(userId: string): Promise<string> {
   }
 
   const { creds } = entity;
-  const { access_token: encryptedAccess, encrypt_key } = creds;
+    const { access_token: encryptedAccess, encrypt_key } = creds;
 
-  // Real decrypt
-  const decipher = crypto.createDecipher('aes256', encrypt_key);
-  let accessToken = decipher.update(encryptedAccess, 'hex', 'utf8');
-  accessToken += decipher.final('utf8');
+    if (!encryptedAccess) {
+      throw new Error('No stored access token');
+    }
+
+    let accessToken = encryptedAccess;
+
+    if (encrypt_key) {
+      try {
+        const decipher = crypto.createDecipher('aes256', encrypt_key);
+        accessToken = decipher.update(encryptedAccess, 'hex', 'utf8');
+        accessToken += decipher.final('utf8');
+      } catch (error) {
+        console.warn('Failed to decrypt access token, falling back to stored value', error);
+      }
+    }
 
   // Check expiry and refresh if needed
   if (new Date(creds.expires_at) < new Date()) {
     accessToken = await refreshToken(userId);  // Real refresh call
     // Update DB with new encrypted token
-    const cipher = crypto.createCipher('aes256', encrypt_key);
-    const newEncrypted = cipher.update(accessToken, 'utf8', 'hex') + cipher.final('hex');
-    await PersonalEntityRepository.updateCreds(userId, { access_token: newEncrypted });
+      if (encrypt_key) {
+        const cipher = crypto.createCipher('aes256', encrypt_key);
+        const newEncrypted = cipher.update(accessToken, 'utf8', 'hex') + cipher.final('hex');
+        await PersonalEntityRepository.updateCreds(userId, { access_token: newEncrypted });
+      } else {
+        await PersonalEntityRepository.updateCreds(userId, { access_token: accessToken });
+      }
   }
 
   return accessToken;

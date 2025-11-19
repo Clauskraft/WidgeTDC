@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fetchSecurityFeeds, ingestFeed, pollCertEu } from './securityApi';
+import { fetchSecurityFeeds, ingestFeed, pollCertEu } from '../../utils/securityApi';
 import axios from 'axios';
 import { mcpClient } from '../mcpClient';  // Mock
 
@@ -13,8 +13,8 @@ describe('SecurityApi', () => {
     expect(data).toHaveProperty('feeds');
 
     vi.mocked(mcpClient.call).mockRejectedValue(new Error('Fail'));
-    const fallback = await fetchSecurityFeeds();
-    expect(fallback).toHaveProperty('documentsIndexed', 98231);  // From fallback
+      const fallback = await fetchSecurityFeeds();
+      expect(fallback.metrics).toHaveProperty('documentsIndexed', 98231);  // From fallback
   });
 
   it('ingests feed with dedupe and emits event', async () => {
