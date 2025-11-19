@@ -10,7 +10,7 @@ const sragRepo = new SragRepository();
 sragRouter.post('/query', (req, res) => {
   try {
     const request: SragQueryRequest = req.body;
-    
+
     if (!request.orgId || !request.naturalLanguageQuery) {
       return res.status(400).json({
         error: 'Missing required fields: orgId, naturalLanguageQuery',
@@ -68,7 +68,7 @@ sragRouter.post('/ingest/document', (req, res) => {
   try {
     const input = req.body;
     const docId = sragRepo.ingestDocument(input);
-    
+
     res.json({
       success: true,
       docId,
@@ -87,7 +87,7 @@ sragRouter.post('/ingest/fact', (req, res) => {
   try {
     const input = req.body;
     const factId = sragRepo.ingestFact(input);
-    
+
     res.json({
       success: true,
       factId,
