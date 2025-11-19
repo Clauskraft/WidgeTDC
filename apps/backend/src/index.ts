@@ -1,4 +1,8 @@
 import { createServer } from 'http';
+import { mcpRegistry } from './mcp/mcpRegistry.js';
+import { createApp, createMcpWebSocketServer } from './app.js';
+
+const PORT = process.env.PORT || 3001;
 import { exec } from 'child_process';
 import { mcpRegistry } from './mcp/mcpRegistry.js';
 import { createApp, createMcpWebSocketServer } from './app.js';

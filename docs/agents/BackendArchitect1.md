@@ -90,7 +90,7 @@ Lead backend architect responsible for Core Services powering the WidgetBoard pl
 
 ## Technology Stack
 
-- **Languages**: TypeScript, Node.js 18+/20+
+- **Languages**: TypeScript, Node.js 20+
 - **Databases**: PostgreSQL, Redis
 - **Message Queue**: RabbitMQ / Kafka
 - **API**: REST, GraphQL
