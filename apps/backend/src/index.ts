@@ -26,6 +26,10 @@ import {
 import { securityRouter } from './services/security/securityController.js';
 import { agentRouter } from './services/agent/agentController.js';
 import { scRouter } from './services/sc/scController.js';
+// import { securityRouter } from './services/security/securityController.js';
+// import { agentRouter } from './services/agent/agentController.js';
+// import { scRouter } from './services/sc/scController.js';
+// import networkRouter from './services/network/networkController.js';
 
 const app = express();
 const PORT = 3001; // Fixed port to avoid conflicts with exec-daemon
@@ -56,6 +60,10 @@ app.use('/api/security', securityRouter);
 app.use('/api/agent', agentRouter);
 app.use('/api/commands/sc', scRouter);
 app.use('/api/sys', sysRouter);
+// app.use('/api/security', securityRouter);
+// app.use('/api/agent', agentRouter);
+// app.use('/api/commands/sc', scRouter);
+// app.use('/api/network', networkRouter);
 
 // Health check
 app.get('/health', (req, res) => {

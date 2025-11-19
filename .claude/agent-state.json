@@ -68,7 +68,6 @@
         "token_usage": 1200,
         "last_activity": "2025-11-18T01:28:00.000000",
         "current_task": "block-5"
-        "极current_task": "block-5"
       },
       "6": {
         "agent_id": "security-compliance",
@@ -93,6 +92,7 @@
       "unhealthy_agents": 0,
       "total_workload": 360,
       "avg_workload": 60.0,
+      "avg_workload": 60,
       "max_workload": 60
     },
     "thresholds": {

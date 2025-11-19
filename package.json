@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:shared": "npm run build:domain-types && npm run build:mcp-types",
+    "build:domain-types": "cd packages/shared/domain-types && npm install && npm run build",
+    "build:mcp-types": "cd packages/shared/mcp-types && npm install && npm run build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
