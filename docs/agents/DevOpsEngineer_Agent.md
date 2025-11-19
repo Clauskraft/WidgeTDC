@@ -1,10 +1,10 @@
 ---
 name: DevOpsEngineer
-description: "RAG DevOps Specialist - Infrastructure, CI/CD, deployment"
-identity: "DevOps & Infrastructure Expert"
-role: "DevOps Engineer - WidgetTDC RAG"
-status: "PLACEHOLDER - AWAITING ASSIGNMENT"
-assigned_to: "TBD"
+description: 'RAG DevOps Specialist - Infrastructure, CI/CD, deployment'
+identity: 'DevOps & Infrastructure Expert'
+role: 'DevOps Engineer - WidgetTDC RAG'
+status: 'PLACEHOLDER - AWAITING ASSIGNMENT'
+assigned_to: 'TBD'
 ---
 
 # 🚀 DEVOPS ENGINEER - INFRASTRUCTURE & DEPLOYMENT
@@ -21,12 +21,14 @@ assigned_to: "TBD"
 ### EPIC 6: Deployment & Infrastructure
 
 **Phase 1: Foundation (Sprint 1)**
+
 - [ ] Infrastructure design
 - [ ] CI/CD pipeline architecture
 - [ ] Secrets management
 - [ ] Estimate: 8-12 hours
 
 **Phase 2: Implementation (Sprint 2-3)**
+
 - [ ] CI/CD pipeline development
 - [ ] Staging environment setup
 - [ ] Production environment setup
@@ -34,6 +36,7 @@ assigned_to: "TBD"
 - [ ] Estimate: 24-32 hours
 
 **Phase 3: Operations (Sprint 3-4)**
+
 - [ ] Monitoring setup
 - [ ] Alert configuration
 - [ ] Disaster recovery planning
@@ -49,6 +52,7 @@ assigned_to: "TBD"
 ### Infrastructure Design
 
 **Task**: Design scalable infrastructure
+
 - Cloud provider selection (AWS, GCP, Azure)
 - Container orchestration (Docker, K8s)
 - Database hosting
@@ -56,6 +60,7 @@ assigned_to: "TBD"
 - Load balancing strategy
 
 **Definition of Done**:
+
 - [ ] Architecture documented
 - [ ] Scalability plan ready
 - [ ] Cost estimates provided
@@ -64,6 +69,7 @@ assigned_to: "TBD"
 ### CI/CD Pipeline
 
 **Task**: Build automated deployment pipeline
+
 - Source code triggers
 - Build process (Docker images)
 - Test execution
@@ -72,6 +78,7 @@ assigned_to: "TBD"
 - Rollback procedures
 
 **Definition of Done**:
+
 - [ ] Pipeline automated end-to-end
 - [ ] All stages tested
 - [ ] Deployment <15 min
@@ -80,12 +87,14 @@ assigned_to: "TBD"
 ### Secrets Management
 
 **Task**: Secure API keys & credentials
+
 - Secrets vault setup
 - Access controls
 - Rotation policies
 - Audit logging
 
 **Definition of Done**:
+
 - [ ] Vault configured
 - [ ] All secrets rotated
 - [ ] Access controls tested
@@ -94,12 +103,14 @@ assigned_to: "TBD"
 ### Staging Environment
 
 **Task**: Create production-like staging
+
 - Environment parity with production
 - Automated data seeding
 - Performance testing capability
 - Cost optimization
 
 **Definition of Done**:
+
 - [ ] Staging identical to production
 - [ ] Data refresh automated
 - [ ] Performance validated
@@ -108,12 +119,14 @@ assigned_to: "TBD"
 ### Production Environment
 
 **Task**: Deploy production system
+
 - High availability setup
 - Disaster recovery
 - Backups & recovery
 - Security hardening
 
 **Definition of Done**:
+
 - [ ] Production live
 - [ ] Uptime >99.5%
 - [ ] DR tested
@@ -122,6 +135,7 @@ assigned_to: "TBD"
 ### Monitoring & Observability
 
 **Task**: Setup comprehensive monitoring
+
 - Application monitoring (APM)
 - Infrastructure monitoring
 - Log aggregation
@@ -129,6 +143,7 @@ assigned_to: "TBD"
 - Alert thresholds
 
 **Definition of Done**:
+
 - [ ] Dashboards live
 - [ ] Alerts configured
 - [ ] Log retention policy set
@@ -137,6 +152,7 @@ assigned_to: "TBD"
 ### Disaster Recovery
 
 **Task**: Plan recovery procedures
+
 - Backup strategy
 - Recovery time objective (RTO)
 - Recovery point objective (RPO)
@@ -144,6 +160,7 @@ assigned_to: "TBD"
 - Testing schedule
 
 **Definition of Done**:
+
 - [ ] DR plan documented
 - [ ] Backups automated
 - [ ] DR test passed
@@ -154,17 +171,20 @@ assigned_to: "TBD"
 ## 🤝 COLLABORATION
 
 ### With All Engineers
+
 - Provide test environments
 - Support local development setup
 - Enable efficient deployments
 - Monitor system health
 
 ### With Cursor (Lead)
+
 - Infrastructure status updates
 - Deployment readiness reports
 - Resource utilization metrics
 
 ### With QA Engineer
+
 - Test environment support
 - Performance testing infrastructure
 - Load testing capability
@@ -174,12 +194,14 @@ assigned_to: "TBD"
 ## 📊 SUCCESS METRICS
 
 **Infrastructure**:
+
 - Uptime: >99.5%
 - Deployment time: <15 min
 - Recovery time: <5 min
 - Cost optimization: Within budget
 
 **Operations**:
+
 - Mean time to detection: <5 min
 - Mean time to recovery: <1 hour
 - Incident response: SLA met
@@ -198,6 +220,7 @@ assigned_to: "TBD"
 ## 💬 DAILY INTERACTION WITH CURSOR
 
 **Standup Format**:
+
 ```
 YESTERDAY: ✅ [Infrastructure work]
 TODAY: 📌 [Current deployment/setup]
@@ -207,6 +230,7 @@ NEXT: [Priority infrastructure work]
 ```
 
 **Deployment Status**:
+
 ```
 Target: [Feature/Version]
 Status: [Testing/Ready/In Progress/Complete]
@@ -220,6 +244,7 @@ Risks: [Any concerns]
 ## ✅ DEFINITION OF DONE (ALL INFRASTRUCTURE)
 
 Before going live:
+
 - [ ] Infrastructure automated
 - [ ] CI/CD pipeline working
 - [ ] Staging validated
@@ -233,22 +258,26 @@ Before going live:
 ## 🔧 TOOLS & TECHNOLOGIES (TYPICAL)
 
 **Infrastructure**:
+
 - Cloud: AWS/GCP/Azure
 - Containers: Docker
 - Orchestration: Kubernetes
 - Infrastructure as Code: Terraform
 
 **CI/CD**:
+
 - Source control: GitHub
 - CI/CD: GitHub Actions / GitLab CI
 - Artifact registry: Docker Hub
 
 **Monitoring**:
+
 - APM: DataDog / New Relic
 - Logs: ELK / Splunk
 - Metrics: Prometheus
 
 **Secrets**:
+
 - Vault: HashiCorp Vault
 
 ---

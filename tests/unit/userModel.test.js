@@ -19,7 +19,7 @@ describe('User Model', () => {
   test('should create a user with valid data', async () => {
     const user = await dbHelper.createTestUser({
       username: 'john_doe',
-      email: 'john@example.com'
+      email: 'john@example.com',
     });
 
     expect(user.id).toBeDefined();
@@ -34,7 +34,7 @@ describe('User Model', () => {
     await expect(
       dbHelper.createTestUser({
         username: 'duplicate',
-        email: 'different@example.com'
+        email: 'different@example.com',
       })
     ).rejects.toThrow();
   });
@@ -45,14 +45,12 @@ describe('User Model', () => {
     await expect(
       dbHelper.createTestUser({
         username: 'different',
-        email: 'same@example.com'
+        email: 'same@example.com',
       })
     ).rejects.toThrow();
   });
 
   test('should validate email format', async () => {
-    await expect(
-      dbHelper.createTestUser({ email: 'invalid-email' })
-    ).rejects.toThrow();
+    await expect(dbHelper.createTestUser({ email: 'invalid-email' })).rejects.toThrow();
   });
 });

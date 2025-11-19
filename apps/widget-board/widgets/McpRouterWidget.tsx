@@ -100,7 +100,7 @@ const McpRouterWidget: React.FC = () => {
       color: '#ffffff',
     }}>
       <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
-        🔌 MCP Inspector
+        MCP Inspector
       </h2>
 
       {/* Tools List */}

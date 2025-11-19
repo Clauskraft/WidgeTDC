@@ -9,7 +9,7 @@ class DatabaseTestHelper {
       database: 'widgettdc_test',
       username: 'postgres',
       password: 'password',
-      logging: false
+      logging: false,
     });
   }
 
@@ -31,7 +31,7 @@ class DatabaseTestHelper {
       username: 'testuser',
       email: 'test@example.com',
       passwordHash: 'hashed_password',
-      ...overrides
+      ...overrides,
     });
   }
 
@@ -42,7 +42,7 @@ class DatabaseTestHelper {
       version: '1.0.0',
       price: 99.99,
       ownerId: userId,
-      ...overrides
+      ...overrides,
     });
   }
 }

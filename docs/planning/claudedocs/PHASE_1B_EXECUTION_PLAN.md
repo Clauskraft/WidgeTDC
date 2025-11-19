@@ -12,9 +12,11 @@
 ## 📊 PHASE OVERVIEW
 
 ### Mission Statement
+
 Deliver a professional, enterprise-grade dashboard shell that becomes the foundation for all WidgetBoard widgets, with complete governance, security, and extensibility frameworks in place.
 
 ### Success Criteria
+
 ✅ Dashboard shell meets enterprise UX standards (multi-monitor, collaboration)
 ✅ Widget Registry 2.0 fully implemented (versioning, validation, discovery)
 ✅ Audit log hash-chain operational (GDPR-compliant, tamper-proof)
@@ -25,6 +27,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ✅ Production readiness confirmed for Phase 1.C transition
 
 ### Confidence Level
+
 - **With 30 agents only**: 60% confidence (database bottleneck, auth missing, observability blind)
 - **With 30 agents + 3 critical specialists**: 90% confidence
 - **With 30 agents + 6 specialists**: 95% confidence
@@ -36,75 +39,82 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ### Core Implementation Teams (8 agents, full Phase 1.B)
 
 #### Frontend Core (4 agents)
+
 **Team Lead**: Frontend Architect 1
 **Focus**: Dashboard shell UI, component integration, responsive design
 
-| Agent | Role | Tasks | Points |
-|-------|------|-------|--------|
-| Frontend Architect 1 | Lead | Shell architecture, layout engine, team coordination | 20 |
-| Frontend Architect 3 | Component System | Component library finalization, accessibility | 18 |
-| Frontend Performance Specialist | Performance | Load times, bundle size, rendering optimization | 16 |
-| QA Engineer 3 | Accessibility QA | WCAG 2.1 AA compliance, a11y testing | 12 |
-| **Frontend Subtotal** | | | **66 points** |
+| Agent                           | Role             | Tasks                                                | Points        |
+| ------------------------------- | ---------------- | ---------------------------------------------------- | ------------- |
+| Frontend Architect 1            | Lead             | Shell architecture, layout engine, team coordination | 20            |
+| Frontend Architect 3            | Component System | Component library finalization, accessibility        | 18            |
+| Frontend Performance Specialist | Performance      | Load times, bundle size, rendering optimization      | 16            |
+| QA Engineer 3                   | Accessibility QA | WCAG 2.1 AA compliance, a11y testing                 | 12            |
+| **Frontend Subtotal**           |                  |                                                      | **66 points** |
 
 #### Backend Services (2 agents)
+
 **Team Lead**: Backend Architect 1
 **Focus**: Widget service APIs, state management, integration layer
 
-| Agent | Role | Tasks | Points |
-|-------|------|-------|--------|
-| Backend Architect 1 | Lead | Service architecture, DB schema design, team coordination | 20 |
-| Backend Architect 2 | API Gateway | REST/GraphQL endpoints, rate limiting, validation | 18 |
-| Data Engineer | Data Layer | ETL design, analytics pipeline foundation | 14 |
-| **Backend Subtotal** | | | **52 points** |
+| Agent                | Role        | Tasks                                                     | Points        |
+| -------------------- | ----------- | --------------------------------------------------------- | ------------- |
+| Backend Architect 1  | Lead        | Service architecture, DB schema design, team coordination | 20            |
+| Backend Architect 2  | API Gateway | REST/GraphQL endpoints, rate limiting, validation         | 18            |
+| Data Engineer        | Data Layer  | ETL design, analytics pipeline foundation                 | 14            |
+| **Backend Subtotal** |             |                                                           | **52 points** |
 
 #### DevOps Infrastructure (1 agent)
+
 **Team Lead**: DevOps Engineer 1
 **Focus**: CI/CD setup, staging environment, deployment automation
 
-| Agent | Role | Tasks | Points |
-|-------|------|-------|--------|
-| DevOps Engineer 1 | Lead | K8s staging, GitHub Actions CI/CD, monitoring setup | 18 |
-| DevOps Engineer 2 | Monitoring | OpenTelemetry foundation, dashboards, alerting | 16 |
-| **DevOps Subtotal** | | | **34 points** |
+| Agent               | Role       | Tasks                                               | Points        |
+| ------------------- | ---------- | --------------------------------------------------- | ------------- |
+| DevOps Engineer 1   | Lead       | K8s staging, GitHub Actions CI/CD, monitoring setup | 18            |
+| DevOps Engineer 2   | Monitoring | OpenTelemetry foundation, dashboards, alerting      | 16            |
+| **DevOps Subtotal** |            |                                                     | **34 points** |
 
 #### QA Core (1 agent)
+
 **Team Lead**: QA Engineer 1
 **Focus**: E2E test framework, test strategy, quality gates
 
-| Agent | Role | Tasks | Points |
-|-------|------|-------|--------|
-| QA Engineer 1 | Lead | E2E framework setup, test strategy, test cases | 18 |
-| QA Engineer 2 | Performance QA | Load testing, performance benchmarks, profiling | 14 |
-| **QA Subtotal** | | | **32 points** |
+| Agent           | Role           | Tasks                                           | Points        |
+| --------------- | -------------- | ----------------------------------------------- | ------------- |
+| QA Engineer 1   | Lead           | E2E framework setup, test strategy, test cases  | 18            |
+| QA Engineer 2   | Performance QA | Load testing, performance benchmarks, profiling | 14            |
+| **QA Subtotal** |                |                                                 | **32 points** |
 
 **TOTAL PHASE 1.B AGENT WORK**: 184 story points (30 agents delivering core)
 
 ### Supporting Teams (ongoing throughout Phase 1.B)
 
 #### Architecture & Governance (4 agents)
-| Agent | Task | Points |
-|-------|------|--------|
-| Chief Architect | ADR reviews, architecture decisions, escalations | 12 |
-| FunctionCloningExpert | Code pattern review, duplication analysis | 8 |
-| FrontendCloningExpert | Design system consistency, component patterns | 8 |
-| SecurityExpert | Security arch review, threat modeling | 8 |
+
+| Agent                 | Task                                             | Points |
+| --------------------- | ------------------------------------------------ | ------ |
+| Chief Architect       | ADR reviews, architecture decisions, escalations | 12     |
+| FunctionCloningExpert | Code pattern review, duplication analysis        | 8      |
+| FrontendCloningExpert | Design system consistency, component patterns    | 8      |
+| SecurityExpert        | Security arch review, threat modeling            | 8      |
 
 #### Support & Documentation (4 agents)
-| Agent | Task | Points |
-|-------|------|--------|
-| Project Manager | Timeline, budget, blocker management | 10 |
-| Compliance Specialist 1 | GDPR audit trail design, compliance | 6 |
-| UX Researcher | User research coordination, accessibility | 4 |
-| Technical Writer | Documentation, API specs | 6 |
+
+| Agent                   | Task                                      | Points |
+| ----------------------- | ----------------------------------------- | ------ |
+| Project Manager         | Timeline, budget, blocker management      | 10     |
+| Compliance Specialist 1 | GDPR audit trail design, compliance       | 6      |
+| UX Researcher           | User research coordination, accessibility | 4      |
+| Technical Writer        | Documentation, API specs                  | 6      |
 
 #### Specialist Services (from 8-agent group)
-| Agent | Task | Integration |
-|--------|------|-------------|
-| DataEngineer | Database migration planning | ← Backend Architect 1 |
-| MLEngineer | Vector DB architecture foundation | ← Vector DB team prep |
-| BackendEngineer | MCP integration planning | ← MCP Architect (Dec 1) |
-| SecurityExpert | Auth architecture (design phase) | ← Security Architect (Nov 20) |
+
+| Agent           | Task                              | Integration                   |
+| --------------- | --------------------------------- | ----------------------------- |
+| DataEngineer    | Database migration planning       | ← Backend Architect 1         |
+| MLEngineer      | Vector DB architecture foundation | ← Vector DB team prep         |
+| BackendEngineer | MCP integration planning          | ← MCP Architect (Dec 1)       |
+| SecurityExpert  | Auth architecture (design phase)  | ← Security Architect (Nov 20) |
 
 ---
 
@@ -113,6 +123,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ### BLOCK 1: Dashboard Shell Professionalization (Days 1-7)
 
 #### Task Group 1.1: UI Shell Architecture
+
 **Assigned**: Frontend Architect 1 + Frontend Architect 3
 **Duration**: Dec 1-7
 **Points**: 18
@@ -130,6 +141,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - Shell loads in < 2 seconds (cold start)
 - Drag/drop at 60fps (Chrome DevTools measure)
 - Keyboard shortcuts work (accessibility)
@@ -139,6 +151,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Component integration, QA test coverage
 
 #### Task Group 1.2: Component Library Integration
+
 **Assigned**: Frontend Architect 3 + Frontend Performance Specialist
 **Duration**: Dec 2-8
 **Points**: 16
@@ -155,6 +168,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - All components render correctly in shell
 - Storybook loads with 50+ component variations
 - Bundle size < 500KB (gzipped)
@@ -164,6 +178,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: E2E testing, Phase 1.C
 
 #### Task Group 1.3: Accessibility Hardening
+
 **Assigned**: Frontend Performance Specialist + QA Engineer 3
 **Duration**: Dec 5-10
 **Points**: 12
@@ -181,6 +196,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - axe-core scan: 0 accessibility violations
 - Lighthouse accessibility score: 95+
 - Manual WCAG AA audit: PASS
@@ -194,6 +210,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ### BLOCK 2: Widget Registry 2.0 Implementation (Days 1-10)
 
 #### Task Group 2.1: Registry Type System & Interfaces
+
 **Assigned**: Backend Architect 1 + Chief Architect
 **Duration**: Dec 1-5
 **Points**: 14
@@ -211,6 +228,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - 100% TypeScript compilation without errors
 - All interfaces documented with examples
 - Zod schemas validate correctly
@@ -220,6 +238,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Registry implementation, widget validation
 
 #### Task Group 2.2: Registry Service Implementation
+
 **Assigned**: Backend Architect 1 + Backend Architect 2
 **Duration**: Dec 3-8
 **Points**: 16
@@ -238,6 +257,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - Registry loads all 20+ widgets < 100ms
 - Query latency < 50ms for any filter
 - Validation catches schema violations
@@ -247,6 +267,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Widget dashboard display, Phase 1.C
 
 #### Task Group 2.3: Dashboard Templates System
+
 **Assigned**: Backend Architect 2 + Data Engineer
 **Duration**: Dec 5-10
 **Points**: 12
@@ -264,6 +285,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - 5+ default templates ship with platform
 - Users can save custom templates
 - Template switch < 1 second
@@ -277,6 +299,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ### BLOCK 3: Audit Log Hash-Chain System (Days 1-12)
 
 #### Task Group 3.1: Audit Event Model & Hash-Chain
+
 **Assigned**: Security Architect 1 (specialist) + Backend Architect 1
 **Duration**: Dec 1-5
 **Points**: 16
@@ -294,6 +317,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - Hash-chain generates correctly (deterministic)
 - Verification passes for 1000+ events
 - Tampering detected (hash mismatch alerts)
@@ -303,6 +327,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Audit service implementation
 
 #### Task Group 3.2: Audit Log Service
+
 **Assigned**: Backend Architect 1 + Security Architect 1
 **Duration**: Dec 3-8
 **Points**: 14
@@ -320,6 +345,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - Append latency < 10ms (P95)
 - Query latency < 100ms (P95)
 - Integrity verification complete in < 5 seconds (1000 events)
@@ -329,6 +355,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Compliance auditing, Phase 1.C
 
 #### Task Group 3.3: Audit Coverage in Shell
+
 **Assigned**: QA Engineer 1 + Security Expert (8-agent)
 **Duration**: Dec 7-12
 **Points**: 12
@@ -345,6 +372,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - 100% of shell user actions logged
 - Audit events contain proper context (who, what, when, where)
 - Sensitivity mapping reviewed by Security Architect
@@ -358,6 +386,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ### BLOCK 4: Foundation Systems (Days 2-12)
 
 #### Task Group 4.1: Database Migration Planning (PostgreSQL + pgvector)
+
 **Assigned**: Database Architect (specialist - Nov 20) + Backend Architect 1 + Data Engineer
 **Duration**: Nov 20 - Dec 8
 **Points**: 18
@@ -376,6 +405,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - PostgreSQL instance deployed (staging)
 - Sample data migrated successfully
 - Migration scripts tested & documented
@@ -386,6 +416,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Phase 1.C, production deployment
 
 #### Task Group 4.2: Auth Architecture Design (Design Phase - Implementation in Phase 2)
+
 **Assigned**: Security Architect (specialist - Nov 20) + Backend Architect 2
 **Duration**: Nov 20 - Dec 8
 **Points**: 16
@@ -404,6 +435,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - Architecture reviewed by Chief Architect & Security Specialist
 - Implementation roadmap clear (Phase 2)
 - Risk assessment completed
@@ -413,6 +445,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Phase 2 implementation (Auth not ready Phase 1.B)
 
 #### Task Group 4.3: Observability Framework Blueprint
+
 **Assigned**: DevOps/SRE Specialist (Nov 25) + DevOps Engineer 1 + DevOps Engineer 2
 **Duration**: Nov 25 - Dec 10
 **Points**: 16
@@ -431,6 +464,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - OpenTelemetry agent integrated into shell
 - Grafana dashboard displays key metrics
 - Alerts triggered correctly on thresholds
@@ -444,6 +478,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ### BLOCK 5: Quality Assurance & Testing (Days 5-12)
 
 #### Task Group 5.1: E2E Test Framework & Coverage
+
 **Assigned**: QA Engineer 1 + QA Engineer 2
 **Duration**: Dec 5-12
 **Points**: 18
@@ -466,6 +501,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - 50+ E2E tests running in CI/CD
 - 70%+ code coverage for shell
 - All tests pass on Chrome, Firefox (Safari phase 2)
@@ -475,6 +511,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Quality gate approval
 
 #### Task Group 5.2: Performance Testing & Benchmarking
+
 **Assigned**: QA Engineer 2 + Frontend Performance Specialist
 **Duration**: Dec 8-12
 **Points**: 14
@@ -492,6 +529,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - FCP < 1.5s, LCP < 2.5s, CLS < 0.1
 - 100 concurrent users: 95% response < 500ms
 - Bundle size < 500KB (gzipped)
@@ -505,6 +543,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ### BLOCK 6: Compliance & Security Review (Days 10-15)
 
 #### Task Group 6.1: Security Audit (Design + Code Review)
+
 **Assigned**: Security Architect 1 + SecurityExpert (8-agent)
 **Duration**: Dec 10-15
 **Points**: 16
@@ -526,6 +565,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - 0 critical vulnerabilities
 - 0 high-severity (address by Jan 15)
 - Code review approval by Security Architect
@@ -535,6 +575,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Blocks**: Quality gate approval
 
 #### Task Group 6.2: GDPR & Compliance Review
+
 **Assigned**: Compliance Specialist 1 + Compliance Specialist 2
 **Duration**: Dec 10-15
 **Points**: 12
@@ -552,6 +593,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ```
 
 **Success Metrics**:
+
 - GDPR checklist 100% complete
 - All data flows documented
 - Compliance approval from legal/compliance team
@@ -565,23 +607,28 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ## 🎬 EXECUTION RHYTHM
 
 ### Daily Standup (09:00 UTC)
+
 **Format**: 15 minutes, async status updates
 **Participants**: All 8 core agents + team leads
 **Reports**: Yesterday's progress, today's plan, blockers, metrics
 
 ### Weekly Architecture Review (Tuesday & Thursday 14:00 UTC)
+
 **Participants**: Chief Architect, sub-architects, technical leads
 **Topics**: ADR reviews, design decisions, integration points
 
 ### Weekly Design Review (Wednesday 15:00 UTC)
+
 **Participants**: Chief GUI Designer, frontend team, UX
 **Topics**: Shell design, component consistency, accessibility
 
 ### Weekly Executive Sync (Monday 10:00 UTC)
+
 **Participants**: Project Manager, team leads, System Director
 **Topics**: Progress, blockers, budget, risks
 
 ### Phase Closeout (Dec 20 - Half day)
+
 **Participants**: All agents + specialists
 **Topics**: Quality gate sign-off, lessons learned, Phase 1.C prep
 
@@ -590,6 +637,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ## 📈 SUCCESS GATES (Quality Check-In Points)
 
 ### Dec 5 Checkpoint (Midpoint)
+
 - [ ] Shell UI architecture stable (no major refactoring)
 - [ ] Widget Registry 2.0 90% implemented
 - [ ] Audit log service functional
@@ -601,6 +649,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Go/No-Go Decision**: Continue as planned OR adjust scope
 
 ### Dec 10 Checkpoint
+
 - [ ] Shell UI 95% feature-complete
 - [ ] Widget Registry 100% implemented & tested
 - [ ] Audit log hash-chain verified
@@ -613,6 +662,7 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 **Go/No-Go Decision**: Ready for Phase 1.C OR escalate issues
 
 ### Dec 15 Final Gate
+
 - ✅ All tasks complete (see Quality Criteria above)
 - ✅ 95%+ test coverage (shell core)
 - ✅ Zero critical vulnerabilities
@@ -628,16 +678,19 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 ## 🎯 KEY METRICS
 
 ### Delivery Metrics
+
 - **On-time delivery**: 100% of 6 task blocks complete by Dec 15
 - **Quality**: 95%+ test coverage, 0 critical bugs
 - **Scope**: No unplanned creep (track in DECISION_LOG)
 
 ### Team Metrics
+
 - **Utilization**: 8 core agents at 85%+ capacity
 - **Velocity**: 184 story points delivered in 15 days
 - **Collaboration**: Cross-team coordination effective
 
 ### Technical Metrics
+
 - **Performance**: FCP <1.5s, LCP <2.5s, CLS <0.1
 - **Reliability**: 99% uptime in staging
 - **Security**: 0 critical vulns, OWASP Top 10 compliant
@@ -646,15 +699,16 @@ Deliver a professional, enterprise-grade dashboard shell that becomes the founda
 
 ## ⚠️ RISK MANAGEMENT
 
-| Risk | Probability | Impact | Mitigation |
-|------|------------|--------|------------|
-| Database migration delayed | 20% | HIGH | Specialist hired Nov 20 |
-| Auth design incomplete | 25% | MEDIUM | Security specialist Nov 20 |
-| E2E test framework issues | 30% | MEDIUM | QA lead engagement Dec 1 |
-| Performance targets missed | 25% | MEDIUM | Performance specialist Dec 15 |
-| Specialist hire delays | 15% | HIGH | Recruitment accelerated now |
+| Risk                       | Probability | Impact | Mitigation                    |
+| -------------------------- | ----------- | ------ | ----------------------------- |
+| Database migration delayed | 20%         | HIGH   | Specialist hired Nov 20       |
+| Auth design incomplete     | 25%         | MEDIUM | Security specialist Nov 20    |
+| E2E test framework issues  | 30%         | MEDIUM | QA lead engagement Dec 1      |
+| Performance targets missed | 25%         | MEDIUM | Performance specialist Dec 15 |
+| Specialist hire delays     | 15%         | HIGH   | Recruitment accelerated now   |
 
 **Escalation SLA**:
+
 - CRITICAL (15 min): Project Manager → System Director
 - HIGH (1 hour): Team Lead → Project Manager
 - MEDIUM (4 hours): Team → Standup discussion

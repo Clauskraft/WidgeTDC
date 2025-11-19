@@ -91,29 +91,30 @@ metrics_tracking: - "Code quality metrics trend analysis" - "User satisfaction f
 
 pre_implementation_checklist:
 
- Security threat modeling completed
- Architecture review with stakeholders
- Compliance requirements mapped
- Performance benchmarks established
- Disaster recovery plan drafted
+Security threat modeling completed
+Architecture review with stakeholders
+Compliance requirements mapped
+Performance benchmarks established
+Disaster recovery plan drafted
 during_implementation_checklist:
 
- Code meets all security standards
- Automated tests cover critical paths
- Performance benchmarks validated
- Documentation updated continuously
- Peer reviews completed for all changes
+Code meets all security standards
+Automated tests cover critical paths
+Performance benchmarks validated
+Documentation updated continuously
+Peer reviews completed for all changes
 post_implementation_checklist:
 
- Security penetration testing passed
- Load testing validates scalability
- User acceptance testing successful
- Operational runbooks finalized
- Training materials delivered
+Security penetration testing passed
+Load testing validates scalability
+User acceptance testing successful
+Operational runbooks finalized
+Training materials delivered
 Use this prompt to activate the enterprise agent:
 ACTIVATE_ENTERPRISE_AGENT --prompt-file enterprise_agent_prompt.yaml --strict-mode --quality-gates-enabled
 
 Expected agent behavior:
+
 1. Systematically analyze current implementation state
 2. Apply enterprise-grade quality standards to all code
 3. Implement comprehensive testing and security controls

@@ -19,6 +19,7 @@
 ### Why We Need Specialists (Not Just Agents)
 
 **30 Agents Alone**:
+
 ```
 Strengths:
 ✅ Fast implementation (code generation, architecture)
@@ -35,6 +36,7 @@ Weaknesses:
 ```
 
 **30 Agents + 8 Specialists**:
+
 ```
 Combined Strengths:
 ✅ Fast implementation (agents) + Enterprise validation (specialists)
@@ -385,14 +387,15 @@ TOTAL STRATEGIC TIMELINE: Jan 1 starts
 
 ## 💰 TOTAL INVESTMENT SUMMARY
 
-| Phase | Hires | Timeline | Budget Range | Monthly Cost |
-|-------|-------|----------|--------------|--------------|
-| **Critical** | 3 (DB, Security, DevOps) | Nov 18-22 → Dec 1 start | €240-360K | €40-56K |
-| **High-Priority** | 4 (QA, Backend, MCP Arch, Perf) | Nov 25 - Dec 1 → Dec 1-15 start | €260-390K | €30-45K |
-| **Strategic** | 1 (Tech PM) | Jan 1 start | €80-120K | €13-20K |
-| **TOTAL** | **8 specialists** | **Nov 18 - Jan 1** | **€560-860K** | **€83-121K/mo** |
+| Phase             | Hires                           | Timeline                        | Budget Range  | Monthly Cost    |
+| ----------------- | ------------------------------- | ------------------------------- | ------------- | --------------- |
+| **Critical**      | 3 (DB, Security, DevOps)        | Nov 18-22 → Dec 1 start         | €240-360K     | €40-56K         |
+| **High-Priority** | 4 (QA, Backend, MCP Arch, Perf) | Nov 25 - Dec 1 → Dec 1-15 start | €260-390K     | €30-45K         |
+| **Strategic**     | 1 (Tech PM)                     | Jan 1 start                     | €80-120K      | €13-20K         |
+| **TOTAL**         | **8 specialists**               | **Nov 18 - Jan 1**              | **€560-860K** | **€83-121K/mo** |
 
 ### Monthly Breakdown
+
 ```
 November 2025:  €0K (hiring phase, no employment)
 December 2025:  €70-101K (3 critical + 4 high-priority overlapping)
@@ -498,6 +501,7 @@ MAR 1:
 ## ✅ SUCCESS CRITERIA
 
 **By Dec 20**:
+
 - ✅ All 7 specialists hired and onboarded
 - ✅ All specialists at full productivity
 - ✅ Specialist contributions critical to Phase 1.B success
@@ -506,12 +510,14 @@ MAR 1:
 - ✅ Production readiness: Confirmed
 
 **By Feb 28**:
+
 - ✅ All 8 specialists (including Tech PM) productive
 - ✅ All production systems hardened
 - ✅ Go-live approved
 - ✅ Team satisfied with specialist partnerships
 
 **By Mar 1**:
+
 - ✅ Successful go-live with specialist support
 - ✅ €10M ARR pipeline in production
 - ✅ Production reliability proven (specialist validation)
@@ -522,26 +528,31 @@ MAR 1:
 ## 🚨 RISKS IF WE DON'T HIRE
 
 **Risk 1: Database Failure in Production**
+
 - Probability: HIGH
 - Impact: €10M ARR delayed indefinitely
 - Cost: €50M+ (lost revenue + reputation)
 
 **Risk 2: Security Breach / GDPR Non-Compliance**
+
 - Probability: MEDIUM
 - Impact: Can't sell to enterprises
 - Cost: €10M+ (fines + litigation)
 
 **Risk 3: Production Deployment Failure**
+
 - Probability: HIGH
 - Impact: Cannot go-live Mar 1
 - Cost: €10M+ ARR delayed 6-12 months
 
 **Risk 4: Observability Blind Spot**
+
 - Probability: HIGH
 - Impact: Cannot debug production issues
 - Cost: Customer churn, reputation
 
 **Risk 5: Groupthink / Agent Bias**
+
 - Probability: MEDIUM
 - Impact: Critical decisions go wrong (external validation missing)
 - Cost: £5-10M (rework, delays)
@@ -554,46 +565,52 @@ MAR 1:
 
 **"Why €560-860K for specialists when we have 30 agents?"**
 
-*Answer*: "30 agents are great for speed. But for production enterprise software, we need expert validation and hands-on experience. €560K investment eliminates €10M+ downside risk. That's 15-20x ROI."
+_Answer_: "30 agents are great for speed. But for production enterprise software, we need expert validation and hands-on experience. €560K investment eliminates €10M+ downside risk. That's 15-20x ROI."
 
 **"Why can't we just hire after Phase 1?"**
 
-*Answer*: "By then it's too late. We need specialists NOW to:
+_Answer_: "By then it's too late. We need specialists NOW to:
+
 1. Validate database architecture (Nov-Dec)
 2. Design security/auth correctly (Nov-Dec)
 3. Plan infrastructure right (Nov-Dec)
 4. Build E2E testing framework (Dec-Jan)
-Making mistakes late is 10x more expensive than getting it right early."
+   Making mistakes late is 10x more expensive than getting it right early."
 
 **"Why full-time? Can't we just hire consultants occasionally?"**
 
-*Answer*: "We tried that model with agents only. It works, but adds risk. For €100K extra per specialist, we get:
+_Answer_: "We tried that model with agents only. It works, but adds risk. For €100K extra per specialist, we get:
+
 - Full-time availability (not just consulting hours)
 - Deep context (not surface-level advice)
 - Responsibility (they're invested in success)
 - Continuity (through go-live and beyond)
-This difference is worth the cost."
+  This difference is worth the cost."
 
 ---
 
 ## 🎬 IMMEDIATE ACTIONS (Next 48 hours)
 
 **Today (Nov 18)**:
+
 - [ ] System Director: Approve specialist hiring plan (this document)
 - [ ] Project Manager: Launch recruiter outreach for 3 critical hires
 - [ ] Send job descriptions to recruiting agencies
 
 **Tomorrow (Nov 19)**:
+
 - [ ] First interviews for Database Architect
 - [ ] First interviews for Security Architect
 - [ ] DevOps recruiter outreach accelerated
 
 **By Nov 22 (End of Week)**:
+
 - [ ] All 3 critical specialists HIRED
 - [ ] Nov 20 starts: Database + Security architects
 - [ ] Nov 25 start: DevOps engineer
 
 **By Dec 1**:
+
 - [ ] All 7 specialists onboarded
 - [ ] Phase 1.B kicks off with full specialist support
 
@@ -602,6 +619,7 @@ This difference is worth the cost."
 ## 📞 HIRING CONTACTS & NEXT STEPS
 
 **Recruiting Agencies to Contact** (48-hour placement):
+
 - Database Specialists: Percona, PG specialists networks
 - Security: AWS security consulting firms, penetration test firms
 - DevOps/SRE: Kubernetes specialists, SRE meetups
@@ -611,6 +629,7 @@ This difference is worth the cost."
 - Tech PM: Product management recruiting firms
 
 **Internal Contacts**:
+
 - Project Manager (Cursor): Execute hiring plan
 - System Director (Claus): Approvals, stakeholder communication
 
@@ -623,4 +642,4 @@ This difference is worth the cost."
 
 ---
 
-*The difference between "might work" (60% confidence) and "will work" (90% confidence) is hiring the right specialists at the right time. This plan makes that happen.*
+_The difference between "might work" (60% confidence) and "will work" (90% confidence) is hiring the right specialists at the right time. This plan makes that happen._

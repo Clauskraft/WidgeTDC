@@ -1,10 +1,8 @@
 name: CI/CD Pipeline
 
 on:
-  # Temporarily disabled push trigger to fix failing runs.
-  # push:
-  #   branches: [ main, develop ]
-  workflow_dispatch:
+  push:
+    branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
 
@@ -14,7 +12,6 @@ permissions:
 jobs:
   test:
     name: Test & Lint
-    if: "!startsWith(github.head_ref, 'agent/block-')"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -37,10 +34,10 @@ jobs:
         run: npm ci --legacy-peer-deps
       
       - name: Run linter
-        run: npm run lint || true
+        run: npm run lint
       
       - name: Check formatting
-        run: npm run format:check || true
+        run: npm run format:check
       
       - name: Run tests
         run: npm run test:run
@@ -48,7 +45,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    if: "!startsWith(github.head_ref, 'agent/block-')"
     needs: test
     permissions:
       contents: read
@@ -72,7 +68,6 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    if: "!startsWith(github.head_ref, 'agent/block-')"
     permissions:
       contents: read
       security-events: write
@@ -95,14 +90,3 @@ jobs:
           name: security-audit
           path: audit-results.json
           retention-days: 30
-
-  agent-pr-check:
-    name: Agent PR Check
-    runs-on: ubuntu-latest
-    if: startsWith(github.head_ref, 'agent/block-')
-    steps:
-      - name: Validate agent PR
-        run: |
-          echo "✅ Agent PR detected"
-          echo "Skipping standard CI checks"
-          echo "Will be validated by orchestrator"

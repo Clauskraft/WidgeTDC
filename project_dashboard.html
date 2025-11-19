@@ -266,6 +266,136 @@
             background-color: rgba(16, 185, 129, 0.2);
             color: var(--success);
         }
+
+        /* Accessibility improvements */
+        *:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Progress bar animation */
+        .progress-fill {
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Loading states */
+        .loading {
+            position: relative;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: 'Loading...';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--text);
+            font-weight: bold;
+        }
+
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 1000;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .header-right {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .sprint-info {
+                width: 100%;
+                flex-direction: column;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background-color: white;
+                color: black;
+            }
+
+            .status-indicator {
+                display: none;
+            }
+
+            .card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+
+        /* Drag and drop styles */
+        .kanban-item {
+            cursor: move;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .kanban-item.dragging {
+            opacity: 0.5;
+        }
+
+        .kanban-column.drag-over {
+            background-color: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Error state */
+        .error-message {
+            padding: 16px;
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: 4px;
+            color: var(--danger);
+            margin: 16px 0;
+        }
     </style>
 </head>
 <body>
@@ -280,11 +410,11 @@
                     </div>
                     <div class="sprint-info-item">
                         <span class="sprint-info-label">Timeline</span>
-                        <span class="sprint-info-value">Nov 18-22, 2025</span>
+                        <span class="sprint-info-value">Nov 18-22, 2024</span>
                     </div>
                     <div class="sprint-info-item">
                         <span class="sprint-info-label">Story Points</span>
-                        <span class="sprint-info-value">8.5 pts</span>
+                        <span class="sprint-info-value">21.0 pts</span>
                     </div>
                 </div>
                 <span class="status-indicator status-active"></span>
@@ -293,95 +423,97 @@
         </div>
 
         <div class="card">
-            <h2>Priority 3 Progress (8.5 Story Points)</h2>
-            <div class="progress-bar">
+            <h2>Priority 3 Progress (21.0 Story Points)</h2>
+            <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="21" aria-label="Sprint progress">
                 <div class="progress-fill" id="overall-progress" style="width: 0%"></div>
             </div>
             <div id="progress-text" style="display: flex; justify-content: space-between; align-items: center;">
-                <span>0 / 8.5 points completed</span>
-                <span style="font-weight: bold; color: var(--primary);">0%</span>
+                <span aria-live="polite" aria-atomic="true">0 / 21.0 points completed</span>
+                <span style="font-weight: bold; color: var(--primary);" aria-label="Completion percentage">0%</span>
             </div>
         </div>
 
         <div class="card">
             <h2>Sprint Kanban Board</h2>
-            <div class="kanban" id="kanban-board">
+            <div class="kanban" id="kanban-board" role="region" aria-label="Kanban board with task columns">
                 <!-- Kanban columns will be rendered by JavaScript -->
             </div>
         </div>
 
         <div class="card">
             <h2>Sprint Timeline</h2>
-            <canvas id="timeline-chart" style="max-height: 200px;"></canvas>
+            <canvas id="timeline-chart" style="max-height: 200px;" role="img" aria-label="Sprint timeline bar chart showing story points per block"></canvas>
+            <div id="timeline-error" class="error-message" style="display: none;" role="alert"></div>
         </div>
 
         <div class="card">
             <h2>Task Distribution</h2>
-            <canvas id="distribution-chart" style="max-height: 300px;"></canvas>
+            <canvas id="distribution-chart" style="max-height: 300px;" role="img" aria-label="Task distribution doughnut chart showing story points by block"></canvas>
+            <div id="distribution-error" class="error-message" style="display: none;" role="alert"></div>
         </div>
         <div id="upcoming-sprints" style="margin-top: 40px; border-top: 3px solid var(--primary); padding-top: 30px;"><h2>📋 Upcoming Sprints</h2></div>
     </div>
 
     <script>
-        // Priority 3 Sprint Data (8.5 story points across 6 blocks)
+        // Priority 3 Sprint Data (21.0 story points across 6 blocks)
         const sprintData = {
             status: 'ACTIVE',
-            timeline: 'Nov 18-22, 2025',
-            totalPoints: 8.5,
+            timeline: 'Nov 18-22, 2024',
+            totalPoints: 21.0,
             completedPoints: 0,
             tasks: {
                 'Block 1: Dashboard Shell': {
-                    points: 18,
+                    points: 1.8,
                     status: 'in-progress',
                     subtasks: [
-                        'Shell UI refinement - 6 pts',
-                        'Layout system fixes - 4 pts',
-                        'Widget placement validation - 8 pts'
+                        'Shell UI refinement - 0.6 pts',
+                        'Layout system fixes - 0.4 pts',
+                        'Widget placement validation - 0.8 pts'
                     ]
                 },
                 'Block 2: Widget Registry 2.0': {
-                    points: 42,
+                    points: 4.2,
                     status: 'todo',
                     subtasks: [
-                        'Type-safe discovery - 14 pts',
-                        'Versioning system - 12 pts',
-                        'Capability-based filtering - 16 pts'
+                        'Type-safe discovery - 1.4 pts',
+                        'Versioning system - 1.2 pts',
+                        'Capability-based filtering - 1.6 pts'
                     ]
                 },
                 'Block 3: Audit Log Hash-Chain': {
-                    points: 40,
+                    points: 4.0,
                     status: 'todo',
                     subtasks: [
-                        'SHA-256 hash chain - 18 pts',
-                        'GDPR compliance - 14 pts',
-                        'Audit trail UI - 8 pts'
+                        'SHA-256 hash chain - 1.8 pts',
+                        'GDPR compliance - 1.4 pts',
+                        'Audit trail UI - 0.8 pts'
                     ]
                 },
                 'Block 4: Foundation Systems': {
-                    points: 50,
+                    points: 5.0,
                     status: 'todo',
                     subtasks: [
-                        'Database migration plan - 16 pts',
-                        'Auth architecture design - 18 pts',
-                        'Observability framework - 16 pts'
+                        'Database migration plan - 1.6 pts',
+                        'Auth architecture design - 1.8 pts',
+                        'Observability framework - 1.6 pts'
                     ]
                 },
                 'Block 5: E2E Testing': {
-                    points: 32,
+                    points: 3.2,
                     status: 'todo',
                     subtasks: [
-                        'Test acceleration - 16 pts',
-                        'Coverage improvement - 10 pts',
-                        'Performance testing - 6 pts'
+                        'Test acceleration - 1.6 pts',
+                        'Coverage improvement - 1.0 pts',
+                        'Performance testing - 0.6 pts'
                     ]
                 },
                 'Block 6: Security & Compliance': {
-                    points: 28,
+                    points: 2.8,
                     status: 'todo',
                     subtasks: [
-                        'Security review - 12 pts',
-                        'Compliance audit - 10 pts',
-                        'Remediation - 6 pts'
+                        'Security review - 1.2 pts',
+                        'Compliance audit - 1.0 pts',
+                        'Remediation - 0.6 pts'
                     ]
                 }
             }
@@ -488,108 +620,263 @@
             });
         }
 
-        // Update progress bar
+        // Update progress bar with accessibility
         function updateProgressBar() {
             const percentage = (sprintData.completedPoints / sprintData.totalPoints) * 100;
-            document.getElementById('overall-progress').style.width = percentage + '%';
+            const progressBar = document.querySelector('.progress-bar');
+            const progressFill = document.getElementById('overall-progress');
+
+            progressBar.setAttribute('aria-valuenow', sprintData.completedPoints);
+            progressFill.style.width = percentage + '%';
+
             document.getElementById('progress-text').innerHTML = `
-                <span>${sprintData.completedPoints} / ${sprintData.totalPoints} points completed</span>
-                <span style="font-weight: bold; color: var(--primary);">${Math.round(percentage)}%</span>
+                <span aria-live="polite" aria-atomic="true">${sprintData.completedPoints} / ${sprintData.totalPoints} points completed</span>
+                <span style="font-weight: bold; color: var(--primary);" aria-label="Completion percentage">${Math.round(percentage)}%</span>
             `;
         }
 
-        // Chart: Timeline
+        // Chart: Timeline with error handling
         function renderTimelineChart() {
-            const timelineCtx = document.getElementById('timeline-chart').getContext('2d');
+            try {
+                const canvas = document.getElementById('timeline-chart');
+                canvas.classList.add('loading');
+                const timelineCtx = canvas.getContext('2d');
 
-            const labels = Object.keys(sprintData.tasks);
-            const points = Object.values(sprintData.tasks).map(task => task.points);
+                const labels = Object.keys(sprintData.tasks);
+                const points = Object.values(sprintData.tasks).map(task => task.points);
 
-            new Chart(timelineCtx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Story Points',
-                        data: points,
-                        backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                        borderColor: 'rgb(59, 130, 246)',
-                        borderWidth: 2,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { display: false }
+                new Chart(timelineCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Story Points',
+                            data: points,
+                            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 2,
+                            borderRadius: 4
+                        }]
                     },
-                    scales: {
-                        x: {
-                            ticks: { color: 'var(--text-muted)' },
-                            grid: { color: 'var(--border-color)' }
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { display: false }
                         },
-                        y: {
-                            ticks: { color: 'var(--text)' },
-                            grid: { display: false }
+                        scales: {
+                            x: {
+                                ticks: { color: 'var(--text-muted)' },
+                                grid: { color: 'var(--border-color)' }
+                            },
+                            y: {
+                                ticks: { color: 'var(--text)' },
+                                grid: { display: false }
+                            }
                         }
                     }
+                });
+
+                canvas.classList.remove('loading');
+            } catch (error) {
+                console.error('Timeline chart error:', error);
+                document.getElementById('timeline-error').textContent = 'Failed to load timeline chart: ' + error.message;
+                document.getElementById('timeline-error').style.display = 'block';
+                document.getElementById('timeline-chart').style.display = 'none';
+            }
+        }
+
+        // Chart: Distribution with error handling
+        function renderDistributionChart() {
+            try {
+                const canvas = document.getElementById('distribution-chart');
+                canvas.classList.add('loading');
+                const distributionCtx = canvas.getContext('2d');
+
+                const labels = Object.keys(sprintData.tasks);
+                const points = Object.values(sprintData.tasks).map(task => task.points);
+                const colors = [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(236, 72, 153, 0.8)',
+                    'rgba(14, 165, 233, 0.8)'
+                ];
+
+                new Chart(distributionCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: points,
+                            backgroundColor: colors,
+                            borderColor: 'var(--card-bg)',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: 'var(--text)' }
+                            }
+                        }
+                    }
+                });
+
+                canvas.classList.remove('loading');
+            } catch (error) {
+                console.error('Distribution chart error:', error);
+                document.getElementById('distribution-error').textContent = 'Failed to load distribution chart: ' + error.message;
+                document.getElementById('distribution-error').style.display = 'block';
+                document.getElementById('distribution-chart').style.display = 'none';
+            }
+        }
+
+        // Local Storage: Save state
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('widgetTDC_sprintData', JSON.stringify(sprintData));
+                localStorage.setItem('widgetTDC_lastUpdate', new Date().toISOString());
+            } catch (error) {
+                console.warn('Failed to save to localStorage:', error);
+            }
+        }
+
+        // Local Storage: Load state
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('widgetTDC_sprintData');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(sprintData, parsed);
+                    return true;
                 }
+            } catch (error) {
+                console.warn('Failed to load from localStorage:', error);
+            }
+            return false;
+        }
+
+        // Export: CSV
+        function exportToCSV() {
+            const rows = [['Block', 'Points', 'Status', 'Subtasks']];
+            for (const [taskName, taskData] of Object.entries(sprintData.tasks)) {
+                rows.push([
+                    taskName,
+                    taskData.points,
+                    taskData.status,
+                    taskData.subtasks.join('; ')
+                ]);
+            }
+
+            const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sprint-data-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Export: JSON
+        function exportToJSON() {
+            const json = JSON.stringify(sprintData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sprint-data-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Drag and Drop: Setup
+        function setupDragAndDrop() {
+            const kanbanItems = document.querySelectorAll('.kanban-item');
+            const columns = document.querySelectorAll('.kanban-column');
+
+            kanbanItems.forEach(item => {
+                item.setAttribute('draggable', 'true');
+
+                item.addEventListener('dragstart', (e) => {
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', item.querySelector('.kanban-item-title').textContent);
+                });
+
+                item.addEventListener('dragend', () => {
+                    item.classList.remove('dragging');
+                });
+            });
+
+            columns.forEach(column => {
+                column.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    column.classList.add('drag-over');
+                });
+
+                column.addEventListener('dragleave', () => {
+                    column.classList.remove('drag-over');
+                });
+
+                column.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    column.classList.remove('drag-over');
+
+                    const taskName = e.dataTransfer.getData('text/plain');
+                    const newStatus = column.classList.contains('todo') ? 'todo' :
+                                    column.classList.contains('in-progress') ? 'in-progress' :
+                                    column.classList.contains('blocked') ? 'blocked' : 'completed';
+
+                    if (sprintData.tasks[taskName]) {
+                        sprintData.tasks[taskName].status = newStatus;
+                        saveToLocalStorage();
+                        initDashboard();
+                    }
+                });
             });
         }
 
-        // Chart: Distribution
-        function renderDistributionChart() {
-            const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
-
-            const labels = Object.keys(sprintData.tasks);
-            const points = Object.values(sprintData.tasks).map(task => task.points);
-            const colors = [
-                'rgba(59, 130, 246, 0.8)',
-                'rgba(16, 185, 129, 0.8)',
-                'rgba(245, 158, 11, 0.8)',
-                'rgba(139, 92, 246, 0.8)',
-                'rgba(236, 72, 153, 0.8)',
-                'rgba(14, 165, 233, 0.8)'
-            ];
-
-            new Chart(distributionCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: points,
-                        backgroundColor: colors,
-                        borderColor: 'var(--card-bg)',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { color: 'var(--text)' }
-                        }
-                    }
+        // Keyboard navigation
+        function setupKeyboardNavigation() {
+            document.addEventListener('keydown', (e) => {
+                // Export shortcuts
+                if (e.ctrlKey && e.key === 'e') {
+                    e.preventDefault();
+                    exportToJSON();
+                }
+                if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+                    e.preventDefault();
+                    exportToCSV();
                 }
             });
         }
 
         // Initialize dashboard
         function initDashboard() {
+            loadFromLocalStorage();
             getStatusCounts();
             renderKanban();
             updateProgressBar();
             renderTimelineChart();
             renderDistributionChart();
+
+            // Setup interactions after render
+            setTimeout(() => {
+                setupDragAndDrop();
+            }, 100);
         }
 
         // Run on load
         window.addEventListener('load', () => {
             initDashboard();
+            setupKeyboardNavigation();
         });
 
         // Expose API for updating tasks from external systems

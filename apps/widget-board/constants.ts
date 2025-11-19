@@ -1,6 +1,7 @@
 import AgentChatWidget from './widgets/AgentChatWidget';
 import PromptLibraryWidget from './widgets/PromptLibraryWidget';
 import PerformanceMonitorWidget from './widgets/PerformanceMonitorWidget';
+import SystemMonitorWidget from './widgets/SystemMonitorWidget';
 import SystemSettingsWidget from './widgets/SystemSettingsWidget';
 import AgentBuilderWidget from './widgets/AgentBuilderWidget';
 import LiveConversationWidget from './widgets/LiveConversationWidget';
@@ -14,7 +15,7 @@ import IntelligentNotesWidget from './widgets/IntelligentNotesWidget';
 import CybersecurityOverwatchWidget from './widgets/CybersecurityOverwatchWidget';
 import ProcurementIntelligenceWidget from './widgets/ProcurementIntelligenceWidget';
 import StatusWidget from './widgets/StatusWidget';
-import DarkWebMonitorWidget from './widgets/DarkWebMonitorWidget';
+// import DarkWebMonitorWidget from './widgets/DarkWebMonitorWidget'; // TODO: Create widget
 import Phase1CFastTrackKanbanWidget from './widgets/Phase1CFastTrackKanbanWidget';
 import { WidgetDefinition } from './types';
 import KanbanWidget from './widgets/KanbanWidget';
@@ -22,7 +23,7 @@ import KanbanWidget from './widgets/KanbanWidget';
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
   {
     id: 'Phase1CFastTrackKanban',
-    name: '🚀 Priority 3: Phase 1.C Kanban',
+    name: 'Priority 3: Phase 1.C Kanban',
     component: Phase1CFastTrackKanbanWidget,
     defaultLayout: { w: 12, h: 12 },
     source: 'proprietary',
@@ -137,6 +138,15 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     maxH: 6,
   },
   {
+    id: 'SystemMonitorWidget',
+    name: 'System Monitor',
+    component: SystemMonitorWidget,
+    defaultLayout: { w: 8, h: 12 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 10,
+  },
+  {
     id: 'SystemSettingsWidget',
     name: 'Systemindstillinger',
     component: SystemSettingsWidget,
@@ -174,13 +184,14 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     maxW: 6,
     maxH: 8,
   },
-  {
-    id: 'DarkWebMonitor',
-    name: '🕵️ Dark Web Monitor',
-    component: DarkWebMonitorWidget,
-    defaultLayout: { w: 12, h: 10 },
-    source: 'proprietary',
-    minW: 8,
-    minH: 8,
-  }
+  // TODO: Re-enable when DarkWebMonitorWidget is created
+  // {
+  //   id: 'DarkWebMonitor',
+  //   name: 'Dark Web Monitor',
+  //   component: DarkWebMonitorWidget,
+  //   defaultLayout: { w: 12, h: 10 },
+  //   source: 'proprietary',
+  //   minW: 8,
+  //   minH: 8,
+  // }
 ];

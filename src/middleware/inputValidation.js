@@ -9,11 +9,11 @@ const validate = (req, res, next) => {
   next();
 };
 
-const sanitizeInput = (input) => {
+const sanitizeInput = input => {
   if (typeof input === 'string') {
     return sanitizeHtml(input, {
       allowedTags: [],
-      allowedAttributes: {}
+      allowedAttributes: {},
     });
   }
   if (typeof input === 'object' && input !== null) {

@@ -71,10 +71,19 @@ export class PalRepository {
       LIMIT ?
     `).all(userId, orgId, limit);
 
-    return rows.map((row: any) => ({
-      ...row,
-      payload: JSON.parse(row.payload || '{}'),
-    }));
+    return rows.map((row: any) => {
+      let payload = {};
+      try {
+        payload = JSON.parse(row.payload || '{}');
+      } catch (error) {
+        console.error('Error parsing payload JSON:', error);
+        payload = {};
+      }
+      return {
+        ...row,
+        payload,
+      };
+    });
   }
 
   getEventsByType(userId: string, orgId: string, eventType: string, limit: number = 10): any[] {
@@ -85,10 +94,19 @@ export class PalRepository {
       LIMIT ?
     `).all(userId, orgId, eventType, limit);
 
-    return rows.map((row: any) => ({
-      ...row,
-      payload: JSON.parse(row.payload || '{}'),
-    }));
+    return rows.map((row: any) => {
+      let payload = {};
+      try {
+        payload = JSON.parse(row.payload || '{}');
+      } catch (error) {
+        console.error('Error parsing payload JSON:', error);
+        payload = {};
+      }
+      return {
+        ...row,
+        payload,
+      };
+    });
   }
 
   getStressLevelDistribution(userId: string, orgId: string, hoursBack: number = 24): any {

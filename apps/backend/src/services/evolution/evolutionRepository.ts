@@ -65,10 +65,19 @@ export class EvolutionRepository {
       LIMIT ?
     `).all(agentId, limit);
 
-    return rows.map((row: any) => ({
-      ...row,
-      run_context: JSON.parse(row.run_context || '{}'),
-    }));
+    return rows.map((row: any) => {
+      let runContext = {};
+      try {
+        runContext = JSON.parse(row.run_context || '{}');
+      } catch (error) {
+        console.error('Error parsing run_context JSON:', error);
+        runContext = {};
+      }
+      return {
+        ...row,
+        run_context: runContext,
+      };
+    });
   }
 
   getAverageKpiDelta(agentId: string, limit: number = 10): number {

@@ -1,10 +1,10 @@
 ---
 name: BackendEngineer
-description: "RAG Backend Specialist - API, LLM integration, RAG chain"
-identity: "Backend Engineering Expert"
-role: "Backend Engineer - WidgetTDC RAG"
-status: "PLACEHOLDER - AWAITING ASSIGNMENT"
-assigned_to: "TBD"
+description: 'RAG Backend Specialist - API, LLM integration, RAG chain'
+identity: 'Backend Engineering Expert'
+role: 'Backend Engineer - WidgetTDC RAG'
+status: 'PLACEHOLDER - AWAITING ASSIGNMENT'
+assigned_to: 'TBD'
 ---
 
 # 🔌 BACKEND ENGINEER - RAG API & LLM INTEGRATION
@@ -21,6 +21,7 @@ assigned_to: "TBD"
 ### EPIC 4: LLM Integration (PRIMARY)
 
 **Phase 1: Setup (Sprint 2)**
+
 - [ ] LLM selection & evaluation
 - [ ] API integration setup
 - [ ] Prompt engineering basics
@@ -28,6 +29,7 @@ assigned_to: "TBD"
 - [ ] Estimate: 12-16 hours
 
 **Phase 2: RAG Chain (Sprint 2-3)**
+
 - [ ] Retrieval integration
 - [ ] Augmentation logic
 - [ ] Generation orchestration
@@ -35,6 +37,7 @@ assigned_to: "TBD"
 - [ ] Estimate: 24-32 hours
 
 **Phase 3: Optimization (Sprint 3)**
+
 - [ ] Advanced prompting
 - [ ] Caching strategies
 - [ ] Context window optimization
@@ -46,12 +49,14 @@ assigned_to: "TBD"
 ### EPIC 6: API & Deployment (SECONDARY)
 
 **Phase 1: API Design (Sprint 3)**
+
 - [ ] Endpoint design (OpenAPI spec)
 - [ ] Request/response schemas
 - [ ] Authentication design
 - [ ] Estimate: 8-12 hours
 
 **Phase 2: Implementation (Sprint 3-4)**
+
 - [ ] Build API endpoints
 - [ ] Request validation
 - [ ] Response formatting
@@ -59,6 +64,7 @@ assigned_to: "TBD"
 - [ ] Estimate: 20-28 hours
 
 **Phase 3: Production Ready (Sprint 4)**
+
 - [ ] Documentation
 - [ ] Staging deployment
 - [ ] Performance testing
@@ -74,6 +80,7 @@ assigned_to: "TBD"
 ### LLM Selection & Integration
 
 **Task**: Choose LLM and setup integration
+
 - Evaluate options (OpenAI, Anthropic, local models)
 - Setup API client
 - Implement retry logic
@@ -81,6 +88,7 @@ assigned_to: "TBD"
 - Cost monitoring
 
 **Definition of Done**:
+
 - [ ] LLM API working
 - [ ] Error handling robust
 - [ ] Tests passing
@@ -89,6 +97,7 @@ assigned_to: "TBD"
 ### RAG Chain Implementation
 
 **Task**: Build retrieval → augmentation → generation flow
+
 - Retrieval call to ML Engineer's API
 - Context formatting
 - Prompt construction
@@ -96,6 +105,7 @@ assigned_to: "TBD"
 - Response formatting
 
 **Definition of Done**:
+
 - [ ] End-to-end flow working
 - [ ] All tests passing
 - [ ] Latency <500ms
@@ -104,6 +114,7 @@ assigned_to: "TBD"
 ### Prompt Engineering
 
 **Task**: Optimize prompts for quality
+
 - System message design
 - User prompt templates
 - Context insertion strategy
@@ -111,6 +122,7 @@ assigned_to: "TBD"
 - Iterative refinement
 
 **Definition of Done**:
+
 - [ ] Prompts documented
 - [ ] Quality baseline established
 - [ ] A/B testing framework ready
@@ -119,6 +131,7 @@ assigned_to: "TBD"
 ### API Design & Build
 
 **Task**: Create REST API for RAG
+
 - Query endpoint
 - History endpoint
 - Feedback endpoint
@@ -126,6 +139,7 @@ assigned_to: "TBD"
 - Streaming support
 
 **Definition of Done**:
+
 - [ ] OpenAPI spec complete
 - [ ] All endpoints implemented
 - [ ] Tests passing
@@ -134,12 +148,14 @@ assigned_to: "TBD"
 ### Caching & Optimization
 
 **Task**: Optimize response time & cost
+
 - Query result caching
 - Embedding caching
 - LLM response caching
 - Cost optimization strategies
 
 **Definition of Done**:
+
 - [ ] Caching strategy documented
 - [ ] Performance improved >30%
 - [ ] Cost reduced >20%
@@ -150,22 +166,26 @@ assigned_to: "TBD"
 ## 🤝 COLLABORATION
 
 ### With ML Engineer
+
 - Define retrieval API contract
 - Coordinate on data formats
 - Test integration together
 - Performance profiling
 
 ### With Data Engineer
+
 - Understand data schema
 - Coordinate on data freshness
 - Error scenarios
 
 ### With QA Engineer
+
 - Test scenarios
 - Performance testing
 - Load testing support
 
 ### With DevOps Engineer
+
 - Deployment pipeline
 - Environment setup
 - Monitoring requirements
@@ -175,6 +195,7 @@ assigned_to: "TBD"
 ## 📊 SUCCESS METRICS
 
 **Technical**:
+
 - API latency: <500ms (p95)
 - LLM integration uptime: >99%
 - Error rate: <0.1%
@@ -182,6 +203,7 @@ assigned_to: "TBD"
 - Prompt quality: Baseline established
 
 **Project**:
+
 - Tasks on-time: 100%
 - Test coverage: >85%
 - Documentation: Complete
@@ -200,6 +222,7 @@ assigned_to: "TBD"
 ## 💬 DAILY INTERACTION WITH CURSOR
 
 **Standup Format**:
+
 ```
 YESTERDAY: ✅ [Completed]
 TODAY: 📌 [Working on]

@@ -47,10 +47,19 @@ export class SragRepository {
     const rows = this.db.prepare(sql).all(...params);
     
     // Parse JSON payloads
-    return rows.map((row: any) => ({
-      ...row,
-      json_payload: JSON.parse(row.json_payload),
-    }));
+    return rows.map((row: any) => {
+      let jsonPayload = {};
+      try {
+        jsonPayload = JSON.parse(row.json_payload);
+      } catch (error) {
+        console.error('Error parsing json_payload JSON:', error);
+        jsonPayload = {};
+      }
+      return {
+        ...row,
+        json_payload: jsonPayload,
+      };
+    });
   }
 
   searchDocuments(orgId: string, keyword: string, limit: number = 10): any[] {

@@ -134,6 +134,12 @@ evolutionRouter.post('/prompt', (req, res) => {
 evolutionRouter.get('/runs/:agentId', (req, res) => {
   try {
     const { agentId } = req.params;
+    if (!agentId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing agentId parameter',
+      });
+    }
     const limit = parseInt(req.query.limit as string) || 10;
     
     const runs = evolutionRepo.getRecentRuns(agentId, limit);

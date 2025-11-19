@@ -30,6 +30,7 @@ Cursor (IMPLEMENTATION LEAD)
 Day-to-day project execution, team coordination, tactical decisions
 
 **Key Responsibilities:**
+
 - ✅ Daily standup coordination
 - ✅ Task prioritization & assignment
 - ✅ Blocker resolution (or escalation)
@@ -39,6 +40,7 @@ Day-to-day project execution, team coordination, tactical decisions
 - ✅ Escalation to HansPedder2 when needed
 
 **Authority:**
+
 - Can make tactical decisions
 - Can reassign tasks
 - Can adjust sprint priorities
@@ -47,6 +49,7 @@ Day-to-day project execution, team coordination, tactical decisions
 **Reports To:** HansPedder2 (Daily standup, Weekly report)
 
 **Tools:**
+
 - GitHub Projects (Kanban)
 - Claude Docs (Documentation)
 - Git (Code versioning)
@@ -59,10 +62,12 @@ Day-to-day project execution, team coordination, tactical decisions
 Build robust data ingestion & processing pipeline
 
 **Epic Ownership:**
+
 - 📍 **EPIC 2: Data Pipeline** (Owns)
 - 📍 **EPIC 3: VectorDB** (Contributes)
 
 **Specific Responsibilities:**
+
 - Design & implement data ingestion pipeline
 - Integrate with data sources (APIs, databases, files)
 - Implement data cleaning & preprocessing
@@ -72,6 +77,7 @@ Build robust data ingestion & processing pipeline
 - Provide metrics (throughput, latency, quality)
 
 **Definition of Done Contributions:**
+
 - [ ] Data pipeline passes all tests
 - [ ] Data quality checks automated
 - [ ] Schema documented
@@ -79,6 +85,7 @@ Build robust data ingestion & processing pipeline
 - [ ] Performance metrics achieved
 
 **Success Criteria:**
+
 - Data ingestion >99% reliable
 - Quality metrics >95% (completeness, accuracy)
 - Processing latency <5min for batch
@@ -91,11 +98,13 @@ Build robust data ingestion & processing pipeline
 Build optimal retrieval pipeline & evaluation framework
 
 **Epic Ownership:**
+
 - 📍 **EPIC 3: VectorDB & Retrieval** (Owns)
 - 📍 **EPIC 5: Evaluation** (Owns)
 - 📍 **EPIC 4: LLM Integration** (Contributes)
 
 **Specific Responsibilities:**
+
 - Design & implement chunking strategy
 - Select & configure VectorDB (Pinecone, Weaviate, Milvus, etc.)
 - Implement embedding pipeline
@@ -105,6 +114,7 @@ Build optimal retrieval pipeline & evaluation framework
 - Implement feedback loop for continuous improvement
 
 **Definition of Done Contributions:**
+
 - [ ] Chunking strategy validated
 - [ ] VectorDB operational & tested
 - [ ] Retrieval accuracy >90%
@@ -112,6 +122,7 @@ Build optimal retrieval pipeline & evaluation framework
 - [ ] Evaluation dashboard live
 
 **Success Criteria:**
+
 - Retrieval accuracy >90%
 - Query latency <200ms (p95)
 - RAGAS score >0.85 (context relevance + answer relevancy)
@@ -124,10 +135,12 @@ Build optimal retrieval pipeline & evaluation framework
 Build API, LLM integration, & RAG chain
 
 **Epic Ownership:**
+
 - 📍 **EPIC 4: LLM Integration** (Owns)
 - 📍 **EPIC 6: API & Deployment** (Owns)
 
 **Specific Responsibilities:**
+
 - Design & implement RAG API
 - Implement LLM integration (OpenAI, Anthropic, local, etc.)
 - Build RAG chain (retrieval → augmentation → generation)
@@ -137,6 +150,7 @@ Build API, LLM integration, & RAG chain
 - Document API endpoints
 
 **Definition of Done Contributions:**
+
 - [ ] API fully documented (OpenAPI/Swagger)
 - [ ] All endpoints tested
 - [ ] RAG chain end-to-end working
@@ -144,6 +158,7 @@ Build API, LLM integration, & RAG chain
 - [ ] Production-ready error handling
 
 **Success Criteria:**
+
 - API latency <200ms (p95)
 - Uptime >99.5%
 - Error rate <0.1%
@@ -156,10 +171,12 @@ Build API, LLM integration, & RAG chain
 Ensure quality, testing, & monitoring
 
 **Epic Ownership:**
+
 - 📍 **EPIC 5: Evaluation & Quality** (Contributes)
 - 📍 **EPIC 6: API & Deployment** (Contributes)
 
 **Specific Responsibilities:**
+
 - Design comprehensive test strategy
 - Implement unit, integration, E2E tests
 - Performance testing & benchmarking
@@ -169,12 +186,14 @@ Ensure quality, testing, & monitoring
 - Quality reporting
 
 **Definition of Done Contributions:**
-- [ ] >85% code coverage
+
+- [ ] > 85% code coverage
 - [ ] All edge cases tested
 - [ ] Performance tests passing
 - [ ] Monitoring & alerts configured
 
 **Success Criteria:**
+
 - Test coverage >85%
 - Critical bugs in production: 0
 - MTTR (Mean Time to Resolution) <1h
@@ -187,9 +206,11 @@ Ensure quality, testing, & monitoring
 Infrastructure, deployment, & monitoring
 
 **Epic Ownership:**
+
 - 📍 **EPIC 6: API & Deployment** (Owns)
 
 **Specific Responsibilities:**
+
 - Design CI/CD pipeline
 - Infrastructure provisioning
 - Container/K8s management
@@ -199,12 +220,14 @@ Infrastructure, deployment, & monitoring
 - Security hardening
 
 **Definition of Done Contributions:**
+
 - [ ] CI/CD pipeline automated
 - [ ] Staging & production ready
 - [ ] Monitoring comprehensive
 - [ ] Rollback procedures tested
 
 **Success Criteria:**
+
 - Deployment time <15min
 - Uptime >99.5%
 - MTTR <1h
@@ -213,20 +236,20 @@ Infrastructure, deployment, & monitoring
 
 ## 📊 RESPONSIBILITY MATRIX
 
-| Task Category | Data Eng | ML Eng | Backend | QA | DevOps | Lead |
-|---------------|----------|--------|---------|-----|--------|------|
-| Data Ingestion | **OWNS** | Supports | - | Tests | - | Tracks |
-| VectorDB Setup | Supports | **OWNS** | - | Tests | - | Tracks |
-| Chunking | Supports | **OWNS** | - | Tests | - | Tracks |
-| Retrieval Model | Supports | **OWNS** | - | Tests | - | Tracks |
-| LLM Integration | - | Supports | **OWNS** | Tests | - | Tracks |
-| RAG Chain | Supports | Supports | **OWNS** | Tests | - | Tracks |
-| API Design | - | - | **OWNS** | Tests | - | Tracks |
-| Evaluation/RAGAS | - | **OWNS** | - | Supports | - | Tracks |
-| Testing | - | - | - | **OWNS** | - | Tracks |
-| Deployment | - | - | - | - | **OWNS** | Tracks |
-| Monitoring | Supports | Supports | Supports | **OWNS** | Supports | Tracks |
-| Documentation | Owns | Owns | Owns | Owns | Owns | Reviews |
+| Task Category    | Data Eng | ML Eng   | Backend  | QA       | DevOps   | Lead    |
+| ---------------- | -------- | -------- | -------- | -------- | -------- | ------- |
+| Data Ingestion   | **OWNS** | Supports | -        | Tests    | -        | Tracks  |
+| VectorDB Setup   | Supports | **OWNS** | -        | Tests    | -        | Tracks  |
+| Chunking         | Supports | **OWNS** | -        | Tests    | -        | Tracks  |
+| Retrieval Model  | Supports | **OWNS** | -        | Tests    | -        | Tracks  |
+| LLM Integration  | -        | Supports | **OWNS** | Tests    | -        | Tracks  |
+| RAG Chain        | Supports | Supports | **OWNS** | Tests    | -        | Tracks  |
+| API Design       | -        | -        | **OWNS** | Tests    | -        | Tracks  |
+| Evaluation/RAGAS | -        | **OWNS** | -        | Supports | -        | Tracks  |
+| Testing          | -        | -        | -        | **OWNS** | -        | Tracks  |
+| Deployment       | -        | -        | -        | -        | **OWNS** | Tracks  |
+| Monitoring       | Supports | Supports | Supports | **OWNS** | Supports | Tracks  |
+| Documentation    | Owns     | Owns     | Owns     | Owns     | Owns     | Reviews |
 
 ---
 
@@ -261,20 +284,26 @@ Infrastructure, deployment, & monitoring
 ## 📞 COMMUNICATION PATTERNS
 
 ### Daily (09:00 UTC)
+
 **Standup Call (15 min)**
+
 - Status: Yesterday done, today plan, blockers
 - Each person: 2 min update
 - Lead: 5 min to resolve issues
 
 ### Weekly (Every Monday, 14:00 UTC)
+
 **Executive Sync (30 min)**
+
 - Overall status to HansPedder2
 - Risks & mitigations
 - Budget & resource status
 - Any strategic changes needed
 
 ### As Needed
+
 **Blocker Escalation**
+
 - Immediate Slack notification
 - Lead investigates within 1h
 - If critical: escalates to HansPedder2
@@ -345,6 +374,7 @@ Each Engineer (Technical decisions in their domain)
 ```
 
 **Escalation Rules:**
+
 - Blockers: Report to Lead immediately
 - Architecture questions: Lead decides
 - Strategic changes: Lead escalates to HansPedder2

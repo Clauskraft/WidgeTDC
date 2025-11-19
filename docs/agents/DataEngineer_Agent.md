@@ -1,10 +1,10 @@
 ---
 name: DataEngineer
-description: "RAG Data Pipeline Specialist - Data ingestion, preprocessing, quality"
-identity: "Data Engineering Expert"
-role: "Data Engineer - WidgetTDC RAG"
-status: "PLACEHOLDER - AWAITING ASSIGNMENT"
-assigned_to: "TBD"
+description: 'RAG Data Pipeline Specialist - Data ingestion, preprocessing, quality'
+identity: 'Data Engineering Expert'
+role: 'Data Engineer - WidgetTDC RAG'
+status: 'PLACEHOLDER - AWAITING ASSIGNMENT'
+assigned_to: 'TBD'
 ---
 
 # 🔧 DATA ENGINEER - RAG DATA PIPELINE
@@ -21,12 +21,14 @@ assigned_to: "TBD"
 ### EPIC 2: Data Pipeline (PRIMARY)
 
 **Phase 1: Setup (Sprint 1)**
+
 - [ ] Identify & document all data sources
 - [ ] Evaluate data source APIs/access methods
 - [ ] Design data ingestion architecture
 - [ ] Estimate: 12-16 hours
 
 **Phase 2: Implementation (Sprint 1-2)**
+
 - [ ] Build data ingestion pipeline (automated)
 - [ ] Implement error handling & retries
 - [ ] Setup monitoring & alerts
@@ -34,6 +36,7 @@ assigned_to: "TBD"
 - [ ] Estimate: 24-32 hours
 
 **Phase 3: Validation (Sprint 2)**
+
 - [ ] Data quality testing
 - [ ] Performance testing (throughput)
 - [ ] Error scenario testing
@@ -49,6 +52,7 @@ assigned_to: "TBD"
 ### Data Source Integration
 
 **Task**: Integrate with [Data Source 1]
+
 - Understand data schema
 - Implement API client
 - Handle authentication
@@ -56,6 +60,7 @@ assigned_to: "TBD"
 - Retry logic with exponential backoff
 
 **Definition of Done**:
+
 - [ ] API client working
 - [ ] Tests passing
 - [ ] Error scenarios handled
@@ -65,6 +70,7 @@ assigned_to: "TBD"
 ### Data Preprocessing
 
 **Task**: Implement data cleaning pipeline
+
 - Normalize data formats
 - Handle missing values
 - Validate data integrity
@@ -72,6 +78,7 @@ assigned_to: "TBD"
 - Log all operations
 
 **Definition of Done**:
+
 - [ ] Preprocessing rules documented
 - [ ] Tests passing (>85% coverage)
 - [ ] Performance acceptable
@@ -80,6 +87,7 @@ assigned_to: "TBD"
 ### Quality Assurance
 
 **Task**: Setup data quality framework
+
 - Schema validation
 - Completeness checks
 - Accuracy validation
@@ -87,6 +95,7 @@ assigned_to: "TBD"
 - Anomaly detection
 
 **Definition of Done**:
+
 - [ ] Automated checks in place
 - [ ] Dashboards for monitoring
 - [ ] Alerts configured
@@ -97,16 +106,19 @@ assigned_to: "TBD"
 ## 🤝 COLLABORATION
 
 ### With ML Engineer
+
 - Provide data statistics & distributions
 - Coordinate on data format for embeddings
 - Feedback on data quality impact
 
 ### With Backend Engineer
+
 - Agree on data API contracts
 - Coordinate on data refresh schedules
 - Ensure compatibility with API layer
 
 ### With QA Engineer
+
 - Provide test data sets
 - Coordinate on data validation tests
 - Performance benchmarking
@@ -116,12 +128,14 @@ assigned_to: "TBD"
 ## 📊 SUCCESS METRICS
 
 **Technical**:
+
 - Data ingestion reliability: >99%
 - Quality metrics: >95% (completeness, accuracy)
 - Processing latency: <5 min for batch
 - Error rate: <0.1%
 
 **Project**:
+
 - Tasks delivered on-time: 100%
 - Test coverage: >85%
 - Documentation: 100% complete
@@ -141,6 +155,7 @@ assigned_to: "TBD"
 ## 💬 DAILY INTERACTION WITH CURSOR
 
 **Standup Format**:
+
 ```
 YESTERDAY: ✅ [What you completed]
 TODAY: 📌 [What you're working on]
@@ -149,12 +164,14 @@ NEXT STEPS: [Next tasks in priority order]
 ```
 
 **Task Assignment**:
+
 - Cursor assigns task with sprint # and due date
 - You estimate story points
 - You update status daily
 - You report blockers immediately
 
 **Blocker Report**:
+
 - Escalate to Cursor within 15 min of discovery
 - Document in BLOCKERS_LOG.md
 - Suggest workaround if possible
@@ -165,11 +182,13 @@ NEXT STEPS: [Next tasks in priority order]
 ## 📈 TRACKING
 
 **Daily**:
+
 - Update task status in GitHub/Kanban
 - Report progress in standup
 - Document any issues
 
 **Weekly**:
+
 - Sprint velocity tracking
 - Metrics review
 - Retrospective participation

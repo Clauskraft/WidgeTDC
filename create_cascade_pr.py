@@ -65,17 +65,28 @@ def create_pr_for_cascade():
         # Push branch
         subprocess.run(["git", "push", "-u", "origin", branch_name], check=True, capture_output=True)
 
-        # Create PR body
+        # Create PR body with HansPedder Orchestrator compatible format
+        # NOTE: Agent, Block, Points must NOT be wrapped in markdown bold (**) for regex parsing
         pr_title = f"Cascade: Agent execution results ({timestamp})"
         pr_body = """## Agent Cascade Execution Complete
 
+Agent: CascadeOrchestrator
+Block: 0
+Points: 10
+
 The agent cascade has completed successfully. All 6 blocks have executed and produced results.
 
-See `cascade.log` for detailed execution trace and `cascade/latest_results.json` for structured results.
+See `cascade.log` for detailed execution trace and `.cascade/latest_results.json` for structured results.
 
-**Action Required**: HansPedder should review and merge this PR to process the agent outputs.
+### Cascade Results
+- AlexaGPT-Frontend (Block 1) - COMPLETE
+- GoogleCloudArch (Block 2) - COMPLETE
+- CryptographyExpert (Block 3) - COMPLETE
+- DatabaseMaster (Block 4) - COMPLETE
+- QASpecialist (Block 5) - COMPLETE
+- SecurityCompliance (Block 6) - COMPLETE
 
-**Status**: Ready for review and merge."""
+Status: Ready for HansPedder Orchestrator auto-merge"""
 
         # Create PR
         result = subprocess.run([

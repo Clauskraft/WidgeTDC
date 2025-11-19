@@ -11,7 +11,8 @@ const evolutionRepo = new EvolutionRepository();
 const palRepo = new PalRepository();
 
 // CMA tool handlers
-export async function cmaContextHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function cmaContextHandler(payload: any, _ctx: McpContext): Promise<any> {
+  const ctx = _ctx;
   const memories = memoryRepo.searchEntities({
     orgId: ctx.orgId,
     userId: ctx.userId,
@@ -51,7 +52,8 @@ ${payload.widgetData || 'None'}
   };
 }
 
-export async function cmaIngestHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function cmaIngestHandler(payload: any, _ctx: McpContext): Promise<any> {
+  const ctx = _ctx;
   const entityId = memoryRepo.ingestEntity({
     orgId: ctx.orgId,
     userId: ctx.userId,
@@ -201,7 +203,7 @@ Event Details: ${JSON.stringify(payload.payload, null, 2)}
 
 export async function palBoardActionHandler(payload: any, ctx: McpContext): Promise<any> {
   // Get recommendations
-  const profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
+  let profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
   if (!profile) {
     palRepo.createUserProfile(ctx.userId, ctx.orgId);
   }

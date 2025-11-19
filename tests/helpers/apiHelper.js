@@ -7,17 +7,14 @@ class APITestHelper {
   }
 
   async login(email, password) {
-    const response = await request(this.app)
-      .post('/api/auth/login')
-      .send({ email, password });
+    const response = await request(this.app).post('/api/auth/login').send({ email, password });
 
     this.token = response.body.accessToken;
     return response;
   }
 
   async authenticatedRequest(method, path, body = null) {
-    const req = request(this.app)[method](path)
-      .set('Authorization', `Bearer ${this.token}`);
+    const req = request(this.app)[method](path).set('Authorization', `Bearer ${this.token}`);
 
     if (body) {
       req.send(body);

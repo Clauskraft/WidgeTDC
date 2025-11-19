@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { GlobalState, Theme } from '../types';
 
@@ -14,7 +13,7 @@ export const GlobalStateProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [state, setState] = useState<GlobalState>({
     theme: 'dark',
     reduceMotion: false,
-    user: { name: 'Bruger' }
+    user: { name: 'Bruger' },
   });
 
   useEffect(() => {

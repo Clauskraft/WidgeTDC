@@ -11,7 +11,7 @@ export class WidgetRegistry {
       version: widget.version,
       releaseDate: new Date(),
       changelog: 'Initial version',
-      deprecated: false
+      deprecated: false,
     });
     this.versions.set(widget.id, versions);
   }
@@ -55,9 +55,7 @@ export class WidgetRegistry {
   }
 
   searchByCapability(capability: string): WidgetMetadata[] {
-    return this.getAllWidgets().filter(widget =>
-      widget.capabilities.includes(capability)
-    );
+    return this.getAllWidgets().filter(widget => widget.capabilities.includes(capability));
   }
 }
 

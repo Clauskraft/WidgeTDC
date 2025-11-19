@@ -139,6 +139,7 @@ Data Sources
 **Technology**: FastAPI / Flask / Node.js
 
 **Endpoints**:
+
 ```
 POST /api/rag/query
   Input: { query: string, conversation_id?: string }
@@ -153,6 +154,7 @@ GET /api/rag/health
 ```
 
 **Responsibilities**:
+
 - Request validation
 - Rate limiting
 - Authentication
@@ -165,6 +167,7 @@ GET /api/rag/health
 **Technology**: LangChain / LlamaIndex / Custom
 
 **Components**:
+
 - Query preprocessing
 - Vector similarity search
 - Hybrid search (BM25 + semantic)
@@ -181,6 +184,7 @@ GET /api/rag/health
 **Providers**: OpenAI, Anthropic, or local models
 
 **Responsibilities**:
+
 - Prompt formatting
 - LLM API calls
 - Response streaming
@@ -191,12 +195,14 @@ GET /api/rag/health
 ### 4. Vector Database (ML)
 
 **Options**:
+
 - **Pinecone**: Managed, scalable, production-ready
 - **Weaviate**: Open-source, flexible schema
 - **Milvus**: Self-hosted, high performance
 - **Qdrant**: Modern, performant
 
 **Responsibilities**:
+
 - Store embeddings
 - Vector search
 - Metadata filtering
@@ -209,6 +215,7 @@ GET /api/rag/health
 **Technology**: Python + Scheduled jobs / Airflow
 
 **Components**:
+
 - Data extraction
 - Validation
 - Transformation
@@ -223,6 +230,7 @@ GET /api/rag/health
 ## 📊 DEPLOYMENT ARCHITECTURE
 
 ### Development Environment
+
 ```
 Local machine
 └─ Local LLM (optional)
@@ -232,6 +240,7 @@ Local machine
 ```
 
 ### Staging Environment
+
 ```
 Cloud provider (AWS/GCP/Azure)
 ├─ API service (containerized)
@@ -242,6 +251,7 @@ Cloud provider (AWS/GCP/Azure)
 ```
 
 ### Production Environment
+
 ```
 Cloud provider (HA setup)
 ├─ API service (load balanced, auto-scaling)
@@ -263,18 +273,21 @@ Cloud provider (HA setup)
 ## 🔐 SECURITY ARCHITECTURE
 
 ### Authentication & Authorization
+
 - API key management
 - JWT tokens
 - Rate limiting per user/API key
 - Role-based access control
 
 ### Data Protection
+
 - TLS encryption in transit
 - Data encryption at rest
 - Secrets management (vault)
 - Audit logging
 
 ### API Security
+
 - Input validation
 - SQL injection prevention
 - XSS protection
@@ -285,17 +298,20 @@ Cloud provider (HA setup)
 ## 📈 SCALABILITY DESIGN
 
 ### Horizontal Scaling
+
 - API: Load balancer + multiple instances
 - VectorDB: Sharding/replication
 - Cache: Distributed cache
 
 ### Performance Optimization
+
 - Query caching
 - Batch processing
 - Parallel data ingestion
 - Connection pooling
 
 ### Monitoring
+
 - Latency tracking
 - Throughput metrics
 - Error rates
@@ -320,6 +336,7 @@ For each query:
 ```
 
 ### Continuous Monitoring
+
 - Daily metric aggregation
 - Trend analysis
 - Degradation alerts
@@ -330,21 +347,25 @@ For each query:
 ## 🧪 TESTING STRATEGY
 
 ### Unit Tests
+
 - Component isolation
 - Function correctness
 - Edge cases
 
 ### Integration Tests
+
 - API → Retrieval
 - Retrieval → LLM
 - Pipeline → DB
 
 ### Performance Tests
+
 - Latency benchmarks
 - Throughput testing
 - Load testing (concurrent requests)
 
 ### Evaluation Tests
+
 - RAGAS metrics
 - Quality baselines
 - Regression detection
@@ -354,6 +375,7 @@ For each query:
 ## 📋 DEPLOYMENT CHECKLIST
 
 Before production:
+
 - [ ] All tests passing (>85% coverage)
 - [ ] Performance benchmarks met
 - [ ] Security audit passed

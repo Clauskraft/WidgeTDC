@@ -35,167 +35,33 @@
   },
 
   "specialist_team": {
-    "frontend_architect_1": {
-      "expertise": "React/Vue/Modern UI - Core Widgets",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
+    "frontend_architect": {
+      "expertise": "React/Vue/Modern UI",
+      "status": "ON_DEMAND"
     },
-    "frontend_architect_2": {
-      "expertise": "React/Vue/Modern UI - Security Widgets",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
+    "backend_architect": {
+      "expertise": "Scalability, Security, Performance",
+      "status": "ON_DEMAND"
     },
-    "frontend_architect_3": {
-      "expertise": "React/Vue/Modern UI - Dashboard Components",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_gui_designer"
-    },
-    "frontend_performance_specialist": {
-      "expertise": "Performance Optimization, Bundle Size, Lazy Loading",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "frontend_architect_1"
-    },
-    "backend_architect_1": {
-      "expertise": "Scalability, Security, Performance - Core Services",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
-    },
-    "backend_architect_2": {
-      "expertise": "Scalability, Security, Performance - API Gateway",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
-    },
-    "backend_architect_3": {
-      "expertise": "Microservices, Event-Driven Architecture",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
-    },
-    "security_architect_1": {
+    "security_architect": {
       "expertise": "GDPR, Compliance, Data Protection",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
+      "status": "ON_DEMAND"
     },
-    "security_architect_2": {
-      "expertise": "Penetration Testing, Vulnerability Assessment",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "security_architect_1"
+    "mcp_integration_expert": {
+      "expertise": "Model Context Protocol Integration",
+      "status": "ON_DEMAND"
     },
-    "security_operations_engineer": {
-      "expertise": "Security Monitoring, Incident Response",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "security_architect_1"
+    "vector_database_engineer": {
+      "expertise": "Qdrant, Weaviate, Pinecone",
+      "status": "ON_DEMAND"
     },
-    "mcp_integration_expert_1": {
-      "expertise": "Model Context Protocol Integration - Widgets",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
-    },
-    "mcp_integration_expert_2": {
-      "expertise": "Model Context Protocol Integration - Backend",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "backend_architect_1"
-    },
-    "vector_database_engineer_1": {
-      "expertise": "Qdrant, Weaviate, Pinecone - Architecture",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "backend_architect_1"
-    },
-    "vector_database_engineer_2": {
-      "expertise": "Vector Search Optimization, Query Performance",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "vector_database_engineer_1"
-    },
-    "ai_ml_specialist_1": {
+    "ai_ml_specialist": {
       "expertise": "ML Ops, Model Selection, Optimization",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
+      "status": "ON_DEMAND"
     },
-    "ai_ml_specialist_2": {
-      "expertise": "Prompt Engineering, Fine-tuning",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "ai_ml_specialist_1"
-    },
-    "compliance_legal_1": {
+    "compliance_legal": {
       "expertise": "European Compliance, GDPR, ISO 27001",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "project_manager"
-    },
-    "compliance_legal_2": {
-      "expertise": "Data Privacy, Audit Preparation",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "compliance_legal_1"
-    },
-    "devops_engineer_1": {
-      "expertise": "CI/CD, Infrastructure as Code, Kubernetes",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_architect"
-    },
-    "devops_engineer_2": {
-      "expertise": "Monitoring, Observability, SRE",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "devops_engineer_1"
-    },
-    "devops_engineer_3": {
-      "expertise": "Cloud Architecture, Multi-Region Deployment",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "devops_engineer_1"
-    },
-    "qa_engineer_1": {
-      "expertise": "Test Automation, E2E Testing, Quality Assurance",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "project_manager"
-    },
-    "qa_engineer_2": {
-      "expertise": "Performance Testing, Load Testing",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "qa_engineer_1"
-    },
-    "qa_engineer_3": {
-      "expertise": "Accessibility Testing, WCAG Compliance",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_gui_designer"
-    },
-    "ux_researcher": {
-      "expertise": "User Research, Usability Testing, Analytics",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "chief_gui_designer"
-    },
-    "technical_writer": {
-      "expertise": "Documentation, API Documentation, User Guides",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "project_manager"
-    },
-    "data_engineer": {
-      "expertise": "Data Pipelines, ETL, Data Warehousing",
-      "status": "ACTIVE",
-      "agent": "Claude Code Agent",
-      "reports_to": "backend_architect_1"
+      "status": "ON_DEMAND"
     }
   },
 
@@ -266,18 +132,6 @@
     "review_process": "System Director approval for major decisions"
   },
 
-  "team_summary": {
-    "total_agents": 30,
-    "leadership_total": 4,
-    "leadership_working": 3,
-    "specialists": 27,
-    "working_agents": 30,
-    "scaling_factor": "10x from baseline (3 working agents to 30 working agents)",
-    "expansion_date": "2025-11-16T22:47:00Z",
-    "expansion_rationale": "System Director directive: 'staff up times 10... and keep running. alll accepted'",
-    "note": "Total team = 31 (1 human System Director + 30 Claude Code Agents)"
-  },
-
   "activation_date": "2025-11-16T14:50:00Z",
-  "last_updated": "2025-11-16T22:47:00Z"
+  "last_updated": "2025-11-16T14:50:00Z"
 }
