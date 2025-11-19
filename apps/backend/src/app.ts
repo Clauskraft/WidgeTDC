@@ -19,22 +19,31 @@ import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
 import { scRouter } from './services/sc/scController.js';
 
-let toolsRegistered = false;
+// Remove toolsRegistered flag; use per-tool registration checks
 
 function ensureMcpToolsRegistered(): void {
-  if (toolsRegistered) {
-    return;
+  const tools = [
+    ['cma.context', cmaContextHandler],
+    ['cma.ingest', cmaIngestHandler],
+    ['srag.query', sragQueryHandler],
+    ['evolution.report-run', evolutionReportHandler],
+    ['evolution.get-prompt', evolutionGetPromptHandler],
+    ['pal.event', palEventHandler],
+    ['pal.board-action', palBoardActionHandler],
+  ];
+
+  for (const [toolName, handler] of tools) {
+    // Check if already registered; register if not
+    if (!mcpRegistry.hasTool || typeof mcpRegistry.hasTool !== 'function') {
+      // Fallback: check internal registry map (assume mcpRegistry._tools or .tools)
+      // Adjust property name as needed based on actual implementation
+      const registry = mcpRegistry.tools || mcpRegistry._tools;
+      if (registry && registry.has(toolName)) continue;
+    } else {
+      if (mcpRegistry.hasTool(toolName)) continue;
+    }
+    mcpRegistry.registerTool(toolName, handler);
   }
-
-  mcpRegistry.registerTool('cma.context', cmaContextHandler);
-  mcpRegistry.registerTool('cma.ingest', cmaIngestHandler);
-  mcpRegistry.registerTool('srag.query', sragQueryHandler);
-  mcpRegistry.registerTool('evolution.report-run', evolutionReportHandler);
-  mcpRegistry.registerTool('evolution.get-prompt', evolutionGetPromptHandler);
-  mcpRegistry.registerTool('pal.event', palEventHandler);
-  mcpRegistry.registerTool('pal.board-action', palBoardActionHandler);
-
-  toolsRegistered = true;
 }
 
 export function createApp() {
