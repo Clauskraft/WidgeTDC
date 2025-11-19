@@ -92,14 +92,14 @@ router.post('/analyze', upload.single('file'), async (req: Request, res: Respons
         });
       }
 
-      if (/SELECT\s+.*\+/.test(line)) {
+      if (line.includes('SELECT * FROM') && line.includes('+')) {
         findings.push({
           file: fileName,
           line: index + 1,
           severity: 'critical',
           category: 'Security - SQL Injection',
-          description: 'Raw SQL string concatenation detected',
-          remediation: 'Use parameterized queries or query builders with bindings',
+          description: 'Potential SQL injection vulnerability',
+          remediation: 'Use parameterized queries or prepared statements',
         });
       }
 
