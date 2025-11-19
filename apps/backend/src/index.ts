@@ -1,60 +1,17 @@
 import { createServer } from 'http';
+import { exec } from 'child_process';
 import { mcpRegistry } from './mcp/mcpRegistry.js';
 import { createApp, createMcpWebSocketServer } from './app.js';
+import sysRouter from './routes/sys.js';
+import { securityRouter } from './services/security/securityController.js';
+import { agentRouter } from './services/agent/agentController.js';
 
 const PORT = process.env.PORT || 3001;
 const app = createApp();
-import { exec } from 'child_process';
-import { getDatabase } from './database/index.js';
-import { mcpRouter } from './mcp/mcpRouter.js';
-import { mcpRegistry } from './mcp/mcpRegistry.js';
-import { MCPWebSocketServer } from './mcp/mcpWebsocketServer.js';
-import { memoryRouter } from './services/memory/memoryController.js';
-import { sragRouter } from './services/srag/sragController.js';
-import { evolutionRouter } from './services/evolution/evolutionController.js';
-import { palRouter } from './services/pal/palController.js';
-import sysRouter from './routes/sys.js';
-import {
-  cmaContextHandler,
-  cmaIngestHandler,
-  sragQueryHandler,
-  evolutionReportHandler,
-  evolutionGetPromptHandler,
-  palEventHandler,
-  palBoardActionHandler,
-} from './mcp/toolHandlers.js';
-import { securityRouter } from './services/security/securityController.js';
-import { agentRouter } from './services/agent/agentController.js';
-import { scRouter } from './services/sc/scController.js';
 
-const app = express();
-const PORT = 3001; // Fixed port to avoid conflicts with exec-daemon
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Initialize database
-getDatabase();
-
-// Register MCP tools
-mcpRegistry.registerTool('cma.context', cmaContextHandler);
-mcpRegistry.registerTool('cma.ingest', cmaIngestHandler);
-mcpRegistry.registerTool('srag.query', sragQueryHandler);
-mcpRegistry.registerTool('evolution.report-run', evolutionReportHandler);
-mcpRegistry.registerTool('evolution.get-prompt', evolutionGetPromptHandler);
-mcpRegistry.registerTool('pal.event', palEventHandler);
-mcpRegistry.registerTool('pal.board-action', palBoardActionHandler);
-
-// Routes
-app.use('/api/mcp', mcpRouter);
-app.use('/api/memory', memoryRouter);
-app.use('/api/srag', sragRouter);
-app.use('/api/evolution', evolutionRouter);
-app.use('/api/pal', palRouter);
+// Additional routes not in createApp
 app.use('/api/security', securityRouter);
 app.use('/api/agent', agentRouter);
-app.use('/api/commands/sc', scRouter);
 app.use('/api/sys', sysRouter);
 
 // Health check

@@ -1,14 +1,8 @@
 // MCP API Gateway - Integrated from template
-<<<<<<< Current (Your changes)
-import express from 'express';
-import { WebSocketServer } from 'ws';
-import jwt from 'jsonwebtoken';
-=======
 import express, { Request, Response, NextFunction } from 'express';
 import { WebSocketServer, WebSocket } from 'ws';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { IncomingMessage } from 'http';
->>>>>>> Incoming (Background Agent changes)
 import { mcpRouter } from '../mcpRouter.js';
 
 const app = express();
