@@ -24,36 +24,38 @@ sragRouter.post('/query', (req, res) => {
 
     const traceId = uuidv4();
 
-    if (isAnalytical) {
-      // For analytical queries, query structured facts
-      const facts = sragRepo.queryFacts(request.orgId);
-      
-      res.json({
-        type: 'analytical',
-        result: facts,
-        sqlQuery: 'SELECT * FROM structured_facts WHERE org_id = ?',
-        metadata: {
-          traceId,
-          docIds: facts.map(f => f.doc_id).filter(Boolean),
-        },
-      });
-    } else {
-      // For semantic queries, search documents
-      const keywords = query.split(' ').filter(w => w.length > 3);
-      const documents = keywords.length > 0 
-        ? sragRepo.searchDocuments(request.orgId, keywords[0])
-        : [];
-      
-      res.json({
-        type: 'semantic',
-        result: documents,
-        sqlQuery: null,
-        metadata: {
-          traceId,
-          docIds: documents.map(d => d.id),
-        },
-      });
-    }
+      if (isAnalytical) {
+        // For analytical queries, query structured facts
+        const facts = sragRepo.queryFacts(request.orgId);
+        
+        res.json({
+          type: 'analytical',
+          result: facts,
+          sqlQuery: 'SELECT * FROM structured_facts WHERE org_id = ?',
+          metadata: {
+            traceId,
+            docIds: facts.map(f => f.doc_id).filter(Boolean),
+          },
+        });
+      } else {
+        // For semantic queries, search documents
+        const keywords = query
+          .split(' ')
+          .filter((word: string) => word.length > 3);
+        const documents = keywords.length > 0 
+          ? sragRepo.searchDocuments(request.orgId, keywords[0])
+          : [];
+        
+        res.json({
+          type: 'semantic',
+          result: documents,
+          sqlQuery: null,
+          metadata: {
+            traceId,
+            docIds: documents.map(d => d.id),
+          },
+        });
+      }
   } catch (error: any) {
     console.error('SRAG query error:', error);
     res.status(500).json({
