@@ -1,13 +1,12 @@
-// apps/widget-board/widgets/__tests__/LocalScanWidget.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { useMCP } from '../../../src/hooks/useMCP'; // Mock
+import { describe, it, expect, vi } from 'vitest';
+import { useMCP } from '../../src/hooks/useMCP'; // Mock
 import LocalScanWidget from '../LocalScanWidget';
 
-vi.mock('../../../src/hooks/useMCP');
+vi.mock('../../src/hooks/useMCP');
 
-const mockMcpSend = jest.fn();
-(useMCP as jest.Mock).mockReturnValue({ send: mockMcpSend });
+const mockMcpSend = vi.fn();
+(useMCP as any).mockReturnValue({ send: mockMcpSend });
 
 describe('LocalScanWidget', () => {
   it('renders form and triggers scan', async () => {
