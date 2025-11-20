@@ -58,7 +58,7 @@ const Phase1CFastTrackKanbanWidget: React.FC<{ widgetId: string }> = () => {
 
   useEffect(() => {
     // Calculate completed days
-    const completed = Object.values(tasks)
+    const completed = (Object.values(tasks) as TeamTask[])
       .filter(task => task.status === 'complete')
       .reduce((sum, task) => sum + task.days, 0);
     setCompletedDays(completed);
@@ -125,7 +125,7 @@ const Phase1CFastTrackKanbanWidget: React.FC<{ widgetId: string }> = () => {
       {/* Kanban Board */}
       <div className="grid grid-cols-4 gap-3 p-4 overflow-auto">
         {statuses.map(status => {
-          const tasksInStatus = Object.values(tasks).filter(t => t.status === status);
+          const tasksInStatus = (Object.values(tasks) as TeamTask[]).filter(t => t.status === status);
           const daysInStatus = tasksInStatus.reduce((sum, task) => sum + task.days, 0);
 
           return (

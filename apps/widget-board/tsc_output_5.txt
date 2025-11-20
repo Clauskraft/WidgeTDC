@@ -1,0 +1,7 @@
+npm warn Unknown user config "always-auth" (//registry.npmjs.org/:always-auth). This will stop working in the next major version of npm.
+contexts/WidgetRegistryContext.tsx(105,31): error TS2339: Property 'version' does not exist on type 'unknown'.
+contexts/WidgetRegistryContext.tsx(127,33): error TS2698: Spread types may only be created from object types.
+contexts/WidgetRegistryContext.tsx(193,15): error TS2339: Property 'metrics' does not exist on type 'unknown'.
+contexts/WidgetRegistryContext.tsx(193,36): error TS2339: Property 'metrics' does not exist on type 'unknown'.
+contexts/WidgetRegistryContext.tsx(208,15): error TS2339: Property 'enabled' does not exist on type 'unknown'.
+widgets/DarkWebMonitorWidget.tsx(150,50): error TS2869: Right operand of ?? is unreachable because the left operand is never nullish.

@@ -65,7 +65,7 @@ const NetworkSpyWidget: React.FC<{ widgetId: string }> = () => {
     }, []);
 
     // Sorter stats så den største synder ligger øverst
-    const sortedProviders = Object.entries(data.stats).sort((a, b) => b[1] - a[1]);
+    const sortedProviders = (Object.entries(data.stats) as [string, number][]).sort((a, b) => b[1] - a[1]);
 
     if (loading) {
         return (
@@ -134,8 +134,8 @@ const NetworkSpyWidget: React.FC<{ widgetId: string }> = () => {
 
                                 {/* Tooltip / Detail ved hover (hvad sender de?) */}
                                 <div className="hidden group-hover:block absolute left-0 top-full w-full bg-black/90 p-2 rounded text-[10px] text-gray-400 z-50 border border-white/20 shadow-xl">
-                                   Dominerende proces: <br/>
-                                   {data.connections.find((c) => c.provider === provider)?.process}.exe
+                                    Dominerende proces: <br />
+                                    {data.connections.find((c) => c.provider === provider)?.process}.exe
                                 </div>
                             </div>
                         ))

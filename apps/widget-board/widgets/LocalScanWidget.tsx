@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input'; // Antag UI-komponent
-import { Slider } from '../components/ui/Slider'; // Antag
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/Table'; // Antag
-import { useMCP } from '../../src/hooks/useMCP'; // Eksisterende hook
+import { useMCP } from '../src/hooks/useMCP';
+
+// Mock missing UI components
+const Input = (props: any) => <input {...props} className={`border p-2 rounded ${props.className}`} />;
+const Slider = (props: any) => <input type="range" {...props} />;
+const Table = ({ children }: any) => <table className="w-full">{children}</table>;
+const TableHead = ({ children }: any) => <thead className="bg-gray-100">{children}</thead>;
+const TableBody = ({ children }: any) => <tbody>{children}</tbody>;
+const TableRow = ({ children }: any) => <tr className="border-b">{children}</tr>;
+const TableHeader = ({ children }: any) => <th>{children}</th>;
+const TableCell = ({ children, className }: any) => <td className={`p-2 ${className}`}>{children}</td>;
+const Badge = ({ children, variant }: any) => <span className={`px-2 py-1 rounded text-xs ${variant === 'destructive' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>{children}</span>;
 
 interface ScanConfig {
   path: string; // Local (e.g., '/mnt/drive') or UNC ('\\server\\share')

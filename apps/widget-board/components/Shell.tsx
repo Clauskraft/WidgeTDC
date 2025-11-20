@@ -23,6 +23,15 @@ const Shell: React.FC = () => {
     }
   });
 
+  // Reset widgets to default
+  const resetToDefault = () => {
+    if (confirm('Er du sikker på at du vil nulstille til standard widgets?')) {
+      setWidgets(defaultWidgets);
+      localStorage.setItem(WIDGETS_STORAGE_KEY, JSON.stringify(defaultWidgets));
+      localStorage.removeItem('widgetboard_layouts');
+    }
+  };
+
   const [isWidgetManagementOpen, setIsWidgetManagementOpen] = useState(false);
 
   useEffect(() => {

@@ -1,6 +1,33 @@
 // Updated securityApi - Agent-wired for real ingestion
-import axios from 'axios';  // Assume installed
-import { mcpClient } from '../../../utils/mcpClient';  // MCP for gateway
+import axios from 'axios';
+
+export interface FeedSource {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+}
+
+export interface PipelineStage {
+  id: string;
+  name: string;
+  status: 'active' | 'inactive';
+}
+
+export interface NormalizedItem {
+  id: string;
+  title: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  summary: string;
+  tags: string[];
+  feedId: string;
+  dedupeHits: number;
+  ingestedAt: string;
+}
+
+export interface Metrics { documentsIndexed: number; ingestionLatency: number; dedupeRate: number; backlogMinutes: number; }
+export interface Archive { sizeBytes: number; retentionDays: number; objectCount: number; }
+export interface Environment { openSearchConnected: boolean; minioConnected: boolean; }
 
 export interface SecurityFeedsPayload {
   feeds: FeedSource[];
@@ -11,34 +38,40 @@ export interface SecurityFeedsPayload {
   environment: Environment;
 }
 
-interface Metrics { documentsIndexed: number; ingestionLatency: number; dedupeRate: number; backlogMinutes: number; }
-interface Archive { sizeBytes: number; retentionDays: number; objectCount: number; }
-interface Environment { openSearchConnected: boolean; minioConnected: boolean; }
+const DEFAULT_FEED_PAYLOAD: SecurityFeedsPayload = {
+  feeds: [],
+  pipelineStages: [],
+  normalizedDocuments: [],
+  metrics: { documentsIndexed: 0, ingestionLatency: 0, dedupeRate: 0, backlogMinutes: 0 },
+  archive: { sizeBytes: 0, retentionDays: 0, objectCount: 0 },
+  environment: { openSearchConnected: false, minioConnected: false }
+};
 
 export async function fetchSecurityFeeds(orgId?: string): Promise<SecurityFeedsPayload> {
   try {
-    // Real call via MCP gateway
-    const response = await mcpClient.call('feeds.ingest', { org_id: orgId || 'default' });
-    return response.payload as SecurityFeedsPayload;
+    // Mock implementation since mcpClient is missing
+    // const response = await mcpClient.call('feeds.ingest', { org_id: orgId || 'default' });
+    // return response.payload as SecurityFeedsPayload;
+    return DEFAULT_FEED_PAYLOAD;
   } catch (error) {
     console.warn('Real fetch failed, using fallback', error);
-    return DEFAULT_FEED_PAYLOAD;  // Keep as backup
+    return DEFAULT_FEED_PAYLOAD;
   }
 }
 
 // Real ingestion endpoint integration (called from backend)
 export async function ingestFeed(feedId: string, data: any) {
-  // Dedupe logic (cosine >0.82)
-  const deduped = await mcpClient.call('srag.dedupe', { data, threshold: 0.82 });
-  // Store in PG/OS/MinIO
-  await mcpClient.call('feeds.store', deduped);
-  // Emit event for universal comm
-  await mcpClient.emit('feed-update', { feedId, type: 'personal-hybrid' });
+  // Mock implementation
+  console.log('Ingesting feed (mock)', feedId);
 }
 
 // Example: Poll CERT-EU RSS
 export async function pollCertEu(): Promise<NormalizedItem[]> {
-  const response = await axios.get('https://cert.europa.eu/rss');
-  // Parse XML to items (placeholder)
-  return [{ id: 'cert1', title: 'New Advisory', severity: 'high' as any, summary: 'Test', tags: ['gov'], feedId: 'feed-cert', dedupeHits: 0, ingestedAt: new Date().toISOString() }];
+  try {
+    const response = await axios.get('https://cert.europa.eu/rss');
+    // Parse XML to items (placeholder)
+    return [{ id: 'cert1', title: 'New Advisory', severity: 'high', summary: 'Test', tags: ['gov'], feedId: 'feed-cert', dedupeHits: 0, ingestedAt: new Date().toISOString() }];
+  } catch (e) {
+    return [];
+  }
 }

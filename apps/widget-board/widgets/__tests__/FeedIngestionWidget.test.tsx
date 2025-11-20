@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FeedIngestionWidget from '../FeedIngestionWidget';
@@ -23,4 +24,3 @@ describe('FeedIngestionWidget', () => {
     expect(screen.queryByText(/Vendor Vulnerability Radar/i)).not.toBeInTheDocument();
   });
 });
-

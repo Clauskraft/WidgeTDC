@@ -1,15 +1,19 @@
 import { getDatabase } from '../../database/index.js';
 import { MemoryEntityInput, MemorySearchQuery } from '@widget-tdc/mcp-types';
-import { encode } from 'gpt-3-encoder'; // For text tokenization
 // Note: In production, integrate with vector database like Pinecone or Weaviate
 
 export class MemoryRepository {
   private db = getDatabase();
   private vectorCache = new Map<string, number[]>(); // Simple cache for vectors
 
+  // Simple tokenization (placeholder - gpt-3-encoder alternative)
+  private simpleTokenize(text: string): string[] {
+    return text.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+  }
+
   // Simple vectorization using token frequencies (placeholder for real embeddings)
   private vectorizeText(text: string): number[] {
-    const tokens = encode(text).map(t => t.toString());
+    const tokens = this.simpleTokenize(text);
     const vector = new Array(768).fill(0); // 768 dimensions like text-embedding-ada-002
 
     tokens.forEach((token, index) => {

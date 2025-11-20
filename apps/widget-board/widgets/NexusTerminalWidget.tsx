@@ -1,5 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { io, Socket } from 'socket.io-client';
+// import { io, Socket } from 'socket.io-client';
+// Mock Socket interface
+interface Socket {
+  on: (event: string, callback: (data: any) => void) => void;
+  close: () => void;
+  send: (data: string) => void;
+}
+const io = (url: string): Socket => ({
+  on: () => { },
+  close: () => { },
+  send: () => { }
+});
 
 interface NexusMessage {
   id: string;

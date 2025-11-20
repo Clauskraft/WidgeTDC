@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
+import { useWidgetRegistry, WidgetRegistryEntry } from '../contexts/WidgetRegistryContext';
 import { WidgetCategory } from '../types';
 import { X } from 'lucide-react';
 
@@ -38,7 +38,7 @@ const WidgetManagementPanel: React.FC<WidgetManagementPanelProps> = ({ isOpen, o
 
   // Filter widgets by search term
   const filteredCategories = Object.entries(widgetsByCategory).reduce((acc, [category, widgets]) => {
-    const filtered = widgets.filter(widget =>
+    const filtered = (widgets as WidgetRegistryEntry[]).filter(widget =>
       widget.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       widget.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -114,14 +114,12 @@ const WidgetManagementPanel: React.FC<WidgetManagementPanelProps> = ({ isOpen, o
                           {/* Enable/Disable Toggle */}
                           <button
                             onClick={() => setEnabled(widget.id, !widget.enabled)}
-                            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
-                              widget.enabled ? 'bg-primary' : 'bg-muted'
-                            }`}
+                            className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${widget.enabled ? 'bg-primary' : 'bg-muted'
+                              }`}
                           >
                             <span
-                              className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                                widget.enabled ? 'translate-x-6' : 'translate-x-1'
-                              }`}
+                              className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${widget.enabled ? 'translate-x-6' : 'translate-x-1'
+                                }`}
                             />
                           </button>
 

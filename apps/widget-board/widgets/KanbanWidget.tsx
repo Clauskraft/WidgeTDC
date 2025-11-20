@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useMCP } from '../hooks/useMCP';
+import { useMCP } from '../src/hooks/useMCP';
 
 interface Task {
   id: string;

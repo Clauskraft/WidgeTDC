@@ -18,13 +18,12 @@ interface WidgetPerformanceMetrics {
   lastUpdated: Date;
 }
 
-interface WidgetRegistryEntry extends WidgetDefinition {
+export interface WidgetRegistryEntry extends WidgetDefinition {
   version: WidgetVersion;
   enabled: boolean;
   metrics?: WidgetPerformanceMetrics;
   registeredAt: Date;
   updatedAt: Date;
-  source: 'builtin' | 'dynamic' | 'remote' | 'marketplace';
 }
 
 interface WidgetRegistryQuery {
@@ -96,7 +95,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
     };
 
     setEntries(prev => {
-      const updated = new Map(prev);
+      const updated = new Map<string, WidgetRegistryEntry>(prev);
       const existing = updated.get(widget.id);
 
       if (existing) {
@@ -113,7 +112,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
 
   const unregisterWidget = useCallback((widgetId: string) => {
     setEntries(prev => {
-      const updated = new Map(prev);
+      const updated = new Map<string, WidgetRegistryEntry>(prev);
       updated.delete(widgetId);
       return updated;
     });
@@ -121,7 +120,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
 
   const updateWidget = useCallback((widgetId: string, updates: Partial<WidgetDefinition>) => {
     setEntries(prev => {
-      const updated = new Map(prev);
+      const updated = new Map<string, WidgetRegistryEntry>(prev);
       const existing = updated.get(widgetId);
       if (existing) {
         updated.set(widgetId, { ...existing, ...updates, updatedAt: new Date() });
@@ -144,7 +143,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
       if (query.search) {
         const searchLower = query.search.toLowerCase();
         if (!entry.name.toLowerCase().includes(searchLower) &&
-            !entry.id.toLowerCase().includes(searchLower)) {
+          !entry.id.toLowerCase().includes(searchLower)) {
           continue;
         }
       }
@@ -187,7 +186,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
 
   const updateMetrics = useCallback((widgetId: string, metrics: Partial<WidgetPerformanceMetrics>) => {
     setEntries(prev => {
-      const updated = new Map(prev);
+      const updated = new Map<string, WidgetRegistryEntry>(prev);
       const entry = updated.get(widgetId);
       if (entry) {
         entry.metrics = { ...entry.metrics, ...metrics, lastUpdated: new Date() };
@@ -202,7 +201,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
 
   const setEnabled = useCallback((widgetId: string, enabled: boolean) => {
     setEntries(prev => {
-      const updated = new Map(prev);
+      const updated = new Map<string, WidgetRegistryEntry>(prev);
       const entry = updated.get(widgetId);
       if (entry) {
         entry.enabled = enabled;

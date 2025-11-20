@@ -1,4 +1,5 @@
 // Simple test for at sikre Microsoft look
+import { describe, it, expect } from 'vitest';
 // @ts-nocheck
 
 describe('Microsoft Visual Style', () => {

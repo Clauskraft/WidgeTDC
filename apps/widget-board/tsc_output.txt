@@ -1,0 +1,120 @@
+npm warn Unknown user config "always-auth" (//registry.npmjs.org/:always-auth). This will stop working in the next major version of npm.
+adapters/MSWidgetAdapter.ts(18,11): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "microsoft"; msWidgetData: MSWidget; }' but required in type 'WidgetDefinition'.
+components/WidgetManagementPanel.tsx(41,30): error TS2339: Property 'filter' does not exist on type 'unknown'.
+constants.ts(24,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(33,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(42,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(51,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(60,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(69,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(78,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(87,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(96,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(105,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(114,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(123,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; }' but required in type 'WidgetDefinition'.
+constants.ts(131,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; maxH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(140,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(149,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: () => any; defaultLayout: { w: number; h: number; }; source: "proprietary"; maxW: number; maxH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(158,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(167,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; }' but required in type 'WidgetDefinition'.
+constants.ts(176,3): error TS2741: Property 'category' is missing in type '{ id: string; name: string; component: React.FC<{ widgetId: string; }>; defaultLayout: { w: number; h: number; }; source: "proprietary"; minW: number; minH: number; maxW: number; maxH: number; }' but required in type 'WidgetDefinition'.
+contexts/WidgetRegistryContext.tsx(21,11): error TS2430: Interface 'WidgetRegistryEntry' incorrectly extends interface 'WidgetDefinition'.
+  Types of property 'source' are incompatible.
+    Type '"builtin" | "dynamic" | "remote" | "marketplace"' is not assignable to type '"proprietary" | "microsoft"'.
+      Type '"builtin"' is not assignable to type '"proprietary" | "microsoft"'.
+contexts/WidgetRegistryContext.tsx(105,31): error TS2339: Property 'version' does not exist on type 'unknown'.
+contexts/WidgetRegistryContext.tsx(127,33): error TS2698: Spread types may only be created from object types.
+contexts/WidgetRegistryContext.tsx(193,15): error TS2339: Property 'metrics' does not exist on type 'unknown'.
+contexts/WidgetRegistryContext.tsx(193,36): error TS2339: Property 'metrics' does not exist on type 'unknown'.
+contexts/WidgetRegistryContext.tsx(208,15): error TS2339: Property 'enabled' does not exist on type 'unknown'.
+src/hooks/__tests__/useMCP.test.ts(1,33): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+src/utils/securityApi.test.ts(4,27): error TS2307: Cannot find module '../mcpClient' or its corresponding type declarations.
+src/utils/securityApi.ts(3,27): error TS2307: Cannot find module '../../../utils/mcpClient' or its corresponding type declarations.
+src/utils/securityApi.ts(6,10): error TS2304: Cannot find name 'FeedSource'.
+src/utils/securityApi.ts(7,19): error TS2304: Cannot find name 'PipelineStage'.
+src/utils/securityApi.ts(8,24): error TS2304: Cannot find name 'NormalizedItem'.
+src/utils/securityApi.ts(25,12): error TS2304: Cannot find name 'DEFAULT_FEED_PAYLOAD'.
+src/utils/securityApi.ts(40,45): error TS2304: Cannot find name 'NormalizedItem'.
+tests/widget-features.spec.ts(1,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+utils/permissionsApi.ts(16,96): error TS2345: Argument of type '{ body: { widgetId: string; resourceType: string; requiredLevel: "read" | "write"; }; }' is not assignable to parameter of type 'RequestInit & { body?: any; }'.
+  Type '{ body: { widgetId: string; resourceType: string; requiredLevel: "read" | "write"; }; }' is not assignable to type 'RequestInit'.
+    Types of property 'body' are incompatible.
+      Type '{ widgetId: string; resourceType: string; requiredLevel: "read" | "write"; }' is not assignable to type 'BodyInit'.
+utils/permissionsApi.ts(23,65): error TS2345: Argument of type '{ body: { resourceType: string; accessLevel: "none" | "read" | "write"; override: boolean; }; }' is not assignable to parameter of type 'RequestInit & { body?: any; }'.
+  Type '{ body: { resourceType: string; accessLevel: "none" | "read" | "write"; override: boolean; }; }' is not assignable to type 'RequestInit'.
+    Types of property 'body' are incompatible.
+      Type '{ resourceType: string; accessLevel: "none" | "read" | "write"; override: boolean; }' is not assignable to type 'BodyInit'.
+utils/permissionsApi.ts(29,60): error TS2345: Argument of type '{ body: { resourceType: string; accessLevel: "none" | "read" | "write"; }; }' is not assignable to parameter of type 'RequestInit & { body?: any; }'.
+  Type '{ body: { resourceType: string; accessLevel: "none" | "read" | "write"; }; }' is not assignable to type 'RequestInit'.
+    Types of property 'body' are incompatible.
+      Type '{ resourceType: string; accessLevel: "none" | "read" | "write"; }' is not assignable to type 'BodyInit'.
+widgets/__tests__/ActivityStreamWidget.test.tsx(1,32): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+widgets/__tests__/ActivityStreamWidget.test.tsx(2,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+widgets/__tests__/ActivityStreamWidget.test.tsx(9,76): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/ActivityStreamWidget.test.tsx(10,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/ActivityStreamWidget.test.tsx(22,31): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<any>'.
+widgets/__tests__/FeedIngestionWidget.test.tsx(2,40): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+widgets/__tests__/FeedIngestionWidget.test.tsx(3,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+widgets/__tests__/FeedIngestionWidget.test.tsx(10,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/FeedIngestionWidget.test.tsx(11,71): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/FeedIngestionWidget.test.tsx(24,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/LocalScanWidget.test.tsx(2,43): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+widgets/__tests__/LocalScanWidget.test.tsx(3,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+widgets/__tests__/LocalScanWidget.test.tsx(4,24): error TS2307: Cannot find module '../../../src/hooks/useMCP' or its corresponding type declarations.
+widgets/__tests__/LocalScanWidget.test.tsx(9,21): error TS2708: Cannot use namespace 'jest' as a value.
+widgets/__tests__/LocalScanWidget.test.tsx(10,17): error TS2694: Namespace 'global.jest' has no exported member 'Mock'.
+widgets/__tests__/LocalScanWidget.test.tsx(15,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/LocalScanWidget.test.tsx(16,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/LocalScanWidget.test.tsx(26,22): error TS2339: Property 'toBeChecked' does not exist on type 'Assertion<any>'.
+widgets/__tests__/LocalScanWidget.test.tsx(30,23): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<any>'.
+widgets/__tests__/LocalScanWidget.test.tsx(39,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/LocalScanWidget.test.tsx(40,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/LocalScanWidget.test.tsx(49,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/SearchInterfaceWidget.test.tsx(1,32): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+widgets/__tests__/SearchInterfaceWidget.test.tsx(2,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+widgets/__tests__/SearchInterfaceWidget.test.tsx(9,74): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/SearchInterfaceWidget.test.tsx(10,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/SearchInterfaceWidget.test.tsx(11,71): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/SearchInterfaceWidget.test.tsx(12,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/__tests__/SearchInterfaceWidget.test.tsx(23,71): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<any>'.
+widgets/AgentStatusDashboardWidget.tsx(155,29): error TS2339: Property 'block' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(155,39): error TS2339: Property 'block' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(158,26): error TS2339: Property 'block' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(165,34): error TS2339: Property 'block' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(165,49): error TS2339: Property 'name' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(167,107): error TS2339: Property 'workload' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(167,123): error TS2339: Property 'health' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(168,45): error TS2339: Property 'workload' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(171,82): error TS2339: Property 'workload' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(178,27): error TS2339: Property 'workload' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(180,31): error TS2339: Property 'workload' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(184,44): error TS2339: Property 'workload' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(191,90): error TS2339: Property 'completed_tasks' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(195,90): error TS2339: Property 'failed_tasks' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(199,90): error TS2339: Property 'token_usage' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(203,58): error TS2339: Property 'health' does not exist on type 'unknown'.
+widgets/AgentStatusDashboardWidget.tsx(204,28): error TS2339: Property 'health' does not exist on type 'unknown'.
+widgets/DarkWebMonitorWidget.tsx(150,50): error TS2869: Right operand of ?? is unreachable because the left operand is never nullish.
+widgets/KanbanWidget.tsx(2,24): error TS2307: Cannot find module '../hooks/useMCP' or its corresponding type declarations.
+widgets/LocalScanWidget.tsx(3,23): error TS2307: Cannot find module '../components/ui/Input' or its corresponding type declarations.
+widgets/LocalScanWidget.tsx(4,24): error TS2307: Cannot find module '../components/ui/Slider' or its corresponding type declarations.
+widgets/LocalScanWidget.tsx(5,79): error TS2307: Cannot find module '../components/ui/Table' or its corresponding type declarations.
+widgets/LocalScanWidget.tsx(6,24): error TS2307: Cannot find module '../../src/hooks/useMCP' or its corresponding type declarations.
+widgets/LocalScanWidget.tsx(143,20): error TS2304: Cannot find name 'Badge'.
+widgets/LocalScanWidget.tsx(145,21): error TS2304: Cannot find name 'Badge'.
+widgets/NetworkSpyWidget.tsx(68,71): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+widgets/NetworkSpyWidget.tsx(68,78): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+widgets/NetworkSpyWidget.tsx(123,57): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+widgets/NexusTerminalWidget.tsx(2,28): error TS2307: Cannot find module 'socket.io-client' or its corresponding type declarations.
+widgets/Phase1CFastTrackKanbanWidget.tsx(62,28): error TS2339: Property 'status' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(63,41): error TS2339: Property 'days' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(128,68): error TS2339: Property 'status' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(129,79): error TS2339: Property 'days' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(139,91): error TS2339: Property 'toFixed' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(149,33): error TS2339: Property 'name' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(158,49): error TS2339: Property 'name' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(161,68): error TS2339: Property 'name' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(162,65): error TS2339: Property 'lead' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(164,31): error TS2339: Property 'subtasks' does not exist on type 'unknown'.
+widgets/Phase1CFastTrackKanbanWidget.tsx(169,31): error TS2339: Property 'days' does not exist on type 'unknown'.

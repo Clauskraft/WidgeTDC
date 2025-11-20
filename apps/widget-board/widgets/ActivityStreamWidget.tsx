@@ -95,6 +95,7 @@ const ActivityStreamWidget: React.FC<{ widgetId: string }> = () => {
   const [isStreamConnected, setIsStreamConnected] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
+  const queueRef = useRef<ActivityEvent[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -184,7 +185,6 @@ const ActivityStreamWidget: React.FC<{ widgetId: string }> = () => {
           id: `${next.id}-${Date.now()}`,
           timestamp: new Date().toISOString(),
         });
-        setLastDeliveredAt(stamped.timestamp);
         return [stamped, ...prev].slice(0, 12);
       });
     }, 12000);
@@ -238,9 +238,9 @@ const ActivityStreamWidget: React.FC<{ widgetId: string }> = () => {
           <div className="text-right min-w-[180px]">
             <p className="text-xs text-white/70">Last delivery</p>
             <p className="text-lg font-semibold">{new Date(lastDeliveredAt).toLocaleTimeString()}</p>
-          <p className="text-xs text-white/60">
-            Streaming {liveMode ? 'ON' : 'PAUSED'} · {isStreamConnected ? 'connected' : 'offline'}
-          </p>
+            <p className="text-xs text-white/60">
+              Streaming {liveMode ? 'ON' : 'PAUSED'} · {isStreamConnected ? 'connected' : 'offline'}
+            </p>
           </div>
         </div>
       </header>

@@ -151,7 +151,7 @@ const AgentStatusDashboardWidget: React.FC<{ widgetId: string }> = () => {
 
       {/* Agent List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {Object.values(agentState.agents)
+        {(Object.values(agentState.agents) as AgentStatus[])
           .sort((a, b) => a.block - b.block)
           .map((agent) => (
             <div
@@ -174,13 +174,12 @@ const AgentStatusDashboardWidget: React.FC<{ widgetId: string }> = () => {
               {/* Workload Bar */}
               <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-2">
                 <div
-                  className={`h-full rounded-full transition-all ${
-                    agent.workload >= thresholds.overloaded
+                  className={`h-full rounded-full transition-all ${agent.workload >= thresholds.overloaded
                       ? 'bg-red-500'
                       : agent.workload >= thresholds.loaded
                         ? 'bg-yellow-500'
                         : 'bg-green-500'
-                  }`}
+                    }`}
                   style={{ width: `${agent.workload}%` }}
                 ></div>
               </div>

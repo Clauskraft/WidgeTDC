@@ -21,6 +21,7 @@ export class MSWidgetAdapter {
       component: TransformedWidgetComponent,
       defaultLayout: { w: 5, h: 6 },
       source: 'microsoft',
+      category: 'system',
       msWidgetData: msWidget,
     };
 

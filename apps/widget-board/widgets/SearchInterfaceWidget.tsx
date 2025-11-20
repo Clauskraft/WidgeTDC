@@ -41,6 +41,12 @@ interface SearchHistoryEntry {
   ranAt: string;
 }
 
+interface SearchMetrics {
+  latencyMs: number;
+  totalDocs: number;
+  coverage: number;
+}
+
 const FALLBACK_TEMPLATES: SavedTemplate[] = [
   {
     id: 'tpl-high-severity',

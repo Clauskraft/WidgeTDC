@@ -48,7 +48,7 @@ export interface WidgetDefinition {
   // FIX: Use imported ComponentType.
   component: ComponentType<any>;
   defaultLayout: { w: number; h: number };
-  source: 'proprietary' | 'microsoft';
+  source: 'proprietary' | 'microsoft' | 'builtin' | 'dynamic' | 'remote' | 'marketplace';
   msWidgetData?: MSWidget;
   minW?: number;
   maxW?: number;

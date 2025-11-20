@@ -147,7 +147,7 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
   }, [filteredFeeds, selectedFeedId]);
 
   const selectedFeed = feeds.find(feed => feed.id === selectedFeedId);
-  const selectedThreats = threats.filter(item => item.feedId === selectedFeed?.id ?? '').slice(0, 5);
+  const selectedThreats = threats.filter(item => item.feedId === (selectedFeed?.id ?? '')).slice(0, 5);
 
   if (loading) return <div>Loading permissions...</div>;
 
@@ -218,9 +218,8 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
                 <button
                   key={feed.id}
                   onClick={() => setSelectedFeedId(feed.id)}
-                  className={`w-full text-left px-4 py-3 transition-colors focus-visible:outline-blue-500 ${
-                    feed.id === selectedFeedId ? 'bg-blue-50/70 dark:bg-blue-950/40' : ''
-                  }`}
+                  className={`w-full text-left px-4 py-3 transition-colors focus-visible:outline-blue-500 ${feed.id === selectedFeedId ? 'bg-blue-50/70 dark:bg-blue-950/40' : ''
+                    }`}
                   data-testid="dark-feed-card"
                 >
                   <div className="flex items-center justify-between gap-3">
