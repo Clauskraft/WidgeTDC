@@ -13,6 +13,7 @@ interface WidgetState {
     widgets: WidgetInstance[];
     addWidget: (widgetType: string, initialConfig?: WidgetConfig) => void;
     removeWidget: (widgetId: string) => void;
+    reAddWidget: (widget: WidgetInstance) => void;
     updateWidgetConfig: (widgetId: string, config: WidgetConfig) => void;
     resetToDefault: () => void;
 }
@@ -37,6 +38,10 @@ export const useWidgetStore = create<WidgetState>()(
                 widgets: state.widgets.filter((w) => w.id !== widgetId),
             })),
 
+            reAddWidget: (widget) => set((state) => ({
+                widgets: [...state.widgets, widget],
+            })),
+
             updateWidgetConfig: (widgetId, config) => set((state) => ({
                 widgets: state.widgets.map((w) =>
                     w.id === widgetId ? { ...w, config } : w
@@ -51,7 +56,7 @@ export const useWidgetStore = create<WidgetState>()(
             },
         }),
         {
-            name: WIDGETS_STORAGE_KEY, // Navn på item i localStorage
+            name: WIDGETS_STORAGE_KEY, // Navn på item i  localStorage
             storage: createJSONStorage(() => localStorage),
         }
     )

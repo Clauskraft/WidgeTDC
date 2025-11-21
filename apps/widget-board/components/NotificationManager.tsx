@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useMcpEvent } from '../hooks/useMcpEvent';
-import type { NotificationPayload } from '../mcp/MCPTypes';
-import { useMCP } from '../contexts/MCPContext';
+import { useMcpEvent } from './useMcpEvent';
+import type { NotificationPayload } from './MCPTypes';
+import { useMCP } from './MCPContext';
 import { CheckCircle, XCircle, Info, AlertTriangle, X } from 'lucide-react';
 
 const icons = {

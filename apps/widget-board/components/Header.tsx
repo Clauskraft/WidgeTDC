@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import HelpModal from './HelpModal';
-import { useMCP } from '../contexts/MCPContext';
+import { useMCP } from './MCPContext';
 import { Button } from './ui/Button';
 import { MicrosoftIcons } from '../assets/MicrosoftIcons';
 

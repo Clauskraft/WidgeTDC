@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useMCP } from '../contexts/MCPContext';
+import { useMCP } from './MCPContext';
 
 /**
  * A custom hook for widgets to easily subscribe to MCP events.
