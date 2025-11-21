@@ -1,23 +1,30 @@
 import React, { useState } from 'react';
 import { X, Plus, Search, Grid, List } from 'lucide-react';
-import { WIDGET_REGISTRY, WIDGET_CATEGORIES, getAllWidgets, getWidgetsByCategory } from '../widgetRegistry';
+import { WIDGET_CATEGORIES } from '../widgetRegistry';
+import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 import AcrylicCard from './AcrylicCard';
 
-export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWidgets = [] }) {
+interface WidgetSelectorProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onAddWidget: (widgetId: string) => void;
+    activeWidgets?: string[];
+}
+
+export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWidgets = [] }: WidgetSelectorProps) {
+    const { availableWidgets } = useWidgetRegistry();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
-    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+    const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-    const allWidgets = getAllWidgets();
-
-    const filteredWidgets = allWidgets.filter(widget => {
+    const filteredWidgets = availableWidgets.filter(widget => {
         const matchesSearch = widget.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            widget.description.toLowerCase().includes(searchTerm.toLowerCase());
+            (widget.description && widget.description.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesCategory = selectedCategory === 'all' || widget.category === selectedCategory;
         return matchesSearch && matchesCategory;
     });
 
-    const isWidgetActive = (widgetId) => activeWidgets.includes(widgetId);
+    const isWidgetActive = (widgetId: string) => activeWidgets.includes(widgetId);
 
     if (!isOpen) return null;
 
@@ -58,21 +65,21 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                         <button
                             onClick={() => setSelectedCategory('all')}
                             className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${selectedCategory === 'all'
-                                    ? 'bg-teal-500 text-white'
-                                    : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                                ? 'bg-teal-500 text-white'
+                                : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
                                 }`}
                         >
-                            All ({allWidgets.length})
+                            All ({availableWidgets.length})
                         </button>
-                        {Object.entries(WIDGET_CATEGORIES).map(([key, category]) => {
-                            const count = getWidgetsByCategory(key).length;
+                        {Object.entries(WIDGET_CATEGORIES).map(([key, category]: [string, any]) => {
+                            const count = availableWidgets.filter(w => w.category === key).length;
                             return (
                                 <button
                                     key={key}
                                     onClick={() => setSelectedCategory(key)}
                                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${selectedCategory === key
-                                            ? 'bg-teal-500 text-white'
-                                            : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
+                                        ? 'bg-teal-500 text-white'
+                                        : 'bg-slate-800/50 text-slate-300 hover:bg-slate-700/50'
                                         }`}
                                 >
                                     {category.name} ({count})
@@ -90,8 +97,8 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                             <button
                                 onClick={() => setViewMode('grid')}
                                 className={`p-2 rounded-lg transition-colors ${viewMode === 'grid'
-                                        ? 'bg-teal-500 text-white'
-                                        : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50'
+                                    ? 'bg-teal-500 text-white'
+                                    : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50'
                                     }`}
                             >
                                 <Grid size={20} />
@@ -99,8 +106,8 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                             <button
                                 onClick={() => setViewMode('list')}
                                 className={`p-2 rounded-lg transition-colors ${viewMode === 'list'
-                                        ? 'bg-teal-500 text-white'
-                                        : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50'
+                                    ? 'bg-teal-500 text-white'
+                                    : 'bg-slate-800/50 text-slate-400 hover:bg-slate-700/50'
                                     }`}
                             >
                                 <List size={20} />
@@ -146,13 +153,13 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
     );
 }
 
-function WidgetCard({ widget, isActive, onToggle }) {
-    const category = WIDGET_CATEGORIES[widget.category];
+function WidgetCard({ widget, isActive, onToggle }: { widget: any, isActive: boolean, onToggle: () => void }) {
+    const category = WIDGET_CATEGORIES[widget.category] || { name: 'Unknown', color: 'gray' };
 
     return (
         <div className={`group relative p-4 rounded-lg border transition-all cursor-pointer ${isActive
-                ? 'bg-teal-500/20 border-teal-500/50 ring-2 ring-teal-500/30'
-                : 'bg-slate-800/30 border-white/10 hover:bg-slate-800/50 hover:border-white/20'
+            ? 'bg-teal-500/20 border-teal-500/50 ring-2 ring-teal-500/30'
+            : 'bg-slate-800/30 border-white/10 hover:bg-slate-800/50 hover:border-white/20'
             }`}
             onClick={onToggle}
         >
@@ -177,21 +184,21 @@ function WidgetCard({ widget, isActive, onToggle }) {
                     {category.name}
                 </span>
                 <span className="text-slate-500">
-                    {widget.defaultSize.w}×{widget.defaultSize.h}
+                    {widget.defaultLayout?.w || 6}×{widget.defaultLayout?.h || 4}
                 </span>
             </div>
         </div>
     );
 }
 
-function WidgetListItem({ widget, isActive, onToggle }) {
-    const category = WIDGET_CATEGORIES[widget.category];
+function WidgetListItem({ widget, isActive, onToggle }: { widget: any, isActive: boolean, onToggle: () => void }) {
+    const category = WIDGET_CATEGORIES[widget.category] || { name: 'Unknown', color: 'gray' };
 
     return (
         <div
             className={`flex items-center gap-4 p-4 rounded-lg border transition-all cursor-pointer ${isActive
-                    ? 'bg-teal-500/20 border-teal-500/50'
-                    : 'bg-slate-800/30 border-white/10 hover:bg-slate-800/50 hover:border-white/20'
+                ? 'bg-teal-500/20 border-teal-500/50'
+                : 'bg-slate-800/30 border-white/10 hover:bg-slate-800/50 hover:border-white/20'
                 }`}
             onClick={onToggle}
         >
@@ -211,7 +218,7 @@ function WidgetListItem({ widget, isActive, onToggle }) {
                     {category.name}
                 </span>
                 <span className="text-xs text-slate-500">
-                    {widget.defaultSize.w}×{widget.defaultSize.h}
+                    {widget.defaultLayout?.w || 6}×{widget.defaultLayout?.h || 4}
                 </span>
                 <div className={`px-3 py-1 rounded text-sm font-medium ${isActive ? 'bg-teal-500 text-white' : 'bg-slate-700/50 text-slate-300'
                     }`}>
