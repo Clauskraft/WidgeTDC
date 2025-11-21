@@ -12,11 +12,22 @@ import { palRouter } from './services/pal/palController.js';
 import {
   cmaContextHandler,
   cmaIngestHandler,
+  cmaMemoryStoreHandler,
+  cmaMemoryRetrieveHandler,
   sragQueryHandler,
+  sragGovernanceCheckHandler,
   evolutionReportHandler,
   evolutionGetPromptHandler,
+  evolutionAnalyzePromptsHandler,
   palEventHandler,
   palBoardActionHandler,
+  palOptimizeWorkflowHandler,
+  palAnalyzeSentimentHandler,
+  notesListHandler,
+  notesCreateHandler,
+  notesUpdateHandler,
+  notesDeleteHandler,
+  notesGetHandler,
 } from './mcp/toolHandlers.js';
 import { securityRouter } from './services/security/securityController.js';
 // import { agentRouter } from './services/agent/agentController.js';
@@ -46,11 +57,22 @@ getDatabase();
 // Register MCP tools
 mcpRegistry.registerTool('cma.context', cmaContextHandler);
 mcpRegistry.registerTool('cma.ingest', cmaIngestHandler);
+mcpRegistry.registerTool('cma.memory.store', cmaMemoryStoreHandler);
+mcpRegistry.registerTool('cma.memory.retrieve', cmaMemoryRetrieveHandler);
 mcpRegistry.registerTool('srag.query', sragQueryHandler);
+mcpRegistry.registerTool('srag.governance-check', sragGovernanceCheckHandler);
 mcpRegistry.registerTool('evolution.report-run', evolutionReportHandler);
 mcpRegistry.registerTool('evolution.get-prompt', evolutionGetPromptHandler);
+mcpRegistry.registerTool('evolution.analyze-prompts', evolutionAnalyzePromptsHandler);
 mcpRegistry.registerTool('pal.event', palEventHandler);
 mcpRegistry.registerTool('pal.board-action', palBoardActionHandler);
+mcpRegistry.registerTool('pal.optimize-workflow', palOptimizeWorkflowHandler);
+mcpRegistry.registerTool('pal.analyze-sentiment', palAnalyzeSentimentHandler);
+mcpRegistry.registerTool('notes.list', notesListHandler);
+mcpRegistry.registerTool('notes.create', notesCreateHandler);
+mcpRegistry.registerTool('notes.update', notesUpdateHandler);
+mcpRegistry.registerTool('notes.delete', notesDeleteHandler);
+mcpRegistry.registerTool('notes.get', notesGetHandler);
 
 // Initialize Agent Orchestrator
 import { AgentOrchestratorServer } from './mcp/servers/AgentOrchestratorServer.js';
