@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { WidthProvider, Responsive } from 'react-grid-layout';
 import WidgetContainer from './WidgetContainer';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
-import { useWidgetStore } from '../stores/widgetStore';
-import { useHistoryStore } from '../stores/historyStore';
-import { useMCP } from '../contexts/MCPContext';
-import { useMcpEvent } from '../hooks/useMcpEvent';
+import { useWidgetStore } from './widgetStore';
+import { useHistoryStore } from './historyStore';
+import { useMCP } from './MCPContext';
+import { useMcpEvent } from './useMcpEvent';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import type { Layout, Layouts } from 'react-grid-layout';
 import TrashDropzone from './TrashDropzone';

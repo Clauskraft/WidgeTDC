@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import DashboardShell from './DashboardShell';
 import Header from './Header';
 import WidgetManagementPanel from './WidgetManagementPanel';
-import { MCPProvider } from '../contexts/MCPContext';
+import { MCPProvider } from './MCPContext';
 import { NotificationManager } from './NotificationManager';
 
 const Shell: React.FC = () => {

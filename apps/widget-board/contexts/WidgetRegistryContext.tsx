@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useRef, useEffect } from 'react';
 import type { WidgetDefinition } from '../types';
-import { GenericDataWidget } from '../components/widgets/GenericDataWidget';
+import { GenericDataWidget } from '../components/GenericDataWidget';
 import { WIDGET_REGISTRY } from '../widgetRegistry';
 
 // ============================================================================
@@ -100,6 +100,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
         const fullDef: WidgetDefinition = {
           id: def.id,
           name: def.name,
+          description: def.description,
           category: def.category,
           component: LazyComponent,
           defaultLayout: def.defaultSize,

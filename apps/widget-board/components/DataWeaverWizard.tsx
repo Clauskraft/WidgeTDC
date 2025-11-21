@@ -2,7 +2,7 @@ import React, { useState, Fragment, useMemo, useEffect } from 'react';
 import { Dialog, Transition, RadioGroup } from '@headlessui/react';
 import { X, UploadCloud, Link, Type, BarChart2, List, Table, Eye, Wand2, CheckCircle, LineChart as LineChartIcon, PieChart as PieChartIcon, Loader } from 'lucide-react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
-import { useWidgetStore } from '../stores/widgetStore';
+import { useWidgetStore } from './widgetStore';
 import { WidgetCategory } from '../types';
 import { GenericDataWidget } from './GenericDataWidget';
 

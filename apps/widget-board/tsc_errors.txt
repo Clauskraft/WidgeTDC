@@ -1,0 +1,37 @@
+npm warn Unknown user config "always-auth" (//registry.npmjs.org/:always-auth). This will stop working in the next major version of npm.
+components/agentChatStore.ts(1,24): error TS2307: Cannot find module 'zustand' or its corresponding type declarations.
+components/DashboardShell.tsx(5,32): error TS2307: Cannot find module '../stores/widgetStore' or its corresponding type declarations.
+components/DashboardShell.tsx(6,33): error TS2307: Cannot find module '../stores/historyStore' or its corresponding type declarations.
+components/DashboardShell.tsx(7,24): error TS2307: Cannot find module '../contexts/MCPContext' or its corresponding type declarations.
+components/DashboardShell.tsx(8,29): error TS2307: Cannot find module '../hooks/useMcpEvent' or its corresponding type declarations.
+components/DataWeaverWizard.tsx(2,48): error TS2307: Cannot find module '@headlessui/react' or its corresponding type declarations.
+components/DataWeaverWizard.tsx(5,32): error TS2307: Cannot find module '../stores/widgetStore' or its corresponding type declarations.
+components/Header.tsx(4,24): error TS2307: Cannot find module '../contexts/MCPContext' or its corresponding type declarations.
+components/historyStore.ts(1,24): error TS2307: Cannot find module 'zustand' or its corresponding type declarations.
+components/MCPContext.tsx(2,29): error TS2307: Cannot find module '../mcp/MCPEventBus' or its corresponding type declarations.
+components/NotificationManager.tsx(2,29): error TS2307: Cannot find module '../hooks/useMcpEvent' or its corresponding type declarations.
+components/NotificationManager.tsx(3,42): error TS2307: Cannot find module '../mcp/MCPTypes' or its corresponding type declarations.
+components/NotificationManager.tsx(4,24): error TS2307: Cannot find module '../contexts/MCPContext' or its corresponding type declarations.
+components/registry.ts(14,38): error TS2307: Cannot find module './AgentChatWidget' or its corresponding type declarations.
+components/registry.ts(24,38): error TS2307: Cannot find module './PromptLibraryWidget' or its corresponding type declarations.
+components/registry.ts(34,38): error TS2307: Cannot find module './WidgetImporterWidget' or its corresponding type declarations.
+components/SettingsPanel.tsx(85,37): error TS2322: Type '"outline"' is not assignable to type 'ButtonVariant'.
+components/Shell.tsx(5,29): error TS2307: Cannot find module '../contexts/MCPContext' or its corresponding type declarations.
+components/useMcpEvent.ts(2,24): error TS2307: Cannot find module '../contexts/MCPContext' or its corresponding type declarations.
+components/WidgetConfigModal.tsx(3,44): error TS2307: Cannot find module '@headlessui/react' or its corresponding type declarations.
+components/WidgetManagementPanel.tsx(4,44): error TS2307: Cannot find module '@headlessui/react' or its corresponding type declarations.
+components/WidgetManagementPanel.tsx(5,32): error TS2307: Cannot find module '../stores/widgetStore' or its corresponding type declarations.
+components/WidgetSelector.tsx(22,21): error TS2339: Property 'description' does not exist on type 'WidgetRegistryEntry'.
+components/WidgetSelector.tsx(22,43): error TS2339: Property 'description' does not exist on type 'WidgetRegistryEntry'.
+components/widgetStore.ts(1,24): error TS2307: Cannot find module 'zustand' or its corresponding type declarations.
+components/widgetStore.ts(2,44): error TS2307: Cannot find module 'zustand/middleware' or its corresponding type declarations.
+contexts/GlobalStateContext.tsx(16,5): error TS2739: Type '{ name: string; }' is missing the following properties from type 'User': id, org_id
+contexts/WidgetRegistryContext.tsx(3,35): error TS2307: Cannot find module '../components/widgets/GenericDataWidget' or its corresponding type declarations.
+DeepSeekTestPage.tsx(11,32): error TS2307: Cannot find module '../src/utils/llm-provider' or its corresponding type declarations.
+src/utils/deepseek-integration.tsx(7,10): error TS2305: Module '"deepseek-sdk"' has no exported member 'DeepSeekAPI'.
+src/utils/llm-provider.ts(7,10): error TS2305: Module '"deepseek-sdk"' has no exported member 'DeepSeekAPI'.
+src/widgets/AgentMonitorWidget.tsx(94,10): error TS2741: Property 'isDarkMode' is missing in type '{ children: Element[]; title: string; icon: react.ForwardRefExoticComponent<any>; className: string; headerAction: Element; }' but required in type 'AcrylicCardProps'.
+widgets/NexusTerminalWidget.tsx(302,13): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLInputElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'KeyboardEvent<HTMLInputElement>' is not assignable to type 'KeyboardEvent<HTMLTextAreaElement>'.
+      Type 'HTMLInputElement' is missing the following properties from type 'HTMLTextAreaElement': cols, rows, textLength, wrap

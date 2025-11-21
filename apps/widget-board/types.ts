@@ -56,6 +56,7 @@ export interface WidgetProps {
 export interface WidgetDefinition {
   id: string;
   name: string;
+  description?: string;
   category: WidgetCategory;
   component: ComponentType<WidgetProps>;
   defaultLayout: { w: number; h: number };

@@ -2,7 +2,7 @@ import React, { useState, useMemo, Fragment } from 'react';
 import { useWidgetRegistry, WidgetRegistryEntry } from '../contexts/WidgetRegistryContext';
 import { WidgetCategory } from '../types';
 import { Dialog, Transition, Switch } from '@headlessui/react';
-import { useWidgetStore } from '../stores/widgetStore';
+import { useWidgetStore } from './widgetStore';
 import { X, Cpu } from 'lucide-react';
 import { DataWeaverWizard } from './DataWeaverWizard';
 
