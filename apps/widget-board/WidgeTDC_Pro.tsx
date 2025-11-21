@@ -5,6 +5,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import WidgetSelector from './components/WidgetSelector';
 import AgentPanel from './components/AgentPanel';
+import WidgetConfigModal from './components/WidgetConfigModal';
 import { useWidgetRegistry } from './contexts/WidgetRegistryContext';
 import { useWidgetStore } from './components/widgetStore';
 import { WidgetInstance } from './types';
@@ -138,114 +139,105 @@ export default function WidgeTDCPro() {
             </div>
 
             {/* Sidebar */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-20 flex flex-col items-center py-6 backdrop-blur-2xl border-r transition-all duration-500 lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${isDarkMode ? 'bg-[#1a1a1a]/60 border-white/5' : 'bg-white/30 border-white/40 shadow-[5px_0_30px_rgba(0,0,0,0.02)]'}`}>
-                <div className="w-10 h-10 mb-8 bg-gradient-to-b from-teal-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/30 border border-teal-400/30 text-white font-bold text-lg shrink-0">W</div>
-                <nav className="flex-1 space-y-4 w-full px-3 flex flex-col items-center">
-                    {[{ id: 'dashboard', icon: LayoutGrid, label: 'Widgets' }, { id: 'security', icon: Shield, label: 'Defense' }, { id: 'network', icon: Network, label: 'Net' }, { id: 'compliance', icon: FileText, label: 'Docs' }].map(item => (
-                        <button key={item.id} onClick={() => setActiveTab(item.id)} title={item.label} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group relative ${activeTab === item.id ? (isDarkMode ? 'bg-white/10 text-white shadow-inner' : 'bg-white text-teal-600 shadow-lg shadow-teal-900/5 ring-1 ring-black/5') : (isDarkMode ? 'text-slate-500 hover:bg-white/5 hover:text-slate-300' : 'text-slate-400 hover:bg-white/50 hover:text-slate-600')}`}>
-                            <item.icon size={20} className={`transition-transform duration-300 ${activeTab === item.id ? 'scale-110' : 'group-hover:scale-105'}`} />
-                            {activeTab === item.id && <div className="absolute -left-2 top-2 bottom-2 w-1 bg-teal-500 rounded-r-full" />}
+            <aside className={`fixed inset-y-0 left-0 z-50 w-20 flex flex-col items-center py-6 border-r transition-all duration-500 lg:relative lg:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} ${isDarkMode ? 'ms-acrylic border-white/5' : 'ms-acrylic border-white/40'}`}>
+                <div className="w-12 h-12 mb-8 rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30 border border-white/10 text-white font-bold text-xl shrink-0 bg-gradient-to-br from-blue-600 to-violet-600 animate-glow-pulse">
+                    W
+                </div>
+                <nav className="flex-1 space-y-6 w-full px-3 flex flex-col items-center">
+                    {[{ id: 'dashboard', icon: LayoutGrid, label: 'Widgets' }, { id: 'security', icon: Shield, label: 'Defense' }, { id: 'network', icon: Network, label: 'Net' }, { id: 'compliance', icon: FileText, label: 'Docs' }].map((item, index) => (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id)}
+                            title={item.label}
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group relative stagger-item ${activeTab === item.id ? 'bg-primary text-white shadow-lg shadow-primary/25 scale-110' : 'text-slate-400 hover:bg-white/10 hover:text-white hover:scale-105'}`}
+                            style={{ animationDelay: `${index * 0.1}s` }}
+                        >
+                            <item.icon size={22} className={`transition-transform duration-300 ${activeTab === item.id ? 'rotate-0' : 'group-hover:rotate-12'}`} />
+                            {activeTab === item.id && <div className="absolute -right-1 top-3 bottom-3 w-1 bg-white/50 rounded-full" />}
                         </button>
                     ))}
                 </nav>
-                <div className="space-y-4 w-full px-3 mb-2 flex flex-col items-center">
-                    <button onClick={() => setIsDarkMode(!isDarkMode)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group ${isDarkMode ? 'text-yellow-400 hover:bg-white/10' : 'text-slate-600 hover:bg-white/60 hover:text-slate-900 hover:shadow-md'}`} title={isDarkMode ? "Switch to Aerogel (Light)" : "Switch to Stealth (Dark)"}>
+                <div className="space-y-4 w-full px-3 mb-4 flex flex-col items-center">
+                    <button onClick={() => setIsDarkMode(!isDarkMode)} className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 hover-lift ${isDarkMode ? 'text-yellow-400 bg-yellow-400/10' : 'text-slate-600 bg-slate-200'}`} title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}>
                         {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                     </button>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 border-2 border-white/10 shadow-lg flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:scale-105 transition-transform">CK</div>
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 border-2 border-white/20 shadow-lg flex items-center justify-center text-xs font-bold text-white cursor-pointer hover:scale-110 transition-transform">CK</div>
                 </div>
             </aside>
 
             {/* Main Content Area */}
             <main className="flex-1 overflow-hidden relative z-10 flex flex-col">
                 {/* Header */}
-                <header className="h-20 px-8 flex items-center justify-between bg-transparent shrink-0">
+                <header className="h-20 px-8 flex items-center justify-between shrink-0 ms-acrylic border-b border-white/5 mx-4 mt-4 rounded-2xl">
                     <div className="flex items-center gap-4">
-                        <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="lg:hidden text-slate-500 hover:text-teal-500 transition-colors">
+                        <button onClick={() => setSidebarOpen(!isSidebarOpen)} className="lg:hidden text-slate-500 hover:text-primary transition-colors">
                             {isSidebarOpen ? <X /> : <Menu />}
                         </button>
-                        <h1 className={`text-2xl font-semibold tracking-tight transition-colors duration-500 ${isDarkMode ? 'text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-400' : 'text-slate-800'}`}>Claus' <span className="font-light opacity-70">Workspace</span></h1>
-                        <div className={`hidden sm:block px-2.5 py-1 rounded-full text-[10px] font-mono border transition-colors duration-500 ${isDarkMode ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-white/40 border-white/40 text-slate-500 shadow-sm backdrop-blur-sm'}`}>PRO_BUILD_2405</div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                        {/* Agents Button */}
-                        <button
-                            onClick={() => setIsAgentPanelOpen(true)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isDarkMode
-                                ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30'
-                                : 'bg-purple-500 hover:bg-purple-600 text-white shadow-lg'
-                                }`}
-                            title="View and manage agents"
-                        >
-                            <Zap size={20} />
-                            <span className="hidden md:inline">Agents</span>
-                        </button>
-
-                        {/* Add Widget Button */}
-                        <button
-                            onClick={() => setIsWidgetSelectorOpen(true)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isDarkMode
-                                ? 'bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/30'
-                                : 'bg-teal-500 hover:bg-teal-600 text-white shadow-lg'
-                                }`}
-                        >
-                            <Plus size={20} />
-                            <span className="hidden md:inline">Add Widget</span>
-                        </button>
-
-                        <div className="relative group hidden md:block">
-                            <Search size={16} className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`} />
-                            <input type="text" placeholder="Global Search..." className={`rounded-full pl-10 pr-4 py-2 text-sm w-64 transition-all focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:w-80 ${isDarkMode ? 'bg-[#2d2d2d]/50 border border-white/5 text-slate-200 placeholder-slate-500 focus:bg-[#3d3d3d]/80' : 'bg-white/40 border border-white/40 text-slate-700 placeholder-slate-400 focus:bg-white/80 shadow-sm backdrop-blur-md'}`} />
+                        <div>
+                            <h1 className={`text-2xl font-bold tracking-tight ${isDarkMode ? 'text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400' : 'text-slate-800'}`}>
+                                Claus' <span className="font-light opacity-70">Workspace</span>
+                            </h1>
+                            <div className="flex items-center gap-2 mt-1">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                <span className="text-xs font-mono text-slate-500">SYSTEM ONLINE</span>
+                            </div>
                         </div>
-                        <div className={`w-[1px] h-8 ${isDarkMode ? 'bg-white/10' : 'bg-slate-300/50'}`} />
-                        <div className="flex flex-col items-end">
-                            <div className={`flex items-center gap-2 text-xs font-bold ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>TDC-NET-01<div className="w-2 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981]"></div></div>
-                            <span className={`text-[10px] font-mono ${isDarkMode ? 'text-slate-500' : 'text-slate-500'}`}>14ms latency</span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <div className="relative group hidden md:block">
+                            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Global Search..."
+                                className={`rounded-xl pl-10 pr-4 py-2.5 text-sm w-64 transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 focus:w-80 ${isDarkMode ? 'bg-black/20 border border-white/10 text-slate-200 placeholder-slate-500 focus:bg-black/40' : 'bg-white/50 border border-slate-200 text-slate-700 focus:bg-white'}`}
+                            />
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <button
+                                onClick={() => setIsAgentPanelOpen(true)}
+                                className="btn-secondary flex items-center gap-2 hover-lift"
+                            >
+                                <Zap size={18} className="text-amber-400" />
+                                <span className="hidden md:inline">Agents</span>
+                            </button>
+
+                            <button
+                                onClick={() => setIsWidgetSelectorOpen(true)}
+                                className="btn-primary flex items-center gap-2 hover-lift"
+                            >
+                                <Plus size={18} />
+                                <span className="hidden md:inline">Add Widget</span>
+                            </button>
                         </div>
                     </div>
                 </header>
 
                 {/* Widget Grid Area */}
-                <div className={`flex-1 overflow-y-auto p-8 pt-2 scrollbar-thin scrollbar-track-transparent ${isDarkMode ? 'scrollbar-thumb-white/10' : 'scrollbar-thumb-slate-400/20'}`}>
-                    <div className="max-w-[1800px] mx-auto">
+                <div className={`flex-1 overflow-y-auto p-4 scrollbar-thin ${isDarkMode ? 'scrollbar-track-slate-900 scrollbar-thumb-slate-700' : 'scrollbar-track-slate-100 scrollbar-thumb-slate-300'}`}>
+                    <div className="max-w-[1920px] mx-auto min-h-full">
 
-                        {/* Active Widgets Count */}
-                        <div className="mb-6 flex items-center justify-between">
-                            <div className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                                {widgets.length} active widget{widgets.length !== 1 ? 's' : ''} • Drag to reposition • Resize from corners
-                            </div>
-                            {widgets.length > 0 && (
-                                <button
-                                    onClick={() => {
-                                        // Remove all widgets
-                                        widgets.forEach(w => removeWidget(w.id));
-                                    }}
-                                    className={`text-sm px-3 py-1 rounded-lg transition-colors ${isDarkMode
-                                        ? 'text-red-400 hover:bg-red-500/10'
-                                        : 'text-red-600 hover:bg-red-50'
-                                        }`}
-                                >
-                                    Clear All
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Widgets Grid with react-grid-layout */}
+                        {/* Empty State */}
                         {widgets.length === 0 ? (
-                            <div className="col-span-12 flex flex-col items-center justify-center py-20">
-                                <div className={`text-6xl mb-4 ${isDarkMode ? 'text-slate-700' : 'text-slate-300'}`}>📊</div>
-                                <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                                    No Widgets Active
+                            <div className="h-[70vh] flex flex-col items-center justify-center animate-fade-in">
+                                <div className="relative mb-8 group cursor-pointer" onClick={() => setIsWidgetSelectorOpen(true)}>
+                                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-500" />
+                                    <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                                        <Plus size={40} className="text-primary" />
+                                    </div>
+                                </div>
+                                <h3 className="text-3xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+                                    Initialize Dashboard
                                 </h3>
-                                <p className={`text-sm mb-6 ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>
-                                    Click "Add Widget" to get started
+                                <p className="text-slate-500 mb-8 text-center max-w-md">
+                                    Your workspace is empty. Add widgets to monitor agents, track metrics, and manage your workflow.
                                 </p>
                                 <button
                                     onClick={() => setIsWidgetSelectorOpen(true)}
-                                    className="flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-medium transition-all shadow-lg"
+                                    className="px-8 py-3 rounded-xl bg-primary hover:bg-primary-light text-white font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-1"
                                 >
-                                    <Plus size={20} />
-                                    Browse Widgets
+                                    Browse Widget Library
                                 </button>
                             </div>
                         ) : (
@@ -260,38 +252,44 @@ export default function WidgeTDCPro() {
                                 isResizable={true}
                                 compactType="vertical"
                                 preventCollision={false}
+                                draggableHandle=".widget-drag-handle"
                             >
                                 {widgets.map(widgetInstance => {
                                     const registryEntry = availableWidgets.find(w => w.id === widgetInstance.widgetType);
 
                                     return (
-                                        <div key={widgetInstance.id} className="relative group">
-                                            {/* Widget Controls Overlay */}
-                                            <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
-                                                    onClick={() => setSettingsWidgetId(widgetInstance.id)}
-                                                    className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${isDarkMode
-                                                        ? 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300'
-                                                        : 'bg-white/80 hover:bg-white text-slate-700'
-                                                        }`}
-                                                    title="Widget Settings"
-                                                >
-                                                    <Settings size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => removeWidget(widgetInstance.id)}
-                                                    className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${isDarkMode
-                                                        ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400'
-                                                        : 'bg-red-50 hover:bg-red-100 text-red-600'
-                                                        }`}
-                                                    title="Remove Widget"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
+                                        <div key={widgetInstance.id} className={`ms-widget-container flex flex-col overflow-hidden group ${isDarkMode ? 'bg-slate-900/40' : 'bg-white/60'}`}>
+                                            {/* Widget Header */}
+                                            <div className="ms-widget-header widget-drag-handle shrink-0">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="p-1.5 rounded-md bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10">
+                                                        {/* Icon placeholder - could be dynamic based on widget type */}
+                                                        <div className="w-3 h-3 rounded-full bg-primary/80" />
+                                                    </div>
+                                                    <span className="ms-widget-title truncate">
+                                                        {registryEntry?.name || 'Unknown Widget'}
+                                                    </span>
+                                                </div>
+                                                <div className="ms-widget-actions opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                    <button
+                                                        onClick={() => setSettingsWidgetId(widgetInstance.id)}
+                                                        className="ms-icon-button"
+                                                        title="Settings"
+                                                    >
+                                                        <Settings size={14} className="text-slate-400 hover:text-white" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => removeWidget(widgetInstance.id)}
+                                                        className="ms-icon-button hover:!bg-red-500/20 hover:!border-red-500/30"
+                                                        title="Remove"
+                                                    >
+                                                        <Trash2 size={14} className="text-slate-400 hover:text-red-400" />
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             {/* Widget Content */}
-                                            <div className="h-full overflow-hidden">
+                                            <div className="flex-1 overflow-hidden relative">
                                                 {renderWidget(widgetInstance)}
                                             </div>
                                         </div>
@@ -303,9 +301,17 @@ export default function WidgeTDCPro() {
                 </div>
 
                 {/* Footer */}
-                <div className={`mt-4 pt-3 px-8 border-t ${isDarkMode ? 'border-white/5' : 'border-slate-200'} flex justify-between text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>
-                    <span>WidgeTDC Pro v2.4.5 • MCP Connected</span>
-                    <span>Active Widgets: {widgets.length} | Logs: {logs.length}</span>
+                <div className="h-8 px-6 flex items-center justify-between text-[10px] font-mono text-slate-500 border-t border-white/5 bg-black/20 backdrop-blur-sm">
+                    <div className="flex items-center gap-4">
+                        <span>WIDGET_OS v2.5.0</span>
+                        <span className="flex items-center gap-1.5">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            MCP_CONNECTED
+                        </span>
+                    </div>
+                    <div>
+                        MEMORY_USAGE: 24% | LATENCY: 12ms
+                    </div>
                 </div>
             </main>
 
@@ -340,47 +346,21 @@ export default function WidgeTDCPro() {
                 </div>
             )}
 
-            {/* Widget Settings Modal */}
+            {/* Widget Config Modal */}
             {settingsWidgetId && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className={`w-full max-w-2xl rounded-2xl p-6 ${isDarkMode ? 'bg-slate-900/95 border border-white/10' : 'bg-white border border-slate-200'} shadow-2xl`}>
-                        <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-2xl font-bold">
-                                {availableWidgets.find(w => w.id === widgets.find(wi => wi.id === settingsWidgetId)?.widgetType)?.name || 'Widget'} Settings
-                            </h2>
-                            <button
-                                onClick={() => setSettingsWidgetId(null)}
-                                className={`p-2 rounded-lg transition-colors ${isDarkMode
-                                    ? 'hover:bg-white/10 text-slate-400 hover:text-white'
-                                    : 'hover:bg-slate-100 text-slate-600'
-                                    }`}
-                            >
-                                <X size={24} />
-                            </button>
-                        </div>
-                        <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
-                            <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                                Widget-specific settings will be displayed here. Each widget can define its own configuration options.
-                            </p>
-                            <div className="mt-4 space-y-3">
-                                <div>
-                                    <label className={`text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                                        Widget ID
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={settingsWidgetId}
-                                        disabled
-                                        className={`w-full mt-1 px-3 py-2 rounded-lg ${isDarkMode
-                                            ? 'bg-slate-700/50 text-slate-400'
-                                            : 'bg-slate-200 text-slate-600'
-                                            }`}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <WidgetConfigModal
+                    isOpen={!!settingsWidgetId}
+                    onClose={() => setSettingsWidgetId(null)}
+                    widgetId={settingsWidgetId}
+                    widgetName={availableWidgets.find(w => w.id === widgets.find(wi => wi.id === settingsWidgetId)?.widgetType)?.name || 'Widget'}
+                    initialConfig={widgets.find(w => w.id === settingsWidgetId)?.config}
+                    onSave={(newConfig) => {
+                        // Assuming updateWidgetConfig is available from useWidgetStore
+                        // If not explicitly destructured above, we need to add it to the hook call
+                        const { updateWidgetConfig } = useWidgetStore.getState();
+                        updateWidgetConfig(settingsWidgetId, newConfig);
+                    }}
+                />
             )}
         </div>
     );
