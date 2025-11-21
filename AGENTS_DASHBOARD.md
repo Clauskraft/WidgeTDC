@@ -1,13 +1,10 @@
 # 🕵️‍♂️ Agent Mission Control Dashboard
-
-Last Updated: Initializing...
+Last Updated: Fri Nov 21 18:34:05 UTC 2025
 
 This dashboard provides a real-time overview of all active autonomous agents in the repository.
 
 | Agent Name | Status | Health | Last Run | ID |
 |------------|--------|--------|----------|----|
-| **Initializing...** | ⚪ | ❓ | N/A | `waiting-for-first-run` |
 
 ### 🎮 Control Center
-
-To interact with these agents (Start, Stop, Disable), use the [Mission Control Workflow](https://github.com/Clauskraft/WidgetTDC/actions/workflows/agent-mission-control.yml).
+To interact with these agents (Start, Stop, Disable), use the [Mission Control Workflow](https://github.com/Clauskraft/WidgeTDC/actions/workflows/agent-mission-control.yml).
