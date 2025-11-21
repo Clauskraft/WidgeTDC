@@ -42,6 +42,12 @@ mcpRegistry.registerTool('evolution.get-prompt', evolutionGetPromptHandler);
 mcpRegistry.registerTool('pal.event', palEventHandler);
 mcpRegistry.registerTool('pal.board-action', palBoardActionHandler);
 
+// Initialize Agent Orchestrator
+import { AgentOrchestratorServer } from './mcp/servers/AgentOrchestratorServer.js';
+const orchestrator = new AgentOrchestratorServer();
+mcpRegistry.registerServer(orchestrator);
+console.log('🤖 Agent Orchestrator initialized');
+
 // Routes
 app.use('/api/mcp', mcpRouter);
 app.use('/api/memory', memoryRouter);

@@ -1,9 +1,10 @@
-import { MCPMessage, McpContext } from '@widget-tdc/mcp-types';
+import { MCPMessage, McpContext, MCPServer } from '@widget-tdc/mcp-types';
 
 export type MCPToolHandler = (payload: any, ctx: McpContext) => Promise<any>;
 
 class MCPRegistry {
   private tools: Map<string, MCPToolHandler> = new Map();
+  private servers: MCPServer[] = [];
 
   registerTool(toolName: string, handler: MCPToolHandler): void {
     if (this.tools.has(toolName)) {
@@ -13,9 +14,38 @@ class MCPRegistry {
     console.log(`Registered MCP tool: ${toolName}`);
   }
 
+  registerServer(server: MCPServer): void {
+    this.servers.push(server);
+    console.log(`Registered MCP Server: ${server.name}`);
+
+    // Auto-register tools from server
+    server.listTools().then(tools => {
+      tools.forEach(tool => {
+        this.registerTool(tool.name, async (payload, _ctx) => {
+          return server.callTool(tool.name, payload);
+        });
+      });
+    });
+  }
+
+  async readResource(uri: string): Promise<string | Buffer> {
+    // Simple linear search for now. Can be optimized with a map.
+    for (const server of this.servers) {
+      try {
+        const resources = await server.listResources();
+        if (resources.some(r => r.uri === uri)) {
+          return await server.readResource(uri);
+        }
+      } catch (e) {
+        console.warn(`Error listing resources from server ${server.name}`, e);
+      }
+    }
+    throw new Error(`Resource not found: ${uri}`);
+  }
+
   async route(message: MCPMessage): Promise<any> {
     const handler = this.tools.get(message.tool);
-    
+
     if (!handler) {
       throw new Error(`No handler registered for tool: ${message.tool}`);
     }

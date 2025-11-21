@@ -1,0 +1,42 @@
+id: deepseek-llm
+name: DeepSeekLLM
+agent_type: llm-provider
+block_number: 8
+story_points: 30
+
+description: "Wrapper til at kalde DeepSeek‑LLM‑API fra projektet."
+
+dependencies:
+  blocks: [1]
+  external_systems: []
+
+capabilities:
+  - query_deepseek
+  - generate_code_snippets
+  - perform_text_completion
+
+constraints:
+  max_files: 5
+  max_lines_per_file: 300
+  allowed_file_types: [.ts, .tsx, .js]
+  max_commit_message_length: 120
+
+github_app_permissions_required:
+  - scope: contents
+    permission: write
+    reason: "Tilføje DeepSeek‑wrapper‑fil"
+  - scope: pull-requests
+    permission: write
+    reason: "Opret PR med DeepSeek‑integration"
+
+resources_required:
+  npm_packages: [deepseek-sdk]
+  disk_space_mb: 50
+  execution_timeout_seconds: 300
+
+implementation:
+  outputs:
+    files_created:
+      - src/agents/deepseek.ts
+    branch: agent/block-8-deepseek
+    pr_title: "Add DeepSeek LLM wrapper"

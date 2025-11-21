@@ -9,7 +9,7 @@ export const mcpRouter = Router();
 mcpRouter.post('/route', async (req, res) => {
   try {
     const message: MCPMessage = req.body;
-    
+
     // Validate message
     if (!message.tool || !message.payload) {
       return res.status(400).json({
@@ -49,4 +49,29 @@ mcpRouter.get('/tools', (req, res) => {
     tools,
     count: tools.length,
   });
+});
+
+// Get resource content
+mcpRouter.get('/resources', async (req, res) => {
+  const uri = req.query.uri as string;
+
+  if (!uri) {
+    return res.status(400).json({ error: 'Missing uri parameter' });
+  }
+
+  try {
+    const content = await mcpRegistry.readResource(uri);
+    // If content is a string (JSON), try to parse it to return proper JSON object
+    try {
+      if (typeof content === 'string') {
+        const jsonContent = JSON.parse(content);
+        return res.json({ success: true, data: jsonContent });
+      }
+    } catch (e) {
+      // Not JSON, return as is
+    }
+    res.json({ success: true, content });
+  } catch (error: any) {
+    res.status(404).json({ success: false, error: error.message });
+  }
 });

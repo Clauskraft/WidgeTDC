@@ -26,10 +26,19 @@
     "@google/genai": "^1.29.1",
     "adaptivecards": "^3.0.0",
     "adaptivecards-react": "^1.1.1",
+    "deepseek-sdk": "^1.0.0",
+    "dotenv": "^17.2.3",
+    "openai": "^6.9.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-grid-layout": "^1.5.2",
     "react-is": "^19.2.0"
+  },
+  "overrides": {
+    "adaptivecards-react": {
+      "react": "^19.2.0",
+      "react-dom": "^19.2.0"
+    }
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",

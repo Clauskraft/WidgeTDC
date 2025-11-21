@@ -20,3 +20,25 @@ export * from './memory';
 export * from './srag';
 export * from './evolution';
 export * from './pal';
+
+export interface Tool {
+  name: string;
+  description: string;
+  inputSchema: any;
+}
+
+export interface Resource {
+  uri: string;
+  name: string;
+  mimeType: string;
+  description?: string;
+}
+
+export interface MCPServer {
+  name: string;
+  version: string;
+  listTools(): Promise<Tool[]>;
+  callTool(name: string, args: any): Promise<any>;
+  listResources(): Promise<Resource[]>;
+  readResource(uri: string): Promise<string | Buffer>;
+}
