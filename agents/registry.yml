@@ -176,6 +176,13 @@ agents:
       max_commit_message_length: 100
 
     github_app_permissions_required:
+      - scope: contents
+        permission: write
+        reason: "Create database models and migrations"
+      - scope: pull-requests
+        permission: write
+        reason: "Create database migration PRs"
+
   - id: testing-infrastructure
     name: QASpecialist
     agent_type: quality-engineer
