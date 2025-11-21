@@ -2,7 +2,7 @@ id: deepseek-llm
 name: DeepSeekLLM
 agent_type: llm-provider
 block_number: 8
-story_points: 30
+story_points: 30dee
 
 description: "Wrapper til at kalde DeepSeek‑LLM‑API fra projektet."
 
