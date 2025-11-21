@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import WidgeTDCPro from './WidgeTDC_Pro';
+import { WidgetRegistryProvider } from './contexts/WidgetRegistryContext';
 import './App.css';
 
 // Loading fallback
@@ -20,7 +21,9 @@ const AppLoader = () => (
 export default function App() {
   return (
     <Suspense fallback={<AppLoader />}>
-      <WidgeTDCPro />
+      <WidgetRegistryProvider>
+        <WidgeTDCPro />
+      </WidgetRegistryProvider>
     </Suspense>
   );
 }

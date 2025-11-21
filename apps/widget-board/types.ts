@@ -4,10 +4,17 @@ import type { ComponentType } from 'react';
 
 export type Theme = 'light' | 'dark';
 
+export interface User {
+  id: string;
+  name: string;
+  org_id: string;
+  aulaConnected?: boolean;
+}
+
 export interface GlobalState {
   theme: Theme;
   reduceMotion: boolean;
-  user: { name: string } | null;
+  user: User | null;
 }
 
 // Flyttet fra MSWidgetAdapter.ts og opdateret for at undgå cirkulære afhængigheder og øge fleksibiliteten.
@@ -41,12 +48,16 @@ export type WidgetCategory =
   | 'system'
   | 'project-management';
 
+export interface WidgetProps {
+  widgetId: string;
+  config: WidgetConfig;
+}
+
 export interface WidgetDefinition {
   id: string;
   name: string;
   category: WidgetCategory;
-  // FIX: Use imported ComponentType.
-  component: ComponentType<any>;
+  component: ComponentType<WidgetProps>;
   defaultLayout: { w: number; h: number };
   source: 'proprietary' | 'microsoft' | 'builtin' | 'dynamic' | 'remote' | 'marketplace';
   msWidgetData?: MSWidget;

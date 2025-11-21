@@ -4,7 +4,7 @@ import { Button } from '../components/ui/Button';
 import { useGlobalState } from '../contexts/GlobalStateContext';  // For user/org
 
 export default function SystemSettingsWidget() {
-  const { user } = useGlobalState();
+  const { state: { user } } = useGlobalState();
   const [loading, setLoading] = useState(false);
 
   const handleOAuth = async () => {

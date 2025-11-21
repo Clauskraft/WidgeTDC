@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import HelpModal from './HelpModal';
+import { useMCP } from '../contexts/MCPContext';
 import { Button } from './ui/Button';
 import { MicrosoftIcons } from '../assets/MicrosoftIcons';
 
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onOpenWidgetManagement, onResetWidgets }) => {
   const { state, setTheme, toggleReduceMotion } = useGlobalState();
+  const mcp = useMCP();
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -38,9 +40,8 @@ const Header: React.FC<HeaderProps> = ({ onOpenWidgetManagement, onResetWidgets 
     <>
       <header
         data-visible={isVisible}
-        className={`fixed top-0 left-0 right-0 z-30 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-transform duration-300 ${
-        isVisible ? 'translate-y-0' : '-translate-y-full'
-      }`}>
+        className={`fixed top-0 left-0 right-0 z-30 border-b bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'
+          }`}>
         <div className="px-6 h-16 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <svg
@@ -61,6 +62,19 @@ const Header: React.FC<HeaderProps> = ({ onOpenWidgetManagement, onResetWidgets 
           </div>
 
           <div className="flex items-center space-x-4">
+            <button onClick={() => mcp.publish('TriggerUndo')} className="ms-icon-button ms-focusable" title="Fortryd (Ctrl+Z)">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+              </svg>
+            </button>
+            <button onClick={() => mcp.publish('TriggerRedo')} className="ms-icon-button ms-focusable" title="Annuller Fortryd (Ctrl+Y)">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 15l3-3m0 0l-3-3m3 3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-600"></div>
+
             <button
               onClick={onOpenWidgetManagement}
               className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all shadow-[var(--shadow-button)]"
@@ -113,14 +127,12 @@ const Header: React.FC<HeaderProps> = ({ onOpenWidgetManagement, onResetWidgets 
               <span className="text-sm font-medium">Dark Mode</span>
               <button
                 onClick={() => setTheme(state.theme === 'dark' ? 'light' : 'dark')}
-                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
-                  state.theme === 'dark' ? 'bg-blue-600' : 'bg-gray-300'
-                }`}
+                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${state.theme === 'dark' ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
               >
                 <span
-                  className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                    state.theme === 'dark' ? 'translate-x-6' : 'translate-x-1'
-                  }`}
+                  className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${state.theme === 'dark' ? 'translate-x-6' : 'translate-x-1'
+                    }`}
                 />
               </button>
             </div>
@@ -131,13 +143,11 @@ const Header: React.FC<HeaderProps> = ({ onOpenWidgetManagement, onResetWidgets 
               <span className="text-sm font-medium">Reduce Motion</span>
               <button
                 onClick={toggleReduceMotion}
-                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
-                  state.reduceMotion ? 'bg-blue-600' : 'bg-gray-300'
-                }`}
+                className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${state.reduceMotion ? 'bg-blue-600' : 'bg-gray-300'
+                  }`}
               >
-                <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
-                  state.reduceMotion ? 'translate-x-6' : 'translate-x-1'
-                }`} />
+                <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${state.reduceMotion ? 'translate-x-6' : 'translate-x-1'
+                  }`} />
               </button>
             </div>
           </div>
