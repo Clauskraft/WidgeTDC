@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import WidgeTDCPro from './WidgeTDC_Pro';
+import WidgeTDCPro from './WidgeTDC_Pro.tsx';
 import { WidgetRegistryProvider } from './contexts/WidgetRegistryContext';
 import './App.css';
 
