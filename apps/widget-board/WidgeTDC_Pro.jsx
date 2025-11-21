@@ -60,50 +60,25 @@ export default function WidgeTDCPro() {
   useEffect(() => {
     localStorage.setItem('activeWidgets', JSON.stringify(activeWidgets));
   }, [activeWidgets]);
+  if (prev.includes(widgetId)) {
+    // Remove widget
+    setLayout(prevLayout => prevLayout.filter(item => item.i !== widgetId));
+    return prev.filter(id => id !== widgetId);
+  } else {
+    // Add widget with default position
+    const widget = WIDGET_REGISTRY[widgetId];
+    const size = widget?.defaultSize || { w: 6, h: 2 };
 
-  // Save layout to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('widgetLayout', JSON.stringify(layout));
-  }, [layout]);
+    // Find next available position
+    const maxY = layout.length > 0 ? Math.max(...layout.map(item => item.y + item.h)) : 0;
 
-  // Simulated system logs
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const msgs = [
-        { type: 'info', msg: 'Scanning port 443 for anomalies...' },
-        { type: 'success', msg: 'Packet inspection clean.' },
-        { type: 'info', msg: 'Agent "Sentinel" heartbeat received.' },
-        { type: 'warning', msg: 'Latency spike detected on node EU-West.' },
-        { type: 'success', msg: 'MCP message routed successfully.' },
-      ];
-      const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
-      setLogs(prev => [...prev.slice(-15), randomMsg]);
-    }, 2800);
-    return () => clearInterval(interval);
-  }, []);
+    setLayout(prevLayout => [
+      ...prevLayout,
+      { i: widgetId, x: 0, y: maxY, w: size.w, h: size.h, minW: 2, minH: 1 }
+    ]);
+    return [...prev, widgetId];
+  }
 
-  const toggleWidget = (widgetId) => {
-    setActiveWidgets(prev => {
-      if (prev.includes(widgetId)) {
-        // Remove widget
-        setLayout(prevLayout => prevLayout.filter(item => item.i !== widgetId));
-        return prev.filter(id => id !== widgetId);
-      } else {
-        // Add widget with default position
-        const widget = WIDGET_REGISTRY[widgetId];
-        const size = widget?.defaultSize || { w: 6, h: 2 };
-
-        // Find next available position
-        const maxY = layout.length > 0 ? Math.max(...layout.map(item => item.y + item.h)) : 0;
-
-        setLayout(prevLayout => [
-          ...prevLayout,
-          { i: widgetId, x: 0, y: maxY, w: size.w, h: size.h, minW: 2, minH: 1 }
-        ]);
-        return [...prev, widgetId];
-      }
-    });
-  };
 
   const removeWidget = (widgetId) => {
     setActiveWidgets(prev => prev.filter(id => id !== widgetId));
@@ -195,8 +170,8 @@ export default function WidgeTDCPro() {
             <button
               onClick={() => setIsWidgetSelectorOpen(true)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isDarkMode
-                  ? 'bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/30'
-                  : 'bg-teal-500 hover:bg-teal-600 text-white shadow-lg'
+                ? 'bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 border border-teal-500/30'
+                : 'bg-teal-500 hover:bg-teal-600 text-white shadow-lg'
                 }`}
             >
               <Plus size={20} />
@@ -231,8 +206,8 @@ export default function WidgeTDCPro() {
                     setLayout([]);
                   }}
                   className={`text-sm px-3 py-1 rounded-lg transition-colors ${isDarkMode
-                      ? 'text-red-400 hover:bg-red-500/10'
-                      : 'text-red-600 hover:bg-red-50'
+                    ? 'text-red-400 hover:bg-red-500/10'
+                    : 'text-red-600 hover:bg-red-50'
                     }`}
                 >
                   Clear All
@@ -280,8 +255,8 @@ export default function WidgeTDCPro() {
                         <button
                           onClick={() => setSettingsWidgetId(widgetId)}
                           className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${isDarkMode
-                              ? 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300'
-                              : 'bg-white/80 hover:bg-white text-slate-700'
+                            ? 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300'
+                            : 'bg-white/80 hover:bg-white text-slate-700'
                             }`}
                           title="Widget Settings"
                         >
@@ -290,8 +265,8 @@ export default function WidgeTDCPro() {
                         <button
                           onClick={() => removeWidget(widgetId)}
                           className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${isDarkMode
-                              ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400'
-                              : 'bg-red-50 hover:bg-red-100 text-red-600'
+                            ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400'
+                            : 'bg-red-50 hover:bg-red-100 text-red-600'
                             }`}
                           title="Remove Widget"
                         >
@@ -337,8 +312,8 @@ export default function WidgeTDCPro() {
               <button
                 onClick={() => setSettingsWidgetId(null)}
                 className={`p-2 rounded-lg transition-colors ${isDarkMode
-                    ? 'hover:bg-white/10 text-slate-400 hover:text-white'
-                    : 'hover:bg-slate-100 text-slate-600'
+                  ? 'hover:bg-white/10 text-slate-400 hover:text-white'
+                  : 'hover:bg-slate-100 text-slate-600'
                   }`}
               >
                 <X size={24} />
@@ -358,8 +333,8 @@ export default function WidgeTDCPro() {
                     value={settingsWidgetId}
                     disabled
                     className={`w-full mt-1 px-3 py-2 rounded-lg ${isDarkMode
-                        ? 'bg-slate-700/50 text-slate-400'
-                        : 'bg-slate-200 text-slate-600'
+                      ? 'bg-slate-700/50 text-slate-400'
+                      : 'bg-slate-200 text-slate-600'
                       }`}
                   />
                 </div>
@@ -372,8 +347,8 @@ export default function WidgeTDCPro() {
                     value={WIDGET_REGISTRY[settingsWidgetId]?.category || 'N/A'}
                     disabled
                     className={`w-full mt-1 px-3 py-2 rounded-lg ${isDarkMode
-                        ? 'bg-slate-700/50 text-slate-400'
-                        : 'bg-slate-200 text-slate-600'
+                      ? 'bg-slate-700/50 text-slate-400'
+                      : 'bg-slate-200 text-slate-600'
                       }`}
                   />
                 </div>
