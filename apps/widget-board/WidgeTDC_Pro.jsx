@@ -1,5 +1,8 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { LayoutGrid, Shield, Network, FileText, Sun, Moon, Menu, X, Search, Plus } from 'lucide-react';
+import { LayoutGrid, Shield, Network, FileText, Sun, Moon, Menu, X, Search, Plus, Settings, Trash2 } from 'lucide-react';
+import GridLayout from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 import AcrylicCard from './components/AcrylicCard';
 import WidgetSelector from './components/WidgetSelector';
 import { AgentMonitorWidget } from './src/widgets/AgentMonitorWidget';
@@ -25,6 +28,8 @@ export default function WidgeTDCPro() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [isWidgetSelectorOpen, setIsWidgetSelectorOpen] = useState(false);
+  const [widgetSettings, setWidgetSettings] = useState({});
+  const [settingsWidgetId, setSettingsWidgetId] = useState(null);
 
   // Load active widgets from localStorage
   const [activeWidgets, setActiveWidgets] = useState(() => {
@@ -32,15 +37,22 @@ export default function WidgeTDCPro() {
     return saved ? JSON.parse(saved) : ['AgentMonitorWidget'];
   });
 
-  // Load widget layout from localStorage
-  const [widgetLayout, setWidgetLayout] = useState(() => {
+  // Load widget layout from localStorage with proper grid layout format
+  const [layout, setLayout] = useState(() => {
     const saved = localStorage.getItem('widgetLayout');
-    return saved ? JSON.parse(saved) : {};
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    // Default layout for AgentMonitorWidget
+    return [
+      { i: 'AgentMonitorWidget', x: 0, y: 0, w: 12, h: 2, minW: 4, minH: 1 }
+    ];
   });
 
   const [logs, setLogs] = useState([
     { type: 'info', msg: "WidgeTDC OS v11.3 booting..." },
     { type: 'success', msg: 'Secure Enclave: Mounted' },
+    { type: 'success', msg: 'MCP Backend: Connected to http://localhost:3001' },
     { type: 'warning', msg: 'Backend Link: Using sql.js SQLite Adapter' },
   ]);
 
@@ -51,8 +63,8 @@ export default function WidgeTDCPro() {
 
   // Save layout to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('widgetLayout', JSON.stringify(widgetLayout));
-  }, [widgetLayout]);
+    localStorage.setItem('widgetLayout', JSON.stringify(layout));
+  }, [layout]);
 
   // Simulated system logs
   useEffect(() => {
@@ -62,6 +74,7 @@ export default function WidgeTDCPro() {
         { type: 'success', msg: 'Packet inspection clean.' },
         { type: 'info', msg: 'Agent "Sentinel" heartbeat received.' },
         { type: 'warning', msg: 'Latency spike detected on node EU-West.' },
+        { type: 'success', msg: 'MCP message routed successfully.' },
       ];
       const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
       setLogs(prev => [...prev.slice(-15), randomMsg]);
@@ -72,11 +85,33 @@ export default function WidgeTDCPro() {
   const toggleWidget = (widgetId) => {
     setActiveWidgets(prev => {
       if (prev.includes(widgetId)) {
+        // Remove widget
+        setLayout(prevLayout => prevLayout.filter(item => item.i !== widgetId));
         return prev.filter(id => id !== widgetId);
       } else {
+        // Add widget with default position
+        const widget = WIDGET_REGISTRY[widgetId];
+        const size = widget?.defaultSize || { w: 6, h: 2 };
+
+        // Find next available position
+        const maxY = layout.length > 0 ? Math.max(...layout.map(item => item.y + item.h)) : 0;
+
+        setLayout(prevLayout => [
+          ...prevLayout,
+          { i: widgetId, x: 0, y: maxY, w: size.w, h: size.h, minW: 2, minH: 1 }
+        ]);
         return [...prev, widgetId];
       }
     });
+  };
+
+  const removeWidget = (widgetId) => {
+    setActiveWidgets(prev => prev.filter(id => id !== widgetId));
+    setLayout(prevLayout => prevLayout.filter(item => item.i !== widgetId));
+  };
+
+  const onLayoutChange = (newLayout) => {
+    setLayout(newLayout);
   };
 
   const renderWidget = (widgetId) => {
@@ -93,14 +128,14 @@ export default function WidgeTDCPro() {
       <Suspense
         key={widgetId}
         fallback={
-          <AcrylicCard isDarkMode={isDarkMode} className="animate-pulse">
-            <div className="h-32 flex items-center justify-center text-slate-400">
+          <div className="h-full flex items-center justify-center bg-slate-800/30 rounded-lg border border-white/10">
+            <div className="text-slate-400">
               Loading {WIDGET_REGISTRY[widgetId]?.name || widgetId}...
             </div>
-          </AcrylicCard>
+          </div>
         }
       >
-        <WidgetComponent />
+        <WidgetComponent widgetId={widgetId} />
       </Suspense>
     );
   };
@@ -187,11 +222,14 @@ export default function WidgeTDCPro() {
             {/* Active Widgets Count */}
             <div className="mb-6 flex items-center justify-between">
               <div className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-                {activeWidgets.length} active widget{activeWidgets.length !== 1 ? 's' : ''}
+                {activeWidgets.length} active widget{activeWidgets.length !== 1 ? 's' : ''} • Drag to reposition • Resize from corners
               </div>
               {activeWidgets.length > 0 && (
                 <button
-                  onClick={() => setActiveWidgets([])}
+                  onClick={() => {
+                    setActiveWidgets([]);
+                    setLayout([]);
+                  }}
                   className={`text-sm px-3 py-1 rounded-lg transition-colors ${isDarkMode
                       ? 'text-red-400 hover:bg-red-500/10'
                       : 'text-red-600 hover:bg-red-50'
@@ -202,46 +240,80 @@ export default function WidgeTDCPro() {
               )}
             </div>
 
-            {/* Widgets Grid */}
-            <div className="grid grid-cols-12 gap-6 auto-rows-[minmax(180px,auto)] pb-10">
-              {activeWidgets.length === 0 ? (
-                <div className="col-span-12 flex flex-col items-center justify-center py-20">
-                  <div className={`text-6xl mb-4 ${isDarkMode ? 'text-slate-700' : 'text-slate-300'}`}>📊</div>
-                  <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-                    No Widgets Active
-                  </h3>
-                  <p className={`text-sm mb-6 ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>
-                    Click "Add Widget" to get started
-                  </p>
-                  <button
-                    onClick={() => setIsWidgetSelectorOpen(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-medium transition-all shadow-lg"
-                  >
-                    <Plus size={20} />
-                    Browse Widgets
-                  </button>
-                </div>
-              ) : (
-                activeWidgets.map(widgetId => {
+            {/* Widgets Grid with react-grid-layout */}
+            {activeWidgets.length === 0 ? (
+              <div className="col-span-12 flex flex-col items-center justify-center py-20">
+                <div className={`text-6xl mb-4 ${isDarkMode ? 'text-slate-700' : 'text-slate-300'}`}>📊</div>
+                <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                  No Widgets Active
+                </h3>
+                <p className={`text-sm mb-6 ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>
+                  Click "Add Widget" to get started
+                </p>
+                <button
+                  onClick={() => setIsWidgetSelectorOpen(true)}
+                  className="flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-600 text-white rounded-lg font-medium transition-all shadow-lg"
+                >
+                  <Plus size={20} />
+                  Browse Widgets
+                </button>
+              </div>
+            ) : (
+              <GridLayout
+                className="layout"
+                layout={layout}
+                cols={12}
+                rowHeight={100}
+                width={1760}
+                onLayoutChange={onLayoutChange}
+                isDraggable={true}
+                isResizable={true}
+                compactType="vertical"
+                preventCollision={false}
+              >
+                {activeWidgets.map(widgetId => {
                   const widget = WIDGET_REGISTRY[widgetId];
-                  const size = widget?.defaultSize || { w: 6, h: 2 };
                   return (
-                    <div
-                      key={widgetId}
-                      className={`col-span-12 md:col-span-${Math.min(size.w, 12)} row-span-${size.h}`}
-                    >
-                      {renderWidget(widgetId)}
+                    <div key={widgetId} className="relative group">
+                      {/* Widget Controls Overlay */}
+                      <div className="absolute top-2 right-2 z-10 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => setSettingsWidgetId(widgetId)}
+                          className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${isDarkMode
+                              ? 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300'
+                              : 'bg-white/80 hover:bg-white text-slate-700'
+                            }`}
+                          title="Widget Settings"
+                        >
+                          <Settings size={16} />
+                        </button>
+                        <button
+                          onClick={() => removeWidget(widgetId)}
+                          className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${isDarkMode
+                              ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400'
+                              : 'bg-red-50 hover:bg-red-100 text-red-600'
+                            }`}
+                          title="Remove Widget"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+
+                      {/* Widget Content */}
+                      <div className="h-full overflow-hidden">
+                        {renderWidget(widgetId)}
+                      </div>
                     </div>
                   );
-                })
-              )}
-            </div>
+                })}
+              </GridLayout>
+            )}
           </div>
         </div>
 
         {/* Footer */}
         <div className={`mt-4 pt-3 px-8 border-t ${isDarkMode ? 'border-white/5' : 'border-slate-200'} flex justify-between text-xs ${isDarkMode ? 'text-slate-500' : 'text-slate-600'}`}>
-          <span>WidgeTDC Pro v2.4.5</span>
+          <span>WidgeTDC Pro v2.4.5 • MCP Connected</span>
           <span>Active Widgets: {activeWidgets.length} | Logs: {logs.length}</span>
         </div>
       </main>
@@ -253,6 +325,63 @@ export default function WidgeTDCPro() {
         onAddWidget={toggleWidget}
         activeWidgets={activeWidgets}
       />
+
+      {/* Widget Settings Modal */}
+      {settingsWidgetId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className={`w-full max-w-2xl rounded-2xl p-6 ${isDarkMode ? 'bg-slate-900/95 border border-white/10' : 'bg-white border border-slate-200'} shadow-2xl`}>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">
+                {WIDGET_REGISTRY[settingsWidgetId]?.name} Settings
+              </h2>
+              <button
+                onClick={() => setSettingsWidgetId(null)}
+                className={`p-2 rounded-lg transition-colors ${isDarkMode
+                    ? 'hover:bg-white/10 text-slate-400 hover:text-white'
+                    : 'hover:bg-slate-100 text-slate-600'
+                  }`}
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-slate-800/50' : 'bg-slate-50'}`}>
+              <p className={`text-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                Widget-specific settings will be displayed here. Each widget can define its own configuration options.
+              </p>
+              <div className="mt-4 space-y-3">
+                <div>
+                  <label className={`text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                    Widget ID
+                  </label>
+                  <input
+                    type="text"
+                    value={settingsWidgetId}
+                    disabled
+                    className={`w-full mt-1 px-3 py-2 rounded-lg ${isDarkMode
+                        ? 'bg-slate-700/50 text-slate-400'
+                        : 'bg-slate-200 text-slate-600'
+                      }`}
+                  />
+                </div>
+                <div>
+                  <label className={`text-sm font-medium ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    value={WIDGET_REGISTRY[settingsWidgetId]?.category || 'N/A'}
+                    disabled
+                    className={`w-full mt-1 px-3 py-2 rounded-lg ${isDarkMode
+                        ? 'bg-slate-700/50 text-slate-400'
+                        : 'bg-slate-200 text-slate-600'
+                      }`}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
