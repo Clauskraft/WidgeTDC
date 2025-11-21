@@ -12,7 +12,7 @@ const defaultWidgets: WidgetInstance[] = [
 interface WidgetState {
     widgets: WidgetInstance[];
     addWidget: (widgetType: string, initialConfig?: WidgetConfig) => void;
-    removeWidget: (widgetId: string) => void;
+    removeWidget: (widgetId: string) => WidgetInstance | undefined;
     reAddWidget: (widget: WidgetInstance) => void;
     updateWidgetConfig: (widgetId: string, config: WidgetConfig) => void;
     resetToDefault: () => void;
@@ -20,7 +20,7 @@ interface WidgetState {
 
 export const useWidgetStore = create<WidgetState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             widgets: defaultWidgets,
 
             addWidget: (widgetType, initialConfig) => set((state) => ({
@@ -34,9 +34,14 @@ export const useWidgetStore = create<WidgetState>()(
                 ],
             })),
 
-            removeWidget: (widgetId) => set((state) => ({
-                widgets: state.widgets.filter((w) => w.id !== widgetId),
-            })),
+            removeWidget: (widgetId) => {
+                const state = get();
+                const widgetToRemove = state.widgets.find(w => w.id === widgetId);
+                set({
+                    widgets: state.widgets.filter((w) => w.id !== widgetId),
+                });
+                return widgetToRemove;
+            },
 
             reAddWidget: (widget) => set((state) => ({
                 widgets: [...state.widgets, widget],
@@ -56,7 +61,7 @@ export const useWidgetStore = create<WidgetState>()(
             },
         }),
         {
-            name: WIDGETS_STORAGE_KEY, // Navn på item i  localStorage
+            name: WIDGETS_STORAGE_KEY, // Navn på item i localStorage
             storage: createJSONStorage(() => localStorage),
         }
     )

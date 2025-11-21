@@ -11,4 +11,20 @@ export interface McpEventMap {
     'UserLoggedIn': User;
     'WidgetResized': { widgetId: string; newWidth: number; newHeight: number };
     'DashboardReset': void; // Example of an event with no payload
+    'ShowNotification': NotificationPayload;
+    'UndoRemoveWidget': { widget: any };
+    'TriggerUndo': void;
+    'TriggerRedo': void;
+}
+
+export interface NotificationPayload {
+    id: string;
+    type: 'success' | 'error' | 'info' | 'warning';
+    title?: string;
+    message: string;
+    duration?: number;
+    undoAction?: {
+        eventName: string;
+        payload: any;
+    };
 }

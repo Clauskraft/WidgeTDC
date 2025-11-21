@@ -1,5 +1,5 @@
 import React, { createContext, useContext } from 'react';
-import { MCPEventBus } from '../mcp/MCPEventBus';
+import { MCPEventBus } from './MCPEventBus';
 
 // Create a single, global instance of the event bus.
 const mcpEventBus = new MCPEventBus();

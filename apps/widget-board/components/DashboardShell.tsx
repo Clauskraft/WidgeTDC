@@ -43,17 +43,18 @@ const DashboardShell: React.FC = () => {
         .map(widget => {
           const widgetDef = availableWidgets.find(w => w.id === widget.widgetType);
           if (!widgetDef) return null;
-          return {
+          const layoutItem: Layout = {
             i: widget.id,
             x: (currentLayout.length * widgetDef.defaultLayout.w) % 12,
             y: Infinity, // puts it at the bottom
             w: widgetDef.defaultLayout.w,
             h: widgetDef.defaultLayout.h,
-            minW: widgetDef.minW,
-            maxW: widgetDef.maxW,
-            minH: widgetDef.minH,
-            maxH: widgetDef.maxH,
           };
+          if (widgetDef.minW !== undefined) layoutItem.minW = widgetDef.minW;
+          if (widgetDef.maxW !== undefined) layoutItem.maxW = widgetDef.maxW;
+          if (widgetDef.minH !== undefined) layoutItem.minH = widgetDef.minH;
+          if (widgetDef.maxH !== undefined) layoutItem.maxH = widgetDef.maxH;
+          return layoutItem;
         })
         .filter((item): item is Layout => item !== null);
 

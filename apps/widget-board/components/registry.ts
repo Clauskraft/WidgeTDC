@@ -11,7 +11,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         id: 'AgentChatWidget',
         name: 'AI Agent Chat',
         category: 'ai-agents',
-        component: lazy(() => import('./AgentChatWidget')),
+        component: lazy(() => import('../widgets/AgentChatWidget')),
         defaultLayout: { w: 4, h: 10 },
         source: 'proprietary',
         minW: 3,
@@ -21,7 +21,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         id: 'PromptLibraryWidget',
         name: 'Prompt Library',
         category: 'ai-agents',
-        component: lazy(() => import('./PromptLibraryWidget')),
+        component: lazy(() => import('../widgets/PromptLibraryWidget')),
         defaultLayout: { w: 3, h: 8 },
         source: 'proprietary',
         minW: 2,
@@ -31,7 +31,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         id: 'WidgetImporterWidget',
         name: 'Widget Importer',
         category: 'system',
-        component: lazy(() => import('./WidgetImporterWidget')),
+        component: lazy(() => import('../widgets/WidgetImporterWidget')),
         defaultLayout: { w: 5, h: 12 },
         source: 'builtin',
         minW: 4,
@@ -42,7 +42,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     //   id: 'SystemSettingsWidget',
     //   name: 'System Settings',
     //   category: 'system',
-    //   component: lazy(() => import('./SystemSettingsWidget')),
+    //   component: lazy(() => import('../widgets/SystemSettingsWidget')),
     //   ...
     // }
 ];
