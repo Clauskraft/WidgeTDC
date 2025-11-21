@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import TaskBacklogModal from './TaskBacklogModal';
 
 interface Agent {
   id: string;
@@ -24,6 +25,7 @@ const AgentPanel: React.FC<AgentPanelProps> = ({ onAgentSelect, selectedAgentId 
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+  const [backlogAgent, setBacklogAgent] = useState<Agent | null>(null);
 
   useEffect(() => {
     // Load agents from state file
@@ -257,7 +259,7 @@ const AgentPanel: React.FC<AgentPanelProps> = ({ onAgentSelect, selectedAgentId 
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2 mt-3 pt-3 border-t border-current border-opacity-20">
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-current border-opacity-20 flex-wrap">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -284,6 +286,15 @@ const AgentPanel: React.FC<AgentPanelProps> = ({ onAgentSelect, selectedAgentId 
                       className="flex-1 px-3 py-2 bg-red-600 text-white rounded text-xs font-semibold hover:bg-red-700 transition"
                     >
                       Stop
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setBacklogAgent(agent);
+                      }}
+                      className="flex-1 px-3 py-2 bg-purple-600 text-white rounded text-xs font-semibold hover:bg-purple-700 transition"
+                    >
+                      📋 Backlog
                     </button>
                   </div>
                 </div>
@@ -325,6 +336,18 @@ const AgentPanel: React.FC<AgentPanelProps> = ({ onAgentSelect, selectedAgentId 
           </div>
         </div>
       </div>
+
+      {/* Task Backlog Modal */}
+      {backlogAgent && (
+        <TaskBacklogModal
+          isOpen={!!backlogAgent}
+          onClose={() => setBacklogAgent(null)}
+          agentName={backlogAgent.name}
+          agentId={backlogAgent.agent_id}
+          completedTasks={backlogAgent.completed_tasks}
+          failedTasks={backlogAgent.failed_tasks}
+        />
+      )}
     </div>
   );
 };
