@@ -1,0 +1,151 @@
+name: "Agent: Mission Control"
+on:
+  # Allow manual control via GitHub UI
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to execute'
+        required: true
+        default: 'status'
+        type: choice
+        options:
+          - status
+          - start
+          - stop
+          - enable
+          - disable
+      target:
+        description: 'Target Agent (workflow filename without extension, e.g., agent-scope-guardian)'
+        required: false
+        default: 'all'
+  
+  # Automatically update dashboard every 4 hours
+  schedule:
+    - cron: '0 */4 * * *'
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+
+jobs:
+  mission-control:
+    name: "Mission Control Center"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Execute Mission Control
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMAND: ${{ inputs.command || 'status' }}
+          TARGET: ${{ inputs.target || 'all' }}
+        run: |
+          echo "🚀 Mission Control Initiated: $COMMAND on $TARGET"
+          
+          # --- HELPER FUNCTIONS ---
+          
+          update_dashboard() {
+            echo "📊 Generating Agent Status Report..."
+            
+            FILE="AGENTS_DASHBOARD.md"
+            echo "# 🕵️‍♂️ Agent Mission Control Dashboard" > $FILE
+            echo "Last Updated: $(date -u)" >> $FILE
+            echo "" >> $FILE
+            echo "This dashboard provides a real-time overview of all active autonomous agents in the repository." >> $FILE
+            echo "" >> $FILE
+            echo "| Agent Name | Status | Health | Last Run | ID |" >> $FILE
+            echo "|------------|--------|--------|----------|----|" >> $FILE
+            
+            # Fetch all workflows starting with 'agent-'
+            gh workflow list --all --json name,state,id,path,url | jq -c '.[] | select(.path | contains("agent-"))' | while read -r agent; do
+              NAME=$(echo "$agent" | jq -r '.name')
+              STATE=$(echo "$agent" | jq -r '.state')
+              ID=$(echo "$agent" | jq -r '.id')
+              PATH=$(echo "$agent" | jq -r '.path')
+              FILENAME=$(basename "$PATH")
+              
+              # Get last run conclusion
+              LAST_RUN=$(gh run list --workflow "$ID" --limit 1 --json conclusion,createdAt,url --jq '.[0]')
+              CONCLUSION=$(echo "$LAST_RUN" | jq -r '.conclusion // "never ran"')
+              CREATED_AT=$(echo "$LAST_RUN" | jq -r '.createdAt // "N/A"')
+              RUN_URL=$(echo "$LAST_RUN" | jq -r '.url // "#"')
+              
+              # Status Icons
+              STATUS_ICON="⚪"
+              if [ "$STATE" == "active" ]; then STATUS_ICON="🟢 **Active**"; else STATUS_ICON="⚫ **Disabled**"; fi
+              
+              # Health Icons
+              HEALTH_ICON="❓"
+              if [ "$CONCLUSION" == "success" ]; then HEALTH_ICON="✅ Healthy"; 
+              elif [ "$CONCLUSION" == "failure" ]; then HEALTH_ICON="❌ Failing"; 
+              elif [ "$CONCLUSION" == "cancelled" ]; then HEALTH_ICON="🚫 Cancelled";
+              elif [ "$CONCLUSION" == "never ran" ]; then HEALTH_ICON="💤 Sleeping"; fi
+              
+              # Format Date
+              if [ "$CREATED_AT" != "N/A" ]; then
+                DATE_DISPLAY=$(date -d "$CREATED_AT" "+%Y-%m-%d %H:%M")
+              else
+                DATE_DISPLAY="Never"
+              fi
+              
+              echo "| **$NAME** | $STATUS_ICON | [$HEALTH_ICON]($RUN_URL) | $DATE_DISPLAY | \`$FILENAME\` |" >> $FILE
+            done
+            
+            echo "" >> $FILE
+            echo "### 🎮 Control Center" >> $FILE
+            echo "To interact with these agents (Start, Stop, Disable), use the [Mission Control Workflow](${{ github.server_url }}/${{ github.repository }}/actions/workflows/agent-mission-control.yml)." >> $FILE
+            
+            # Commit changes if any
+            if [[ -n $(git status -s $FILE) ]]; then
+              git config --global user.name "Mission Control Agent"
+              git config --global user.email "agent@widgettdc.local"
+              git add $FILE
+              git commit -m "docs: update agent dashboard [skip ci]"
+              git push
+              echo "✅ Dashboard updated."
+            else
+              echo "No changes to dashboard."
+            fi
+          }
+
+          # --- COMMAND EXECUTION ---
+
+          if [ "$COMMAND" == "status" ]; then
+            update_dashboard
+            
+          elif [ "$COMMAND" == "start" ]; then
+            if [ "$TARGET" == "all" ]; then
+              echo "⚠️ Cannot start 'all' agents at once. Please specify a target filename."
+              exit 1
+            fi
+            echo "▶️ Starting Agent: $TARGET"
+            gh workflow run "$TARGET"
+            echo "✅ Trigger request sent."
+            
+          elif [ "$COMMAND" == "stop" ]; then
+             if [ "$TARGET" == "all" ]; then
+              echo "⚠️ Cannot stop 'all' agents. Please specify a target filename."
+              exit 1
+            fi
+            echo "🛑 Stopping currently running jobs for: $TARGET"
+            # Find running ID and cancel
+            RUN_ID=$(gh run list --workflow "$TARGET" --status in_progress --json databaseId --jq '.[0].databaseId')
+            if [ -n "$RUN_ID" ]; then
+              gh run cancel "$RUN_ID"
+              echo "✅ Run $RUN_ID cancelled."
+            else
+              echo "No active runs found for $TARGET."
+            fi
+
+          elif [ "$COMMAND" == "enable" ]; then
+            echo "🟢 Enabling Agent: $TARGET"
+            gh workflow enable "$TARGET"
+            update_dashboard
+
+          elif [ "$COMMAND" == "disable" ]; then
+            echo "⚫ Disabling Agent: $TARGET"
+            gh workflow disable "$TARGET"
+            update_dashboard
+          fi

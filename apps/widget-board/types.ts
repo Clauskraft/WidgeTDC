@@ -46,7 +46,8 @@ export type WidgetCategory =
   | 'business'
   | 'communication'
   | 'system'
-  | 'project-management';
+  | 'project-management'
+  | 'testing';
 
 export interface WidgetProps {
   widgetId: string;

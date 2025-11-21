@@ -12,17 +12,17 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         name: 'AI Agent Chat',
         category: 'ai-agents',
         component: lazy(() => import('../widgets/AgentChatWidget')),
-        defaultLayout: { w: 4, h: 10 },
+        defaultLayout: { w: 3, h: 6 },
         source: 'proprietary',
-        minW: 3,
-        minH: 5,
+        minW: 2,
+        minH: 4,
     },
     {
         id: 'PromptLibraryWidget',
         name: 'Prompt Library',
         category: 'ai-agents',
         component: lazy(() => import('../widgets/PromptLibraryWidget')),
-        defaultLayout: { w: 3, h: 8 },
+        defaultLayout: { w: 3, h: 6 },
         source: 'proprietary',
         minW: 2,
         minH: 4,
@@ -32,17 +32,20 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         name: 'Widget Importer',
         category: 'system',
         component: lazy(() => import('../widgets/WidgetImporterWidget')),
-        defaultLayout: { w: 5, h: 12 },
+        defaultLayout: { w: 4, h: 8 },
         source: 'builtin',
-        minW: 4,
-        minH: 8,
+        minW: 3,
+        minH: 5,
     },
-    // ... Tilføj andre widgets her på samme måde
-    // {
-    //   id: 'SystemSettingsWidget',
-    //   name: 'System Settings',
-    //   category: 'system',
-    //   component: lazy(() => import('../widgets/SystemSettingsWidget')),
-    //   ...
-    // }
+    {
+        id: 'AgentTeamBuilderWidget',
+        name: 'Agent Team Builder',
+        category: 'testing',
+        component: lazy(() => import('../widgets/AgentTeamBuilderWidget')),
+        defaultLayout: { w: 4, h: 6 },
+        source: 'builtin',
+        minW: 3,
+        minH: 4,
+    },
+    // Add other widgets here as needed
 ];

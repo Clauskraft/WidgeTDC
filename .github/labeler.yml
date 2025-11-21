@@ -1,0 +1,30 @@
+# Area Labels
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: ['apps/widget-board/**']
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: ['apps/backend/**']
+
+shared:
+  - changed-files:
+      - any-glob-to-any-file: ['packages/shared/**']
+
+# Type Labels
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ['**/*.md', 'docs/**']
+
+configuration:
+  - changed-files:
+      - any-glob-to-any-file: ['**/*.json', '**/*.yml', '**/*.yaml', '.github/**']
+
+# Specific Agents/Features
+agent-system:
+  - changed-files:
+      - any-glob-to-any-file: ['**/agents/**', '**/mcp/**']
+
+database:
+  - changed-files:
+      - any-glob-to-any-file: ['**/database/**', '**/*.sql', '**/*.sqlite']
