@@ -1,7 +1,49 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import SearchInterfaceWidget from '../SearchInterfaceWidget';
+
+// Mock the security API
+vi.mock('../utils/securityApi', () => ({
+  fetchSecurityTemplates: vi.fn().mockResolvedValue({
+    templates: [
+      {
+        id: 'tpl-high-severity',
+        name: 'High fidelity alerts',
+        query: 'credential leak finance exec',
+        severity: 'critical',
+        timeframe: '24h',
+        sources: ['Dark Web', 'Feed Ingestion'],
+      },
+    ],
+  }),
+  fetchSecuritySearchHistory: vi.fn().mockResolvedValue({ history: [] }),
+  runSecuritySearch: vi.fn().mockResolvedValue({
+    results: [
+      {
+        id: 'sr-1',
+        title: 'Test result',
+        summary: 'Test summary',
+        source: 'Feed Ingestion',
+        severity: 'critical',
+        timestamp: new Date().toISOString(),
+        tags: ['test'],
+        score: 0.95,
+      },
+    ],
+    metrics: { latencyMs: 100, totalDocs: 1000, coverage: 0.9 },
+    auditEntry: {
+      id: 'hist-1',
+      query: 'credential leak finance exec',
+      severity: 'critical',
+      timeframe: '24h',
+      sources: ['Dark Web', 'Feed Ingestion'],
+      results: 1,
+      latencyMs: 100,
+      ranAt: new Date().toISOString(),
+    },
+  }),
+}));
 
 describe('SearchInterfaceWidget', () => {
   it('smoke test: renders query builder and results', () => {
@@ -22,8 +64,16 @@ describe('SearchInterfaceWidget', () => {
     await user.click(screen.getByRole('button', { name: /Run query/i }));
 
     expect(screen.getByDisplayValue(/credential leak finance exec/i)).toBeInTheDocument();
-    expect(await screen.findAllByTestId('search-result')).not.toHaveLength(0);
-    expect(screen.getAllByTestId('search-history-row').length).toBeGreaterThan(0);
+
+    // Wait for search results to appear
+    await waitFor(() => {
+      expect(screen.getAllByTestId('search-result')).not.toHaveLength(0);
+    });
+
+    // History should be populated after search completes
+    await waitFor(() => {
+      expect(screen.getAllByTestId('search-history-row').length).toBeGreaterThan(0);
+    });
   });
 });
 

@@ -26,9 +26,19 @@ import { securityRouter } from './services/security/securityController.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Security & Validation Middleware (FIX #2: Input validation)
+import {
+  inputValidationMiddleware,
+  csrfProtectionMiddleware,
+  rateLimitingMiddleware
+} from './middleware/inputValidation.js';
+
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // FIX #1: Limit payload size
+app.use(rateLimitingMiddleware); // Prevent DOS attacks
+app.use(inputValidationMiddleware); // Sanitize all inputs
+app.use(csrfProtectionMiddleware); // CSRF protection
 
 // Initialize database
 getDatabase();
