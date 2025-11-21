@@ -1,9 +1,10 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { LayoutGrid, Shield, Network, FileText, Sun, Moon, Menu, X, Search, Plus, Settings, Trash2 } from 'lucide-react';
+import { LayoutGrid, Shield, Network, FileText, Sun, Moon, Menu, X, Search, Plus, Settings, Trash2, Zap } from 'lucide-react';
 import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import WidgetSelector from './components/WidgetSelector';
+import AgentPanel from './components/AgentPanel';
 import { useWidgetRegistry } from './contexts/WidgetRegistryContext';
 import { useWidgetStore } from './components/widgetStore';
 import { WidgetInstance } from './types';
@@ -18,6 +19,8 @@ export default function WidgeTDCPro() {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isWidgetSelectorOpen, setIsWidgetSelectorOpen] = useState(false);
+    const [isAgentPanelOpen, setIsAgentPanelOpen] = useState(false);
+    const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
     const [settingsWidgetId, setSettingsWidgetId] = useState<string | null>(null);
 
     // Load widget layout from localStorage
@@ -165,6 +168,19 @@ export default function WidgeTDCPro() {
                         <div className={`hidden sm:block px-2.5 py-1 rounded-full text-[10px] font-mono border transition-colors duration-500 ${isDarkMode ? 'bg-white/5 border-white/10 text-slate-400' : 'bg-white/40 border-white/40 text-slate-500 shadow-sm backdrop-blur-sm'}`}>PRO_BUILD_2405</div>
                     </div>
                     <div className="flex items-center gap-6">
+                        {/* Agents Button */}
+                        <button
+                            onClick={() => setIsAgentPanelOpen(true)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${isDarkMode
+                                ? 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30'
+                                : 'bg-purple-500 hover:bg-purple-600 text-white shadow-lg'
+                                }`}
+                            title="View and manage agents"
+                        >
+                            <Zap size={20} />
+                            <span className="hidden md:inline">Agents</span>
+                        </button>
+
                         {/* Add Widget Button */}
                         <button
                             onClick={() => setIsWidgetSelectorOpen(true)}
@@ -300,6 +316,29 @@ export default function WidgeTDCPro() {
                 onAddWidget={handleToggleWidget}
                 activeWidgets={widgets.map(w => w.widgetType)}
             />
+
+            {/* Agent Panel Modal */}
+            {isAgentPanelOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
+                    <div className="py-8">
+                        <div className="flex justify-end mb-4">
+                            <button
+                                onClick={() => setIsAgentPanelOpen(false)}
+                                className={`px-4 py-2 rounded-lg font-medium transition-all ${isDarkMode
+                                    ? 'bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30'
+                                    : 'bg-red-500 hover:bg-red-600 text-white'
+                                    }`}
+                            >
+                                ✕ Close
+                            </button>
+                        </div>
+                        <AgentPanel
+                            onAgentSelect={(agent) => setSelectedAgent(agent.id)}
+                            selectedAgentId={selectedAgent || undefined}
+                        />
+                    </div>
+                </div>
+            )}
 
             {/* Widget Settings Modal */}
             {settingsWidgetId && (

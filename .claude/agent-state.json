@@ -80,6 +80,54 @@
         "token_usage": 900,
         "last_activity": "2025-11-18T01:28:00.000000",
         "current_task": "block-6"
+      },
+      "dashboard-shell-ui": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:06.072192",
+        "workload": 0,
+        "health": "unhealthy"
+      },
+      "widget-registry-v2": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:06.328719",
+        "workload": 0,
+        "health": "unhealthy"
+      },
+      "audit-log-hash-chain": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:06.578925",
+        "workload": 0,
+        "health": "unhealthy"
+      },
+      "database-foundation": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:06.879242",
+        "workload": 0,
+        "health": "unhealthy"
+      },
+      "testing-infrastructure": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:07.205557",
+        "workload": 0,
+        "health": "unhealthy"
+      },
+      "security-compliance": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:07.553409",
+        "workload": 0,
+        "health": "unhealthy"
+      },
+      "ui-graphics-master": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:07.902067",
+        "workload": 0,
+        "health": "unhealthy"
+      },
+      "deepseek-llm": {
+        "status": "failed",
+        "timestamp": "2025-11-21T21:36:08.079464",
+        "workload": 0,
+        "health": "unhealthy"
       }
     },
     "summary": {
