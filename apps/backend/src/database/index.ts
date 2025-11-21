@@ -7,9 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 interface Database {
-  run: (sql: string, params?: any[]) => { changes: number; lastID?: number };
-  all: (sql: string, params?: any[]) => any[];
-  get: (sql: string, params?: any[]) => any;
+  run: (sql: string, params?: unknown[]) => { changes: number; lastID?: number };
+  all: (sql: string, params?: unknown[]) => unknown[];
+  get: (sql: string, params?: unknown[]) => unknown;
   exec: (sql: string) => void;
   close: () => void;
 }
@@ -31,24 +31,24 @@ export async function getDatabase(): Promise<Database> {
   }
 
   return {
-    run: (sql: string, params: any[] = []) => {
+    run: (sql: string, params: unknown[] = []) => {
       const stmt = db.prepare(sql);
       stmt.bind(params);
       stmt.step();
       stmt.free();
       return { changes: 1, lastID: Date.now() };
     },
-    all: (sql: string, params: any[] = []) => {
+    all: (sql: string, params: unknown[] = []) => {
       const stmt = db.prepare(sql);
       stmt.bind(params);
-      const results: any[] = [];
+      const results: unknown[] = [];
       while (stmt.step()) {
         results.push(stmt.getAsObject());
       }
       stmt.free();
       return results;
     },
-    get: (sql: string, params: any[] = []) => {
+    get: (sql: string, params: unknown[] = []) => {
       const stmt = db.prepare(sql);
       stmt.bind(params);
       if (stmt.step()) {

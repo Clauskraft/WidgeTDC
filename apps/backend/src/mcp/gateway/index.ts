@@ -48,7 +48,7 @@ wss.on('connection', (ws, req) => {
 
 // Notification route (for Epic 18)
 app.post('/api/notifications/push', authMiddleware, async (req, res) => {
-  const { subscription: _subscription, payload: _payload } = req.body;
+  // const { subscription: _subscription, payload: _payload } = req.body;
   // TODO: Use web-push to send
   // TODO: Integrate with aulaPoller
   res.json({ success: true });
