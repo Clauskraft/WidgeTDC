@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
+import '@testing-library/jest-dom';
 import SearchInterfaceWidget from '../SearchInterfaceWidget';
 
 // Mock the security API

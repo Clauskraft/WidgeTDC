@@ -37,7 +37,9 @@
       "Bash(tasklist:*)",
       "Bash(findstr:*)",
       "Bash(powershell -Command \"& ''''C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vs_installer.exe'''' modify --productId Microsoft.VisualStudio.Product.BuildTools --add Microsoft.VisualStudio.Component.VC.v142.x64 --add Microsoft.VisualStudio.Component.VC.v142.x86 --passive --norestart\")",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(npm run)",
+      "Bash(npm test:*)"
     ],
     "deny": [],
     "ask": []

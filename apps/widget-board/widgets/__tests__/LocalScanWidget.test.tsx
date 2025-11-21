@@ -30,7 +30,7 @@ describe('LocalScanWidget', () => {
   it('toggles auto-scan and updates UI', async () => {
     mockMcpSend.mockResolvedValue({ payload: { files: [] } });
     render(<LocalScanWidget widgetId="test" />);
-    const checkbox = screen.getByLabelText(/Auto-scan/i);
+    const checkbox = screen.getByRole('checkbox');
 
     await act(async () => {
       fireEvent.click(checkbox);
@@ -65,7 +65,7 @@ describe('LocalScanWidget', () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/Scan failed/)).toBeInTheDocument();
+      expect(screen.getByText(/Scan failed.*Access denied/)).toBeInTheDocument();
     });
   });
 });
