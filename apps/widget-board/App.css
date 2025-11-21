@@ -417,6 +417,30 @@
 /* === DRAG HANDLE === */
 .widget-drag-handle {
   cursor: move !important;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none;
+}
+
+/* === PREVENT DRAG FROM INTERACTIVE ELEMENTS === */
+.ms-widget-container input,
+.ms-widget-container textarea,
+.ms-widget-container select,
+.ms-widget-container button,
+.ms-widget-container [contenteditable="true"],
+.ms-widget-container a {
+  user-select: auto;
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  touch-action: auto;
+}
+
+/* Prevent drag interference on text content area */
+.ms-widget-container > div:last-child {
+  user-select: text;
 }
 
 /* === SPECTACULAR ENHANCEMENTS === */

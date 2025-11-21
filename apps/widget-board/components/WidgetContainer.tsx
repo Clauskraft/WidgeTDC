@@ -95,6 +95,18 @@ const WidgetContainer: React.FC<WidgetContainerProps> = memo(({
   const zoomOut = useCallback(() => setScale(prev => Math.max(prev - 0.1, 0.5)), []);
   const resetZoom = useCallback(() => setScale(1), []);
 
+  // Prevent drag when clicking on interactive elements
+  const handleContentMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    const isInteractive = target.matches(
+      'input, textarea, select, button, a, [contenteditable="true"]'
+    ) || target.closest('input, textarea, select, button, a, [contenteditable="true"]');
+
+    if (isInteractive) {
+      e.stopPropagation();
+    }
+  }, []);
+
   if (!widgetDef) {
     return (
       <div className="p-4 text-red-500 bg-red-100 dark:bg-red-900 h-full flex items-center justify-center rounded-lg">
@@ -122,7 +134,10 @@ const WidgetContainer: React.FC<WidgetContainerProps> = memo(({
           onOpenConfig={() => setIsConfigOpen(true)}
           onRemove={onRemove}
         />
-        <div className="flex-1 overflow-auto p-4 relative">
+        <div
+          className="flex-1 overflow-auto p-4 relative"
+          onMouseDown={handleContentMouseDown}
+        >
           <Suspense fallback={<WidgetLoader />}>
             <WidgetComponent widgetId={widgetId} config={config || {}} />
           </Suspense>

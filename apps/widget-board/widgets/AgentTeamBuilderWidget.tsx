@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AcrylicCard } from '../components/AcrylicCard';
+import AcrylicCard from '../components/AcrylicCard';
 
 /**
  * AgentTeamBuilderWidget
@@ -27,57 +27,55 @@ interface Group {
 }
 
 export const AgentTeamBuilderWidget: React.FC = () => {
-    // ... (existing implementation unchanged)
+    const [groups, setGroups] = useState<Group[]>([]);
+
+    useEffect(() => {
+        const generatedGroups: Group[] = [];
+        for (let g = 1; g <= 22; g++) {
+            const agents: Agent[] = [];
+            for (let a = 1; a <= 20; a++) {
+                agents.push({
+                    id: `G${g}-A${a}`,
+                    area: `Area ${a}`,
+                });
+            }
+            generatedGroups.push({
+                id: `Group-${g}`,
+                agents,
+                passes: 5,
+            });
+        }
+        setGroups(generatedGroups);
+    }, []);
+
+    return (
+        <AcrylicCard
+            isDarkMode={false}
+            title="Agent Team Builder"
+            className="h-full"
+        >
+            <div className="overflow-auto h-full">
+                <table className="w-full text-sm border-collapse">
+                    <thead className="bg-gray-100 dark:bg-gray-800">
+                        <tr>
+                            <th className="p-2 text-left">Group</th>
+                            <th className="p-2 text-left">Agents (count)</th>
+                            <th className="p-2 text-left">Passes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {groups.map((g) => (
+                            <tr key={g.id} className="border-b border-gray-200 dark:border-gray-700">
+                                <td className="p-2">{g.id}</td>
+                                <td className="p-2">{g.agents.length}</td>
+                                <td className="p-2">{g.passes}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </AcrylicCard>
+    );
 };
 
 export default AgentTeamBuilderWidget;
-const [groups, setGroups] = useState<Group[]>([]);
-
-useEffect(() => {
-    const generatedGroups: Group[] = [];
-    for (let g = 1; g <= 22; g++) {
-        const agents: Agent[] = [];
-        for (let a = 1; a <= 20; a++) {
-            agents.push({
-                id: `G${g}-A${a}`,
-                area: `Area ${a}`,
-            });
-        }
-        generatedGroups.push({
-            id: `Group-${g}`,
-            agents,
-            passes: 5,
-        });
-    }
-    setGroups(generatedGroups);
-}, []);
-
-return (
-    <AcrylicCard
-        isDarkMode={false}
-        title="Agent Team Builder"
-        className="h-full"
-    >
-        <div className="overflow-auto h-full">
-            <table className="w-full text-sm border-collapse">
-                <thead className="bg-gray-100 dark:bg-gray-800">
-                    <tr>
-                        <th className="p-2 text-left">Group</th>
-                        <th className="p-2 text-left">Agents (count)</th>
-                        <th className="p-2 text-left">Passes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {groups.map((g) => (
-                        <tr key={g.id} className="border-b border-gray-200 dark:border-gray-700">
-                            <td className="p-2">{g.id}</td>
-                            <td className="p-2">{g.agents.length}</td>
-                            <td className="p-2">{g.passes}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
-    </AcrylicCard>
-);
-};
