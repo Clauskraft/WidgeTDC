@@ -1,240 +1,246 @@
-name: HansPedder Orchestrator
+name: HansPedder Orchestrator (Ultimate Autonomy)
 
 on:
+  # Kører hver time for at tjekke systemets helbred og rydde op
+  schedule:
+    - cron: '0 * * * *'
+  # Kører også når agenterne åbner eller opdaterer PRs
   pull_request:
     types: [opened, synchronize]
-  schedule:
-    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 env:
   ORCHESTRATOR_NAME: HansPedder
-  MIN_STORY_POINTS: 1
-  MAX_STORY_POINTS: 100
+  # HansPedders viden om hvem der laver hvad (udvid efter behov)
+  AGENT_CONFIG: >-
+    {
+      "FrontendAgent": ["css", "style", "ui", "ux", "design", "html", "frontend", "tailwind", "button", "view"],
+      "BackendAgent": ["api", "json", "server", "controller", "java", "c#", "route", "endpoint", "auth"],
+      "DataAgent": ["db", "sql", "database", "schema", "query", "postgres", "migration", "table", "column"],
+      "DevOpsAgent": ["ci", "cd", "docker", "yaml", "cloud", "deploy", "build", "terraform", "pipeline", "action"]
+    }
 
 jobs:
-  orchestrate-agent-prs:
+  orchestrate-system:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+      checks: read
+      statuses: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Nødvendigt for at kunne lave git revert
 
       - name: Configure Git identity
         run: |
           git config user.name "HansPedder Orchestrator"
           git config user.email "hanspedder@widgettdc.dev"
 
-      - name: Discover all open agent PRs
-        id: discover
+      - name: 🧠 HansPedder Brain (Orchestrate & Protect)
+        id: orchestrate
         env:
           GH_TOKEN: ${{ github.token }}
+          CONFIG: ${{ env.AGENT_CONFIG }}
+        shell: python
         run: |
-          echo "Discovering agent PRs..."
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
 
-          gh pr list --state open --json number,title,body,author,headRefName > prs.json
+          # Helper til at køre shell kommandoer
+          def run_command(cmd):
+              result = subprocess.run(cmd, capture_output=True, text=True)
+              if result.returncode != 0:
+                  # Vi kaster kun fejl ved kritiske git operationer, ikke ved 'not found' checks
+                  if "git" in cmd[0]:
+                      raise Exception(f"Command failed: {result.stderr}")
+              return result.stdout.strip()
 
-          cat prs.json | jq -r '.[] | select(.body | contains("Agent:")) | "\(.number)|\(.title)|\(.headRefName)"' > agent_prs.txt
+          try:
+              print("🤖 HansPedder vågner op. Starter driftsrutine...")
+              
+              agent_keywords = json.loads(os.environ['CONFIG'])
+              orchestrator_name = "HansPedder"
+              actions_log = []
+              
+              # =========================================================
+              # FASE 1: PR ORKESTRERING (Manager Rollen)
+              # =========================================================
+              print("\n--- 1. Analyserer Pull Requests ---")
+              prs_json = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
+              prs = json.loads(prs_json)
+              
+              for pr in prs:
+                  # Ignorer egne PRs for at undgå loops
+                  if pr['author']['login'] == "github-actions": continue 
+                  
+                  number = pr['number']
+                  title = pr['title']
+                  body = pr['body'] if pr['body'] else ""
+                  original_body = body
+                  
+                  print(f"Behandler PR #{number}: {title}")
 
-          if [ -s agent_prs.txt ]; then
-            echo "Found agent PRs:"
-            cat agent_prs.txt
-            echo "agent_prs_found=true" >> $GITHUB_OUTPUT
-          else
-            echo "No agent PRs found"
-            echo "agent_prs_found=false" >> $GITHUB_OUTPUT
-          fi
+                  # A. Data Udtræk
+                  agent_match = re.search(r'Agent:\s*([A-Za-z0-9_]+)', body)
+                  block_match = re.search(r'Block:\s*(\d+)', body)
+                  
+                  current_agent = agent_match.group(1) if agent_match else None
+                  current_block = block_match.group(1) if block_match else "99" # Default: Maintenance
+                  
+                  # B. Smart Allokering (hvis agent mangler)
+                  if not current_agent:
+                      full_text = (title + " " + body).lower()
+                      best_agent = orchestrator_name
+                      max_matches = 0
+                      
+                      for name, keys in agent_keywords.items():
+                          matches = sum(1 for k in keys if k in full_text)
+                          if matches > max_matches:
+                              max_matches = matches
+                              best_agent = name
+                      
+                      current_agent = best_agent
+                      body += f"\nAgent: {current_agent}"
+                      actions_log.append(f"PR #{number}: Allokeret til {current_agent}")
 
-      - name: Parse and validate agent PRs
-        id: validate
-        if: steps.discover.outputs.agent_prs_found == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Validating agent PRs..."
+                  # C. Standardisering af metadata
+                  if not block_match: body += f"\nBlock: {current_block}"
+                  if "Points:" not in body: body += "\nPoints: 1"
 
-          > validated_prs.txt
-          > validation_report.md
-          echo "# HansPedder PR Validation Report" >> validation_report.md
-          echo "" >> validation_report.md
-          echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> validation_report.md
-          echo "" >> validation_report.md
+                  # Opdater PR body hvis ændret
+                  if body != original_body:
+                      run_command(["gh", "pr", "edit", str(number), "--body", body])
+                  
+                  # D. Semantisk Titel Fix
+                  # Fjerner emojis og 'READY FOR MERGE' tekst for at lave ren titel
+                  clean_title = re.sub(r'[^a-zA-Z0-9 ]', '', title.replace("READY FOR MERGE", "")).strip()
+                  
+                  # Tjekker om den allerede er compliant (feat:, fix:, etc.)
+                  if not re.match(r'^(feat|fix|docs|chore|style|refactor|perf|test|build|ci|revert):', clean_title):
+                      # Gætter type: fix hvis 'fix' indgår, ellers feat
+                      prefix = "fix" if "fix" in clean_title.lower() else "feat"
+                      new_title = f"{prefix}: [{current_agent}] Block {current_block} - {clean_title}"
+                      
+                      # Klipper titel hvis for lang
+                      if len(new_title) > 200: new_title = new_title[:197] + "..."
+                      
+                      run_command(["gh", "pr", "edit", str(number), "--title", new_title])
+                      print(f"  > Omdøbt til: {new_title}")
 
-          total_points=0
-          valid_count=0
+                  # E. Auto-Merge Forsøg
+                  # --auto flaget fortæller GitHub at merge NÅR checks passerer
+                  try:
+                      run_command(["gh", "pr", "merge", str(number), "--squash", "--auto", "--delete-branch"])
+                      print(f"  > Auto-merge aktiveret for PR #{number}")
+                  except Exception:
+                      pass # Kan fejle hvis der er konflikter, men det er OK (vi prøver igen næste time)
 
-          while IFS='|' read -r pr_number pr_title pr_branch; do
-            echo "" >> validation_report.md
-            echo "## PR #$pr_number: $pr_title" >> validation_report.md
+              # =========================================================
+              # FASE 2: CIRCUIT BREAKER (Driftschef Rollen)
+              # =========================================================
+              print("\n--- 2. System Health Check (Main Branch) ---")
+              
+              # Hent status på seneste kørsel på main
+              runs_json = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "status,conclusion,url,headSha"])
+              runs = json.loads(runs_json)
+              
+              if runs:
+                  latest_run = runs[0]
+                  status = latest_run['status']
+                  conclusion = latest_run['conclusion']
+                  
+                  print(f"Status på main: {status} - {conclusion}")
+                  
+                  # Hvis buildet er færdigt og fejlet -> ALARM
+                  if status == "completed" and conclusion == "failure":
+                      print("🚨 KRITISK: Build på main er fejlet! Starter NØD-PROCEDURE.")
+                      
+                      bad_commit = latest_run['headSha']
+                      
+                      # Tjek om vi allerede har reageret (for at undgå uendeligt loop af rollbacks)
+                      issues_json = run_command(["gh", "issue", "list", "--state", "open", "--search", "Auto-Rollback", "--json", "title"])
+                      
+                      if f"Reverted {bad_commit[:7]}" not in str(issues_json):
+                          try:
+                              # 1. Synkroniser local git
+                              run_command(["git", "fetch", "origin", "main"])
+                              run_command(["git", "checkout", "main"])
+                              run_command(["git", "pull", "origin", "main"])
+                              
+                              # 2. Udfør Revert
+                              print(f"Reverting commit {bad_commit}...")
+                              run_command(["git", "revert", bad_commit, "--no-edit"])
+                              
+                              # 3. Push ændringen (dette trigger et nyt, forhåbentlig grønt build)
+                              run_command(["git", "push", "origin", "main"])
+                              print("✅ Rollback udført succesfuldt.")
+                              
+                              # 4. Opret Issue til DevOpsAgent
+                              issue_title = f"🛡️ Auto-Rollback: Reverted {bad_commit[:7]}"
+                              issue_body = f"""
+                              ### 🛡️ System Protection Triggered
+                              HansPedder her. Buildet på `main` fejlede, så jeg har rullet ændringen tilbage for at sikre driften.
+                              
+                              - **Bad Commit:** {bad_commit}
+                              - **Failed Run:** {latest_run['url']}
+                              
+                              **Opgave:**
+                              @DevOpsAgent - Analyser venligst hvorfor buildet fejlede lokalt, før du forsøger at merge igen.
+                              """
+                              run_command(["gh", "issue", "create", "--title", issue_title, "--body", issue_body, "--label", "bug,urgent"])
+                              
+                          except Exception as e:
+                              print(f"❌ Rollback fejlede: {str(e)}")
+                              raise e # Dette vil trigger mail-steppet nedenfor
+                      else:
+                          print("Rollback allerede udført for denne commit. Afventer manuelt fix.")
+                  
+                  elif conclusion == "success":
+                      print("✅ Systemet er sundt. Ingen handling påkrævet.")
 
-            pr_body=$(gh pr view "$pr_number" --json body -q '.body')
+              # Gem statistik til output
+              with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+                  print("status=success", file=fh)
 
-            agent=$(echo "$pr_body" | grep -oP 'Agent:\s*\K[A-Za-z0-9_]+' || echo "")
-            block=$(echo "$pr_body" | grep -oP 'Block:\s*\K\d+' || echo "")
-            points=$(echo "$pr_body" | grep -oP 'Points:\s*\K\d+' || echo "")
+          except Exception as e:
+              print(f"FATAL ERROR I HANSPEDDER: {str(e)}")
+              # Skriv fejlen til log fil så mailen kan læse den (hvis vi vil udvide det)
+              sys.exit(1)
 
-            echo "- **Agent:** $agent" >> validation_report.md
-            echo "- **Block:** $block" >> validation_report.md
-            echo "- **Points:** $points" >> validation_report.md
+      # =========================================================
+      # FASE 3: FAILSAFE (Human-in-the-loop)
+      # =========================================================
+      - name: 🆘 Send Nød-mail til Claus
+        if: failure() # Kører KUN hvis Python scriptet crasher
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🔥 HansPedder System Crash / Rollback Fejl"
+          to: clauskraft@gmail.com
+          from: "HansPedder Orchestrator"
+          body: |
+            Hej Claus,
 
-            valid=true
+            Dette er en nødmeddelelse. Din orkestrator agent (HansPedder) er stødt på en kritisk fejl, som han ikke selv kunne løse.
+            
+            Det kan skyldes:
+            1. En fejl i selve orkestrerings-scriptet.
+            2. Et forsøg på automatisk rollback, der fejlede.
 
-            if [ -z "$agent" ]; then
-              echo "- **Status:** INVALID - Missing agent name" >> validation_report.md
-              valid=false
-            fi
+            Se loggen her for detaljer:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            if [ -z "$block" ]; then
-              echo "- **Status:** INVALID - Missing block number" >> validation_report.md
-              valid=false
-            fi
-
-            if [ -z "$points" ]; then
-              echo "- **Status:** INVALID - Missing story points" >> validation_report.md
-              valid=false
-            elif [ "$points" -lt "$MIN_STORY_POINTS" ] || [ "$points" -gt "$MAX_STORY_POINTS" ]; then
-              echo "- **Status:** INVALID - Story points out of range ($points)" >> validation_report.md
-              valid=false
-            fi
-
-            if [ "$valid" = true ]; then
-              echo "- **Status:** VALID - Ready for merge" >> validation_report.md
-              echo "$pr_number|$agent|$block|$points|$pr_branch" >> validated_prs.txt
-              total_points=$((total_points + points))
-              valid_count=$((valid_count + 1))
-            fi
-
-          done < agent_prs.txt
-
-          echo "" >> validation_report.md
-          echo "---" >> validation_report.md
-          echo "" >> validation_report.md
-          echo "## Summary" >> validation_report.md
-          echo "- **Valid PRs:** $valid_count" >> validation_report.md
-          echo "- **Total Story Points:** $total_points" >> validation_report.md
-
-          cat validation_report.md
-
-          if [ -s validated_prs.txt ]; then
-            echo "validated_prs_exist=true" >> $GITHUB_OUTPUT
-            echo "total_points=$total_points" >> $GITHUB_OUTPUT
-            echo "valid_count=$valid_count" >> $GITHUB_OUTPUT
-          else
-            echo "validated_prs_exist=false" >> $GITHUB_OUTPUT
-          fi
-
-
-      - name: Merge validated PRs
-        if: steps.validate.outputs.validated_prs_exist == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Merging validated PRs..."
-
-          > merge_report.md
-          echo "# HansPedder Merge Report" >> merge_report.md
-          echo "" >> merge_report.md
-          echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> merge_report.md
-          echo "" >> merge_report.md
-
-          merged_count=0
-          failed_count=0
-
-          while IFS='|' read -r pr_number agent block points branch; do
-            echo "" >> merge_report.md
-            echo "## PR #$pr_number: $agent (Block $block)" >> merge_report.md
-
-            echo "Attempting to merge PR #$pr_number..."
-
-            if gh pr merge "$pr_number" --squash --auto --delete-branch; then
-              echo "- **Result:** MERGED SUCCESSFULLY" >> merge_report.md
-              echo "- **Points Delivered:** $points" >> merge_report.md
-              echo "- **Branch Deleted:** $branch" >> merge_report.md
-              merged_count=$((merged_count + 1))
-              echo "PR #$pr_number merged successfully"
-            else
-              echo "- **Result:** MERGE FAILED" >> merge_report.md
-              echo "- **Reason:** Merge conflicts or failing checks" >> merge_report.md
-              failed_count=$((failed_count + 1))
-              echo "Failed to merge PR #$pr_number"
-            fi
-
-          done < validated_prs.txt
-
-          echo "" >> merge_report.md
-          echo "---" >> merge_report.md
-          echo "" >> merge_report.md
-          echo "## Summary" >> merge_report.md
-          echo "- **Merged:** $merged_count" >> merge_report.md
-          echo "- **Failed:** $failed_count" >> merge_report.md
-          echo "- **Total Points Delivered:** ${{ steps.validate.outputs.total_points }}" >> merge_report.md
-
-          cat merge_report.md
-
-      - name: Update project kanban board
-        if: steps.validate.outputs.validated_prs_exist == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Updating project kanban board..."
-
-          while IFS='|' read -r pr_number agent block points branch; do
-
-            gh issue comment "$pr_number" --body "Orchestrator Update
-
-          - Status: Merged to main
-          - Agent: $agent
-          - Block: $block
-          - Story Points: $points
-          - Completed: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          Thank you for your contribution!" 2>/dev/null || echo "Could not comment on PR #$pr_number"
-
-          done < validated_prs.txt
-
-          echo "Kanban board update complete"
-
-      - name: Generate orchestration summary
-        if: always()
-        run: |
-          echo "# HansPedder Orchestration Summary" > summary.md
-          echo "" >> summary.md
-          echo "**Run Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> summary.md
-          echo "**Trigger:** ${{ github.event_name }}" >> summary.md
-          echo "" >> summary.md
-
-          if [ -f validation_report.md ]; then
-            cat validation_report.md >> summary.md
-            echo "" >> summary.md
-          fi
-
-          if [ -f merge_report.md ]; then
-            cat merge_report.md >> summary.md
-            echo "" >> summary.md
-          fi
-
-          echo "## Orchestrator Status" >> summary.md
-          if [ "${{ steps.validate.outputs.validated_prs_exist }}" = "true" ]; then
-            echo "- PRs Processed: ${{ steps.validate.outputs.valid_count }}" >> summary.md
-            echo "- Story Points: ${{ steps.validate.outputs.total_points }}" >> summary.md
-            echo "- Status: ACTIVE" >> summary.md
-          else
-            echo "- Status: IDLE (No agent PRs to process)" >> summary.md
-          fi
-
-          echo "" >> summary.md
-          echo "---" >> summary.md
-          echo "**HansPedder Orchestrator** - Automated PR management for WidgetTDC multi-agent system" >> summary.md
-
-          cat summary.md
-
-      - name: Post summary to workflow
-        if: always()
-        run: |
-          if [ -f summary.md ]; then
-            echo "ORCHESTRATION_SUMMARY<<EOF" >> $GITHUB_STEP_SUMMARY
-            cat summary.md >> $GITHUB_STEP_SUMMARY
-            echo "EOF" >> $GITHUB_STEP_SUMMARY
-          fi
+            Vh,
+            HansPedder 🤖
