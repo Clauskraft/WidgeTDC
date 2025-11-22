@@ -10,6 +10,12 @@ from pathlib import Path
 from datetime import datetime
 
 
+def run_git_command(cmd, check=True):
+    """Run git command with consistent error handling"""
+    result = subprocess.run(cmd, capture_output=True, text=True, check=check)
+    return result
+
+
 def create_pr_for_cascade():
     """Create a GitHub PR with the latest cascade results"""
     try:
@@ -26,11 +32,11 @@ def create_pr_for_cascade():
         print(f"[PR] Creating GitHub PR for cascade iteration...")
 
         # Ensure we're on main and up to date
-        subprocess.run(["git", "checkout", "main"], check=False, capture_output=True)
-        subprocess.run(["git", "pull"], check=False, capture_output=True)
+        run_git_command(["git", "checkout", "main"], check=False)
+        run_git_command(["git", "pull"], check=False)
 
         # Create feature branch
-        subprocess.run(["git", "checkout", "-b", branch_name], check=True, capture_output=True)
+        run_git_command(["git", "checkout", "-b", branch_name])
 
         # Create cascade results directory and file
         results_dir = Path(".cascade")
@@ -48,7 +54,7 @@ def create_pr_for_cascade():
         }
 
         # Look for the latest SUMMARY line
-        for line in reversed(log_content.split("\n")):
+        for line in reversed(log_content.splitlines()):
             if "[SUMMARY]" in line:
                 summary_info["summary_line"] = line
                 break
@@ -56,17 +62,16 @@ def create_pr_for_cascade():
         results_file.write_text(json.dumps(summary_info, indent=2))
 
         # Stage and commit
-        subprocess.run(["git", "add", str(results_file)], check=True, capture_output=True)
-        subprocess.run(["git", "add", "cascade.log"], check=False, capture_output=True)
+        run_git_command(["git", "add", str(results_file)])
+        run_git_command(["git", "add", "cascade.log"], check=False)
 
         commit_msg = f"Cascade: Results from iteration {timestamp}"
-        subprocess.run(["git", "commit", "-m", commit_msg], check=True, capture_output=True)
+        run_git_command(["git", "commit", "-m", commit_msg])
 
         # Push branch
-        subprocess.run(["git", "push", "-u", "origin", branch_name], check=True, capture_output=True)
+        run_git_command(["git", "push", "-u", "origin", branch_name])
 
         # Create PR body with HansPedder Orchestrator compatible format
-        # NOTE: Agent, Block, Points must NOT be wrapped in markdown bold (**) for regex parsing
         pr_title = f"Cascade: Agent execution results ({timestamp})"
         pr_body = """## Agent Cascade Execution Complete
 
@@ -101,11 +106,14 @@ Status: Ready for HansPedder Orchestrator auto-merge"""
             print(f"[PR] Successfully created: {pr_url}")
             print(f"[PR] HansPedder can now process the cascade results")
             return True
-        else:
-            print(f"[PR] Failed to create PR")
-            print(f"[PR] Error: {result.stderr}")
-            return False
+        
+        print(f"[PR] Failed to create PR")
+        print(f"[PR] Error: {result.stderr}")
+        return False
 
+    except subprocess.CalledProcessError as e:
+        print(f"[ERROR] Git command failed: {str(e)}")
+        return False
     except Exception as e:
         print(f"[ERROR] PR creation failed: {str(e)}")
         return False
