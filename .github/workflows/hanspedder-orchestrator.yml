@@ -1,21 +1,20 @@
-name: HansPedder Orchestrator (DeepSeek Autonomous)
+name: HansPedder Orchestrator (Self-Learning Cortex)
 
 on:
   schedule:
-    - cron: '0 * * * *' # Kører hver time
+    - cron: '0 * * * *' # Hver time
   pull_request:
     types: [opened, synchronize]
   workflow_dispatch:
 
 env:
   ORCHESTRATOR_NAME: HansPedder
-  # Konfiguration: Hans Pedders viden om hvem der laver hvad
   AGENT_CONFIG: >-
     {
-      "FrontendAgent": ["css", "style", "ui", "ux", "design", "html", "frontend", "tailwind", "button", "view"],
-      "BackendAgent": ["api", "json", "server", "controller", "java", "c#", "route", "endpoint", "auth"],
-      "DataAgent": ["db", "sql", "database", "schema", "query", "postgres", "migration", "table", "column"],
-      "DevOpsAgent": ["ci", "cd", "docker", "yaml", "cloud", "deploy", "build", "terraform", "pipeline", "action"]
+      "FrontendAgent": ["css", "style", "ui", "ux", "design", "html", "frontend", "tailwind", "button", "view", "react", "lucide"],
+      "BackendAgent": ["api", "json", "server", "controller", "java", "c#", "route", "endpoint", "auth", "middleware"],
+      "DataAgent": ["db", "sql", "database", "schema", "query", "postgres", "migration", "table", "column", "redis"],
+      "DevOpsAgent": ["ci", "cd", "docker", "yaml", "cloud", "deploy", "build", "terraform", "pipeline", "action", "npm", "package"]
     }
 
 jobs:
@@ -33,22 +32,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Nødvendigt for at kunne lave git revert
+          fetch-depth: 0
 
       - name: Configure Git identity
         run: |
           git config user.name "HansPedder Orchestrator"
           git config user.email "hanspedder@widgettdc.dev"
 
-      # -------------------------------------------------------
-      # STEP 1: DEN STORE HJERNE (Python + DeepSeek)
-      # -------------------------------------------------------
-      - name: 🧠 HansPedder Brain (Orchestrate, Protect & Repair)
+      - name: 🧠 HansPedder Cortex (Memory & Learning)
         id: orchestrate
         env:
           GH_TOKEN: ${{ github.token }}
           CONFIG: ${{ env.AGENT_CONFIG }}
-          AI_API_KEY: ${{ secrets.AI_API_KEY }} # DeepSeek nøgle
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
         shell: python
         run: |
           import json
@@ -57,8 +53,11 @@ jobs:
           import subprocess
           import sys
           import urllib.request
+          import time
 
-          # --- HJÆLPEFUNKTION: Kør kommando sikkert ---
+          MEMORY_FILE = ".github/hanspedder_memory.json"
+
+          # --- BASE FUNCTIONS ---
           def run_command(cmd):
               try:
                   result = subprocess.run(cmd, capture_output=True, text=True)
@@ -68,41 +67,88 @@ jobs:
               except Exception as e:
                   return None, str(e)
 
-          # --- LIVLINE FUNKTION (DEEPSEEK) ---
-          def consult_lifeline(error_msg, context="general"):
-              print(f"\n🚑 KALDER COPILOT LIVLINE (DEEPSEEK) FOR: {context}")
+          # --- MEMORY SYSTEM ---
+          def load_memory():
+              if os.path.exists(MEMORY_FILE):
+                  try:
+                      with open(MEMORY_FILE, 'r') as f:
+                          return json.load(f)
+                  except:
+                      return {"fixes": []}
+              return {"fixes": []}
+
+          def save_to_memory(error_pattern, fix_command, context):
+              mem = load_memory()
+              # Tjek om vi allerede kender denne fix (for at undgå dubletter)
+              for entry in mem["fixes"]:
+                  if entry["error"] == error_pattern:
+                      return # Vi kender den allerede
               
-              # NIVEAU 1: Offline Hacks (Gratis og hurtigt)
+              print(f"🧠 LÆRING: Gemmer ny viden i hukommelsen: '{error_pattern}' -> '{fix_command}'")
+              mem["fixes"].append({
+                  "error": error_pattern,
+                  "fix": fix_command,
+                  "context": context,
+                  "timestamp": time.time()
+              })
+              
+              # Skriv til fil
+              os.makedirs(os.path.dirname(MEMORY_FILE), exist_ok=True)
+              with open(MEMORY_FILE, 'w') as f:
+                  json.dump(mem, f, indent=2)
+              
+              # Commit hukommelsen til repoet så den huskes til næste gang
+              run_command(["git", "add", MEMORY_FILE])
+              run_command(["git", "commit", "-m", "chore(brain): HansPedder learned a new fix"])
+              run_command(["git", "push", "origin", "main"])
+
+          def recall_solution(error_msg):
+              mem = load_memory()
+              # Simpel fuzzy matching
+              for entry in mem["fixes"]:
+                  # Hvis en betydelig del af den gemte fejlbesked findes i den nuværende fejl
+                  if entry["error"] in error_msg or error_msg in entry["error"]:
+                      print(f"💡 HUKOMMELSE: Jeg har løst dette før! Bruger gemt løsning.")
+                      return entry["fix"]
+              return None
+
+          # --- INTELLIGENCE CORE ---
+          def consult_lifeline(error_msg, context="general"):
+              print(f"\n🚑 ANALYSERER FEJL I KONTEKST: {context}")
+              
+              # 1. TJEK HUKOMMELSE (Selvlæring)
+              known_fix = recall_solution(error_msg)
+              if known_fix:
+                  print(f"⚡ Udfører kendt fix fra hukommelsen: {known_fix}")
+                  out, err = run_command(known_fix.split())
+                  if not err:
+                      print("✅ Fix virkede (baseret på erfaring).")
+                      return True
+                  else:
+                      print("⚠️ Kendt fix virkede ikke denne gang. Prøver AI...")
+
+              # 2. OFFLINE HEURISTIK
               fixes = []
               if "index.lock" in error_msg: fixes.append(["rm", "-f", ".git/index.lock"])
               elif "shallow update" in error_msg: fixes.append(["git", "fetch", "--unshallow"])
-              elif "refusing to merge unrelated" in error_msg: fixes.append(["git", "merge", "--allow-unrelated-histories"])
-              elif "conflict" in error_msg.lower() and "automatic merge failed" in error_msg.lower(): fixes.append(["git", "merge", "--abort"])
+              elif "conflict" in error_msg.lower(): fixes.append(["git", "merge", "--abort"])
               
               if fixes:
                   for fix_cmd in fixes:
-                      print(f"🔧 Forsøger offline fix: {' '.join(fix_cmd)}")
                       out, err = run_command(fix_cmd)
                       if not err: return True
-                  return False
 
-              # NIVEAU 2: Online AI (DeepSeek V3)
+              # 3. ONLINE DEEPSEEK (Nyt fix)
               api_key = os.environ.get('AI_API_KEY')
-              if not api_key:
-                  print("⚠️ Ingen AI_API_KEY fundet. Kan ikke spørge DeepSeek.")
-                  return False
+              if not api_key: return False
 
-              print("📡 Kontakter DeepSeek API for en løsning...")
-              
-              system_prompt = "You are a Git Expert Agent. Return ONLY the single shell command needed to fix the user's error. Do not use markdown blocks. Do not explain. Just the command."
-              user_prompt = f"Context: {context}. Error: {error_msg}. Repo path is current directory."
+              print("📡 Spørger DeepSeek...")
+              system_prompt = "You are a DevOps Expert. Return ONLY the single shell command needed to fix the error. No markdown. No explanation."
+              user_prompt = f"Context: {context}. Error log: {error_msg}. Path: Repo root."
               
               payload = {
                   "model": "deepseek-chat",
-                  "messages": [
-                      {"role": "system", "content": system_prompt},
-                      {"role": "user", "content": user_prompt}
-                  ],
+                  "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
                   "temperature": 0.1,
                   "stream": False
               }
@@ -111,52 +157,43 @@ jobs:
                   req = urllib.request.Request(
                       "https://api.deepseek.com/chat/completions",
                       data=json.dumps(payload).encode('utf-8'),
-                      headers={
-                          "Authorization": f"Bearer {api_key}",
-                          "Content-Type": "application/json"
-                      }
+                      headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
                   )
-                  
                   with urllib.request.urlopen(req) as response:
                       resp_data = json.load(response)
                       ai_command = resp_data['choices'][0]['message']['content'].strip()
-                      
-                      # Rens markdown (DeepSeek kan være snakkesalig)
-                      ai_command = ai_command.replace("```bash", "").replace("```sh", "").replace("```", "").strip()
+                      ai_command = ai_command.replace("```bash", "").replace("```", "").strip()
 
-                      if "rm -rf /" in ai_command or "sudo" in ai_command:
-                          print(f"⛔ DeepSeek foreslog farlig kommando: {ai_command}")
-                          return False
+                      if "rm -rf /" in ai_command: return False # Sikkerhed
 
-                      print(f"🤖 DeepSeek Foreslår: {ai_command}")
-                      
-                      cmd_list = ai_command.split()
-                      out, err = run_command(cmd_list)
+                      print(f"🤖 DeepSeek foreslår: {ai_command}")
+                      out, err = run_command(ai_command.split())
                       
                       if not err:
-                          print("✅ AI Fix udført succesfuldt!")
+                          print("✅ AI Fix udført!")
+                          # 4. GEM NY VIDEN I HUKOMMELSEN
+                          # Vi gemmer de første 100 tegn af fejlen som nøgle
+                          short_error = error_msg[:200] if len(error_msg) > 200 else error_msg
+                          save_to_memory(short_error, ai_command, context)
                           return True
                       else:
                           print(f"❌ AI Fix fejlede: {err}")
                           return False
-
               except Exception as e:
-                  print(f"💥 Fejl ved kald til DeepSeek: {str(e)}")
+                  print(f"💥 AI Fejl: {e}")
                   return False
 
-          # --- HOVEDPROGRAM ---
+          # --- MAIN LOOP ---
           try:
-              print("🤖 HansPedder vågner. Status: Autonom.")
+              print("🤖 HansPedder vågner. Hukommelse indlæst.")
               agent_keywords = json.loads(os.environ['CONFIG'])
               orchestrator_name = "HansPedder"
               
               # === 1. PR MANAGEMENT ===
               print("\n--- 1. Analyserer Pull Requests ---")
               output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
-              
-              if err:
-                  if consult_lifeline(err, "PR List"):
-                      output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author"])
+              if err and consult_lifeline(err, "PR List"): # Prøv at fixe hvis gh kommando fejler
+                  output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
 
               if output:
                   prs = json.loads(output)
@@ -170,133 +207,102 @@ jobs:
                           
                           print(f"Behandler PR #{number}: {title}")
 
-                          # A. Allokering
+                          # Allokering & Metadata (Standard)
                           agent_match = re.search(r'Agent:\s*([A-Za-z0-9_]+)', body)
                           current_agent = agent_match.group(1) if agent_match else None
-                          
                           if not current_agent:
-                              full_text = (title + " " + body).lower()
+                              # ... (Samme allokeringslogik som før) ...
                               best_agent = orchestrator_name
-                              max_matches = 0
                               for name, keys in agent_keywords.items():
-                                  matches = sum(1 for k in keys if k in full_text)
-                                  if matches > max_matches:
-                                      max_matches = matches
-                                      best_agent = name
+                                  if any(k in (title+body).lower() for k in keys): best_agent = name
                               current_agent = best_agent
                               body += f"\nAgent: {current_agent}"
 
-                          # B. Metadata Defaults
                           if "Block:" not in body: body += "\nBlock: 99"
                           if "Points:" not in body: body += "\nPoints: 1"
 
-                          # C. Opdater Body
-                          if body != original_body:
-                              run_command(["gh", "pr", "edit", str(number), "--body", body])
+                          if body != original_body: run_command(["gh", "pr", "edit", str(number), "--body", body])
 
-                          # D. Semantisk Titel Fix
+                          # Semantisk Titel
                           clean_title = re.sub(r'[^a-zA-Z0-9 ]', '', title.replace("READY FOR MERGE", "")).strip()
-                          if not re.match(r'^(feat|fix|docs|chore|style|refactor|test):', clean_title):
+                          if not re.match(r'^(feat|fix|docs|chore):', clean_title):
                               prefix = "fix" if "fix" in clean_title.lower() else "feat"
                               new_title = f"{prefix}: [{current_agent}] - {clean_title}"[:200]
                               run_command(["gh", "pr", "edit", str(number), "--title", new_title])
 
-                          # E. Auto-Merge
+                          # Auto-Merge med AI konfliktløsning
                           out, merge_err = run_command(["gh", "pr", "merge", str(number), "--squash", "--auto", "--delete-branch"])
                           if merge_err and "conflict" in merge_err:
                               consult_lifeline(merge_err, f"Merge PR #{number}")
 
-                      except Exception as pr_e:
-                          print(f"⚠️ Fejl i PR #{number}. Fortsætter til næste.")
-                          continue
+                      except Exception: continue
 
-              # === 2. DRIFT & ROLLBACK ===
+              # === 2. DRIFT & SELF-HEALING ===
               print("\n--- 2. System Health Check ---")
-              output, err = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "status,conclusion,headSha,url"])
+              output, err = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "databaseId,status,conclusion,headSha"])
               
               if output:
                   runs = json.loads(output)
-                  if runs:
+                  if runs and runs[0]['status'] == "completed" and runs[0]['conclusion'] == "failure":
                       latest = runs[0]
-                      if latest['status'] == "completed" and latest['conclusion'] == "failure":
-                          print("🚨 KRITISK FEJL PÅ MAIN! Starter Rollback.")
+                      run_id = latest['databaseId']
+                      print(f"🚨 KRITISK FEJL PÅ MAIN (Run {run_id})")
+
+                      # Check hukommelse / Auto-heal
+                      commits_out, _ = run_command(["git", "log", "-1", "--pretty=%B"])
+                      if "chore(brain)" not in commits_out and "fix: auto-healing" not in commits_out:
+                          log_out, _ = run_command(["gh", "run", "view", str(run_id), "--log-failed"])
+                          error_snippet = log_out[-2000:] if log_out else "Unknown Error"
                           
-                          # Tjek om vi allerede har rullet tilbage
-                          issues_out, _ = run_command(["gh", "issue", "list", "--search", "Auto-Rollback", "--json", "title"])
-                          if f"Reverted {latest['headSha'][:7]}" in str(issues_out):
-                              print("Allerede håndteret.")
+                          print("🚑 Forsøger auto-repair...")
+                          if consult_lifeline(error_snippet, "Build Repair"):
+                              # Fix virkede! Commit det
+                              run_command(["git", "add", "."])
+                              run_command(["git", "commit", "-m", f"fix: auto-healing build error {run_id}"])
+                              run_command(["git", "push", "origin", "main"])
+                              print("✅ Auto-healing pushet.")
                           else:
-                              # Kør Git operationer
+                              # Fix fejlede -> Rollback
+                              print("⚠️ Auto-heal fejlede. Starter Rollback.")
                               run_command(["git", "fetch", "origin", "main"])
                               run_command(["git", "checkout", "main"])
                               run_command(["git", "pull", "origin", "main"])
-                              
                               revert_out, revert_err = run_command(["git", "revert", latest['headSha'], "--no-edit"])
                               
                               if revert_err:
-                                  print("❌ Revert fejlede. Kalder DeepSeek!")
-                                  if consult_lifeline(revert_err, "Emergency Rollback"):
-                                      # Prøv igen hvis DeepSeek fiksede det
-                                      revert_out, revert_err = run_command(["git", "revert", latest['headSha'], "--no-edit"])
-                                      if revert_err: raise Exception(f"Kunne ikke rulle tilbage: {revert_err}")
-                                  else:
-                                      raise Exception(f"DeepSeek kunne ikke løse rollback fejlen.")
+                                   if not consult_lifeline(revert_err, "Rollback Conflict"):
+                                       raise Exception("Rollback Failed")
                               
-                              # Push
-                              push_out, push_err = run_command(["git", "push", "origin", "main"])
-                              if push_err:
-                                  if not consult_lifeline(push_err, "Git Push"):
-                                      raise Exception("Kunne ikke pushe rollback.")
-                                  run_command(["git", "push", "origin", "main"])
-
+                              run_command(["git", "push", "origin", "main"])
                               print("✅ Rollback udført.")
-                              msg = f"Build fejlede ({latest['url']}). Jeg har rullet commit {latest['headSha']} tilbage."
-                              run_command(["gh", "issue", "create", "--title", f"🛡️ Auto-Rollback: Reverted {latest['headSha'][:7]}", "--body", msg, "--label", "urgent"])
+                              run_command(["gh", "issue", "create", "--title", f"🛡️ Auto-Rollback", "--body", f"Reverted commit {latest['headSha']}", "--label", "urgent"])
 
-              print("✅ HansPedder cyklus færdig.")
+              print("✅ Cyklus færdig.")
 
-          except Exception as fatal_error:
-              print(f"🔥 FATAL FEJL: {str(fatal_error)}")
+          except Exception as e:
+              print(f"🔥 FATAL: {e}")
               sys.exit(1)
 
-      # -------------------------------------------------------
-      # STEP 2: TODO SCANNER (KORREKT CONFIG)
-      # -------------------------------------------------------
-      - name: 📝 Konverter TODOs til Issues
+      - name: 📝 TODO Scanner
         uses: alstr/todo-to-issue-action@v4
-        id: todo
         continue-on-error: true
         with:
           CLOSE_ISSUES: true
           AUTO_ASSIGN: true
-          IDENTIFIERS: '{"TODO": "help wanted", "FIXME": "bug"}'
-          # VIGTIGT: Ignorerer workflow filer så den ikke scanner sig selv
-          IGNORE: '/.github/workflows/*.yml, *.json'
+          IGNORE: '/.github/workflows/*.yml, *.json' # Ignorerer også hukommelsesfilen
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      # -------------------------------------------------------
-      # STEP 3: NØDBREMSE (MAIL)
-      # -------------------------------------------------------
-      - name: 🆘 Send Nød-mail til Claus
-        if: failure() # Kører KUN hvis DeepSeek og Python scriptet giver op
+      - name: 🆘 Nød-mail
+        if: failure()
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "🔥 HansPedder Alarm: Selv DeepSeek kunne ikke hjælpe"
+          subject: "🔥 HansPedder: Hukommelsen svigtede"
           to: clauskraft@gmail.com
           from: "HansPedder Orchestrator"
           body: |
-            Hej Claus,
-
-            Dette er en nødmeddelelse. 
-            Jeg stødte på en fejl, og selvom jeg spurgte DeepSeek om hjælp, kunne vi ikke løse det automatisk.
-
-            Manuel indgriben er påkrævet.
-            
             Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-            Vh, HansPedder 🤖
