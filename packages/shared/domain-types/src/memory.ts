@@ -1,26 +1,33 @@
+typescript
 // Memory domain entities
 
 export interface MemoryEntity {
-  id: number;
-  orgId: string;
-  userId?: string;
-  entityType: string;
-  content: string;
-  importance: number;
-  createdAt: Date;
+  readonly id: number;
+  readonly orgId: string;
+  readonly userId?: string;
+  readonly entityType: string;
+  readonly content: string;
+  readonly importance: number;
+  readonly createdAt: Date;
 }
 
+export type MemoryRelationType = 
+  | 'depends_on' 
+  | 'contradicts' 
+  | 'same_project' 
+  | 'related_to';
+
 export interface MemoryRelation {
-  id: number;
-  orgId: string;
-  sourceId: number;
-  targetId: number;
-  relationType: 'depends_on' | 'contradicts' | 'same_project' | 'related_to';
-  createdAt: Date;
+  readonly id: number;
+  readonly orgId: string;
+  readonly sourceId: number;
+  readonly targetId: number;
+  readonly relationType: MemoryRelationType;
+  readonly createdAt: Date;
 }
 
 export interface MemoryTag {
-  id: number;
-  entityId: number;
-  tag: string;
+  readonly id: number;
+  readonly entityId: number;
+  readonly tag: string;
 }
