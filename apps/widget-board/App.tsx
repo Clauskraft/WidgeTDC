@@ -1,7 +1,7 @@
-
 import React, { Suspense } from 'react';
 import WidgeTDCPro from './WidgeTDC_Pro';
 import './App.css';
+import { PlatformProvider } from './src/platform/core/PlatformProvider';
 
 // Loading fallback
 const AppLoader = () => (
@@ -10,9 +10,9 @@ const AppLoader = () => (
       <div className="text-4xl mb-4">🚀</div>
       <p>Initializing WidgeTDC Pro...</p>
       <div className="mt-4 flex gap-1 justify-center">
-        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
       </div>
     </div>
   </div>
@@ -20,8 +20,10 @@ const AppLoader = () => (
 
 export default function App() {
   return (
-    <Suspense fallback={<AppLoader />}>
-      <WidgeTDCPro />
-    </Suspense>
+    <PlatformProvider>
+      <Suspense fallback={<AppLoader />}>
+        <WidgeTDCPro />
+      </Suspense>
+    </PlatformProvider>
   );
 }
