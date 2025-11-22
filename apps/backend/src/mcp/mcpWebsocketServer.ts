@@ -3,6 +3,7 @@ import { Server } from 'http';
 import { MCPMessage } from '@widget-tdc/mcp-types';
 import { mcpRegistry } from './mcpRegistry.js';
 import { exec } from 'child_process';
+import { v4 as uuidv4 } from 'uuid';
 
 export class MCPWebSocketServer {
   private wss: WebSocketServer;
@@ -15,62 +16,82 @@ export class MCPWebSocketServer {
 
   private setupWebSocketServer(): void {
     this.wss.on('connection', (ws: WebSocket) => {
-      const clientId = Math.random().toString(36).substring(7);
+      const clientId = uuidv4();
       this.clients.set(clientId, ws);
 
       console.log(`MCP WebSocket client connected: ${clientId}`);
 
+      this.sendWelcomeMessage(ws, clientId);
+
       ws.on('message', async (data: Buffer) => {
-        try {
-          const rawMessage = data.toString();
-
-          // Handle NEXUS commands
-          if (rawMessage.startsWith('NEXUS_COMMAND:')) {
-            const commandCode = rawMessage.replace('NEXUS_COMMAND:', '');
-            const result = this.executeNexusCommand(commandCode);
-
-            // Send result back as NEXUS_RESPONSE
-            ws.send(JSON.stringify({
-              event: 'NEXUS_RESPONSE',
-              data: result
-            }));
-            return;
-          }
-
-          const message: MCPMessage = JSON.parse(rawMessage);
-
-          // Route the message
-          const result = await mcpRegistry.route(message);
-
-          // Send response back to client
-          ws.send(JSON.stringify({
-            success: true,
-            messageId: message.id,
-            result,
-          }));
-
-          // Broadcast to other clients if needed
-          this.broadcast(message, clientId);
-        } catch (error: any) {
-          ws.send(JSON.stringify({
-            success: false,
-            error: error.message,
-          }));
-        }
+        await this.handleMessage(ws, data, clientId);
       });
 
       ws.on('close', () => {
-        this.clients.delete(clientId);
-        console.log(`MCP WebSocket client disconnected: ${clientId}`);
+        this.handleDisconnect(clientId);
       });
 
-      // Send welcome message
-      ws.send(JSON.stringify({
-        type: 'welcome',
-        clientId,
-        availableTools: mcpRegistry.getRegisteredTools(),
-      }));
+      ws.on('error', (error) => {
+        console.error(`WebSocket error for client ${clientId}:`, error);
+        this.handleDisconnect(clientId);
+      });
     });
+  }
+
+  private async handleMessage(ws: WebSocket, data: Buffer, clientId: string): Promise<void> {
+    try {
+      const rawMessage = data.toString();
+
+      if (rawMessage.startsWith('NEXUS_COMMAND:')) {
+        await this.handleNexusCommand(ws, rawMessage);
+        return;
+      }
+
+      const message: MCPMessage = JSON.parse(rawMessage);
+      const result = await mcpRegistry.route(message);
+
+      this.sendResponse(ws, {
+        success: true,
+        messageId: message.id,
+        result,
+      });
+
+      this.broadcast(message, clientId);
+    } catch (error: any) {
+      this.sendResponse(ws, {
+        success: false,
+        error: error.message,
+      });
+    }
+  }
+
+  private async handleNexusCommand(ws: WebSocket, rawMessage: string): Promise<void> {
+    const commandCode = rawMessage.replace('NEXUS_COMMAND:', '');
+    const result = await this.executeNexusCommand(commandCode);
+
+    this.sendResponse(ws, {
+      event: 'NEXUS_RESPONSE',
+      data: result
+    });
+  }
+
+  private sendWelcomeMessage(ws: WebSocket, clientId: string): void {
+    this.sendResponse(ws, {
+      type: 'welcome',
+      clientId,
+      availableTools: mcpRegistry.getRegisteredTools(),
+    });
+  }
+
+  private sendResponse(ws: WebSocket, data: any): void {
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(data));
+    }
+  }
+
+  private handleDisconnect(clientId: string): void {
+    this.clients.delete(clientId);
+    console.log(`MCP WebSocket client disconnected: ${clientId}`);
   }
 
   private broadcast(message: MCPMessage, excludeClientId?: string): void {
@@ -95,41 +116,34 @@ export class MCPWebSocketServer {
     });
   }
 
-  private executeNexusCommand(commandIntent: string): string {
+  private executeNexusCommand(commandIntent: string): Promise<string> {
     console.log(`⚡ NEXUS EXECUTING: ${commandIntent}`);
 
-    // Simple translation of "AI Intent" to system commands
-    if (commandIntent.includes('KILL_CHROME')) {
-      exec('taskkill /F /IM chrome.exe', (error, _stdout, _stderr) => {
-        if (error) console.log('Error killing Chrome:', error);
-      });
-      return "Target neutralized: Google Chrome processes terminated.";
-    }
-    if (commandIntent.includes('OPEN_STEAM')) {
-      exec('start steam://', (error, _stdout, _stderr) => {
-        if (error) console.log('Error opening Steam:', error);
-      });
-      return "Launching entertainment subsystem...";
-    }
-    if (commandIntent.includes('FLUSH_DNS')) {
-      exec('ipconfig /flushdns', (error, _stdout, _stderr) => {
-        if (error) console.log('Error flushing DNS:', error);
-      });
-      return "Network cache cleared.";
-    }
-    if (commandIntent.includes('KILL_NODE')) {
-      exec('taskkill /F /IM node.exe', (error, _stdout, _stderr) => {
-        if (error) console.log('Error killing Node processes:', error);
-      });
-      return "All Node.js processes terminated.";
-    }
-    if (commandIntent.includes('RESTART_EXPLORER')) {
-      exec('taskkill /F /IM explorer.exe && start explorer.exe', (error, _stdout, _stderr) => {
-        if (error) console.log('Error restarting Explorer:', error);
-      });
-      return "Windows Explorer restarted.";
+    const commandMap: Record<string, { command: string; successMessage: string }> = {
+      'KILL_CHROME': { command: 'taskkill /F /IM chrome.exe', successMessage: "Target neutralized: Google Chrome processes terminated." },
+      'OPEN_STEAM': { command: 'start steam://', successMessage: "Launching entertainment subsystem..." },
+      'FLUSH_DNS': { command: 'ipconfig /flushdns', successMessage: "Network cache cleared." },
+      'KILL_NODE': { command: 'taskkill /F /IM node.exe', successMessage: "All Node.js processes terminated." },
+      'RESTART_EXPLORER': { command: 'taskkill /F /IM explorer.exe && start explorer.exe', successMessage: "Windows Explorer restarted." }
+    };
+
+    const matchedCommand = Object.entries(commandMap).find(([key]) => 
+      commandIntent.includes(key)
+    );
+
+    if (!matchedCommand) {
+      return Promise.resolve("Command not recognized.");
     }
 
-    return `Command '${commandIntent}' not recognized in safety protocols.`;
+    const [, { command, successMessage }] = matchedCommand;
+
+    return new Promise((resolve) => {
+      exec(command, (error, _stdout, _stderr) => {
+        if (error) {
+          console.log(`Error executing ${command}:`, error);
+        }
+        resolve(successMessage);
+      });
+    });
   }
 }
