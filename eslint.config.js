@@ -4,6 +4,29 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
+  {
+    ignores: [
+      'node_modules',
+      'dist',
+      'build',
+      '**/*.min.js',
+      '**/*.min.css',
+      'coverage',
+      '.next',
+      '.vite',
+      '.turbo',
+      'out',
+      '.env*.local',
+      '.DS_Store',
+      '*.pem',
+      'apps/backend/dist',
+      'apps/widget-board/dist',
+      'packages/*/dist',
+      'packages/*/build',
+      '.claude',
+      '.git',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
