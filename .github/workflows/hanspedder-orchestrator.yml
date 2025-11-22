@@ -1,4 +1,4 @@
-name: HansPedder Orchestrator (Unstoppable)
+name: HansPedder Orchestrator (DeepSeek Autonomous)
 
 on:
   schedule:
@@ -9,6 +9,7 @@ on:
 
 env:
   ORCHESTRATOR_NAME: HansPedder
+  # Konfiguration: Hans Pedders viden om hvem der laver hvad
   AGENT_CONFIG: >-
     {
       "FrontendAgent": ["css", "style", "ui", "ux", "design", "html", "frontend", "tailwind", "button", "view"],
@@ -32,7 +33,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Vigtig for rollback logik
+          fetch-depth: 0 # Nødvendigt for at kunne lave git revert
 
       - name: Configure Git identity
         run: |
@@ -40,13 +41,14 @@ jobs:
           git config user.email "hanspedder@widgettdc.dev"
 
       # -------------------------------------------------------
-      # STEP 1: DEN STORE HJERNE (Python Logic)
+      # STEP 1: DEN STORE HJERNE (Python + DeepSeek)
       # -------------------------------------------------------
-      - name: 🧠 HansPedder Brain (Orchestrate & Protect)
+      - name: 🧠 HansPedder Brain (Orchestrate, Protect & Repair)
         id: orchestrate
         env:
           GH_TOKEN: ${{ github.token }}
           CONFIG: ${{ env.AGENT_CONFIG }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }} # DeepSeek nøgle
         shell: python
         run: |
           import json
@@ -54,32 +56,113 @@ jobs:
           import re
           import subprocess
           import sys
+          import urllib.request
 
+          # --- HJÆLPEFUNKTION: Kør kommando sikkert ---
           def run_command(cmd):
-              # Vi kører kommandoer sikkert
-              result = subprocess.run(cmd, capture_output=True, text=True)
-              if result.returncode != 0:
-                  # Returner fejlbesked i stedet for at crashe scriptet med det samme
-                  return None, result.stderr
-              return result.stdout.strip(), None
+              try:
+                  result = subprocess.run(cmd, capture_output=True, text=True)
+                  if result.returncode != 0:
+                      return None, result.stderr.strip()
+                  return result.stdout.strip(), None
+              except Exception as e:
+                  return None, str(e)
 
-          try:
-              print("🤖 HansPedder vågner. Sikrer kontinuerlig drift...")
+          # --- LIVLINE FUNKTION (DEEPSEEK) ---
+          def consult_lifeline(error_msg, context="general"):
+              print(f"\n🚑 KALDER COPILOT LIVLINE (DEEPSEEK) FOR: {context}")
               
+              # NIVEAU 1: Offline Hacks (Gratis og hurtigt)
+              fixes = []
+              if "index.lock" in error_msg: fixes.append(["rm", "-f", ".git/index.lock"])
+              elif "shallow update" in error_msg: fixes.append(["git", "fetch", "--unshallow"])
+              elif "refusing to merge unrelated" in error_msg: fixes.append(["git", "merge", "--allow-unrelated-histories"])
+              elif "conflict" in error_msg.lower() and "automatic merge failed" in error_msg.lower(): fixes.append(["git", "merge", "--abort"])
+              
+              if fixes:
+                  for fix_cmd in fixes:
+                      print(f"🔧 Forsøger offline fix: {' '.join(fix_cmd)}")
+                      out, err = run_command(fix_cmd)
+                      if not err: return True
+                  return False
+
+              # NIVEAU 2: Online AI (DeepSeek V3)
+              api_key = os.environ.get('AI_API_KEY')
+              if not api_key:
+                  print("⚠️ Ingen AI_API_KEY fundet. Kan ikke spørge DeepSeek.")
+                  return False
+
+              print("📡 Kontakter DeepSeek API for en løsning...")
+              
+              system_prompt = "You are a Git Expert Agent. Return ONLY the single shell command needed to fix the user's error. Do not use markdown blocks. Do not explain. Just the command."
+              user_prompt = f"Context: {context}. Error: {error_msg}. Repo path is current directory."
+              
+              payload = {
+                  "model": "deepseek-chat",
+                  "messages": [
+                      {"role": "system", "content": system_prompt},
+                      {"role": "user", "content": user_prompt}
+                  ],
+                  "temperature": 0.1,
+                  "stream": False
+              }
+
+              try:
+                  req = urllib.request.Request(
+                      "https://api.deepseek.com/chat/completions",
+                      data=json.dumps(payload).encode('utf-8'),
+                      headers={
+                          "Authorization": f"Bearer {api_key}",
+                          "Content-Type": "application/json"
+                      }
+                  )
+                  
+                  with urllib.request.urlopen(req) as response:
+                      resp_data = json.load(response)
+                      ai_command = resp_data['choices'][0]['message']['content'].strip()
+                      
+                      # Rens markdown (DeepSeek kan være snakkesalig)
+                      ai_command = ai_command.replace("```bash", "").replace("```sh", "").replace("```", "").strip()
+
+                      if "rm -rf /" in ai_command or "sudo" in ai_command:
+                          print(f"⛔ DeepSeek foreslog farlig kommando: {ai_command}")
+                          return False
+
+                      print(f"🤖 DeepSeek Foreslår: {ai_command}")
+                      
+                      cmd_list = ai_command.split()
+                      out, err = run_command(cmd_list)
+                      
+                      if not err:
+                          print("✅ AI Fix udført succesfuldt!")
+                          return True
+                      else:
+                          print(f"❌ AI Fix fejlede: {err}")
+                          return False
+
+              except Exception as e:
+                  print(f"💥 Fejl ved kald til DeepSeek: {str(e)}")
+                  return False
+
+          # --- HOVEDPROGRAM ---
+          try:
+              print("🤖 HansPedder vågner. Status: Autonom.")
               agent_keywords = json.loads(os.environ['CONFIG'])
               orchestrator_name = "HansPedder"
               
-              # --- FASE A: PR MANAGEMENT (LOOPS MÅ IKKE STOPPE) ---
+              # === 1. PR MANAGEMENT ===
               print("\n--- 1. Analyserer Pull Requests ---")
               output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
               
+              if err:
+                  if consult_lifeline(err, "PR List"):
+                      output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author"])
+
               if output:
                   prs = json.loads(output)
                   for pr in prs:
-                      # Vi pakker hver PR ind i try/except så én fejl ikke stopper de andre
                       try:
                           if pr['author']['login'] == "github-actions": continue 
-                          
                           number = pr['number']
                           title = pr['title']
                           body = pr['body'] if pr['body'] else ""
@@ -87,7 +170,7 @@ jobs:
                           
                           print(f"Behandler PR #{number}: {title}")
 
-                          # 1. Find eller Alloker Agent
+                          # A. Allokering
                           agent_match = re.search(r'Agent:\s*([A-Za-z0-9_]+)', body)
                           current_agent = agent_match.group(1) if agent_match else None
                           
@@ -103,78 +186,83 @@ jobs:
                               current_agent = best_agent
                               body += f"\nAgent: {current_agent}"
 
-                          # 2. Sæt Defaults
+                          # B. Metadata Defaults
                           if "Block:" not in body: body += "\nBlock: 99"
                           if "Points:" not in body: body += "\nPoints: 1"
 
-                          # 3. Opdater Body (hvis ændret)
+                          # C. Opdater Body
                           if body != original_body:
                               run_command(["gh", "pr", "edit", str(number), "--body", body])
 
-                          # 4. Fix Titel (Semantic)
+                          # D. Semantisk Titel Fix
                           clean_title = re.sub(r'[^a-zA-Z0-9 ]', '', title.replace("READY FOR MERGE", "")).strip()
                           if not re.match(r'^(feat|fix|docs|chore|style|refactor|test):', clean_title):
                               prefix = "fix" if "fix" in clean_title.lower() else "feat"
                               new_title = f"{prefix}: [{current_agent}] - {clean_title}"[:200]
                               run_command(["gh", "pr", "edit", str(number), "--title", new_title])
 
-                          # 5. Enable Auto-Merge
-                          run_command(["gh", "pr", "merge", str(number), "--squash", "--auto", "--delete-branch"])
+                          # E. Auto-Merge
+                          out, merge_err = run_command(["gh", "pr", "merge", str(number), "--squash", "--auto", "--delete-branch"])
+                          if merge_err and "conflict" in merge_err:
+                              consult_lifeline(merge_err, f"Merge PR #{number}")
 
-                      except Exception as pr_error:
-                          print(f"⚠️ Fejl ved PR #{number}: {str(pr_error)} - Springer over og fortsætter.")
-                          continue # VIGTIGT: Vi fortsætter til næste PR
+                      except Exception as pr_e:
+                          print(f"⚠️ Fejl i PR #{number}. Fortsætter til næste.")
+                          continue
 
-              # --- FASE B: CIRCUIT BREAKER (DRIFT) ---
-              print("\n--- 2. System Health Check (Main Branch) ---")
-              output, err = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "status,conclusion,url,headSha"])
+              # === 2. DRIFT & ROLLBACK ===
+              print("\n--- 2. System Health Check ---")
+              output, err = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "status,conclusion,headSha,url"])
               
               if output:
                   runs = json.loads(output)
                   if runs:
                       latest = runs[0]
-                      # Hvis main er crashet (completed + failure)
                       if latest['status'] == "completed" and latest['conclusion'] == "failure":
-                          print("🚨 KRITISK: Main branch er nede! Starter rollback.")
+                          print("🚨 KRITISK FEJL PÅ MAIN! Starter Rollback.")
                           
-                          bad_commit = latest['headSha']
-                          
-                          # Tjek om vi allerede har en sag på det
+                          # Tjek om vi allerede har rullet tilbage
                           issues_out, _ = run_command(["gh", "issue", "list", "--search", "Auto-Rollback", "--json", "title"])
-                          
-                          if f"Reverted {bad_commit[:7]}" not in str(issues_out):
-                              # Udfør Revert
-                              subprocess.run(["git", "fetch", "origin", "main"], check=False)
-                              subprocess.run(["git", "checkout", "main"], check=False)
-                              subprocess.run(["git", "pull", "origin", "main"], check=False)
-                              
-                              revert_res = subprocess.run(["git", "revert", bad_commit, "--no-edit"], capture_output=True)
-                              
-                              if revert_res.returncode == 0:
-                                  subprocess.run(["git", "push", "origin", "main"], check=False)
-                                  
-                                  # Opret Issue
-                                  msg = f"Jeg har rullet commit {bad_commit} tilbage for at redde produktionen."
-                                  run_command(["gh", "issue", "create", "--title", f"🛡️ Auto-Rollback: Reverted {bad_commit[:7]}", "--body", msg, "--label", "urgent"])
-                                  print("✅ Rollback udført.")
-                              else:
-                                  print(f"❌ Kunne ikke udføre rollback automatisk: {revert_res.stderr}")
-                                  # Her crasher vi med vilje for at sende mail, da manuel hjælp er påkrævet
-                                  sys.exit(1)
+                          if f"Reverted {latest['headSha'][:7]}" in str(issues_out):
+                              print("Allerede håndteret.")
                           else:
-                              print("Rollback allerede håndteret.")
+                              # Kør Git operationer
+                              run_command(["git", "fetch", "origin", "main"])
+                              run_command(["git", "checkout", "main"])
+                              run_command(["git", "pull", "origin", "main"])
+                              
+                              revert_out, revert_err = run_command(["git", "revert", latest['headSha'], "--no-edit"])
+                              
+                              if revert_err:
+                                  print("❌ Revert fejlede. Kalder DeepSeek!")
+                                  if consult_lifeline(revert_err, "Emergency Rollback"):
+                                      # Prøv igen hvis DeepSeek fiksede det
+                                      revert_out, revert_err = run_command(["git", "revert", latest['headSha'], "--no-edit"])
+                                      if revert_err: raise Exception(f"Kunne ikke rulle tilbage: {revert_err}")
+                                  else:
+                                      raise Exception(f"DeepSeek kunne ikke løse rollback fejlen.")
+                              
+                              # Push
+                              push_out, push_err = run_command(["git", "push", "origin", "main"])
+                              if push_err:
+                                  if not consult_lifeline(push_err, "Git Push"):
+                                      raise Exception("Kunne ikke pushe rollback.")
+                                  run_command(["git", "push", "origin", "main"])
 
-              print("✅ HansPedder cyklus gennemført.")
+                              print("✅ Rollback udført.")
+                              msg = f"Build fejlede ({latest['url']}). Jeg har rullet commit {latest['headSha']} tilbage."
+                              run_command(["gh", "issue", "create", "--title", f"🛡️ Auto-Rollback: Reverted {latest['headSha'][:7]}", "--body", msg, "--label", "urgent"])
 
-          except Exception as global_e:
-              print(f"FATAL FEJL: {str(global_e)}")
+              print("✅ HansPedder cyklus færdig.")
+
+          except Exception as fatal_error:
+              print(f"🔥 FATAL FEJL: {str(fatal_error)}")
               sys.exit(1)
 
       # -------------------------------------------------------
+      # STEP 2: TODO SCANNER (KORREKT CONFIG)
       # -------------------------------------------------------
-      # STEP 2: AVANCERET TODO SCANNER (MED FIX FOR SELV-SCANNING)
-      # -------------------------------------------------------
-      - name: 📝 Konverter TODOs til Rigtige Issues
+      - name: 📝 Konverter TODOs til Issues
         uses: alstr/todo-to-issue-action@v4
         id: todo
         continue-on-error: true
@@ -182,10 +270,8 @@ jobs:
           CLOSE_ISSUES: true
           AUTO_ASSIGN: true
           IDENTIFIERS: '{"TODO": "help wanted", "FIXME": "bug"}'
-          
-          # HER ER FIXET: Vi beder den ignorere workflow-filer og json filer
+          # VIGTIGT: Ignorerer workflow filer så den ikke scanner sig selv
           IGNORE: '/.github/workflows/*.yml, *.json'
-          
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -193,25 +279,24 @@ jobs:
       # STEP 3: NØDBREMSE (MAIL)
       # -------------------------------------------------------
       - name: 🆘 Send Nød-mail til Claus
-        if: failure() # Kører KUN hvis Python scriptet crasher fatal (sys.exit 1)
+        if: failure() # Kører KUN hvis DeepSeek og Python scriptet giver op
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "🔥 HansPedder Alarm: Manuel hjælp påkrævet"
+          subject: "🔥 HansPedder Alarm: Selv DeepSeek kunne ikke hjælpe"
           to: clauskraft@gmail.com
           from: "HansPedder Orchestrator"
           body: |
             Hej Claus,
 
-            HansPedder her. Jeg har forsøgt at holde driften kørende, men stødte på en fejl jeg ikke kunne håndtere autonomt.
-            
-            Mulig årsag:
-            - Automatisk rollback fejlede (merge conflict under revert).
-            - GitHub API svarer ikke.
+            Dette er en nødmeddelelse. 
+            Jeg stødte på en fejl, og selvom jeg spurgte DeepSeek om hjælp, kunne vi ikke løse det automatisk.
 
+            Manuel indgriben er påkrævet.
+            
             Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
             Vh, HansPedder 🤖
