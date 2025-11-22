@@ -7,6 +7,13 @@ import './DashboardShell.css';
  */
 export const DashboardShell: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeNav, setActiveNav] = useState('dashboard');
+
+  const handleNavClick = (navItem: string) => {
+    setActiveNav(navItem);
+    // Add navigation logic here when routes are implemented
+    console.log(`Navigating to: ${navItem}`);
+  };
 
   return (
     <div className="dashboard-shell">
@@ -17,13 +24,26 @@ export const DashboardShell: React.FC<{ children?: React.ReactNode }> = ({ child
             className="sidebar-toggle"
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label="Toggle sidebar"
+            aria-expanded={sidebarOpen}
           >
             ☰
           </button>
           <h1 className="dashboard-title">WidgetBoard</h1>
           <div className="header-actions">
-            <button className="btn-icon" aria-label="Notifications">🔔</button>
-            <button className="btn-icon" aria-label="Settings">⚙️</button>
+            <button 
+              className="btn-icon" 
+              aria-label="View notifications"
+              onClick={() => console.log('Notifications clicked')}
+            >
+              🔔
+            </button>
+            <button 
+              className="btn-icon" 
+              aria-label="Open settings"
+              onClick={() => console.log('Settings clicked')}
+            >
+              ⚙️
+            </button>
           </div>
         </div>
       </header>
@@ -31,25 +51,54 @@ export const DashboardShell: React.FC<{ children?: React.ReactNode }> = ({ child
       <div className="dashboard-container">
         {/* Sidebar */}
         <aside className={`dashboard-sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
-          <nav className="sidebar-nav">
-            <a href="#" className="nav-item active">Dashboard</a>
-            <a href="#" className="nav-item">Widgets</a>
-            <a href="#" className="nav-item">Analytics</a>
-            <a href="#" className="nav-item">Settings</a>
+          <nav className="sidebar-nav" aria-label="Main navigation">
+            <button 
+              className={`nav-item ${activeNav === 'dashboard' ? 'active' : ''}`}
+              onClick={() => handleNavClick('dashboard')}
+              aria-current={activeNav === 'dashboard' ? 'page' : undefined}
+            >
+              Dashboard
+            </button>
+            <button 
+              className={`nav-item ${activeNav === 'widgets' ? 'active' : ''}`}
+              onClick={() => handleNavClick('widgets')}
+              aria-current={activeNav === 'widgets' ? 'page' : undefined}
+            >
+              Widgets
+            </button>
+            <button 
+              className={`nav-item ${activeNav === 'analytics' ? 'active' : ''}`}
+              onClick={() => handleNavClick('analytics')}
+              aria-current={activeNav === 'analytics' ? 'page' : undefined}
+            >
+              Analytics
+            </button>
+            <button 
+              className={`nav-item ${activeNav === 'settings' ? 'active' : ''}`}
+              onClick={() => handleNavClick('settings')}
+              aria-current={activeNav === 'settings' ? 'page' : undefined}
+            >
+              Settings
+            </button>
           </nav>
         </aside>
 
         {/* Main Content */}
-        <main className="dashboard-main">
+        <main className="dashboard-main" role="main">
           <div className="content-wrapper">
-            {children || <div className="placeholder">Dashboard content goes here</div>}
+            {children || (
+              <div className="welcome-content">
+                <h2>Welcome to WidgetBoard</h2>
+                <p>Your enterprise widget management platform is ready.</p>
+              </div>
+            )}
           </div>
         </main>
       </div>
 
       {/* Footer */}
       <footer className="dashboard-footer">
-        <p>WidgetBoard © 2025 | Phase 1.B Active</p>
+        <p>WidgetBoard © 2025 | Phase 1.B Active | Secure & GDPR Compliant</p>
       </footer>
     </div>
   );

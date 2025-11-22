@@ -31,12 +31,66 @@
   max-width: 1600px;
   margin: 0 auto;
   width: 100%;
+  gap: 1rem;
+}
+
+.sidebar-toggle {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.25rem;
+}
+
+.sidebar-toggle:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: var(--primary);
+}
+
+.sidebar-toggle:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.125rem;
+}
+
+.btn-icon:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.btn-icon:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .dashboard-title {
   margin: 0;
   font-size: 1.5rem;
   flex: 1;
+  font-weight: 700;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .dashboard-container {
@@ -70,12 +124,29 @@
   border-radius: 0.5rem;
   color: var(--text);
   text-decoration: none;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-.nav-item:hover,
+.nav-item:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+  transform: translateX(4px);
+}
+
 .nav-item.active {
   background-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.nav-item:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
 .dashboard-main {
@@ -90,10 +161,27 @@
   width: 100%;
 }
 
-.placeholder {
+.welcome-content {
   text-align: center;
   padding: 3rem;
   color: #cbd5e1;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.welcome-content h2 {
+  margin: 0 0 1rem 0;
+  font-size: 2rem;
+  color: var(--text);
+}
+
+.welcome-content p {
+  margin: 0;
+  font-size: 1.125rem;
+  opacity: 0.9;
 }
 
 .dashboard-footer {
