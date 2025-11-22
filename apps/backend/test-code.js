@@ -1,13 +1,13 @@
-// Test file with security issues
 function getUserData(userId) {
-  const query = "SELECT * FROM users WHERE id = " + userId; // SQL injection
-  const result = eval(query); // XSS risk
-  console.log(result); // Should use proper logging
+  const query = "SELECT * FROM users WHERE id = ?";
+  const result = executeQuery(query, [userId]);
+  logger.info('User data retrieved', { userId, result });
   return result;
 }
 
 function displayUserName(name) {
-  document.getElementById('user').innerHTML = name; // XSS vulnerability
+  const userElement = document.getElementById('user');
+  userElement.textContent = name;
 }
 
-const data: any = getUserData(123); // Using 'any' type
+const data = getUserData(123);
