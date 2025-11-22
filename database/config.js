@@ -5,7 +5,7 @@ module.exports = {
     database: process.env.DB_NAME || 'widgettdc_dev',
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
-    dialect: 'postgres',
+    dialect: 'postgres'
   },
   test: {
     username: process.env.DB_USER || 'postgres',
@@ -13,7 +13,7 @@ module.exports = {
     database: 'widgettdc_test',
     host: 'localhost',
     port: 5432,
-    dialect: 'postgres',
+    dialect: 'postgres'
   },
   production: {
     username: process.env.DB_USER,
@@ -22,6 +22,6 @@ module.exports = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT || 5432,
     dialect: 'postgres',
-    ssl: true,
-  },
+    ssl: true
+  }
 };
