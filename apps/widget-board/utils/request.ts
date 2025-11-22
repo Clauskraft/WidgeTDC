@@ -18,6 +18,12 @@ export async function request<T = any>(
     config = urlOrOptions || {};
   }
 
+  // Prepend backend URL if relative
+  if (url.startsWith('/')) {
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+    url = `${backendUrl}${url}`;
+  }
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...config.headers,

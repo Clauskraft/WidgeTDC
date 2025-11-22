@@ -1,0 +1,49 @@
+name: "Agent: Main Guardian"
+on:
+  schedule:
+    - cron: '0 6 * * *' # Run every morning at 6 AM
+  workflow_dispatch:      # Allow manual trigger
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health-check:
+    name: "Daily Health Check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run Full Test Suite
+        run: npm run test:run
+
+      - name: Build Check
+        run: npm run build
+
+      - name: Create Issue on Failure
+        if: failure()
+        uses: dacbd/create-issue-action@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "🚨 Main Branch Health Check Failed"
+          body: |
+            ### Main Guardian Report
+            The daily health check for the `main` branch has failed.
+            
+            - **Workflow**: ${{ github.workflow }}
+            - **Run URL**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            
+            Please investigate immediately.
+          labels: "priority: critical, type: bug"

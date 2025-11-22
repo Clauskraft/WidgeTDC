@@ -4,7 +4,7 @@
  * Single interface for all LLM providers (OpenAI, Anthropic, Google, DeepSeek)
  */
 
-import { DeepSeekAPI } from 'deepseek-sdk';
+import { DeepSeekAPI } from './deepseek-stub';
 import type { LLMModel } from './llm-models';
 
 export interface ChatMessage {
@@ -158,7 +158,7 @@ export class UnifiedLLMProvider {
     if (model.startsWith('claude-')) return 'anthropic';
     if (model.startsWith('gemini-')) return 'google';
     if (model.startsWith('deepseek-')) return 'deepseek';
-    
+
     throw new Error(`Unknown model: ${model}`);
   }
 

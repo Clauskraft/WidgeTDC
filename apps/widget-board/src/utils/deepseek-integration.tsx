@@ -4,7 +4,7 @@
  * Dette eksempel viser hvordan du integrerer DeepSeek i dit projekt
  */
 
-import { DeepSeekAPI } from 'deepseek-sdk';
+import { DeepSeekAPI } from './deepseek-stub';
 
 // ============================================
 // 1. Opsætning
@@ -244,10 +244,10 @@ export async function testDeepSeekIntegration() {
   const conversation = new DeepSeekConversation(
     'Du er en dansk programmerings-assistent.'
   );
-  
+
   const msg1 = await conversation.sendMessage('Hvad er TypeScript?');
   console.log('Q1:', msg1);
-  
+
   const msg2 = await conversation.sendMessage('Kan du give et eksempel?');
   console.log('Q2:', msg2);
   console.log('✅ Conversation works!\n');

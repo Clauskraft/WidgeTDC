@@ -27,24 +27,55 @@ const EvolutionAgentWidget: React.FC = () => {
   const loadAgentData = async () => {
     setLoading(true);
     setError('');
-    
+
     try {
-      // Load current prompt
-      const promptResponse = await fetch(`http://localhost:3001/api/evolution/prompt/${agentId}`);
-      
-      if (promptResponse.ok) {
-        const promptData = await promptResponse.json();
-        setCurrentPrompt(promptData.prompt);
+      // Use MCP tool: evolution.analyze-prompts
+      const response = await fetch('/api/mcp/route', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tool: 'evolution.analyze-prompts',
+          payload: {
+            agentId,
+            limit: 5,
+          },
+          context: {
+            orgId: 'org-1',
+            userId: 'user-1',
+          },
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Set current prompt from analysis
+        if (data.latestPrompt) {
+          setCurrentPrompt({
+            agentId: data.agentId,
+            version: data.latestPrompt.version,
+            promptText: data.latestPrompt.text,
+            createdAt: data.latestPrompt.createdAt,
+            createdBy: 'system',
+          });
+        } else {
+          setCurrentPrompt(null);
+        }
+
+        // Set recent runs from analysis
+        if (data.recentRuns) {
+          setRecentRuns(data.recentRuns.map((run: any) => ({
+            id: run.runId,
+            agent_id: data.agentId,
+            prompt_version: data.latestPrompt?.version || 1,
+            kpi_name: 'Performance',
+            kpi_delta: run.kpiDelta,
+            created_at: run.timestamp,
+          })));
+        }
       } else {
         setCurrentPrompt(null);
-      }
-
-      // Load recent runs
-      const runsResponse = await fetch(`http://localhost:3001/api/evolution/runs/${agentId}?limit=5`);
-      
-      if (runsResponse.ok) {
-        const runsData = await runsResponse.json();
-        setRecentRuns(runsData.runs || []);
+        setRecentRuns([]);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load agent data');

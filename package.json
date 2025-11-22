@@ -20,9 +20,11 @@
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "prepare": "husky"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.2",
     "@google/genai": "^1.29.1",
     "adaptivecards": "^3.0.0",
     "adaptivecards-react": "^1.1.1",
@@ -61,5 +63,11 @@
     "typescript": "~5.8.2",
     "vite": "^6.2.0",
     "vitest": "^4.0.8"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "tsc --noEmit",
+      "eslint --fix"
+    ]
   }
 }

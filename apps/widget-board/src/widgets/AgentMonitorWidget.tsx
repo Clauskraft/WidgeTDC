@@ -95,7 +95,7 @@ export const AgentMonitorWidget: React.FC = () => {
             title="Agent Mission Control"
             icon={Settings}
             className="h-full"
-            headerActions={
+            headerAction={
                 <div className="flex gap-2">
                     <button
                         onClick={() => setIsOrchestratorRunning(!isOrchestratorRunning)}

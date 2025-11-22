@@ -29,9 +29,9 @@ const exampleMSWidget: MSWidget = {
 type View = 'importer' | 'detector';
 
 const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
-  const { addDynamicWidget, availableWidgets } = useWidgetRegistry();
+  const { registerWidget, availableWidgets } = useWidgetRegistry();
   const [view, setView] = useState<View>('importer');
-  
+
   // State for manual importer
   const [inputJson, setInputJson] = useState(JSON.stringify(exampleMSWidget, null, 2));
   const [importError, setImportError] = useState('');
@@ -47,13 +47,13 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
       setImportError('');
       setImportSuccess('');
       const msWidget: MSWidget = JSON.parse(inputJson);
-      
+
       if (!msWidget.id || !msWidget.displayName || !msWidget.template) {
-          throw new Error("Ugyldigt JSON format. 'id', 'displayName', og 'template' er påkrævet.");
+        throw new Error("Ugyldigt JSON format. 'id', 'displayName', og 'template' er påkrævet.");
       }
-      
+
       handleDirectImport(msWidget, (successMsg) => {
-          setImportSuccess(successMsg);
+        setImportSuccess(successMsg);
       });
 
     } catch (e: any) {
@@ -62,40 +62,40 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
   };
 
   const handleDirectImport = (msWidget: MSWidget, onSuccess: (message: string) => void) => {
-      const adapter = new MSWidgetAdapter();
-      const newWidgetDefinition = adapter.transformToWidgetDefinition(msWidget);
+    const adapter = new MSWidgetAdapter();
+    const newWidgetDefinition = adapter.transformToWidgetDefinition(msWidget);
 
-      if (availableWidgets.some(w => w.id === newWidgetDefinition.id)) {
-          onSuccess(`Widget'en "${newWidgetDefinition.name}" er allerede importeret.`);
-          return;
-      }
-      
-      addDynamicWidget(newWidgetDefinition);
-      onSuccess(`Widget'en "${newWidgetDefinition.name}" er blevet tilføjet til sidebaren og er klar til brug.`);
+    if (availableWidgets.some(w => w.id === newWidgetDefinition.id)) {
+      onSuccess(`Widget'en "${newWidgetDefinition.name}" er allerede importeret.`);
+      return;
+    }
+
+    registerWidget(newWidgetDefinition);
+    onSuccess(`Widget'en "${newWidgetDefinition.name}" er blevet tilføjet til sidebaren og er klar til brug.`);
   };
 
   const handleScan = async () => {
-      setIsScanning(true);
-      setScanError('');
-      setDetectedWidgets([]);
-      try {
-          const results = await MSWidgetDetector.detectInstalledWidgets();
-          const allWidgets: MSWidget[] = results.flatMap(result =>
-            result.widgets.map(widget => ({
-                ...widget,
-                detectionSource: result.source,
-            }))
-          );
-          if (allWidgets.length === 0) {
-            setScanError("Ingen widgets fundet på systemet.");
-          } else {
-            setDetectedWidgets(allWidgets);
-          }
-      } catch (e: any) {
-          setScanError('Kunne ikke scanne efter widgets. Denne funktion er muligvis kun tilgængelig i en desktop-app.');
-      } finally {
-          setIsScanning(false);
+    setIsScanning(true);
+    setScanError('');
+    setDetectedWidgets([]);
+    try {
+      const results = await MSWidgetDetector.detectInstalledWidgets();
+      const allWidgets: MSWidget[] = results.flatMap(result =>
+        result.widgets.map(widget => ({
+          ...widget,
+          detectionSource: result.source,
+        }))
+      );
+      if (allWidgets.length === 0) {
+        setScanError("Ingen widgets fundet på systemet.");
+      } else {
+        setDetectedWidgets(allWidgets);
       }
+    } catch (e: any) {
+      setScanError('Kunne ikke scanne efter widgets. Denne funktion er muligvis kun tilgængelig i en desktop-app.');
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const renderManualImporter = () => (
@@ -125,61 +125,61 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
 
   const renderAutoDetector = () => (
     <div className="flex flex-col gap-4">
-        <Button onClick={handleScan} disabled={isScanning}>
-            {isScanning ? 'Scanner...' : 'Scan efter Installerede Widgets'}
-        </Button>
-        {scanError && <p className="text-red-500 text-sm text-center">{scanError}</p>}
-        {detectedWidgets.length > 0 && (
-            <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Fundne Widgets:</h4>
-                {detectedWidgets.map(widget => {
-                    const adapter = new MSWidgetAdapter();
-                    const definition = adapter.transformToWidgetDefinition(widget);
-                    const isImported = availableWidgets.some(w => w.id === definition.id);
+      <Button onClick={handleScan} disabled={isScanning}>
+        {isScanning ? 'Scanner...' : 'Scan efter Installerede Widgets'}
+      </Button>
+      {scanError && <p className="text-red-500 text-sm text-center">{scanError}</p>}
+      {detectedWidgets.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="font-semibold text-sm">Fundne Widgets:</h4>
+          {detectedWidgets.map(widget => {
+            const adapter = new MSWidgetAdapter();
+            const definition = adapter.transformToWidgetDefinition(widget);
+            const isImported = availableWidgets.some(w => w.id === definition.id);
 
-                    return (
-                        <div key={widget.id} className="p-3 flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700">
-                           <div>
-                                <p className="font-medium">{widget.displayName}</p>
-                                {widget.detectionSource && (
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                                        Fundet i: {widget.detectionSource}
-                                    </p>
-                                )}
-                           </div>
-                           <Button 
-                                size="small"
-                                disabled={isImported}
-                                onClick={() => handleDirectImport(widget, (msg) => alert(msg))}
-                           >
-                            {isImported ? 'Importeret' : 'Importér'}
-                           </Button>
-                        </div>
-                    )
-                })}
-            </div>
-        )}
+            return (
+              <div key={widget.id} className="p-3 flex items-center justify-between rounded-lg bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-700">
+                <div>
+                  <p className="font-medium">{widget.displayName}</p>
+                  {widget.detectionSource && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Fundet i: {widget.detectionSource}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  size="small"
+                  disabled={isImported}
+                  onClick={() => handleDirectImport(widget, (msg) => alert(msg))}
+                >
+                  {isImported ? 'Importeret' : 'Importér'}
+                </Button>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   );
 
   return (
     <div className="h-full flex flex-col -m-4">
-       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-                <button
-                    onClick={() => setView('importer')}
-                    className={`flex-1 p-2 rounded-md text-sm font-semibold transition-colors ${view === 'importer' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'hover:bg-gray-200 dark:hover:bg-gray-700/50'}`}
-                >
-                    Manuel Import
-                </button>
-                <button
-                    onClick={() => setView('detector')}
-                    className={`flex-1 p-2 rounded-md text-sm font-semibold transition-colors ${view === 'detector' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'hover:bg-gray-200 dark:hover:bg-gray-700/50'}`}
-                >
-                    Auto-detektér
-                </button>
-            </div>
-       </div>
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <button
+            onClick={() => setView('importer')}
+            className={`flex-1 p-2 rounded-md text-sm font-semibold transition-colors ${view === 'importer' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'hover:bg-gray-200 dark:hover:bg-gray-700/50'}`}
+          >
+            Manuel Import
+          </button>
+          <button
+            onClick={() => setView('detector')}
+            className={`flex-1 p-2 rounded-md text-sm font-semibold transition-colors ${view === 'detector' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'hover:bg-gray-200 dark:hover:bg-gray-700/50'}`}
+          >
+            Auto-detektér
+          </button>
+        </div>
+      </div>
 
       <div className="flex-1 p-4 flex flex-col gap-4 overflow-y-auto">
         {view === 'importer' ? renderManualImporter() : renderAutoDetector()}
@@ -187,8 +187,8 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
 
       {view === 'importer' && (
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-           <Button onClick={handleManualImport} className="w-full">
-              Importér og Registrér Widget
+          <Button onClick={handleManualImport} className="w-full">
+            Importér og Registrér Widget
           </Button>
         </div>
       )}
