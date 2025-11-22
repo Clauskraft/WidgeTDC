@@ -1,3 +1,4 @@
+typescript
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useMCP } from '../useMCP';
@@ -5,14 +6,14 @@ import { useMCP } from '../useMCP';
 describe('useMCP hook', () => {
   const originalFetch = globalThis.fetch;
   const originalCryptoDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
-  let fetchMock: ReturnType<typeof vi.fn>;
+  let fetchMock: vi.Mock;
 
   beforeEach(() => {
     fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ success: true, messageId: 'server-id' }),
     });
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    globalThis.fetch = fetchMock;
 
     Object.defineProperty(globalThis, 'crypto', {
       configurable: true,
@@ -25,14 +26,20 @@ describe('useMCP hook', () => {
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+    
     if (originalCryptoDescriptor) {
       Object.defineProperty(globalThis, 'crypto', originalCryptoDescriptor);
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-      delete (globalThis as any).crypto;
+      delete globalThis.crypto;
     }
+    
     vi.restoreAllMocks();
   });
+
+  const getFetchCallBody = (callIndex = 0): any => {
+    const [, requestInit] = fetchMock.mock.calls[callIndex];
+    return JSON.parse(requestInit.body);
+  };
 
   it('posts MCP messages to the middleware route by default', async () => {
     const { result } = renderHook(() => useMCP());
@@ -41,15 +48,14 @@ describe('useMCP hook', () => {
       await result.current.send('memory-service', 'memory.get', { orgId: 'org-1' });
     });
 
-    expect(globalThis.fetch).toHaveBeenCalledWith(
+    expect(fetchMock).toHaveBeenCalledWith(
       'http://localhost:3001/api/mcp/route',
       expect.objectContaining({
         method: 'POST',
       }),
     );
 
-    const [, requestInit] = (globalThis.fetch as any).mock.calls[0];
-    const body = JSON.parse(requestInit.body);
+    const body = getFetchCallBody();
     expect(body.sourceId).toBe('widget');
     expect(body.targetId).toBe('memory-service');
     expect(body.tool).toBe('memory.get');
@@ -74,8 +80,7 @@ describe('useMCP hook', () => {
       );
     });
 
-    const [, requestInit] = (globalThis.fetch as any).mock.calls[0];
-    const body = JSON.parse(requestInit.body);
+    const body = getFetchCallBody();
     expect(body.sourceId).toBe('mcp-inspector');
     expect(body.targetId).toBe('cma');
     expect(response).toEqual(responsePayload);
