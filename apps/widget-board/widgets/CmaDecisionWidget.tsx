@@ -19,17 +19,23 @@ const CmaDecisionWidget: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
-      const response = await fetch('http://localhost:3001/api/memory/contextual-prompt', {
+      // Use MCP tool: cma.context
+      const response = await fetch('/api/mcp/route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orgId: 'org-1',
-          userId: 'user-1',
-          userQuery: question,
-          widgetData: widgetData,
-          keywords: keywords.split(',').map(k => k.trim()).filter(k => k),
+          tool: 'cma.context',
+          payload: {
+            userQuery: question,
+            widgetData: widgetData,
+            keywords: keywords.split(',').map(k => k.trim()).filter(k => k),
+          },
+          context: {
+            orgId: 'org-1',
+            userId: 'user-1',
+          },
         }),
       });
 
@@ -38,7 +44,7 @@ const CmaDecisionWidget: React.FC = () => {
       }
 
       const data = await response.json();
-      setPrompt(data.prompt);
+      setPrompt(data.response);
       setMemories(data.memories || []);
     } catch (err: any) {
       setError(err.message || 'An error occurred');

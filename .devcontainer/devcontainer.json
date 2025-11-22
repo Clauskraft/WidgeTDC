@@ -1,0 +1,27 @@
+{
+    "name": "WidgetTDC Development",
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/node:1": {}
+    },
+    "forwardPorts": [
+        8888,
+        5173
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "bradlc.vscode-tailwindcss"
+            ],
+            "settings": {
+                "editor.formatOnSave": true,
+                "terminal.integrated.defaultProfile.linux": "zsh"
+            }
+        }
+    },
+    "postCreateCommand": "npm install && cd apps/widget-board && npm install",
+    "remoteUser": "node"
+}

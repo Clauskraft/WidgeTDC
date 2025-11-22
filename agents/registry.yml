@@ -178,25 +178,10 @@ agents:
     github_app_permissions_required:
       - scope: contents
         permission: write
+        reason: "Create database models and migrations"
       - scope: pull-requests
         permission: write
-
-    resources_required:
-      npm_packages: [sequelize, postgres]
-      disk_space_mb: 120
-      execution_timeout_seconds: 300
-
-    implementation:
-      outputs:
-        files_created:
-          - database/models/User.js
-          - database/models/Widget.js
-          - database/migrations/001-create-users-table.sql
-          - database/migrations/002-create-widgets-table.sql
-          - database/config.js
-          - database/seeds/001-demo-users.js
-        branch: agent/block-4-database-foundation
-        pr_title: "Block 4: DatabaseMaster - Database Models and Migrations"
+        reason: "Create database migration PRs"
 
   - id: testing-infrastructure
     name: QASpecialist
@@ -292,18 +277,111 @@ agents:
         branch: agent/block-6-security-compliance
         pr_title: "Block 6: SecurityCompliance - Security Scanning"
 
+  - id: ui-graphics-master
+    name: VisualEffectsSpecialist
+    agent_type: ui-graphics-architect
+    block_number: 7
+    story_points: 65
+
+    description: "Elite UI/Graphics specialist for glassmorphism, advanced animations, and premium visual effects"
+
+    dependencies:
+      blocks: [1]
+      external_systems: []
+
+    capabilities:
+      - create_glassmorphism_components
+      - implement_framer_motion_animations
+      - create_gsap_timelines
+      - integrate_three_js_scenes
+      - optimize_animation_performance
+
+    constraints:
+      max_files: 30
+      max_lines_per_file: 400
+      allowed_file_types: [.tsx, .ts, .css, .glsl]
+      max_commit_message_length: 120
+
+    github_app_permissions_required:
+      - scope: contents
+        permission: write
+        reason: "Create graphics components and shaders"
+      - scope: pull-requests
+        permission: write
+        reason: "Submit visual enhancements"
+
+    resources_required:
+      npm_packages:
+        [framer-motion, gsap, three, "@react-three/fiber", "@react-three/drei"]
+      disk_space_mb: 250
+      execution_timeout_seconds: 600
+
+    implementation:
+      outputs:
+        files_created:
+          - src/components/Glass/GlassCard.tsx
+          - src/components/Animations/ShimmerEffect.tsx
+          - src/components/3D/BackgroundScene.tsx
+          - src/utils/animations/variants.ts
+        branch: agent/block-7-ui-graphics-master
+        pr_title: "Block 7: Elite UI Graphics & Animation System"
+
+  - id: deepseek-llm
+    name: DeepSeekLLM
+    agent_type: llm-provider
+    block_number: 8
+    story_points: 30
+
+    description: "Wrapper til at kalde DeepSeek‑LLM‑API fra projektet."
+
+    dependencies:
+      blocks: [1]
+      external_systems: []
+
+    capabilities:
+      - query_deepseek
+      - generate_code_snippets
+      - perform_text_completion
+
+    constraints:
+      max_files: 5
+      max_lines_per_file: 300
+      allowed_file_types: [.ts, .tsx, .js]
+      max_commit_message_length: 120
+
+    github_app_permissions_required:
+      - scope: contents
+        permission: write
+        reason: "Tilføje DeepSeek‑wrapper‑fil"
+      - scope: pull-requests
+        permission: write
+        reason: "Opret PR med DeepSeek‑integration"
+
+    resources_required:
+      npm_packages: [deepseek-sdk]
+      disk_space_mb: 50
+      execution_timeout_seconds: 300
+
+    implementation:
+      outputs:
+        files_created:
+          - src/agents/deepseek.ts
+        branch: agent/block-8-deepseek
+        pr_title: "Add DeepSeek LLM wrapper"
+
 # Metadata
 metadata:
-  version: "1.0"
-  cascade_id: "phase-1b"
-  total_agents: 6
-  total_story_points: 210
+  version: "1.1"
+  cascade_id: "phase-1b-extended"
+  total_agents: 7
+  total_story_points: 275
   created_at: "2025-11-17"
-  last_updated: "2025-11-17"
+  last_updated: "2025-11-21"
 
 # Validation configuration
 validation:
-  required_fields: [id, name, block_number, story_points, dependencies, capabilities]
+  required_fields:
+    [id, name, block_number, story_points, dependencies, capabilities]
   enforce_unique_ids: true
   enforce_unique_block_numbers: true
   enforce_sequential_dependencies: true

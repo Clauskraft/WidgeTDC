@@ -13,7 +13,7 @@ export const GlobalStateProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [state, setState] = useState<GlobalState>({
     theme: 'dark',
     reduceMotion: false,
-    user: { name: 'Bruger' },
+    user: { id: 'guest', org_id: 'default', name: 'Bruger' },
   });
 
   useEffect(() => {

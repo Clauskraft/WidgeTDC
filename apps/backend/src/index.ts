@@ -12,11 +12,22 @@ import { palRouter } from './services/pal/palController.js';
 import {
   cmaContextHandler,
   cmaIngestHandler,
+  cmaMemoryStoreHandler,
+  cmaMemoryRetrieveHandler,
   sragQueryHandler,
+  sragGovernanceCheckHandler,
   evolutionReportHandler,
   evolutionGetPromptHandler,
+  evolutionAnalyzePromptsHandler,
   palEventHandler,
   palBoardActionHandler,
+  palOptimizeWorkflowHandler,
+  palAnalyzeSentimentHandler,
+  notesListHandler,
+  notesCreateHandler,
+  notesUpdateHandler,
+  notesDeleteHandler,
+  notesGetHandler,
 } from './mcp/toolHandlers.js';
 import { securityRouter } from './services/security/securityController.js';
 // import { agentRouter } from './services/agent/agentController.js';
@@ -26,9 +37,19 @@ import { securityRouter } from './services/security/securityController.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Security & Validation Middleware (FIX #2: Input validation)
+import {
+  inputValidationMiddleware,
+  csrfProtectionMiddleware,
+  rateLimitingMiddleware
+} from './middleware/inputValidation.js';
+
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' })); // FIX #1: Limit payload size
+app.use(rateLimitingMiddleware); // Prevent DOS attacks
+app.use(inputValidationMiddleware); // Sanitize all inputs
+app.use(csrfProtectionMiddleware); // CSRF protection
 
 // Initialize database
 getDatabase();
@@ -36,11 +57,28 @@ getDatabase();
 // Register MCP tools
 mcpRegistry.registerTool('cma.context', cmaContextHandler);
 mcpRegistry.registerTool('cma.ingest', cmaIngestHandler);
+mcpRegistry.registerTool('cma.memory.store', cmaMemoryStoreHandler);
+mcpRegistry.registerTool('cma.memory.retrieve', cmaMemoryRetrieveHandler);
 mcpRegistry.registerTool('srag.query', sragQueryHandler);
+mcpRegistry.registerTool('srag.governance-check', sragGovernanceCheckHandler);
 mcpRegistry.registerTool('evolution.report-run', evolutionReportHandler);
 mcpRegistry.registerTool('evolution.get-prompt', evolutionGetPromptHandler);
+mcpRegistry.registerTool('evolution.analyze-prompts', evolutionAnalyzePromptsHandler);
 mcpRegistry.registerTool('pal.event', palEventHandler);
 mcpRegistry.registerTool('pal.board-action', palBoardActionHandler);
+mcpRegistry.registerTool('pal.optimize-workflow', palOptimizeWorkflowHandler);
+mcpRegistry.registerTool('pal.analyze-sentiment', palAnalyzeSentimentHandler);
+mcpRegistry.registerTool('notes.list', notesListHandler);
+mcpRegistry.registerTool('notes.create', notesCreateHandler);
+mcpRegistry.registerTool('notes.update', notesUpdateHandler);
+mcpRegistry.registerTool('notes.delete', notesDeleteHandler);
+mcpRegistry.registerTool('notes.get', notesGetHandler);
+
+// Initialize Agent Orchestrator
+import { AgentOrchestratorServer } from './mcp/servers/AgentOrchestratorServer.js';
+const orchestrator = new AgentOrchestratorServer();
+mcpRegistry.registerServer(orchestrator);
+console.log('🤖 Agent Orchestrator initialized');
 
 // Routes
 app.use('/api/mcp', mcpRouter);

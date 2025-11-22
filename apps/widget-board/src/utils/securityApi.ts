@@ -47,14 +47,13 @@ const DEFAULT_FEED_PAYLOAD: SecurityFeedsPayload = {
   environment: { openSearchConnected: false, minioConnected: false }
 };
 
+import { request } from '../../utils/request';
+
 export async function fetchSecurityFeeds(orgId?: string): Promise<SecurityFeedsPayload> {
   try {
-    // Mock implementation since mcpClient is missing
-    // const response = await mcpClient.call('feeds.ingest', { org_id: orgId || 'default' });
-    // return response.payload as SecurityFeedsPayload;
-    return DEFAULT_FEED_PAYLOAD;
+    return await request<SecurityFeedsPayload>('/api/security/feeds');
   } catch (error) {
-    console.warn('Real fetch failed, using fallback', error);
+    console.warn('Fetch failed, using fallback', error);
     return DEFAULT_FEED_PAYLOAD;
   }
 }

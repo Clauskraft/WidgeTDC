@@ -1,20 +1,32 @@
-name: HansPedder Orchestrator
+name: HansPedder Orchestrator (Self-Learning Cortex)
 
 on:
+  schedule:
+    - cron: '0 * * * *' # Hver time
   pull_request:
     types: [opened, synchronize]
-  schedule:
-    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 env:
   ORCHESTRATOR_NAME: HansPedder
-  MIN_STORY_POINTS: 1
-  MAX_STORY_POINTS: 100
+  AGENT_CONFIG: >-
+    {
+      "FrontendAgent": ["css", "style", "ui", "ux", "design", "html", "frontend", "tailwind", "button", "view", "react", "lucide"],
+      "BackendAgent": ["api", "json", "server", "controller", "java", "c#", "route", "endpoint", "auth", "middleware"],
+      "DataAgent": ["db", "sql", "database", "schema", "query", "postgres", "migration", "table", "column", "redis"],
+      "DevOpsAgent": ["ci", "cd", "docker", "yaml", "cloud", "deploy", "build", "terraform", "pipeline", "action", "npm", "package"]
+    }
 
 jobs:
-  orchestrate-agent-prs:
+  orchestrate-system:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: read
+      checks: read
+      statuses: read
 
     steps:
       - name: Checkout repository
@@ -27,214 +39,270 @@ jobs:
           git config user.name "HansPedder Orchestrator"
           git config user.email "hanspedder@widgettdc.dev"
 
-      - name: Discover all open agent PRs
-        id: discover
+      - name: 🧠 HansPedder Cortex (Memory & Learning)
+        id: orchestrate
         env:
           GH_TOKEN: ${{ github.token }}
+          CONFIG: ${{ env.AGENT_CONFIG }}
+          AI_API_KEY: ${{ secrets.AI_API_KEY }}
+        shell: python
         run: |
-          echo "Discovering agent PRs..."
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+          import urllib.request
+          import time
 
-          gh pr list --state open --json number,title,body,author,headRefName > prs.json
+          MEMORY_FILE = ".github/hanspedder_memory.json"
 
-          cat prs.json | jq -r '.[] | select(.body | contains("Agent:")) | "\(.number)|\(.title)|\(.headRefName)"' > agent_prs.txt
+          # --- BASE FUNCTIONS ---
+          def run_command(cmd):
+              try:
+                  result = subprocess.run(cmd, capture_output=True, text=True)
+                  if result.returncode != 0:
+                      return None, result.stderr.strip()
+                  return result.stdout.strip(), None
+              except Exception as e:
+                  return None, str(e)
 
-          if [ -s agent_prs.txt ]; then
-            echo "Found agent PRs:"
-            cat agent_prs.txt
-            echo "agent_prs_found=true" >> $GITHUB_OUTPUT
-          else
-            echo "No agent PRs found"
-            echo "agent_prs_found=false" >> $GITHUB_OUTPUT
-          fi
+          # --- MEMORY SYSTEM ---
+          def load_memory():
+              if os.path.exists(MEMORY_FILE):
+                  try:
+                      with open(MEMORY_FILE, 'r') as f:
+                          return json.load(f)
+                  except:
+                      return {"fixes": []}
+              return {"fixes": []}
 
-      - name: Parse and validate agent PRs
-        id: validate
-        if: steps.discover.outputs.agent_prs_found == 'true'
+          def save_to_memory(error_pattern, fix_command, context):
+              mem = load_memory()
+              # Tjek om vi allerede kender denne fix (for at undgå dubletter)
+              for entry in mem["fixes"]:
+                  if entry["error"] == error_pattern:
+                      return # Vi kender den allerede
+              
+              print(f"🧠 LÆRING: Gemmer ny viden i hukommelsen: '{error_pattern}' -> '{fix_command}'")
+              mem["fixes"].append({
+                  "error": error_pattern,
+                  "fix": fix_command,
+                  "context": context,
+                  "timestamp": time.time()
+              })
+              
+              # Skriv til fil
+              os.makedirs(os.path.dirname(MEMORY_FILE), exist_ok=True)
+              with open(MEMORY_FILE, 'w') as f:
+                  json.dump(mem, f, indent=2)
+              
+              # Commit hukommelsen til repoet så den huskes til næste gang
+              run_command(["git", "add", MEMORY_FILE])
+              run_command(["git", "commit", "-m", "chore(brain): HansPedder learned a new fix"])
+              run_command(["git", "push", "origin", "main"])
+
+          def recall_solution(error_msg):
+              mem = load_memory()
+              # Simpel fuzzy matching
+              for entry in mem["fixes"]:
+                  # Hvis en betydelig del af den gemte fejlbesked findes i den nuværende fejl
+                  if entry["error"] in error_msg or error_msg in entry["error"]:
+                      print(f"💡 HUKOMMELSE: Jeg har løst dette før! Bruger gemt løsning.")
+                      return entry["fix"]
+              return None
+
+          # --- INTELLIGENCE CORE ---
+          def consult_lifeline(error_msg, context="general"):
+              print(f"\n🚑 ANALYSERER FEJL I KONTEKST: {context}")
+              
+              # 1. TJEK HUKOMMELSE (Selvlæring)
+              known_fix = recall_solution(error_msg)
+              if known_fix:
+                  print(f"⚡ Udfører kendt fix fra hukommelsen: {known_fix}")
+                  out, err = run_command(known_fix.split())
+                  if not err:
+                      print("✅ Fix virkede (baseret på erfaring).")
+                      return True
+                  else:
+                      print("⚠️ Kendt fix virkede ikke denne gang. Prøver AI...")
+
+              # 2. OFFLINE HEURISTIK
+              fixes = []
+              if "index.lock" in error_msg: fixes.append(["rm", "-f", ".git/index.lock"])
+              elif "shallow update" in error_msg: fixes.append(["git", "fetch", "--unshallow"])
+              elif "conflict" in error_msg.lower(): fixes.append(["git", "merge", "--abort"])
+              
+              if fixes:
+                  for fix_cmd in fixes:
+                      out, err = run_command(fix_cmd)
+                      if not err: return True
+
+              # 3. ONLINE DEEPSEEK (Nyt fix)
+              api_key = os.environ.get('AI_API_KEY')
+              if not api_key: return False
+
+              print("📡 Spørger DeepSeek...")
+              system_prompt = "You are a DevOps Expert. Return ONLY the single shell command needed to fix the error. No markdown. No explanation."
+              user_prompt = f"Context: {context}. Error log: {error_msg}. Path: Repo root."
+              
+              payload = {
+                  "model": "deepseek-chat",
+                  "messages": [{"role": "system", "content": system_prompt}, {"role": "user", "content": user_prompt}],
+                  "temperature": 0.1,
+                  "stream": False
+              }
+
+              try:
+                  req = urllib.request.Request(
+                      "https://api.deepseek.com/chat/completions",
+                      data=json.dumps(payload).encode('utf-8'),
+                      headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+                  )
+                  with urllib.request.urlopen(req) as response:
+                      resp_data = json.load(response)
+                      ai_command = resp_data['choices'][0]['message']['content'].strip()
+                      ai_command = ai_command.replace("```bash", "").replace("```", "").strip()
+
+                      if "rm -rf /" in ai_command: return False # Sikkerhed
+
+                      print(f"🤖 DeepSeek foreslår: {ai_command}")
+                      out, err = run_command(ai_command.split())
+                      
+                      if not err:
+                          print("✅ AI Fix udført!")
+                          # 4. GEM NY VIDEN I HUKOMMELSEN
+                          # Vi gemmer de første 100 tegn af fejlen som nøgle
+                          short_error = error_msg[:200] if len(error_msg) > 200 else error_msg
+                          save_to_memory(short_error, ai_command, context)
+                          return True
+                      else:
+                          print(f"❌ AI Fix fejlede: {err}")
+                          return False
+              except Exception as e:
+                  print(f"💥 AI Fejl: {e}")
+                  return False
+
+          # --- MAIN LOOP ---
+          try:
+              print("🤖 HansPedder vågner. Hukommelse indlæst.")
+              agent_keywords = json.loads(os.environ['CONFIG'])
+              orchestrator_name = "HansPedder"
+              
+              # === 1. PR MANAGEMENT ===
+              print("\n--- 1. Analyserer Pull Requests ---")
+              output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
+              if err and consult_lifeline(err, "PR List"): # Prøv at fixe hvis gh kommando fejler
+                  output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
+
+              if output:
+                  prs = json.loads(output)
+                  for pr in prs:
+                      try:
+                          if pr['author']['login'] == "github-actions": continue 
+                          number = pr['number']
+                          title = pr['title']
+                          body = pr['body'] if pr['body'] else ""
+                          original_body = body
+                          
+                          print(f"Behandler PR #{number}: {title}")
+
+                          # Allokering & Metadata (Standard)
+                          agent_match = re.search(r'Agent:\s*([A-Za-z0-9_]+)', body)
+                          current_agent = agent_match.group(1) if agent_match else None
+                          if not current_agent:
+                              # ... (Samme allokeringslogik som før) ...
+                              best_agent = orchestrator_name
+                              for name, keys in agent_keywords.items():
+                                  if any(k in (title+body).lower() for k in keys): best_agent = name
+                              current_agent = best_agent
+                              body += f"\nAgent: {current_agent}"
+
+                          if "Block:" not in body: body += "\nBlock: 99"
+                          if "Points:" not in body: body += "\nPoints: 1"
+
+                          if body != original_body: run_command(["gh", "pr", "edit", str(number), "--body", body])
+
+                          # Semantisk Titel
+                          clean_title = re.sub(r'[^a-zA-Z0-9 ]', '', title.replace("READY FOR MERGE", "")).strip()
+                          if not re.match(r'^(feat|fix|docs|chore):', clean_title):
+                              prefix = "fix" if "fix" in clean_title.lower() else "feat"
+                              new_title = f"{prefix}: [{current_agent}] - {clean_title}"[:200]
+                              run_command(["gh", "pr", "edit", str(number), "--title", new_title])
+
+                          # Auto-Merge med AI konfliktløsning
+                          out, merge_err = run_command(["gh", "pr", "merge", str(number), "--squash", "--auto", "--delete-branch"])
+                          if merge_err and "conflict" in merge_err:
+                              consult_lifeline(merge_err, f"Merge PR #{number}")
+
+                      except Exception: continue
+
+              # === 2. DRIFT & SELF-HEALING ===
+              print("\n--- 2. System Health Check ---")
+              output, err = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "databaseId,status,conclusion,headSha"])
+              
+              if output:
+                  runs = json.loads(output)
+                  if runs and runs[0]['status'] == "completed" and runs[0]['conclusion'] == "failure":
+                      latest = runs[0]
+                      run_id = latest['databaseId']
+                      print(f"🚨 KRITISK FEJL PÅ MAIN (Run {run_id})")
+
+                      # Check hukommelse / Auto-heal
+                      commits_out, _ = run_command(["git", "log", "-1", "--pretty=%B"])
+                      if "chore(brain)" not in commits_out and "fix: auto-healing" not in commits_out:
+                          log_out, _ = run_command(["gh", "run", "view", str(run_id), "--log-failed"])
+                          error_snippet = log_out[-2000:] if log_out else "Unknown Error"
+                          
+                          print("🚑 Forsøger auto-repair...")
+                          if consult_lifeline(error_snippet, "Build Repair"):
+                              # Fix virkede! Commit det
+                              run_command(["git", "add", "."])
+                              run_command(["git", "commit", "-m", f"fix: auto-healing build error {run_id}"])
+                              run_command(["git", "push", "origin", "main"])
+                              print("✅ Auto-healing pushet.")
+                          else:
+                              # Fix fejlede -> Rollback
+                              print("⚠️ Auto-heal fejlede. Starter Rollback.")
+                              run_command(["git", "fetch", "origin", "main"])
+                              run_command(["git", "checkout", "main"])
+                              run_command(["git", "pull", "origin", "main"])
+                              revert_out, revert_err = run_command(["git", "revert", latest['headSha'], "--no-edit"])
+                              
+                              if revert_err:
+                                   if not consult_lifeline(revert_err, "Rollback Conflict"):
+                                       raise Exception("Rollback Failed")
+                              
+                              run_command(["git", "push", "origin", "main"])
+                              print("✅ Rollback udført.")
+                              run_command(["gh", "issue", "create", "--title", f"🛡️ Auto-Rollback", "--body", f"Reverted commit {latest['headSha']}", "--label", "urgent"])
+
+              print("✅ Cyklus færdig.")
+
+          except Exception as e:
+              print(f"🔥 FATAL: {e}")
+              sys.exit(1)
+
+      - name: 📝 TODO Scanner
+        uses: alstr/todo-to-issue-action@v4
+        continue-on-error: true
+        with:
+          CLOSE_ISSUES: true
+          AUTO_ASSIGN: true
+          IGNORE: '/.github/workflows/*.yml, *.json' # Ignorerer også hukommelsesfilen
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Validating agent PRs..."
+          GITHUB_TOKEN: ${{ github.token }}
 
-          > validated_prs.txt
-          > validation_report.md
-          echo "# HansPedder PR Validation Report" >> validation_report.md
-          echo "" >> validation_report.md
-          echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> validation_report.md
-          echo "" >> validation_report.md
-
-          total_points=0
-          valid_count=0
-
-          while IFS='|' read -r pr_number pr_title pr_branch; do
-            echo "" >> validation_report.md
-            echo "## PR #$pr_number: $pr_title" >> validation_report.md
-
-            pr_body=$(gh pr view "$pr_number" --json body -q '.body')
-
-            agent=$(echo "$pr_body" | grep -oP 'Agent:\s*\K[A-Za-z0-9_]+' || echo "")
-            block=$(echo "$pr_body" | grep -oP 'Block:\s*\K\d+' || echo "")
-            points=$(echo "$pr_body" | grep -oP 'Points:\s*\K\d+' || echo "")
-
-            echo "- **Agent:** $agent" >> validation_report.md
-            echo "- **Block:** $block" >> validation_report.md
-            echo "- **Points:** $points" >> validation_report.md
-
-            valid=true
-
-            if [ -z "$agent" ]; then
-              echo "- **Status:** INVALID - Missing agent name" >> validation_report.md
-              valid=false
-            fi
-
-            if [ -z "$block" ]; then
-              echo "- **Status:** INVALID - Missing block number" >> validation_report.md
-              valid=false
-            fi
-
-            if [ -z "$points" ]; then
-              echo "- **Status:** INVALID - Missing story points" >> validation_report.md
-              valid=false
-            elif [ "$points" -lt "$MIN_STORY_POINTS" ] || [ "$points" -gt "$MAX_STORY_POINTS" ]; then
-              echo "- **Status:** INVALID - Story points out of range ($points)" >> validation_report.md
-              valid=false
-            fi
-
-            if [ "$valid" = true ]; then
-              echo "- **Status:** VALID - Ready for merge" >> validation_report.md
-              echo "$pr_number|$agent|$block|$points|$pr_branch" >> validated_prs.txt
-              total_points=$((total_points + points))
-              valid_count=$((valid_count + 1))
-            fi
-
-          done < agent_prs.txt
-
-          echo "" >> validation_report.md
-          echo "---" >> validation_report.md
-          echo "" >> validation_report.md
-          echo "## Summary" >> validation_report.md
-          echo "- **Valid PRs:** $valid_count" >> validation_report.md
-          echo "- **Total Story Points:** $total_points" >> validation_report.md
-
-          cat validation_report.md
-
-          if [ -s validated_prs.txt ]; then
-            echo "validated_prs_exist=true" >> $GITHUB_OUTPUT
-            echo "total_points=$total_points" >> $GITHUB_OUTPUT
-            echo "valid_count=$valid_count" >> $GITHUB_OUTPUT
-          else
-            echo "validated_prs_exist=false" >> $GITHUB_OUTPUT
-          fi
-
-
-      - name: Merge validated PRs
-        if: steps.validate.outputs.validated_prs_exist == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Merging validated PRs..."
-
-          > merge_report.md
-          echo "# HansPedder Merge Report" >> merge_report.md
-          echo "" >> merge_report.md
-          echo "**Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> merge_report.md
-          echo "" >> merge_report.md
-
-          merged_count=0
-          failed_count=0
-
-          while IFS='|' read -r pr_number agent block points branch; do
-            echo "" >> merge_report.md
-            echo "## PR #$pr_number: $agent (Block $block)" >> merge_report.md
-
-            echo "Attempting to merge PR #$pr_number..."
-
-            if gh pr merge "$pr_number" --squash --auto --delete-branch; then
-              echo "- **Result:** MERGED SUCCESSFULLY" >> merge_report.md
-              echo "- **Points Delivered:** $points" >> merge_report.md
-              echo "- **Branch Deleted:** $branch" >> merge_report.md
-              merged_count=$((merged_count + 1))
-              echo "PR #$pr_number merged successfully"
-            else
-              echo "- **Result:** MERGE FAILED" >> merge_report.md
-              echo "- **Reason:** Merge conflicts or failing checks" >> merge_report.md
-              failed_count=$((failed_count + 1))
-              echo "Failed to merge PR #$pr_number"
-            fi
-
-          done < validated_prs.txt
-
-          echo "" >> merge_report.md
-          echo "---" >> merge_report.md
-          echo "" >> merge_report.md
-          echo "## Summary" >> merge_report.md
-          echo "- **Merged:** $merged_count" >> merge_report.md
-          echo "- **Failed:** $failed_count" >> merge_report.md
-          echo "- **Total Points Delivered:** ${{ steps.validate.outputs.total_points }}" >> merge_report.md
-
-          cat merge_report.md
-
-      - name: Update project kanban board
-        if: steps.validate.outputs.validated_prs_exist == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "Updating project kanban board..."
-
-          while IFS='|' read -r pr_number agent block points branch; do
-
-            gh issue comment "$pr_number" --body "Orchestrator Update
-
-          - Status: Merged to main
-          - Agent: $agent
-          - Block: $block
-          - Story Points: $points
-          - Completed: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-          Thank you for your contribution!" 2>/dev/null || echo "Could not comment on PR #$pr_number"
-
-          done < validated_prs.txt
-
-          echo "Kanban board update complete"
-
-      - name: Generate orchestration summary
-        if: always()
-        run: |
-          echo "# HansPedder Orchestration Summary" > summary.md
-          echo "" >> summary.md
-          echo "**Run Timestamp:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> summary.md
-          echo "**Trigger:** ${{ github.event_name }}" >> summary.md
-          echo "" >> summary.md
-
-          if [ -f validation_report.md ]; then
-            cat validation_report.md >> summary.md
-            echo "" >> summary.md
-          fi
-
-          if [ -f merge_report.md ]; then
-            cat merge_report.md >> summary.md
-            echo "" >> summary.md
-          fi
-
-          echo "## Orchestrator Status" >> summary.md
-          if [ "${{ steps.validate.outputs.validated_prs_exist }}" = "true" ]; then
-            echo "- PRs Processed: ${{ steps.validate.outputs.valid_count }}" >> summary.md
-            echo "- Story Points: ${{ steps.validate.outputs.total_points }}" >> summary.md
-            echo "- Status: ACTIVE" >> summary.md
-          else
-            echo "- Status: IDLE (No agent PRs to process)" >> summary.md
-          fi
-
-          echo "" >> summary.md
-          echo "---" >> summary.md
-          echo "**HansPedder Orchestrator** - Automated PR management for WidgetTDC multi-agent system" >> summary.md
-
-          cat summary.md
-
-      - name: Post summary to workflow
-        if: always()
-        run: |
-          if [ -f summary.md ]; then
-            echo "ORCHESTRATION_SUMMARY<<EOF" >> $GITHUB_STEP_SUMMARY
-            cat summary.md >> $GITHUB_STEP_SUMMARY
-            echo "EOF" >> $GITHUB_STEP_SUMMARY
-          fi
+      - name: 🆘 Nød-mail
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "🔥 HansPedder: Hukommelsen svigtede"
+          to: clauskraft@gmail.com
+          from: "HansPedder Orchestrator"
+          body: |
+            Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

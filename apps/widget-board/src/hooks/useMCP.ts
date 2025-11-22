@@ -33,7 +33,8 @@ export const useMCP = () => {
 
       setIsLoading(true);
       try {
-        const response = await fetch(options?.routePath ?? '/api/mcp/route', {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+        const response = await fetch(options?.routePath ?? `${backendUrl}/api/mcp/route`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

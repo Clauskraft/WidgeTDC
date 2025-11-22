@@ -134,12 +134,12 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableHead>File Name</TableHead>
-              <TableHead>Path</TableHead>
-              <TableHead>Threat Score (0-10)</TableHead>
-              <TableHead>Size</TableHead>
-              <TableHead>Image Analysis</TableHead>
-              <TableHead>Snippet</TableHead>
+              <TableHeader>File Name</TableHeader>
+              <TableHeader>Path</TableHeader>
+              <TableHeader>Threat Score (0-10)</TableHeader>
+              <TableHeader>Size</TableHeader>
+              <TableHeader>Image Analysis</TableHeader>
+              <TableHeader>Snippet</TableHeader>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -156,9 +156,9 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
                 <TableCell className="text-xs">
                   {result.hasImage && result.imageAnalysis ? (
                     <div>
-                      <p>OCR: {result.imageAnalysis.ocrText?.substring(0, 50)}...</p>
-                      <p>Alt: {result.imageAnalysis.altText || 'N/A'}</p>
-                      <p>Score: {result.imageAnalysis.score}</p>
+                      <span>OCR: {result.imageAnalysis.ocrText?.substring(0, 50)}...</span>
+                      <span className="block">Alt: {result.imageAnalysis.altText || 'N/A'}</span>
+                      <span className="block">Score: {result.imageAnalysis.score}</span>
                     </div>
                   ) : (
                     'N/A'
@@ -167,7 +167,13 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
                 <TableCell className="text-xs font-mono">{result.snippet.substring(0, 100)}...</TableCell>
               </TableRow>
             ))}
-            {results.length === 0 && <p className="text-center text-slate-500">No results yet. Start a scan!</p>}
+            {results.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-slate-500">
+                  No results yet. Start a scan!
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </div>

@@ -35,13 +35,35 @@ const AiPalWidget: React.FC = () => {
 
   const loadRecommendations = async () => {
     setLoading(true);
-    
+
     try {
-      const response = await fetch('http://localhost:3001/api/pal/recommendations?userId=user-1&orgId=org-1');
-      
+      // Use MCP tool: pal.board-action
+      const response = await fetch('/api/mcp/route', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tool: 'pal.board-action',
+          payload: {},
+          context: {
+            userId: 'user-1',
+            orgId: 'org-1',
+          },
+        }),
+      });
+
       if (response.ok) {
         const data = await response.json();
-        setRecommendations(data);
+        // Transform MCP response to match widget expectations
+        setRecommendations({
+          userId: 'user-1',
+          orgId: 'org-1',
+          boardAdjustments: data.boardAdjustments || [],
+          reminders: data.aiRecommendations ? [data.aiRecommendations] : [],
+          focusWindow: null,
+          profile: {
+            preferenceTone: 'supportive',
+          },
+        });
       }
     } catch (err) {
       console.error('Failed to load recommendations:', err);
@@ -60,16 +82,22 @@ const AiPalWidget: React.FC = () => {
   const recordEvent = async () => {
     try {
       const payload = JSON.parse(eventPayload);
-      
-      await fetch('http://localhost:3001/api/pal/event', {
+
+      // Use MCP tool: pal.event
+      await fetch('/api/mcp/route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: 'user-1',
-          orgId: 'org-1',
-          eventType,
-          payload,
-          detectedStressLevel: stressLevel,
+          tool: 'pal.event',
+          payload: {
+            eventType,
+            payload,
+            detectedStressLevel: stressLevel,
+          },
+          context: {
+            userId: 'user-1',
+            orgId: 'org-1',
+          },
         }),
       });
 

@@ -1,0 +1,296 @@
+# WidgetTDC Graphics & Animation Specialist Agent
+# Advanced UI/UX Design Agent with Glassmorphism, Animation, and Visual Effects Expertise
+
+agents:
+  - id: ui-graphics-master
+    name: VisualEffectsSpecialist
+    agent_type: ui-graphics-architect
+    block_number: 7
+    story_points: 65
+
+    description: "Elite UI/Graphics specialist for glassmorphism, advanced animations, and premium visual effects using Framer Motion, GSAP, Three.js, and modern CSS"
+
+    specializations:
+      - glassmorphism_design
+      - advanced_css_animations
+      - framer_motion_integration
+      - gsap_timeline_animations
+      - three_js_3d_graphics
+      - shader_effects
+      - micro_interactions
+      - performance_optimization
+
+    dependencies:
+      blocks: [1]
+      external_systems: []
+      design_references:
+        - design-references/target-ui-design.png
+        - design-references/UI-DESIGN-SPEC.md
+
+    capabilities:
+      # Core Graphics Capabilities
+      - create_glassmorphism_components
+      - implement_backdrop_filters
+      - create_gradient_systems
+      - implement_shimmer_effects
+      - create_noise_textures
+      
+      # Animation Capabilities
+      - implement_framer_motion_animations
+      - create_gsap_timelines
+      - implement_scroll_animations
+      - create_stagger_animations
+      - implement_micro_interactions
+      
+      # 3D & Advanced Graphics
+      - integrate_three_js_scenes
+      - create_shader_effects
+      - implement_particle_systems
+      - create_3d_transforms
+      
+      # Performance & Optimization
+      - optimize_animation_performance
+      - implement_will_change_optimization
+      - create_reduced_motion_variants
+      - optimize_gpu_acceleration
+
+    technical_stack:
+      frameworks:
+        - name: "Framer Motion"
+          version: "^11.0.0"
+          purpose: "React animations and gestures"
+          use_cases:
+            - "Component entrance/exit animations"
+            - "Gesture-based interactions"
+            - "Layout animations"
+            - "SVG path animations"
+        
+        - name: "GSAP (GreenSock)"
+          version: "^3.12.0"
+          purpose: "Complex timeline animations"
+          use_cases:
+            - "Timeline-based sequences"
+            - "ScrollTrigger animations"
+            - "SVG morphing"
+            - "3D transforms"
+        
+        - name: "Three.js"
+          version: "^0.160.0"
+          purpose: "3D graphics and WebGL"
+          use_cases:
+            - "3D background scenes"
+            - "Particle effects"
+            - "Custom shaders"
+            - "Interactive 3D elements"
+      
+      libraries:
+        - "@react-three/fiber": "3D React renderer"
+        - "@react-three/drei": "Three.js helpers"
+        - "lottie-react": "Lottie animations"
+        - "react-spring": "Spring physics animations"
+
+    design_principles:
+      glassmorphism:
+        transparency:
+          dark_mode: "25-35% opacity"
+          light_mode: "20-25% opacity"
+        
+        blur:
+          backdrop_filter: "blur(3xl) saturate(150%)"
+          webkit_prefix: true
+        
+        gradients:
+          dark: "slate-900/35 → slate-800/25 → slate-900/35"
+          light: "white/25 → white/20 → white/25"
+        
+        borders:
+          style: "multi-layer 3D depth"
+          dark_top: "white/10"
+          dark_bottom: "black/60"
+          light_top: "white/80"
+          light_bottom: "white/30"
+        
+        effects:
+          - shimmer_on_hover
+          - mica_noise_texture
+          - inset_shadows
+          - gradient_borders
+
+      animations:
+        timing_functions:
+          - "cubic-bezier(0.4, 0, 0.2, 1)" # Ease out
+          - "cubic-bezier(0.16, 1, 0.3, 1)" # Smooth
+        
+        durations:
+          micro: "200ms"
+          standard: "300ms"
+          complex: "500ms"
+          shimmer: "1000ms"
+        
+        principles:
+          - "Smooth and purposeful"
+          - "Performance-first (60fps)"
+          - "Respect prefers-reduced-motion"
+          - "GPU-accelerated transforms"
+
+    constraints:
+      max_files: 30
+      max_lines_per_file: 400
+      allowed_file_types: [.tsx, .ts, .css, .scss, .glsl]
+      max_commit_message_length: 120
+      
+      performance_budgets:
+        max_animation_fps_drop: 5
+        max_bundle_size_kb: 200
+        max_first_paint_ms: 1500
+
+    github_app_permissions_required:
+      - scope: contents
+        permission: write
+        reason: "Create graphics components and shaders"
+      - scope: pull-requests
+        permission: write
+        reason: "Submit visual enhancements"
+
+    resources_required:
+      npm_packages:
+        - framer-motion
+        - gsap
+        - three
+        - "@react-three/fiber"
+        - "@react-three/drei"
+        - lottie-react
+        - react-spring
+      
+      disk_space_mb: 250
+      execution_timeout_seconds: 600
+      gpu_acceleration: required
+
+    implementation:
+      outputs:
+        files_created:
+          # Glassmorphism Components
+          - src/components/Glass/GlassCard.tsx
+          - src/components/Glass/GlassPanel.tsx
+          - src/components/Glass/GlassButton.tsx
+          - src/components/Glass/glass-styles.css
+          
+          # Animation Components
+          - src/components/Animations/FadeIn.tsx
+          - src/components/Animations/SlideUp.tsx
+          - src/components/Animations/StaggerContainer.tsx
+          - src/components/Animations/ShimmerEffect.tsx
+          
+          # 3D Components
+          - src/components/3D/BackgroundScene.tsx
+          - src/components/3D/ParticleField.tsx
+          - src/components/3D/shaders/glass.glsl
+          
+          # Utilities
+          - src/utils/animations/variants.ts
+          - src/utils/animations/gsap-config.ts
+          - src/utils/graphics/noise-generator.ts
+          
+          # Hooks
+          - src/hooks/useGlassmorphism.ts
+          - src/hooks/useParallax.ts
+          - src/hooks/useScrollAnimation.ts
+          
+          # Tests
+          - src/components/Glass/__tests__/GlassCard.test.tsx
+          - src/utils/animations/__tests__/variants.test.ts
+        
+        branch: agent/block-7-ui-graphics-master
+        pr_title: "Block 7: Elite UI Graphics & Animation System"
+
+    validation:
+      pre_execution:
+        - check: "Design spec exists at design-references/UI-DESIGN-SPEC.md"
+          action: "fail"
+        - check: "Target design image exists"
+          action: "warn"
+        - check: "GPU acceleration available"
+          action: "warn"
+      
+      post_execution:
+        - check: "All animations run at 60fps"
+          action: "warn"
+        - check: "Glassmorphism matches design spec"
+          action: "fail"
+        - check: "Reduced motion variants implemented"
+          action: "fail"
+        - check: "Bundle size within budget"
+          action: "warn"
+
+    quality_standards:
+      visual:
+        - "Match target-ui-design.png exactly"
+        - "Transparency levels per spec"
+        - "Smooth shimmer effects"
+        - "Premium feel and polish"
+      
+      performance:
+        - "60fps animations"
+        - "GPU-accelerated transforms"
+        - "Lazy load heavy effects"
+        - "Code-split animation libraries"
+      
+      accessibility:
+        - "Respect prefers-reduced-motion"
+        - "Keyboard navigation support"
+        - "Focus indicators visible"
+        - "ARIA labels for animations"
+
+    documentation_requirements:
+      - "Animation usage guide"
+      - "Glassmorphism component API"
+      - "Performance optimization tips"
+      - "Accessibility guidelines"
+      - "Design token documentation"
+
+# Metadata
+metadata:
+  version: "1.0"
+  agent_id: "ui-graphics-master"
+  specialization: "Advanced UI/UX Graphics"
+  created_at: "2025-11-21"
+  last_updated: "2025-11-21"
+  author: "Antigravity AI"
+  
+  expertise_areas:
+    - "Glassmorphism Design"
+    - "Framer Motion"
+    - "GSAP Animations"
+    - "Three.js 3D Graphics"
+    - "Shader Programming"
+    - "Performance Optimization"
+    - "Micro-interactions"
+    - "Visual Effects"
+
+  references:
+    design_inspiration:
+      - "Microsoft Fluent Design System"
+      - "Apple Human Interface Guidelines"
+      - "Material Design 3"
+      - "Glassmorphism.com"
+    
+    technical_docs:
+      - "https://www.framer.com/motion/"
+      - "https://greensock.com/docs/"
+      - "https://threejs.org/docs/"
+      - "https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter"
+
+# Validation configuration
+validation:
+  required_fields:
+    - id
+    - name
+    - block_number
+    - story_points
+    - specializations
+    - capabilities
+    - technical_stack
+  
+  enforce_unique_ids: true
+  enforce_design_spec_compliance: true
+  enforce_performance_budgets: true

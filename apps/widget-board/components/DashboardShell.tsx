@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { WidthProvider, Responsive } from 'react-grid-layout';
 import WidgetContainer from './WidgetContainer';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
+import { useWidgetStore } from './widgetStore';
+import { useHistoryStore } from './historyStore';
+import { useMCP } from './MCPContext';
+import { useMcpEvent } from './useMcpEvent';
 import { useGlobalState } from '../contexts/GlobalStateContext';
-import type { WidgetInstance, WidgetConfig } from '../types';
 import type { Layout, Layouts } from 'react-grid-layout';
 import TrashDropzone from './TrashDropzone';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-interface DashboardShellProps {
-  widgets: WidgetInstance[];
-  removeWidget: (widgetId: string) => void;
-  updateWidgetConfig: (widgetId: string, config: WidgetConfig) => void;
-}
-
 const LAYOUTS_STORAGE_KEY = 'widgetboard_layouts';
 
-const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, updateWidgetConfig }) => {
+const DashboardShell: React.FC = () => {
+  const { widgets, removeWidget, updateWidgetConfig, reAddWidget } = useWidgetStore();
+  const { push, undo, redo } = useHistoryStore();
+  const mcp = useMCP();
   const { availableWidgets } = useWidgetRegistry();
   const { state } = useGlobalState();
   const [layouts, setLayouts] = useState<Layouts>(() => {
@@ -43,17 +43,18 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
         .map(widget => {
           const widgetDef = availableWidgets.find(w => w.id === widget.widgetType);
           if (!widgetDef) return null;
-          return {
+          const layoutItem: Layout = {
             i: widget.id,
             x: (currentLayout.length * widgetDef.defaultLayout.w) % 12,
             y: Infinity, // puts it at the bottom
             w: widgetDef.defaultLayout.w,
             h: widgetDef.defaultLayout.h,
-            minW: widgetDef.minW,
-            maxW: widgetDef.maxW,
-            minH: widgetDef.minH,
-            maxH: widgetDef.maxH,
           };
+          if (widgetDef.minW !== undefined) layoutItem.minW = widgetDef.minW;
+          if (widgetDef.maxW !== undefined) layoutItem.maxW = widgetDef.maxW;
+          if (widgetDef.minH !== undefined) layoutItem.minH = widgetDef.minH;
+          if (widgetDef.maxH !== undefined) layoutItem.maxH = widgetDef.maxH;
+          return layoutItem;
         })
         .filter((item): item is Layout => item !== null);
 
@@ -64,7 +65,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [widgets, availableWidgets]);
 
-  const onLayoutChange = (layout: Layout[], allLayouts: Layouts) => {
+  const onLayoutChange = useCallback((layout: Layout[], allLayouts: Layouts) => {
     try {
       // Only save layouts if not dragging to prevent intermediate saves
       if (!isDragging) {
@@ -74,10 +75,29 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
     } catch (error) {
       console.error('Could not save layouts to localStorage', error);
     }
-  };
+  }, [isDragging]);
 
-  const onRemoveWidget = (widgetId: string) => {
-    removeWidget(widgetId);
+  const onRemoveWidget = useCallback((widgetId: string) => {
+    const removedWidget = removeWidget(widgetId);
+
+    // Gem handlingen i historik-stakken
+    if (removedWidget) {
+      push({ type: 'WIDGET_REMOVED', payload: { widget: removedWidget, previousLayouts: layouts } });
+    }
+
+    if (removedWidget) {
+      mcp.publish('ShowNotification', {
+        id: `remove-${widgetId}`,
+        type: 'info',
+        message: `Widget '${removedWidget.widgetType}' blev fjernet.`,
+        duration: 7000,
+        undoAction: {
+          eventName: 'UndoRemoveWidget',
+          payload: { widget: removedWidget },
+        },
+      });
+    }
+
     // When a widget is removed, we must also update the layout state and persist it.
     setLayouts(prev => {
       const newLayouts = { ...prev };
@@ -88,14 +108,49 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
       localStorage.setItem(LAYOUTS_STORAGE_KEY, JSON.stringify(newLayouts));
       return newLayouts;
     });
-  };
+  }, [removeWidget, mcp, push, layouts]);
 
-  const onDragStart = (layout: Layout[], oldItem: Layout) => {
+  // Lyt efter fortryd-eventen
+  useMcpEvent('UndoRemoveWidget', (payload) => {
+    console.log("Fortryd handling modtaget:", payload);
+    reAddWidget(payload.widget);
+  });
+
+  // Lyt efter globale undo/redo triggers
+  useMcpEvent('TriggerUndo', () => {
+    const actionToUndo = undo();
+    if (!actionToUndo) return;
+
+    console.log("Undoing action:", actionToUndo);
+    switch (actionToUndo.type) {
+      case 'WIDGET_REMOVED':
+        reAddWidget(actionToUndo.payload.widget);
+        // Gendan det gamle layout for at placere widget'en korrekt
+        setLayouts(actionToUndo.payload.previousLayouts);
+        break;
+      // ... håndter andre handlingstyper her
+    }
+  });
+
+  useMcpEvent('TriggerRedo', () => {
+    const actionToRedo = redo();
+    if (!actionToRedo) return;
+
+    console.log("Redoing action:", actionToRedo);
+    switch (actionToRedo.type) {
+      case 'WIDGET_REMOVED':
+        // Gen-udfør fjernelsen
+        onRemoveWidget(actionToRedo.payload.widget.id);
+        break;
+    }
+  });
+
+  const onDragStart = useCallback((layout: Layout[], oldItem: Layout) => {
     setIsDragging(true);
     draggedItemRef.current = oldItem;
-  };
+  }, []);
 
-  const onDrag = (
+  const onDrag = useCallback((
     layout: Layout[],
     oldItem: Layout,
     newItem: Layout,
@@ -107,18 +162,18 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
       const isOver = e.clientY > trashRect.top;
       setIsOverTrash(isOver);
     }
-  };
+  }, []);
 
-  const onDragStop = () => {
+  const onDragStop = useCallback(() => {
     if (isOverTrash && draggedItemRef.current) {
       onRemoveWidget(draggedItemRef.current.i);
     }
     setIsDragging(false);
     setIsOverTrash(false);
     draggedItemRef.current = null;
-  };
+  }, [isOverTrash, onRemoveWidget]);
 
-  const generateDOM = () => {
+  const widgetDOMElements = useMemo(() => {
     return widgets.map(widget => {
       const widgetDef = availableWidgets.find(w => w.id === widget.widgetType);
       if (!widgetDef) return null;
@@ -134,7 +189,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
         />
       );
     });
-  };
+  }, [widgets, availableWidgets, onRemoveWidget, updateWidgetConfig]);
 
   // Filter layouts to ensure we only render layouts for existing widgets and apply constraints.
   const synchronizedLayouts: Layouts = {};
@@ -178,7 +233,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({ widgets, removeWidget, 
         useCSSTransforms={true}
         draggableHandle=".widget-drag-handle"
       >
-        {generateDOM()}
+        {widgetDOMElements}
       </ResponsiveGridLayout>
       <TrashDropzone ref={trashRef} isVisible={isDragging} isActive={isOverTrash} />
     </div>
