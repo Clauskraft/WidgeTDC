@@ -1,3 +1,4 @@
+typescript
 // Dashboard Shell Enhanced Types - Phase 1.B Professionalization
 import type { Layout, Layouts } from 'react-grid-layout';
 
@@ -101,3 +102,9 @@ export const STORAGE_KEYS = {
   MONITORS: 'widgetboard_monitor_config',
   SHORTCUTS: 'widgetboard_keyboard_shortcuts',
 } as const;
+
+// Type aliases for better readability and maintainability
+export type DashboardLayoutState = DashboardStatus['layout'];
+export type CollaborationMode = DashboardPreferences['collaborationMode'];
+export type ThemePreference = DashboardPreferences['theme'];
+export type DockingPosition = DockingZone['position'];
