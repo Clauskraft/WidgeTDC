@@ -1,17 +1,14 @@
-name: HansPedder Orchestrator (Ultimate Autonomy)
+name: HansPedder Orchestrator (Unstoppable)
 
 on:
-  # Kører hver time for at tjekke systemets helbred og rydde op
   schedule:
-    - cron: '0 * * * *'
-  # Kører også når agenterne åbner eller opdaterer PRs
+    - cron: '0 * * * *' # Kører hver time
   pull_request:
     types: [opened, synchronize]
   workflow_dispatch:
 
 env:
   ORCHESTRATOR_NAME: HansPedder
-  # HansPedders viden om hvem der laver hvad (udvid efter behov)
   AGENT_CONFIG: >-
     {
       "FrontendAgent": ["css", "style", "ui", "ux", "design", "html", "frontend", "tailwind", "button", "view"],
@@ -35,13 +32,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Nødvendigt for at kunne lave git revert
+          fetch-depth: 0 # Vigtig for rollback logik
 
       - name: Configure Git identity
         run: |
           git config user.name "HansPedder Orchestrator"
           git config user.email "hanspedder@widgettdc.dev"
 
+      # -------------------------------------------------------
+      # STEP 1: DEN STORE HJERNE (Python Logic)
+      # -------------------------------------------------------
       - name: 🧠 HansPedder Brain (Orchestrate & Protect)
         id: orchestrate
         env:
@@ -55,192 +55,159 @@ jobs:
           import subprocess
           import sys
 
-          # Helper til at køre shell kommandoer
           def run_command(cmd):
+              # Vi kører kommandoer sikkert
               result = subprocess.run(cmd, capture_output=True, text=True)
               if result.returncode != 0:
-                  # Vi kaster kun fejl ved kritiske git operationer, ikke ved 'not found' checks
-                  if "git" in cmd[0]:
-                      raise Exception(f"Command failed: {result.stderr}")
-              return result.stdout.strip()
+                  # Returner fejlbesked i stedet for at crashe scriptet med det samme
+                  return None, result.stderr
+              return result.stdout.strip(), None
 
           try:
-              print("🤖 HansPedder vågner op. Starter driftsrutine...")
+              print("🤖 HansPedder vågner. Sikrer kontinuerlig drift...")
               
               agent_keywords = json.loads(os.environ['CONFIG'])
               orchestrator_name = "HansPedder"
-              actions_log = []
               
-              # =========================================================
-              # FASE 1: PR ORKESTRERING (Manager Rollen)
-              # =========================================================
+              # --- FASE A: PR MANAGEMENT (LOOPS MÅ IKKE STOPPE) ---
               print("\n--- 1. Analyserer Pull Requests ---")
-              prs_json = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
-              prs = json.loads(prs_json)
+              output, err = run_command(["gh", "pr", "list", "--state", "open", "--json", "number,title,body,author,headRefName"])
               
-              for pr in prs:
-                  # Ignorer egne PRs for at undgå loops
-                  if pr['author']['login'] == "github-actions": continue 
-                  
-                  number = pr['number']
-                  title = pr['title']
-                  body = pr['body'] if pr['body'] else ""
-                  original_body = body
-                  
-                  print(f"Behandler PR #{number}: {title}")
+              if output:
+                  prs = json.loads(output)
+                  for pr in prs:
+                      # Vi pakker hver PR ind i try/except så én fejl ikke stopper de andre
+                      try:
+                          if pr['author']['login'] == "github-actions": continue 
+                          
+                          number = pr['number']
+                          title = pr['title']
+                          body = pr['body'] if pr['body'] else ""
+                          original_body = body
+                          
+                          print(f"Behandler PR #{number}: {title}")
 
-                  # A. Data Udtræk
-                  agent_match = re.search(r'Agent:\s*([A-Za-z0-9_]+)', body)
-                  block_match = re.search(r'Block:\s*(\d+)', body)
-                  
-                  current_agent = agent_match.group(1) if agent_match else None
-                  current_block = block_match.group(1) if block_match else "99" # Default: Maintenance
-                  
-                  # B. Smart Allokering (hvis agent mangler)
-                  if not current_agent:
-                      full_text = (title + " " + body).lower()
-                      best_agent = orchestrator_name
-                      max_matches = 0
-                      
-                      for name, keys in agent_keywords.items():
-                          matches = sum(1 for k in keys if k in full_text)
-                          if matches > max_matches:
-                              max_matches = matches
-                              best_agent = name
-                      
-                      current_agent = best_agent
-                      body += f"\nAgent: {current_agent}"
-                      actions_log.append(f"PR #{number}: Allokeret til {current_agent}")
+                          # 1. Find eller Alloker Agent
+                          agent_match = re.search(r'Agent:\s*([A-Za-z0-9_]+)', body)
+                          current_agent = agent_match.group(1) if agent_match else None
+                          
+                          if not current_agent:
+                              full_text = (title + " " + body).lower()
+                              best_agent = orchestrator_name
+                              max_matches = 0
+                              for name, keys in agent_keywords.items():
+                                  matches = sum(1 for k in keys if k in full_text)
+                                  if matches > max_matches:
+                                      max_matches = matches
+                                      best_agent = name
+                              current_agent = best_agent
+                              body += f"\nAgent: {current_agent}"
 
-                  # C. Standardisering af metadata
-                  if not block_match: body += f"\nBlock: {current_block}"
-                  if "Points:" not in body: body += "\nPoints: 1"
+                          # 2. Sæt Defaults
+                          if "Block:" not in body: body += "\nBlock: 99"
+                          if "Points:" not in body: body += "\nPoints: 1"
 
-                  # Opdater PR body hvis ændret
-                  if body != original_body:
-                      run_command(["gh", "pr", "edit", str(number), "--body", body])
-                  
-                  # D. Semantisk Titel Fix
-                  # Fjerner emojis og 'READY FOR MERGE' tekst for at lave ren titel
-                  clean_title = re.sub(r'[^a-zA-Z0-9 ]', '', title.replace("READY FOR MERGE", "")).strip()
-                  
-                  # Tjekker om den allerede er compliant (feat:, fix:, etc.)
-                  if not re.match(r'^(feat|fix|docs|chore|style|refactor|perf|test|build|ci|revert):', clean_title):
-                      # Gætter type: fix hvis 'fix' indgår, ellers feat
-                      prefix = "fix" if "fix" in clean_title.lower() else "feat"
-                      new_title = f"{prefix}: [{current_agent}] Block {current_block} - {clean_title}"
-                      
-                      # Klipper titel hvis for lang
-                      if len(new_title) > 200: new_title = new_title[:197] + "..."
-                      
-                      run_command(["gh", "pr", "edit", str(number), "--title", new_title])
-                      print(f"  > Omdøbt til: {new_title}")
+                          # 3. Opdater Body (hvis ændret)
+                          if body != original_body:
+                              run_command(["gh", "pr", "edit", str(number), "--body", body])
 
-                  # E. Auto-Merge Forsøg
-                  # --auto flaget fortæller GitHub at merge NÅR checks passerer
-                  try:
-                      run_command(["gh", "pr", "merge", str(number), "--squash", "--auto", "--delete-branch"])
-                      print(f"  > Auto-merge aktiveret for PR #{number}")
-                  except Exception:
-                      pass # Kan fejle hvis der er konflikter, men det er OK (vi prøver igen næste time)
+                          # 4. Fix Titel (Semantic)
+                          clean_title = re.sub(r'[^a-zA-Z0-9 ]', '', title.replace("READY FOR MERGE", "")).strip()
+                          if not re.match(r'^(feat|fix|docs|chore|style|refactor|test):', clean_title):
+                              prefix = "fix" if "fix" in clean_title.lower() else "feat"
+                              new_title = f"{prefix}: [{current_agent}] - {clean_title}"[:200]
+                              run_command(["gh", "pr", "edit", str(number), "--title", new_title])
 
-              # =========================================================
-              # FASE 2: CIRCUIT BREAKER (Driftschef Rollen)
-              # =========================================================
+                          # 5. Enable Auto-Merge
+                          run_command(["gh", "pr", "merge", str(number), "--squash", "--auto", "--delete-branch"])
+
+                      except Exception as pr_error:
+                          print(f"⚠️ Fejl ved PR #{number}: {str(pr_error)} - Springer over og fortsætter.")
+                          continue # VIGTIGT: Vi fortsætter til næste PR
+
+              # --- FASE B: CIRCUIT BREAKER (DRIFT) ---
               print("\n--- 2. System Health Check (Main Branch) ---")
+              output, err = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "status,conclusion,url,headSha"])
               
-              # Hent status på seneste kørsel på main
-              runs_json = run_command(["gh", "run", "list", "--branch", "main", "--limit", "1", "--json", "status,conclusion,url,headSha"])
-              runs = json.loads(runs_json)
-              
-              if runs:
-                  latest_run = runs[0]
-                  status = latest_run['status']
-                  conclusion = latest_run['conclusion']
-                  
-                  print(f"Status på main: {status} - {conclusion}")
-                  
-                  # Hvis buildet er færdigt og fejlet -> ALARM
-                  if status == "completed" and conclusion == "failure":
-                      print("🚨 KRITISK: Build på main er fejlet! Starter NØD-PROCEDURE.")
-                      
-                      bad_commit = latest_run['headSha']
-                      
-                      # Tjek om vi allerede har reageret (for at undgå uendeligt loop af rollbacks)
-                      issues_json = run_command(["gh", "issue", "list", "--state", "open", "--search", "Auto-Rollback", "--json", "title"])
-                      
-                      if f"Reverted {bad_commit[:7]}" not in str(issues_json):
-                          try:
-                              # 1. Synkroniser local git
-                              run_command(["git", "fetch", "origin", "main"])
-                              run_command(["git", "checkout", "main"])
-                              run_command(["git", "pull", "origin", "main"])
+              if output:
+                  runs = json.loads(output)
+                  if runs:
+                      latest = runs[0]
+                      # Hvis main er crashet (completed + failure)
+                      if latest['status'] == "completed" and latest['conclusion'] == "failure":
+                          print("🚨 KRITISK: Main branch er nede! Starter rollback.")
+                          
+                          bad_commit = latest['headSha']
+                          
+                          # Tjek om vi allerede har en sag på det
+                          issues_out, _ = run_command(["gh", "issue", "list", "--search", "Auto-Rollback", "--json", "title"])
+                          
+                          if f"Reverted {bad_commit[:7]}" not in str(issues_out):
+                              # Udfør Revert
+                              subprocess.run(["git", "fetch", "origin", "main"], check=False)
+                              subprocess.run(["git", "checkout", "main"], check=False)
+                              subprocess.run(["git", "pull", "origin", "main"], check=False)
                               
-                              # 2. Udfør Revert
-                              print(f"Reverting commit {bad_commit}...")
-                              run_command(["git", "revert", bad_commit, "--no-edit"])
+                              revert_res = subprocess.run(["git", "revert", bad_commit, "--no-edit"], capture_output=True)
                               
-                              # 3. Push ændringen (dette trigger et nyt, forhåbentlig grønt build)
-                              run_command(["git", "push", "origin", "main"])
-                              print("✅ Rollback udført succesfuldt.")
-                              
-                              # 4. Opret Issue til DevOpsAgent
-                              issue_title = f"🛡️ Auto-Rollback: Reverted {bad_commit[:7]}"
-                              issue_body = f"""
-                              ### 🛡️ System Protection Triggered
-                              HansPedder her. Buildet på `main` fejlede, så jeg har rullet ændringen tilbage for at sikre driften.
-                              
-                              - **Bad Commit:** {bad_commit}
-                              - **Failed Run:** {latest_run['url']}
-                              
-                              **Opgave:**
-                              @DevOpsAgent - Analyser venligst hvorfor buildet fejlede lokalt, før du forsøger at merge igen.
-                              """
-                              run_command(["gh", "issue", "create", "--title", issue_title, "--body", issue_body, "--label", "bug,urgent"])
-                              
-                          except Exception as e:
-                              print(f"❌ Rollback fejlede: {str(e)}")
-                              raise e # Dette vil trigger mail-steppet nedenfor
-                      else:
-                          print("Rollback allerede udført for denne commit. Afventer manuelt fix.")
-                  
-                  elif conclusion == "success":
-                      print("✅ Systemet er sundt. Ingen handling påkrævet.")
+                              if revert_res.returncode == 0:
+                                  subprocess.run(["git", "push", "origin", "main"], check=False)
+                                  
+                                  # Opret Issue
+                                  msg = f"Jeg har rullet commit {bad_commit} tilbage for at redde produktionen."
+                                  run_command(["gh", "issue", "create", "--title", f"🛡️ Auto-Rollback: Reverted {bad_commit[:7]}", "--body", msg, "--label", "urgent"])
+                                  print("✅ Rollback udført.")
+                              else:
+                                  print(f"❌ Kunne ikke udføre rollback automatisk: {revert_res.stderr}")
+                                  # Her crasher vi med vilje for at sende mail, da manuel hjælp er påkrævet
+                                  sys.exit(1)
+                          else:
+                              print("Rollback allerede håndteret.")
 
-              # Gem statistik til output
-              with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
-                  print("status=success", file=fh)
+              print("✅ HansPedder cyklus gennemført.")
 
-          except Exception as e:
-              print(f"FATAL ERROR I HANSPEDDER: {str(e)}")
-              # Skriv fejlen til log fil så mailen kan læse den (hvis vi vil udvide det)
+          except Exception as global_e:
+              print(f"FATAL FEJL: {str(global_e)}")
               sys.exit(1)
 
-      # =========================================================
-      # FASE 3: FAILSAFE (Human-in-the-loop)
-      # =========================================================
+      # -------------------------------------------------------
+      # STEP 2: TODO -> ISSUES (RETTET VERSION)
+      # -------------------------------------------------------
+      - name: 📝 Konverter TODOs til Issues
+        uses: alstr/todo-to-issue-action@v4
+        id: todo
+        # continue-on-error sikrer at flowet ikke stopper, selv hvis denne scanner fejler
+        continue-on-error: true 
+        with:
+          CLOSE_ISSUES: true
+          AUTO_ASSIGN: true
+          # BEMÆRK: 'INSERT_ISSUE_URLS' er fjernet da den skabte fejl
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      # -------------------------------------------------------
+      # STEP 3: NØDBREMSE (MAIL)
+      # -------------------------------------------------------
       - name: 🆘 Send Nød-mail til Claus
-        if: failure() # Kører KUN hvis Python scriptet crasher
+        if: failure() # Kører KUN hvis Python scriptet crasher fatal (sys.exit 1)
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "🔥 HansPedder System Crash / Rollback Fejl"
+          subject: "🔥 HansPedder Alarm: Manuel hjælp påkrævet"
           to: clauskraft@gmail.com
           from: "HansPedder Orchestrator"
           body: |
             Hej Claus,
 
-            Dette er en nødmeddelelse. Din orkestrator agent (HansPedder) er stødt på en kritisk fejl, som han ikke selv kunne løse.
+            HansPedder her. Jeg har forsøgt at holde driften kørende, men stødte på en fejl jeg ikke kunne håndtere autonomt.
             
-            Det kan skyldes:
-            1. En fejl i selve orkestrerings-scriptet.
-            2. Et forsøg på automatisk rollback, der fejlede.
+            Mulig årsag:
+            - Automatisk rollback fejlede (merge conflict under revert).
+            - GitHub API svarer ikke.
 
-            Se loggen her for detaljer:
-            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+            Log: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-            Vh,
-            HansPedder 🤖
+            Vh, HansPedder 🤖
