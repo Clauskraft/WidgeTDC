@@ -171,17 +171,24 @@ jobs:
               sys.exit(1)
 
       # -------------------------------------------------------
-      # STEP 2: TODO -> ISSUES (RETTET VERSION)
+      # STEP 2: AVANCERET TODO SCANNER
       # -------------------------------------------------------
-      - name: 📝 Konverter TODOs til Issues
+      - name: 📝 Konverter TODOs til Rigtige Issues
         uses: alstr/todo-to-issue-action@v4
         id: todo
-        # continue-on-error sikrer at flowet ikke stopper, selv hvis denne scanner fejler
-        continue-on-error: true 
+        continue-on-error: true
         with:
+          # Lukker automatisk issue, når TODO slettes i koden (smart oprydning)
           CLOSE_ISSUES: true
+          
+          # Tildeler opgaven til den person, der skrev "git commit" med TODO'en
           AUTO_ASSIGN: true
-          # BEMÆRK: 'INSERT_ISSUE_URLS' er fjernet da den skabte fejl
+          
+          # Gør at den scanner efter både TODO og FIXME
+          IDENTIFIERS: '{"TODO": "help wanted", "FIXME": "bug"}'
+          
+          # Scanner flere linjer i kommentaren, så vi får lækre beskrivelser
+          # (Den stopper automatisk når den rammer kode eller en tom linje)
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
