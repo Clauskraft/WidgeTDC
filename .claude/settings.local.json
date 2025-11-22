@@ -39,7 +39,9 @@
       "Bash(powershell -Command \"& ''''C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vs_installer.exe'''' modify --productId Microsoft.VisualStudio.Product.BuildTools --add Microsoft.VisualStudio.Component.VC.v142.x64 --add Microsoft.VisualStudio.Component.VC.v142.x86 --passive --norestart\")",
       "Bash(npm run dev:*)",
       "Bash(npm run)",
-      "Bash(npm test:*)"
+      "Bash(npm test:*)",
+      "Bash(npm run format:check:*)",
+      "Bash(find .claude -name \"*.json\" -type f -exec sh -c 'jq empty \"\"$1\"\" 2>/dev/null || echo \"\"Invalid JSON: $1\"\"' _ {} ;)"
     ],
     "deny": [],
     "ask": []

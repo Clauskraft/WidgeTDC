@@ -21,14 +21,22 @@ const SragGovernanceWidget: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
+
     try {
-      const response = await fetch('http://localhost:3001/api/srag/query', {
+      // Use MCP tool: srag.governance-check
+      const response = await fetch('/api/mcp/route', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orgId: 'org-1',
-          naturalLanguageQuery: query,
+          tool: 'srag.governance-check',
+          payload: {
+            query,
+            checkCompliance: true,
+          },
+          context: {
+            orgId: 'org-1',
+            userId: 'user-1',
+          },
         }),
       });
 
@@ -37,13 +45,24 @@ const SragGovernanceWidget: React.FC = () => {
       }
 
       const data = await response.json();
-      
+
+      // Transform governance check response to match widget expectations
+      const queryResult = data.queryResult;
+
       // Filter out if sqlOnly is checked and type is semantic
-      if (sqlOnly && data.type === 'semantic') {
+      if (sqlOnly && queryResult.type === 'semantic') {
         setError('This query requires semantic search, but SQL-only mode is enabled');
         setResult(null);
       } else {
-        setResult(data);
+        setResult({
+          type: queryResult.type,
+          result: queryResult.result || [],
+          sqlQuery: queryResult.sqlQuery || null,
+          metadata: {
+            traceId: data.metadata?.timestamp || Math.random().toString(36),
+            docIds: queryResult.docIds || [],
+          },
+        });
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');

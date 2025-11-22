@@ -7,7 +7,7 @@ afterEach(() => {
   cleanup();
 });
 
-// Mock window.matchMedia
+// Mock window.matchMedia - needed for browser API testing
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation(query => ({

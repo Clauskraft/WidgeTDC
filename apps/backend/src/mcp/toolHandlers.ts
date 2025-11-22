@@ -1,14 +1,17 @@
-import { McpContext } from '@widget-tdc/mcp-types';
+import { McpContext } from '../types.js';
 import { MemoryRepository } from '../services/memory/memoryRepository.js';
 import { SragRepository } from '../services/srag/sragRepository.js';
 import { EvolutionRepository } from '../services/evolution/evolutionRepository.js';
 import { PalRepository } from '../services/pal/palRepository.js';
+import { NotesRepository } from '../services/notes/notesRepository.js';
 import { getLlmService } from '../services/llm/llmService.js';
 
 const memoryRepo = new MemoryRepository();
 const sragRepo = new SragRepository();
 const evolutionRepo = new EvolutionRepository();
 const palRepo = new PalRepository();
+const notesRepo = new NotesRepository();
+
 
 // CMA tool handlers
 export async function cmaContextHandler(payload: any, _ctx: McpContext): Promise<any> {
@@ -65,6 +68,60 @@ export async function cmaIngestHandler(payload: any, _ctx: McpContext): Promise<
 
   return { id: entityId };
 }
+
+// CMA Memory Store handler
+export async function cmaMemoryStoreHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { content, entityType, importance, tags } = payload;
+
+  if (!content) {
+    throw new Error('Content is required for memory storage');
+  }
+
+  const entityId = memoryRepo.ingestEntity({
+    orgId: ctx.orgId,
+    userId: ctx.userId,
+    entityType: entityType || 'note',
+    content,
+    importance: importance || 3,
+    tags: tags || [],
+  });
+
+  return {
+    success: true,
+    id: entityId,
+    message: 'Memory stored successfully',
+  };
+}
+
+// CMA Memory Retrieve handler
+export async function cmaMemoryRetrieveHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { keywords, limit, entityType } = payload;
+
+  const memories = memoryRepo.searchEntities({
+    orgId: ctx.orgId,
+    userId: ctx.userId,
+    keywords: keywords || [],
+    limit: limit || 10,
+  });
+
+  // Filter by entity type if specified
+  const filteredMemories = entityType
+    ? memories.filter(m => m.entity_type === entityType)
+    : memories;
+
+  return {
+    success: true,
+    count: filteredMemories.length,
+    memories: filteredMemories.map(m => ({
+      id: m.id,
+      content: m.content,
+      entityType: m.entity_type,
+      importance: m.importance,
+      createdAt: m.created_at,
+    })),
+  };
+}
+
 
 // SRAG tool handlers
 export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<any> {
@@ -157,7 +214,7 @@ Recent Run: ${JSON.stringify(payload, null, 2)}
 
 export async function evolutionGetPromptHandler(payload: any, ctx: McpContext): Promise<any> {
   const prompt = evolutionRepo.getLatestPrompt(payload.agentId);
-  
+
   if (!prompt) {
     throw new Error('No prompt found for agent');
   }
@@ -170,6 +227,113 @@ export async function evolutionGetPromptHandler(payload: any, ctx: McpContext): 
     createdBy: prompt.created_by,
   };
 }
+
+// Evolution Analyze Prompts handler
+export async function evolutionAnalyzePromptsHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { agentId, limit } = payload;
+
+  if (!agentId) {
+    throw new Error('Agent ID is required');
+  }
+
+  // Get recent runs for analysis
+  const runs = evolutionRepo.getRecentRuns(agentId, limit || 10);
+  const avgDelta = evolutionRepo.getAverageKpiDelta(agentId, limit || 10);
+  const latestPrompt = evolutionRepo.getLatestPrompt(agentId);
+
+  // Use LLM to analyze prompt evolution
+  const llmService = getLlmService();
+  const systemContext = `You are an AI prompt engineering expert. Analyze the evolution of agent prompts and their performance metrics to provide insights and recommendations.`;
+  const analysisContext = `
+Agent ID: ${agentId}
+Latest Prompt: ${latestPrompt ? latestPrompt.prompt_text : 'None'}
+Recent Runs: ${JSON.stringify(runs, null, 2)}
+Average KPI Delta: ${avgDelta}
+Performance Trend: ${avgDelta > 0 ? 'Improving' : avgDelta < 0 ? 'Declining' : 'Stable'}
+  `.trim();
+
+  const analysis = await llmService.generateContextualResponse(
+    systemContext,
+    'Analyze the prompt evolution and provide recommendations for improvement',
+    analysisContext
+  );
+
+  return {
+    success: true,
+    agentId,
+    analysis,
+    metrics: {
+      totalRuns: runs.length,
+      averageKpiDelta: avgDelta,
+      trend: avgDelta > 0 ? 'improving' : avgDelta < 0 ? 'declining' : 'stable',
+    },
+    latestPrompt: latestPrompt ? {
+      version: latestPrompt.version,
+      text: latestPrompt.prompt_text,
+      createdAt: latestPrompt.created_at,
+    } : null,
+    recentRuns: runs.slice(0, 5).map((run: any) => ({
+      runId: run.id,
+      kpiDelta: run.kpi_delta,
+      timestamp: run.created_at,
+    })),
+  };
+}
+
+// SRAG Governance Check handler
+export async function sragGovernanceCheckHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { query, documentIds, checkCompliance } = payload;
+
+  if (!query) {
+    throw new Error('Query is required for governance check');
+  }
+
+  // Perform the SRAG query
+  const queryResult = await sragQueryHandler({ naturalLanguageQuery: query }, ctx);
+
+  // Additional governance checks
+  const llmService = getLlmService();
+  const systemContext = `You are a data governance and compliance expert. Analyze the query and results for potential compliance issues, data sensitivity, and governance concerns.`;
+  const governanceContext = `
+Query: "${query}"
+Result Type: ${queryResult.type}
+Documents Retrieved: ${queryResult.result?.length || 0}
+Document IDs: ${JSON.stringify(queryResult.metadata?.docIds || [])}
+Check Compliance: ${checkCompliance !== false}
+  `.trim();
+
+  const governanceAnalysis = await llmService.generateContextualResponse(
+    systemContext,
+    'Analyze this data query for governance and compliance concerns. Identify any sensitive data, potential risks, and provide recommendations.',
+    governanceContext
+  );
+
+  return {
+    success: true,
+    query,
+    queryResult: {
+      type: queryResult.type,
+      documentCount: queryResult.result?.length || 0,
+      response: queryResult.response,
+    },
+    governance: {
+      analysis: governanceAnalysis,
+      complianceStatus: 'reviewed',
+      sensitivityLevel: 'medium', // Could be enhanced with actual classification
+      recommendations: [
+        'Ensure proper access controls are in place',
+        'Log this query for audit purposes',
+        'Review data retention policies',
+      ],
+    },
+    metadata: {
+      timestamp: new Date().toISOString(),
+      userId: ctx.userId,
+      orgId: ctx.orgId,
+    },
+  };
+}
+
 
 // PAL tool handlers
 export async function palEventHandler(payload: any, ctx: McpContext): Promise<any> {
@@ -259,5 +423,250 @@ In Focus Window: ${!!currentFocusWindow}
   return {
     boardAdjustments,
     aiRecommendations,
+  };
+}
+
+// PAL Workflow Optimization tool handler
+export async function palOptimizeWorkflowHandler(payload: any, ctx: McpContext): Promise<any> {
+  // Get user profile and recent events
+  let profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
+  if (!profile) {
+    palRepo.createUserProfile(ctx.userId, ctx.orgId);
+    profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
+  }
+
+  const recentEvents = palRepo.getRecentEvents(ctx.userId, ctx.orgId, 20);
+  const stressDistribution = palRepo.getStressLevelDistribution(ctx.userId, ctx.orgId, 24);
+  const focusWindows = palRepo.getFocusWindows(ctx.userId, ctx.orgId);
+
+  // Analyze workflow patterns
+  const llmService = getLlmService();
+  const systemContext = `You are a workflow optimization expert. Analyze user behavior patterns and provide actionable recommendations to improve productivity and reduce stress.`;
+  const workflowContext = `
+User Profile: ${JSON.stringify(profile, null, 2)}
+Recent Events (20): ${JSON.stringify(recentEvents, null, 2)}
+Stress Distribution (24h): ${JSON.stringify(stressDistribution, null, 2)}
+Focus Windows: ${JSON.stringify(focusWindows, null, 2)}
+Current Context: ${JSON.stringify(payload.context || {}, null, 2)}
+  `.trim();
+
+  const optimization = await llmService.generateContextualResponse(
+    systemContext,
+    payload.query || 'Analyze my workflow and provide optimization recommendations',
+    workflowContext
+  );
+
+  return {
+    optimization,
+    metrics: {
+      totalEvents: recentEvents.length,
+      stressDistribution,
+      focusWindowsConfigured: focusWindows.length,
+    },
+    recommendations: [
+      {
+        type: 'focus_time',
+        priority: 'high',
+        message: 'Consider scheduling dedicated focus blocks',
+      },
+    ],
+  };
+}
+
+// PAL Sentiment Analysis tool handler
+export async function palAnalyzeSentimentHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { text, context } = payload;
+
+  if (!text) {
+    throw new Error('Text is required for sentiment analysis');
+  }
+
+  // Use LLM for sentiment analysis
+  const llmService = getLlmService();
+  const systemContext = `You are a sentiment analysis expert. Analyze the emotional tone and stress indicators in user text. Provide a sentiment score (-1 to 1), detected emotions, and stress level assessment.`;
+  const analysisContext = `
+Text to analyze: "${text}"
+Additional context: ${JSON.stringify(context || {}, null, 2)}
+  `.trim();
+
+  const analysis = await llmService.generateContextualResponse(
+    systemContext,
+    'Analyze the sentiment and emotional state in this text. Return a JSON object with: sentiment (number -1 to 1), emotions (array), stressLevel (low/medium/high), and explanation (string).',
+    analysisContext
+  );
+
+  // Try to parse LLM response as JSON, fallback to text analysis
+  let sentimentData;
+  try {
+    sentimentData = JSON.parse(analysis);
+  } catch {
+    // Fallback: simple heuristic
+    const stressKeywords = ['urgent', 'deadline', 'pressure', 'overwhelmed', 'stressed'];
+    const positiveKeywords = ['great', 'excellent', 'happy', 'good', 'wonderful'];
+    const negativeKeywords = ['bad', 'terrible', 'awful', 'frustrated', 'angry'];
+
+    const lowerText = text.toLowerCase();
+    const hasStress = stressKeywords.some(kw => lowerText.includes(kw));
+    const positiveCount = positiveKeywords.filter(kw => lowerText.includes(kw)).length;
+    const negativeCount = negativeKeywords.filter(kw => lowerText.includes(kw)).length;
+
+    sentimentData = {
+      sentiment: (positiveCount - negativeCount) / Math.max(positiveCount + negativeCount, 1),
+      emotions: hasStress ? ['stressed'] : ['neutral'],
+      stressLevel: hasStress ? 'high' : 'low',
+      explanation: analysis,
+    };
+  }
+
+
+  // Record event if stress detected
+  if (sentimentData.stressLevel === 'high' || sentimentData.stressLevel === 'medium') {
+    palRepo.recordEvent({
+      userId: ctx.userId,
+      orgId: ctx.orgId,
+      eventType: 'sentiment_analysis',
+      payload: { text, sentiment: sentimentData },
+      detectedStressLevel: sentimentData.stressLevel,
+    });
+  }
+
+  return {
+    ...sentimentData,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+
+// Notes tool handlers
+export async function notesListHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { source, compliance, retention, query, limit } = payload;
+
+  const notes = notesRepo.getNotes(ctx.userId, ctx.orgId, {
+    source,
+    compliance,
+    retention,
+    query,
+    limit: limit || 50,
+  });
+
+  const stats = notesRepo.getStatistics(ctx.userId, ctx.orgId);
+
+  return {
+    success: true,
+    notes: notes.map(note => ({
+      id: note.id,
+      source: note.source,
+      title: note.title,
+      body: note.body,
+      tags: note.tags.split(',').filter(t => t),
+      owner: note.owner,
+      compliance: note.compliance,
+      retention: note.retention,
+      riskScore: note.riskScore,
+      attachments: note.attachments,
+      updatedAt: note.updatedAt,
+      createdAt: note.createdAt,
+    })),
+    statistics: stats,
+  };
+}
+
+export async function notesCreateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { source, title, body, tags, owner, compliance, retention, riskScore, attachments } = payload;
+
+  if (!title || !body) {
+    throw new Error('Title and body are required');
+  }
+
+  const noteId = notesRepo.createNote({
+    userId: ctx.userId,
+    orgId: ctx.orgId,
+    source: source || 'Local Files',
+    title,
+    body,
+    tags: Array.isArray(tags) ? tags.join(',') : tags || '',
+    owner: owner || ctx.userId,
+    compliance: compliance || 'clean',
+    retention: retention || '90d',
+    riskScore: riskScore || 0,
+    attachments: attachments || 0,
+  });
+
+  return {
+    success: true,
+    id: noteId,
+    message: 'Note created successfully',
+  };
+}
+
+export async function notesUpdateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { id, title, body, tags, source, compliance, retention, riskScore, attachments } = payload;
+
+  if (!id) {
+    throw new Error('Note ID is required');
+  }
+
+  const updates: any = {};
+  if (title !== undefined) updates.title = title;
+  if (body !== undefined) updates.body = body;
+  if (tags !== undefined) updates.tags = Array.isArray(tags) ? tags.join(',') : tags;
+  if (source !== undefined) updates.source = source;
+  if (compliance !== undefined) updates.compliance = compliance;
+  if (retention !== undefined) updates.retention = retention;
+  if (riskScore !== undefined) updates.riskScore = riskScore;
+  if (attachments !== undefined) updates.attachments = attachments;
+
+  const success = notesRepo.updateNote(id, ctx.userId, ctx.orgId, updates);
+
+  return {
+    success,
+    message: success ? 'Note updated successfully' : 'Note not found or update failed',
+  };
+}
+
+export async function notesDeleteHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { id } = payload;
+
+  if (!id) {
+    throw new Error('Note ID is required');
+  }
+
+  const success = notesRepo.deleteNote(id, ctx.userId, ctx.orgId);
+
+  return {
+    success,
+    message: success ? 'Note deleted successfully' : 'Note not found or delete failed',
+  };
+}
+
+export async function notesGetHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { id } = payload;
+
+  if (!id) {
+    throw new Error('Note ID is required');
+  }
+
+  const note = notesRepo.getNoteById(id, ctx.userId, ctx.orgId);
+
+  if (!note) {
+    throw new Error('Note not found');
+  }
+
+  return {
+    success: true,
+    note: {
+      id: note.id,
+      source: note.source,
+      title: note.title,
+      body: note.body,
+      tags: note.tags.split(',').filter(t => t),
+      owner: note.owner,
+      compliance: note.compliance,
+      retention: note.retention,
+      riskScore: note.riskScore,
+      attachments: note.attachments,
+      updatedAt: note.updatedAt,
+      createdAt: note.createdAt,
+    },
   };
 }
