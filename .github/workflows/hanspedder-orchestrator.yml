@@ -171,24 +171,21 @@ jobs:
               sys.exit(1)
 
       # -------------------------------------------------------
-      # STEP 2: AVANCERET TODO SCANNER
+      # -------------------------------------------------------
+      # STEP 2: AVANCERET TODO SCANNER (MED FIX FOR SELV-SCANNING)
       # -------------------------------------------------------
       - name: 📝 Konverter TODOs til Rigtige Issues
         uses: alstr/todo-to-issue-action@v4
         id: todo
         continue-on-error: true
         with:
-          # Lukker automatisk issue, når TODO slettes i koden (smart oprydning)
           CLOSE_ISSUES: true
-          
-          # Tildeler opgaven til den person, der skrev "git commit" med TODO'en
           AUTO_ASSIGN: true
-          
-          # Gør at den scanner efter både TODO og FIXME
           IDENTIFIERS: '{"TODO": "help wanted", "FIXME": "bug"}'
           
-          # Scanner flere linjer i kommentaren, så vi får lækre beskrivelser
-          # (Den stopper automatisk når den rammer kode eller en tom linje)
+          # HER ER FIXET: Vi beder den ignorere workflow-filer og json filer
+          IGNORE: '/.github/workflows/*.yml, *.json'
+          
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
