@@ -22,4 +22,5 @@ export { SelfHealingAdapter } from './SelfHealingAdapter.js';
 export type { QueryIntent, DataSource, SourceScore, DecisionResult } from './DecisionEngine.js';
 export type { DataQuery, QueryResult, SourceRegistry } from './AutonomousAgent.js';
 export type { HealthStatus, DataProvider } from './SelfHealingAdapter.js';
-export type { QueryPattern, UsagePattern, HealthMetrics } from '../memory/CognitiveMemory.js';
+export type { QueryPattern, UsagePattern } from '../memory/PatternMemory.js';
+export type { HealthMetrics } from '../memory/CognitiveMemory.js';
