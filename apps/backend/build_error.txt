@@ -1,0 +1,68 @@
+src/mcp/memory/CognitiveMemory.ts(202,23): error TS1005: '>' expected.
+src/mcp/memory/CognitiveMemory.ts(202,32): error TS1005: ';' expected.
+src/mcp/memory/CognitiveMemory.ts(203,13): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(204,19): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(209,8): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(211,17): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(211,30): error TS1011: An element access expression should take an argument.
+src/mcp/memory/CognitiveMemory.ts(211,31): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(212,20): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(212,31): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(212,33): error TS1136: Property assignment expected.
+src/mcp/memory/CognitiveMemory.ts(215,3): error TS1128: Declaration or statement expected.
+src/mcp/memory/CognitiveMemory.ts(238,5): error TS1128: Declaration or statement expected.
+src/mcp/memory/CognitiveMemory.ts(238,7): error TS1005: 'try' expected.
+src/mcp/memory/CognitiveMemory.ts(242,3): error TS1128: Declaration or statement expected.
+src/mcp/memory/CognitiveMemory.ts(251,24): error TS1005: ';' expected.
+src/mcp/memory/CognitiveMemory.ts(251,26): error TS1434: Unexpected keyword or identifier.
+src/mcp/memory/CognitiveMemory.ts(262,3): error TS1434: Unexpected keyword or identifier.
+src/mcp/memory/CognitiveMemory.ts(262,41): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(262,50): error TS1005: ';' expected.
+src/mcp/memory/CognitiveMemory.ts(263,27): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(264,31): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(265,27): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(266,26): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(267,52): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(269,11): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(273,7): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(276,11): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(276,69): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(277,11): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(277,60): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(279,9): error TS1359: Identifier expected. 'const' is a reserved word that cannot be used here.
+src/mcp/memory/CognitiveMemory.ts(279,15): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(279,25): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(279,28): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(286,5): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(286,12): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(294,6): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(300,3): error TS1434: Unexpected keyword or identifier.
+src/mcp/memory/CognitiveMemory.ts(300,30): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(300,44): error TS1005: ';' expected.
+src/mcp/memory/CognitiveMemory.ts(300,60): error TS1109: Expression expected.
+src/mcp/memory/CognitiveMemory.ts(301,12): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(301,84): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(303,11): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(303,34): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(304,15): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(304,61): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(306,9): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(308,15): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(308,74): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(309,15): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(309,76): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(310,15): error TS1005: ':' expected.
+src/mcp/memory/CognitiveMemory.ts(310,73): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(312,16): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(312,27): error TS1005: ',' expected.
+src/mcp/memory/CognitiveMemory.ts(312,29): error TS1136: Property assignment expected.
+src/mcp/memory/CognitiveMemory.ts(316,3): error TS1128: Declaration or statement expected.
+src/mcp/memory/CognitiveMemory.ts(323,5): error TS1128: Declaration or statement expected.
+src/mcp/memory/CognitiveMemory.ts(323,7): error TS1005: 'try' expected.
+src/mcp/memory/CognitiveMemory.ts(326,3): error TS1128: Declaration or statement expected.
+src/mcp/memory/CognitiveMemory.ts(327,1): error TS1128: Declaration or statement expected.
+src/mcp/memory/FailureMemory.ts(17,3): error TS1131: Property or signature expected.
+src/mcp/memory/FailureMemory.ts(19,17): error TS1109: Expression expected.
+src/mcp/memory/FailureMemory.ts(20,18): error TS1109: Expression expected.
+src/mcp/memory/FailureMemory.ts(21,17): error TS1109: Expression expected.
+src/mcp/memory/FailureMemory.ts(23,1): error TS1128: Declaration or statement expected.
