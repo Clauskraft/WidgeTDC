@@ -6,10 +6,13 @@
 
 import { Router } from 'express';
 import { getCognitiveMemory } from '../memory/CognitiveMemory.js';
-import { AutonomousAgent } from '../autonomous/AutonomousAgent.js';
+import { AutonomousAgent, startAutonomousLearning } from '../autonomous/AutonomousAgent.js';
 import { getSourceRegistry } from '../SourceRegistry.js';
 
 export const autonomousRouter = Router();
+
+// Re-export for convenience
+export { startAutonomousLearning };
 
 let agent: AutonomousAgent | null = null;
 

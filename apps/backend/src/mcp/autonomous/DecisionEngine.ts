@@ -23,6 +23,7 @@ export interface DataSource {
     isHealthy: () => Promise<boolean>;
     estimatedLatency: number;
     costPerQuery: number;
+    query?: (operation: string, params: any) => Promise<any>; // Optional query method
 }
 
 export interface SourceScore {

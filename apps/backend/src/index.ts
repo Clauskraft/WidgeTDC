@@ -81,8 +81,54 @@ async function startServer() {
     mcpRegistry.registerServer(orchestrator);
     console.log('🤖 Agent Orchestrator initialized');
 
+    // Step 3.5: Initialize Autonomous Intelligence System
+    const { initCognitiveMemory, getCognitiveMemory } = await import('./mcp/memory/CognitiveMemory.js');
+    const { getSourceRegistry } = await import('./mcp/SourceRegistry.js');
+    const { initAutonomousAgent, startAutonomousLearning } = await import('./mcp/autonomousRouter.js');
+    const { autonomousRouter } = await import('./mcp/autonomousRouter.js');
+    const { getDatabase } = await import('./database/index.js');
+    const { existsSync } = await import('fs');
+    const { readFileSync } = await import('fs');
+    const yaml = (await import('js-yaml')).default;
+
+    const db = getDatabase();
+    const memory = initCognitiveMemory(db);
+    console.log('🧠 Cognitive Memory initialized');
+
+    const registry = getSourceRegistry();
+
+    // Register agents-yaml data source
+    registry.registerSource({
+      name: 'agents-yaml',
+      type: 'file',
+      capabilities: ['agents.*', 'agents.list', 'agents.get', 'agents.trigger'],
+      isHealthy: async () => existsSync('agents/registry.yml'),
+      estimatedLatency: 50,
+      costPerQuery: 0,
+      query: async (operation: string, params: any) => {
+        const content = readFileSync('agents/registry.yml', 'utf-8');
+        const data = yaml.load(content) as any;
+
+        if (operation === 'list') {
+          return data.agents || [];
+        } else if (operation === 'get' && params?.id) {
+          return data.agents?.find((a: any) => a.id === params.id);
+        }
+
+        return data.agents || [];
+      }
+    });
+
+    const agent = initAutonomousAgent();
+    console.log('🤖 Autonomous Agent initialized');
+
+    // Start learning loop (every 5 minutes)
+    startAutonomousLearning(agent, 300000);
+    console.log('🔄 Autonomous learning started (5min intervals)');
+
     // Step 4: Setup routes
     app.use('/api/mcp', mcpRouter);
+    app.use('/api/mcp/autonomous', autonomousRouter);
     app.use('/api/memory', memoryRouter);
     app.use('/api/srag', sragRouter);
     app.use('/api/evolution', evolutionRouter);
