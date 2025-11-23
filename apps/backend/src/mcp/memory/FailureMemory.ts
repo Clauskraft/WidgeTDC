@@ -14,12 +14,12 @@ export interface Failure {
     sourceName: string;
     errorType: string;
     errorMessage: string;
-  error Context: any;
-queryContext: any;
-recoveryAction ?: string;
-recoverySuccess ?: boolean;
-recoveryTimeMs ?: number;
-occurredAt: Date;
+    errorContext: any;
+    queryContext: any;
+    recoveryAction?: string;
+    recoverySuccess?: boolean;
+    recoveryTimeMs?: number;
+    occurredAt: Date;
 }
 
 export interface RecoveryPath {

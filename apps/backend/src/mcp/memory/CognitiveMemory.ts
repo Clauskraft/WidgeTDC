@@ -199,7 +199,7 @@ export class CognitiveMemory {
     async getHealthHistory(
         sourceName: string,
         limit: number = 100
-    ): Promise<Health Metrics[]> {
+    ): Promise<HealthMetrics[]> {
         try {
             const sql = `
         SELECT * FROM mcp_source_health
@@ -209,121 +209,121 @@ export class CognitiveMemory {
       `;
 
             let results: any[];
-            if(this.db.prepare) {
-    const stmt = this.db.prepare(sql);
-    results = stmt.all(sourceName, limit);
-} else {
-    const stmt = this.db.prepare(sql);
-    stmt.bind([sourceName, limit]);
-    results = [];
-    while (stmt.step()) {
-        results.push(stmt.getAsObject());
-    }
-    stmt.free();
-}
+            if (this.db.prepare) {
+                const stmt = this.db.prepare(sql);
+                results = stmt.all(sourceName, limit);
+            } else {
+                const stmt = this.db.prepare(sql);
+                stmt.bind([sourceName, limit]);
+                results = [];
+                while (stmt.step()) {
+                    results.push(stmt.getAsObject());
+                }
+                stmt.free();
+            }
 
-return results.map(r => ({
-    sourceName: r.source_name,
-    healthScore: r.health_score,
-    latency: {
-        p50: r.latency_p50,
-        p95: r.latency_p95,
-        p99: r.latency_p99
-    },
-    successRate: r.success_rate,
-    requestCount: r.request_count,
-    errorCount: r.error_count,
-    timestamp: new Date(r.timestamp)
-}));
-    } catch (error) {
-    console.error('Failed to get health history:', error);
-    return [];
-}
-  }
-
-// ========================================================================
-// Context Awareness
-// ========================================================================
-
-/**
- * Get current user context for decision making
- */
-getCurrentUserContext(): UserContext {
-    const now = new Date();
-    return {
-        timeOfDay: now.getHours(),
-        dayOfWeek: now.getDay()
-    };
-}
-
-  /**
-   * Get comprehensive intelligence summary for a source
-   */
-  async getSourceIntelligence(sourceName: string): Promise < {
-    averageLatency: number;
-    overallSuccessRate: number;
-    recentFailures: number;
-    lastFailure?: Failure;
-    knownRecoveryPaths: Map<string, RecoveryPath[]>;
-} > {
-    const [avgLatency, failureHistory, failureStats] = await Promise.all([
-        this.getAverageLatency(sourceName),
-        this.failureMemory.getFailureHistory(sourceName, 10),
-        this.failureMemory.getFailureStats(sourceName)
-    ]);
-
-    // Get recovery paths for each unique error type
-    const errorTypes = new Set(failureHistory.map(f => f.errorType));
-    const recoveryPaths = new Map<string, RecoveryPath[]>();
-
-    for(const errorType of errorTypes) {
-        const paths = await this.getRecoveryPaths(sourceName, errorType);
-        if (paths.length > 0) {
-            recoveryPaths.set(errorType, paths);
+            return results.map(r => ({
+                sourceName: r.source_name,
+                healthScore: r.health_score,
+                latency: {
+                    p50: r.latency_p50,
+                    p95: r.latency_p95,
+                    p99: r.latency_p99
+                },
+                successRate: r.success_rate,
+                requestCount: r.request_count,
+                errorCount: r.error_count,
+                timestamp: new Date(r.timestamp)
+            }));
+        } catch (error) {
+            console.error('Failed to get health history:', error);
+            return [];
         }
     }
-    
-    return {
-        averageLatency: avgLatency,
-        overallSuccessRate: 1 - (failureStats.totalFailures > 0
-            ? failureStats.totalFailures / (failureStats.totalFailures + 1000)
-            : 0),
-        recentFailures: failureHistory.length,
-        lastFailure: failureHistory[0],
-        knownRecoveryPaths: recoveryPaths
-    };
-}
 
-  /**
-   * Clean old data (maintenance)
-   */
-  async cleanup(retentionDays: number = 30): Promise < void> {
-    console.log(`🧹 Cleaning cognitive memory older than ${retentionDays} days...`);
+    // ========================================================================
+    // Context Awareness
+    // ========================================================================
 
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+    /**
+     * Get current user context for decision making
+     */
+    getCurrentUserContext(): UserContext {
+        const now = new Date();
+        return {
+            timeOfDay: now.getHours(),
+            dayOfWeek: now.getDay()
+        };
+    }
 
-    try {
-        // Clean old patterns
-        const sql1 = `DELETE FROM mcp_query_patterns WHERE timestamp < ?`;
-        const sql2 = `DELETE FROM mcp_failure_memory WHERE occurred_at < ?`;
-        const sql3 = `DELETE FROM mcp_source_health WHERE timestamp < ?`;
+    /**
+     * Get comprehensive intelligence summary for a source
+     */
+    async getSourceIntelligence(sourceName: string): Promise<{
+        averageLatency: number;
+        overallSuccessRate: number;
+        recentFailures: number;
+        lastFailure?: Failure;
+        knownRecoveryPaths: Map<string, RecoveryPath[]>;
+    }> {
+        const [avgLatency, failureHistory, failureStats] = await Promise.all([
+            this.getAverageLatency(sourceName),
+            this.failureMemory.getFailureHistory(sourceName, 10),
+            this.failureMemory.getFailureStats(sourceName)
+        ]);
 
-        if(this.db.prepare) {
-    this.db.prepare(sql1).run(cutoffDate.toISOString());
-    this.db.prepare(sql2).run(cutoffDate.toISOString());
-    this.db.prepare(sql3).run(cutoffDate.toISOString());
-} else {
-    this.db.run(sql1, [cutoffDate.toISOString()]);
-    this.db.run(sql2, [cutoffDate.toISOString()]);
-    this.db.run(sql3, [cutoffDate.toISOString()]);
-}
+        // Get recovery paths for each unique error type
+        const errorTypes = new Set(failureHistory.map(f => f.errorType));
+        const recoveryPaths = new Map<string, RecoveryPath[]>();
 
-console.log('✅ Cleanup complete');
-    } catch (error) {
-    console.error('Failed to cleanup old data:', error);
-}
-  }
+        for (const errorType of errorTypes) {
+            const paths = await this.getRecoveryPaths(sourceName, errorType);
+            if (paths.length > 0) {
+                recoveryPaths.set(errorType, paths);
+            }
+        }
+
+        return {
+            averageLatency: avgLatency,
+            overallSuccessRate: 1 - (failureStats.totalFailures > 0
+                ? failureStats.totalFailures / (failureStats.totalFailures + 1000)
+                : 0),
+            recentFailures: failureHistory.length,
+            lastFailure: failureHistory[0],
+            knownRecoveryPaths: recoveryPaths
+        };
+    }
+
+    /**
+     * Clean old data (maintenance)
+     */
+    async cleanup(retentionDays: number = 30): Promise<void> {
+        console.log(`🧹 Cleaning cognitive memory older than ${retentionDays} days...`);
+
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+
+        try {
+            // Clean old patterns
+            const sql1 = `DELETE FROM mcp_query_patterns WHERE timestamp < ?`;
+            const sql2 = `DELETE FROM mcp_failure_memory WHERE occurred_at < ?`;
+            const sql3 = `DELETE FROM mcp_source_health WHERE timestamp < ?`;
+
+            if (this.db.prepare) {
+                this.db.prepare(sql1).run(cutoffDate.toISOString());
+                this.db.prepare(sql2).run(cutoffDate.toISOString());
+                this.db.prepare(sql3).run(cutoffDate.toISOString());
+            } else {
+                this.db.run(sql1, [cutoffDate.toISOString()]);
+                this.db.run(sql2, [cutoffDate.toISOString()]);
+                this.db.run(sql3, [cutoffDate.toISOString()]);
+            }
+
+            console.log('✅ Cleanup complete');
+        } catch (error) {
+            console.error('Failed to cleanup old data:', error);
+        }
+    }
 }
 
 // Singleton instance
