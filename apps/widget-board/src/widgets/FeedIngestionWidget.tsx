@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { usePlatform } from '../platform/core/PlatformContext';
+import { RefreshCw, Database, Globe, AlertTriangle, FileText, Copy, Clock } from 'lucide-react';
+import './FeedIngestionWidget.css';
 
 interface Feed {
     id: string;
@@ -54,116 +56,91 @@ export const FeedIngestionWidget: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '16px', height: '100%', overflow: 'auto', background: '#1f2937', color: '#f3f4f6' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>🔄 Feed Ingestion</h3>
+        <div className="feed-widget-container">
+            <div className="feed-header">
+                <h3 className="feed-title">
+                    <Database size={20} /> Feed Ingestion
+                </h3>
                 <button
                     onClick={loadFeeds}
-                    style={{
-                        padding: '6px 12px',
-                        background: '#3b82f6',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                    }}
+                    disabled={loading}
+                    className="refresh-button"
                 >
+                    <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
                     Refresh
                 </button>
             </div>
 
             {loading ? (
-                <div style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>
+                <div className="feed-loading">
                     Loading feeds...
                 </div>
             ) : feeds.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>
+                <div className="feed-empty">
                     No feeds available
                 </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div className="feed-list">
                     {feeds.map((feed) => (
                         <div
                             key={feed.id}
-                            style={{
-                                background: '#374151',
-                                borderRadius: '8px',
-                                padding: '16px',
-                                border: `2px solid ${getThreatLevelColor(feed.threatLevel)}`
-                            }}
+                            className="feed-item"
+                            style={{ borderColor: getThreatLevelColor(feed.threatLevel) }}
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
+                            <div className="feed-item-header">
                                 <div>
-                                    <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 600 }}>{feed.name}</h4>
+                                    <h4 className="feed-name">{feed.name}</h4>
                                     {feed.tags && feed.tags.length > 0 && (
-                                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                        <div className="feed-tags">
                                             {feed.tags.map((tag, idx) => (
-                                                <span
-                                                    key={idx}
-                                                    style={{
-                                                        fontSize: '11px',
-                                                        padding: '2px 8px',
-                                                        background: '#4b5563',
-                                                        borderRadius: '12px',
-                                                        color: '#d1d5db'
-                                                    }}
-                                                >
+                                                <span key={idx} className="feed-tag">
                                                     {tag}
                                                 </span>
                                             ))}
                                         </div>
                                     )}
                                 </div>
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <div className="feed-status-group">
                                     {feed.threatLevel && (
                                         <span
-                                            style={{
-                                                fontSize: '12px',
-                                                padding: '4px 8px',
-                                                background: getThreatLevelColor(feed.threatLevel),
-                                                borderRadius: '4px',
-                                                fontWeight: 600,
-                                                textTransform: 'uppercase'
-                                            }}
+                                            className="threat-badge"
+                                            style={{ background: getThreatLevelColor(feed.threatLevel) }}
                                         >
                                             {feed.threatLevel}
                                         </span>
                                     )}
                                     <span
-                                        style={{
-                                            width: '8px',
-                                            height: '8px',
-                                            borderRadius: '50%',
-                                            background: getStatusColor(feed.status)
-                                        }}
+                                        className="status-indicator"
+                                        style={{ background: getStatusColor(feed.status) }}
+                                        title={`Status: ${feed.status}`}
                                     />
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', marginTop: '12px' }}>
+                            <div className="feed-metrics">
                                 {feed.documentsPerHour !== undefined && (
                                     <div>
-                                        <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>Docs/Hour</div>
-                                        <div style={{ fontSize: '16px', fontWeight: 600 }}>{feed.documentsPerHour}</div>
+                                        <div className="metric-label"><FileText size={10} style={{ display: 'inline', marginRight: '4px' }} />Docs/Hour</div>
+                                        <div className="metric-value">{feed.documentsPerHour}</div>
                                     </div>
                                 )}
                                 {feed.duplicatesPerHour !== undefined && (
                                     <div>
-                                        <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>Dupes/Hour</div>
-                                        <div style={{ fontSize: '16px', fontWeight: 600 }}>{feed.duplicatesPerHour}</div>
+                                        <div className="metric-label"><Copy size={10} style={{ display: 'inline', marginRight: '4px' }} />Dupes/Hour</div>
+                                        <div className="metric-value">{feed.duplicatesPerHour}</div>
                                     </div>
                                 )}
                                 {feed.backlogMinutes !== undefined && (
                                     <div>
-                                        <div style={{ fontSize: '11px', color: '#9ca3af', marginBottom: '2px' }}>Backlog</div>
-                                        <div style={{ fontSize: '16px', fontWeight: 600 }}>{feed.backlogMinutes}m</div>
+                                        <div className="metric-label"><Clock size={10} style={{ display: 'inline', marginRight: '4px' }} />Backlog</div>
+                                        <div className="metric-value">{feed.backlogMinutes}m</div>
                                     </div>
                                 )}
                             </div>
 
                             {feed.regions && feed.regions.length > 0 && (
-                                <div style={{ marginTop: '12px', fontSize: '12px', color: '#d1d5db' }}>
+                                <div className="feed-regions">
+                                    <Globe size={12} style={{ display: 'inline', marginRight: '4px' }} />
                                     <strong>Regions:</strong> {feed.regions.join(', ')}
                                 </div>
                             )}

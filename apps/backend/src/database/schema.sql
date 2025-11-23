@@ -159,3 +159,83 @@ CREATE TABLE IF NOT EXISTS widget_permissions (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(widget_id, resource_type)
 );
+-- ============================================================================
+-- COGNITIVE MEMORY LAYER - Autonomous Intelligence
+-- ============================================================================
+
+-- Query Pattern Learning
+CREATE TABLE IF NOT EXISTS mcp_query_patterns (
+  id TEXT PRIMARY KEY,
+  widget_id TEXT NOT NULL,
+  query_type TEXT NOT NULL,
+  query_signature TEXT NOT NULL,
+  source_used TEXT NOT NULL,
+  latency_ms INTEGER NOT NULL,
+  result_size INTEGER,
+  success BOOLEAN NOT NULL,
+  user_context TEXT,
+  timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_query_patterns_widget 
+  ON mcp_query_patterns(widget_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_query_patterns_signature 
+  ON mcp_query_patterns(query_signature);
+
+-- Failure Memory
+CREATE TABLE IF NOT EXISTS mcp_failure_memory (
+  id TEXT PRIMARY KEY,
+  source_name TEXT NOT NULL,
+  error_type TEXT NOT NULL,
+  error_message TEXT,
+  error_context TEXT,
+  recovery_action TEXT,
+  recovery_success BOOLEAN,
+  recovery_time_ms INTEGER,
+  occurred_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_failure_memory_source 
+  ON mcp_failure_memory(source_name, occurred_at DESC);
+
+-- Source Health Metrics
+CREATE TABLE IF NOT EXISTS mcp_source_health (
+  id TEXT PRIMARY KEY,
+  source_name TEXT NOT NULL,
+  health_score REAL NOT NULL,
+  latency_p50 REAL,
+  latency_p95 REAL,
+  latency_p99 REAL,
+  success_rate REAL NOT NULL,
+  request_count INTEGER NOT NULL,
+  error_count INTEGER NOT NULL,
+  timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_source_health_source 
+  ON mcp_source_health(source_name, timestamp DESC);
+
+-- Decision Log
+CREATE TABLE IF NOT EXISTS mcp_decision_log (
+  id TEXT PRIMARY KEY,
+  query_intent TEXT NOT NULL,
+  selected_source TEXT NOT NULL,
+  decision_confidence REAL NOT NULL,
+  actual_latency_ms INTEGER,
+  was_optimal BOOLEAN,
+  timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Widget Patterns
+CREATE TABLE IF NOT EXISTS mcp_widget_patterns (
+  id TEXT PRIMARY KEY,
+  widget_id TEXT NOT NULL,
+  pattern_type TEXT NOT NULL,
+  pattern_data TEXT NOT NULL,
+  occurrence_count INTEGER NOT NULL DEFAULT 1,
+  confidence REAL NOT NULL,
+  last_seen DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_widget_patterns_widget 
+  ON mcp_widget_patterns(widget_id, confidence DESC);

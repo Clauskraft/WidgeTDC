@@ -1,0 +1,114 @@
+src/database/index.ts(1,23): error TS2307: Cannot find module 'sql.js' or its corresponding type declarations.
+src/database/seeds.ts(22,9): error TS2554: Expected 1-2 arguments, but got 3.
+src/index-test.ts(1,21): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/index-test.ts(2,18): error TS2307: Cannot find module 'cors' or its corresponding type declarations.
+src/index.ts(1,21): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/index.ts(2,18): error TS2307: Cannot find module 'cors' or its corresponding type declarations.
+src/mcp/gateway/index.ts(2,21): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/mcp/gateway/index.ts(4,17): error TS2307: Cannot find module 'jsonwebtoken' or its corresponding type declarations.
+src/mcp/mcpRouter.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/mcp/mcpRouter.ts(2,30): error TS2307: Cannot find module 'uuid' or its corresponding type declarations.
+src/mcp/toolHandlers.ts(1,28): error TS2307: Cannot find module '../types.js' or its corresponding type declarations.
+src/middleware/inputValidation.ts(8,49): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/routes/sys.ts(1,21): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/routes/sys.ts(2,16): error TS2307: Cannot find module 'systeminformation' or its corresponding type declarations.
+src/services/agent/agentController.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/agent/agentController.ts(2,40): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/auth/aulaOAuth.ts(2,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/services/auth/aulaOAuth.ts(4,42): error TS2307: Cannot find module '../personal/personalRepository' or its corresponding type declarations.
+src/services/auth/aulaOAuth.ts(5,26): error TS2307: Cannot find module '../../utils/audit' or its corresponding type declarations.
+src/services/auth/aulaOAuth.ts(73,36): error TS2551: Property 'createCipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipheriv'?
+src/services/auth/aulaOAuth.ts(73,116): error TS2551: Property 'createCipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipheriv'?
+src/services/auth/aulaOAuth.ts(74,37): error TS2551: Property 'createCipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipheriv'?
+src/services/auth/aulaOAuth.ts(74,118): error TS2551: Property 'createCipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipheriv'?
+src/services/auth/aulaOAuth.ts(122,36): error TS2551: Property 'createCipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipheriv'?
+src/services/auth/aulaOAuth.ts(122,117): error TS2551: Property 'createCipher' does not exist on type 'typeof import("crypto")'. Did you mean 'createCipheriv'?
+src/services/evolution/codeGenerator.test.ts(3,23): error TS2307: Cannot find module '@google/generative-ai' or its corresponding type declarations.
+src/services/evolution/codeGenerator.ts(2,23): error TS2307: Cannot find module '@google/generative-ai' or its corresponding type declarations.
+src/services/evolution/codeGenerator.ts(3,40): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+src/services/evolution/evolutionController.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/evolution/evolutionRepository.ts(9,35): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/evolution/evolutionRepository.ts(15,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/evolution/evolutionRepository.ts(24,20): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/evolution/evolutionRepository.ts(33,20): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/evolution/evolutionRepository.ts(41,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/evolution/evolutionRepository.ts(61,26): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/evolution/evolutionRepository.ts(84,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/llm/llmService.ts(1,20): error TS2307: Cannot find module 'openai' or its corresponding type declarations.
+src/services/memory/memoryController.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/memory/memoryRepository.ts(56,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/memory/memoryRepository.ts(65,33): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/memory/memoryRepository.ts(113,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/memory/memoryRepository.ts(137,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/memory/memoryRepository.ts(160,20): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/memory/memoryRepository.ts(166,26): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/memory/memoryRepository.ts(174,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(1,26): error TS2307: Cannot find module 'sql.js' or its corresponding type declarations.
+src/services/notes/notesRepository.ts(29,17): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(49,17): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(50,17): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(51,17): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(55,32): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(113,30): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(134,29): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(204,17): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notes/notesRepository.ts(210,17): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/notifications/aulaPoller.test.ts(3,23): error TS2307: Cannot find module 'puppeteer' or its corresponding type declarations.
+src/services/notifications/aulaPoller.test.ts(4,23): error TS2307: Cannot find module '@google/generative-ai' or its corresponding type declarations.
+src/services/notifications/aulaPoller.test.ts(5,23): error TS2307: Cannot find module '../personal/personalRepository' or its corresponding type declarations.
+src/services/notifications/aulaPoller.test.ts(32,23): error TS2339: Property 'mcpEmitter' does not exist on type 'typeof import("C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/backend/src/mcp/gateway/index")'.
+src/services/notifications/aulaPoller.test.ts(35,37): error TS2554: Expected 2 arguments, but got 3.
+src/services/notifications/aulaPoller.test.ts(37,30): error TS2339: Property 'mcpEmitter' does not exist on type 'typeof import("C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/backend/src/mcp/gateway/index")'.
+src/services/notifications/aulaPoller.test.ts(48,37): error TS2554: Expected 2 arguments, but got 3.
+src/services/notifications/aulaPoller.test.ts(50,30): error TS2339: Property 'mcpEmitter' does not exist on type 'typeof import("C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/backend/src/mcp/gateway/index")'.
+src/services/notifications/aulaPoller.test.ts(57,44): error TS2554: Expected 2 arguments, but got 3.
+src/services/notifications/aulaPoller.ts(2,18): error TS2307: Cannot find module 'node-cron' or its corresponding type declarations.
+src/services/notifications/aulaPoller.ts(3,19): error TS2307: Cannot find module 'axios' or its corresponding type declarations.
+src/services/notifications/aulaPoller.ts(4,23): error TS2307: Cannot find module '@google/generative-ai' or its corresponding type declarations.
+src/services/notifications/aulaPoller.ts(5,42): error TS2307: Cannot find module '../personal/personalRepository' or its corresponding type declarations.
+src/services/notifications/aulaPoller.ts(6,10): error TS2305: Module '"../../mcp/gateway"' has no exported member 'mcpEmitter'.
+src/services/notifications/aulaPoller.ts(8,26): error TS2307: Cannot find module '../../utils/audit' or its corresponding type declarations.
+src/services/notifications/aulaPoller.ts(84,27): error TS2339: Property 'createDecipher' does not exist on type 'Crypto'.
+src/services/notifications/aulaPoller.ts(92,27): error TS2339: Property 'createCipher' does not exist on type 'Crypto'.
+src/services/pal/palController.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/pal/palRepository.ts(9,20): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(16,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(25,13): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(34,20): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(42,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(52,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(67,26): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(90,26): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/pal/palRepository.ts(113,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/sc/scController.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/sc/scController.ts(2,40): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/sc/scController.ts(3,20): error TS2307: Cannot find module 'multer' or its corresponding type declarations.
+src/services/security/activityStream.ts(2,31): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/security/minioClient.ts(1,24): error TS2307: Cannot find module 'minio' or its corresponding type declarations.
+src/services/security/openSearchClient.ts(1,24): error TS2307: Cannot find module '@opensearch-project/opensearch' or its corresponding type declarations.
+src/services/security/openSearchClient.ts(2,34): error TS2307: Cannot find module '@opensearch-project/opensearch/lib/Transport.js' or its corresponding type declarations.
+src/services/security/securityController.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/security/securityController.ts(48,47): error TS2345: Argument of type '{ query?: string; severity?: string; timeframe?: string; sources?: string[]; }' is not assignable to parameter of type 'SearchParams'.
+  Property 'query' is optional in type '{ query?: string; severity?: string; timeframe?: string; sources?: string[]; }' but required in type 'SearchParams'.
+src/services/security/securityRepository.ts(47,6): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(91,6): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(105,6): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(143,6): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(189,6): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(226,6): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(234,6): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(266,26): error TS2339: Property 'all' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(275,18): error TS2339: Property 'get' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(285,25): error TS2339: Property 'get' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(296,6): error TS2339: Property 'run' does not exist on type 'Promise<Database>'.
+src/services/security/securityRepository.ts(305,6): error TS2339: Property 'run' does not exist on type 'Promise<Database>'.
+src/services/security/securityService.ts(26,24): error TS2307: Cannot find module '@opensearch-project/opensearch' or its corresponding type declarations.
+src/services/security/securityService.ts(33,5): error TS2353: Object literal may only specify known properties, and 'lastUpdate' does not exist in type 'SecurityFeed'.
+src/services/srag/sragController.ts(1,24): error TS2307: Cannot find module 'express' or its corresponding type declarations.
+src/services/srag/sragController.ts(4,30): error TS2307: Cannot find module 'uuid' or its corresponding type declarations.
+src/services/srag/sragController.ts(109,24): error TS2304: Cannot find name 'query'.
+src/services/srag/sragRepository.ts(8,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/srag/sragRepository.ts(17,28): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/srag/sragRepository.ts(47,26): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/srag/sragRepository.ts(66,26): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.
+src/services/srag/sragRepository.ts(78,20): error TS2339: Property 'prepare' does not exist on type 'Promise<Database>'.

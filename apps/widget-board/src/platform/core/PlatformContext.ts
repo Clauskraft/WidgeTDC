@@ -2,11 +2,13 @@ import { createContext, useContext } from 'react';
 import { SecurityOverwatchService } from '../../services/SecurityOverwatchService';
 import { AuditLogService } from '../../services/AuditLogService';
 import { FeedIngestionService } from '../../services/FeedIngestionService';
+import { AgentService } from '../../services/AgentService';
 
 export interface PlatformServices {
   securityOverwatch: SecurityOverwatchService;
   auditLog: AuditLogService;
   feedIngestion: FeedIngestionService;
+  agentService: AgentService;
 }
 
 export const PlatformContext = createContext<PlatformServices | null>(null);

@@ -1,4 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { usePlatform } from '../platform/core/PlatformContext';
+import { Activity, Pause, Play, AlertTriangle, CheckCircle, Settings, FileText, Database, Clock, Radio } from 'lucide-react';
+import './ActivityStreamWidget.css';
 
 interface ActivityEvent {
     id: string;
@@ -13,6 +16,7 @@ interface ActivityEvent {
 }
 
 export const ActivityStreamWidget: React.FC = () => {
+    const { securityOverwatch } = usePlatform();
     const [events, setEvents] = useState<ActivityEvent[]>([]);
     const [severityFilter, setSeverityFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -36,58 +40,42 @@ export const ActivityStreamWidget: React.FC = () => {
 
     const loadInitialEvents = async () => {
         try {
-            const params = new URLSearchParams();
-            if (severityFilter !== 'all') params.append('severity', severityFilter);
-            if (categoryFilter !== 'all') params.append('category', categoryFilter);
-            params.append('limit', '25');
-
-            const response = await fetch(`/api/security/activity?${params}`);
-            if (!response.ok) throw new Error('Failed to load events');
-
-            const data = await response.json();
-            setEvents(data.events || []);
+            const data = await securityOverwatch.getActivities({
+                severity: severityFilter,
+                category: categoryFilter,
+                limit: 25
+            });
+            setEvents(data);
         } catch (error) {
             console.error('Error loading events:', error);
         }
     };
 
     const connectToStream = () => {
-        const params = new URLSearchParams();
-        if (severityFilter !== 'all') params.append('severity', severityFilter);
-        if (categoryFilter !== 'all') params.append('category', categoryFilter);
+        if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+        }
 
-        const eventSource = new EventSource(`/api/security/activity/stream?${params}`);
-
-        eventSource.onmessage = (event) => {
-            try {
-                const newEvent = JSON.parse(event.data);
+        eventSourceRef.current = securityOverwatch.connectToActivityStream(
+            { severity: severityFilter, category: categoryFilter },
+            (newEvent) => {
                 setEvents((prev) => [newEvent, ...prev].slice(0, 50)); // Keep last 50 events
-            } catch (error) {
-                console.error('Error parsing SSE event:', error);
+            },
+            () => {
+                console.error('SSE connection error');
+                // Optional: Implement reconnection logic or show error state
             }
-        };
-
-        eventSource.onerror = () => {
-            console.error('SSE connection error');
-            eventSource.close();
-        };
-
-        eventSourceRef.current = eventSource;
+        );
     };
 
     const handleAcknowledge = async (eventId: string) => {
         try {
-            const response = await fetch(`/api/security/activity/${eventId}/ack`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ acknowledged: true })
-            });
-
-            if (!response.ok) throw new Error('Failed to acknowledge');
-
-            setEvents((prev) =>
-                prev.map((e) => (e.id === eventId ? { ...e, acknowledged: true } : e))
-            );
+            const success = await securityOverwatch.acknowledgeActivity(eventId);
+            if (success) {
+                setEvents((prev) =>
+                    prev.map((e) => (e.id === eventId ? { ...e, acknowledged: true } : e))
+                );
+            }
         } catch (error) {
             console.error('Error acknowledging event:', error);
         }
@@ -105,48 +93,36 @@ export const ActivityStreamWidget: React.FC = () => {
 
     const getCategoryIcon = (category: string) => {
         switch (category) {
-            case 'ingestion': return '📥';
-            case 'alert': return '🚨';
-            case 'automation': return '⚙️';
-            case 'audit': return '📋';
-            default: return '📌';
+            case 'ingestion': return <Database size={16} />;
+            case 'alert': return <AlertTriangle size={16} />;
+            case 'automation': return <Settings size={16} />;
+            case 'audit': return <FileText size={16} />;
+            default: return <Activity size={16} />;
         }
     };
 
     return (
-        <div style={{ padding: '16px', height: '100%', display: 'flex', flexDirection: 'column', background: '#1f2937', color: '#f3f4f6' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>📡 Activity Stream</h3>
+        <div className="activity-widget-container">
+            <div className="activity-header">
+                <h3 className="activity-title">
+                    <Radio size={20} className={paused ? "text-gray-400" : "text-green-500 animate-pulse"} />
+                    Activity Stream
+                </h3>
                 <button
                     onClick={() => setPaused(!paused)}
-                    style={{
-                        padding: '6px 12px',
-                        background: paused ? '#16a34a' : '#dc2626',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontSize: '14px'
-                    }}
+                    className={`pause-button ${paused ? 'paused' : 'active'}`}
                 >
+                    {paused ? <Play size={14} /> : <Pause size={14} />}
                     {paused ? 'Resume' : 'Pause'}
                 </button>
             </div>
 
             {/* Filters */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+            <div className="filter-container">
                 <select
+                    className="filter-select"
                     value={severityFilter}
                     onChange={(e) => setSeverityFilter(e.target.value)}
-                    style={{
-                        flex: 1,
-                        padding: '8px',
-                        background: '#374151',
-                        border: '1px solid #4b5563',
-                        borderRadius: '6px',
-                        color: '#f3f4f6',
-                        fontSize: '14px'
-                    }}
                 >
                     <option value="all">All Severities</option>
                     <option value="critical">Critical</option>
@@ -156,17 +132,9 @@ export const ActivityStreamWidget: React.FC = () => {
                 </select>
 
                 <select
+                    className="filter-select"
                     value={categoryFilter}
                     onChange={(e) => setCategoryFilter(e.target.value)}
-                    style={{
-                        flex: 1,
-                        padding: '8px',
-                        background: '#374151',
-                        border: '1px solid #4b5563',
-                        borderRadius: '6px',
-                        color: '#f3f4f6',
-                        fontSize: '14px'
-                    }}
                 >
                     <option value="all">All Categories</option>
                     <option value="ingestion">Ingestion</option>
@@ -177,9 +145,9 @@ export const ActivityStreamWidget: React.FC = () => {
             </div>
 
             {/* Event Stream */}
-            <div style={{ flex: 1, overflow: 'auto' }}>
+            <div className="activity-list">
                 {events.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '32px', color: '#9ca3af' }}>
+                    <div className="no-events">
                         No events to display
                     </div>
                 ) : (
@@ -187,61 +155,44 @@ export const ActivityStreamWidget: React.FC = () => {
                         {events.map((event) => (
                             <div
                                 key={event.id}
-                                style={{
-                                    background: event.acknowledged ? '#2d3748' : '#374151',
-                                    borderRadius: '6px',
-                                    padding: '12px',
-                                    borderLeft: `4px solid ${getSeverityColor(event.severity)}`,
-                                    opacity: event.acknowledged ? 0.6 : 1
-                                }}
+                                className={`activity-item ${event.acknowledged ? 'acknowledged' : ''}`}
+                                style={{ borderLeftColor: getSeverityColor(event.severity) }}
                             >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '6px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <span style={{ fontSize: '18px' }}>{getCategoryIcon(event.category)}</span>
-                                        <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 600 }}>{event.title}</h4>
+                                <div className="item-header">
+                                    <div className="item-title-group">
+                                        <span className="item-icon">{getCategoryIcon(event.category)}</span>
+                                        <h4 className="item-title">{event.title}</h4>
                                     </div>
-                                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                    <div className="item-meta-group">
                                         <span
-                                            style={{
-                                                fontSize: '11px',
-                                                padding: '3px 8px',
-                                                background: getSeverityColor(event.severity),
-                                                borderRadius: '4px',
-                                                fontWeight: 600,
-                                                textTransform: 'uppercase'
-                                            }}
+                                            className="severity-badge"
+                                            style={{ background: getSeverityColor(event.severity) }}
                                         >
                                             {event.severity}
                                         </span>
                                         {!event.acknowledged && (
                                             <button
+                                                className="ack-button"
                                                 onClick={() => handleAcknowledge(event.id)}
-                                                style={{
-                                                    padding: '3px 8px',
-                                                    background: '#3b82f6',
-                                                    color: 'white',
-                                                    border: 'none',
-                                                    borderRadius: '4px',
-                                                    cursor: 'pointer',
-                                                    fontSize: '11px'
-                                                }}
+                                                title="Acknowledge"
                                             >
-                                                ACK
+                                                <CheckCircle size={12} />
                                             </button>
                                         )}
                                     </div>
                                 </div>
 
-                                <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#d1d5db', lineHeight: '1.4' }}>
+                                <p className="item-description">
                                     {event.description}
                                 </p>
 
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#9ca3af' }}>
-                                    <div>
+                                <div className="item-footer">
+                                    <div className="item-source">
                                         <strong>Source:</strong> {event.source} <span style={{ margin: '0 4px' }}>•</span>
                                         <strong>Channel:</strong> {event.channel}
                                     </div>
-                                    <div>
+                                    <div className="item-time">
+                                        <Clock size={12} />
                                         {new Date(event.createdAt).toLocaleTimeString()}
                                     </div>
                                 </div>

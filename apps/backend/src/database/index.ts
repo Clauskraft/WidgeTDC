@@ -6,72 +6,70 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+interface DatabaseStatement {
+  bind: (params: unknown[]) => void;
+  step: () => boolean;
+  getAsObject: () => any;
+  free: () => void;
+  run: (...params: unknown[]) => { lastInsertRowid: number | bigint };
+  get: (...params: unknown[]) => any;
+  all: (...params: unknown[]) => any[];
+}
+
 interface Database {
-  run: (sql: string, params?: unknown[]) => { changes: number; lastID?: number };
-  all: (sql: string, params?: unknown[]) => unknown[];
-  get: (sql: string, params?: unknown[]) => unknown;
-  exec: (sql: string) => void;
+  prepare: (sql: string) => DatabaseStatement;
+  run: (sql: string) => void;
   close: () => void;
 }
 
-let db: any = null;
+let dbInstance: Database | null = null;
 let SQL: any = null;
+let isInitializing = false;
+let initPromise: Promise<void> | null = null;
 
-export async function getDatabase(): Promise<Database> {
-  if (!db) {
-    // Initialize sql.js
-    SQL = await initSqlJs();
-    db = new SQL.Database();
+// Initialize database asynchronously - MUST be called before any repository usage
+export async function initializeDatabase(): Promise<void> {
+  if (dbInstance) return;
 
-    // Initialize schema
-    const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
-    db.run(schema);
-
-    console.log('✅ Database initialized successfully with sql.js (pure JavaScript)');
+  if (isInitializing) {
+    await initPromise;
+    return;
   }
 
-  return {
-    run: (sql: string, params: unknown[] = []) => {
-      const stmt = db.prepare(sql);
-      stmt.bind(params);
-      stmt.step();
-      stmt.free();
-      return { changes: 1, lastID: Date.now() };
-    },
-    all: (sql: string, params: unknown[] = []) => {
-      const stmt = db.prepare(sql);
-      stmt.bind(params);
-      const results: unknown[] = [];
-      while (stmt.step()) {
-        results.push(stmt.getAsObject());
-      }
-      stmt.free();
-      return results;
-    },
-    get: (sql: string, params: unknown[] = []) => {
-      const stmt = db.prepare(sql);
-      stmt.bind(params);
-      if (stmt.step()) {
-        const result = stmt.getAsObject();
-        stmt.free();
-        return result;
-      }
-      stmt.free();
-      return null;
-    },
-    exec: (sql: string) => {
-      db.run(sql);
-    },
-    close: () => {
-      if (db) db.close();
-      db = null;
+  isInitializing = true;
+  initPromise = (async () => {
+    try {
+      // Initialize sql.js
+      SQL = await initSqlJs();
+      dbInstance = new SQL.Database();
+
+      // Initialize schema
+      const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
+      dbInstance.run(schema);
+
+      console.log('✅ Database initialized successfully with sql.js (pure JavaScript)');
+    } catch (error) {
+      console.error('❌ Failed to initialize database:', error);
+      throw error;
+    } finally {
+      isInitializing = false;
     }
-  };
+  })();
+
+  await initPromise;
+}
+
+// Get database synchronously - throws if not initialized
+export function getDatabase(): Database {
+  if (!dbInstance) {
+    throw new Error('Database not initialized! Call initializeDatabase() first.');
+  }
+  return dbInstance;
 }
 
 export function closeDatabase(): void {
-  if (db) {
-    db.close();
-    db = null;
+  if (dbInstance) {
+    dbInstance.close();
+    dbInstance = null;
   }
 }

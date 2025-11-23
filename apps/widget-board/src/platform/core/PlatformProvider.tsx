@@ -3,6 +3,7 @@ import { PlatformContext, PlatformServices } from './PlatformContext';
 import { SecurityOverwatchService } from '../../services/SecurityOverwatchService';
 import { AuditLogService } from '../../services/AuditLogService';
 import { FeedIngestionService } from '../../services/FeedIngestionService';
+import { AgentService } from '../../services/AgentService';
 
 interface PlatformProviderProps {
     children: ReactNode;
@@ -16,6 +17,7 @@ export const PlatformProvider: React.FC<PlatformProviderProps> = ({ children }) 
             securityOverwatch: new SecurityOverwatchService(),
             auditLog: new AuditLogService(),
             feedIngestion: new FeedIngestionService(),
+            agentService: new AgentService(),
         };
     }, []);
 
