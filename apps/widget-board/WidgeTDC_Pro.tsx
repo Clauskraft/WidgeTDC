@@ -31,20 +31,13 @@ export default function WidgeTDCPro() {
         return saved ? JSON.parse(saved) : [];
     });
 
-    const [logs, setLogs] = useState([
-        { type: 'info', msg: "WidgeTDC OS v11.3 booting..." },
-        { type: 'success', msg: 'Secure Enclave: Mounted' },
-        { type: 'success', msg: 'MCP Backend: Connected to http://localhost:3001' },
-        { type: 'warning', msg: 'Backend Link: Using sql.js SQLite Adapter' },
-    ]);
-
     // Sync layout with widgets
     useEffect(() => {
         setLayout(prevLayout => {
             const currentWidgetIds = new Set(widgets.map(w => w.id));
 
             // 1. Keep existing layout items for active widgets
-            let newLayout = prevLayout.filter(item => currentWidgetIds.has(item.i));
+            const newLayout = prevLayout.filter(item => currentWidgetIds.has(item.i));
 
             // 2. Add new layout items for new widgets
             let hasChanges = newLayout.length !== prevLayout.length;
