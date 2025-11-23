@@ -85,6 +85,7 @@ export class AutonomousAgent {
 
     /**
      * Execute query with selected source and learn from outcome
+     * Includes autonomous fallback handling for failures
      */
     async executeAndLearn(
         query: DataQuery,
@@ -93,44 +94,71 @@ export class AutonomousAgent {
         const queryId = query.id || uuidv4();
         const startTime = Date.now();
 
-        let selectedSource: DataSource;
-        let result: any;
-        let success = false;
+        // 1. Analyze intent
+        const intent = await this.decisionEngine.analyzeIntent(query);
 
-        try {
-            // Route to best source
-            selectedSource = await this.route(query);
+        // 2. Get candidate sources
+        const candidates = this.registry.getCapableSources(intent);
 
-            // Execute query
-            result = await executeFunction(selectedSource);
-            success = true;
+        if (candidates.length === 0) {
+            throw new Error(`No sources available for query type: ${intent.type}`);
+        }
 
-            const latencyMs = Date.now() - startTime;
+        // 3. Score and rank sources for fallback strategy
+        const rankedSources = await this.decisionEngine.scoreAllSources(candidates, intent);
 
-            // Learn from successful execution
-            await this.memory.recordQuery({
-                widgetId: query.widgetId || 'unknown',
-                queryType: query.type,
-                queryParams: query.params,
-                sourceUsed: selectedSource.name,
-                latencyMs,
-                resultSize: this.estimateSize(result),
-                success: true
-            });
+        const errors: any[] = [];
 
-            return {
-                data: result,
-                source: selectedSource.name,
-                latencyMs,
-                cached: false,
-                timestamp: new Date()
-            };
+        // 4. Try sources in order (Fallback Loop)
+        for (const candidate of rankedSources) {
+            const selectedSource = candidate.source;
 
-        } catch (error: any) {
-            const latencyMs = Date.now() - startTime;
+            try {
+                // Only log if it's a fallback attempt (not the first choice)
+                if (errors.length > 0) {
+                    console.log(`🔄 Fallback: Attempting execution with ${selectedSource.name} (Score: ${candidate.score.toFixed(2)})...`);
+                }
 
-            // Learn from failure
-            if (selectedSource!) {
+                // Execute query
+                const result = await executeFunction(selectedSource);
+
+                // Success!
+                const latencyMs = Date.now() - startTime;
+
+                // Log decision (we log the one that actually worked)
+                const decision: DecisionResult = {
+                    selectedSource: selectedSource,
+                    score: candidate.score,
+                    confidence: candidate.score,
+                    reasoning: candidate.reasoning,
+                    alternatives: rankedSources.filter(s => s.source.name !== selectedSource.name)
+                };
+                await this.logDecision(query, decision, candidates);
+
+                // Learn from successful execution
+                await this.memory.recordQuery({
+                    widgetId: query.widgetId || 'unknown',
+                    queryType: query.type,
+                    queryParams: query.params,
+                    sourceUsed: selectedSource.name,
+                    latencyMs,
+                    resultSize: this.estimateSize(result),
+                    success: true
+                });
+
+                return {
+                    data: result,
+                    source: selectedSource.name,
+                    latencyMs,
+                    cached: false,
+                    timestamp: new Date()
+                };
+
+            } catch (error: any) {
+                console.warn(`⚠️ Source ${selectedSource.name} failed: ${error.message}`);
+                errors.push({ source: selectedSource.name, error: error.message });
+
+                // Learn from failure
                 await this.memory.recordFailure({
                     sourceName: selectedSource.name,
                     error,
@@ -145,13 +173,16 @@ export class AutonomousAgent {
                     queryType: query.type,
                     queryParams: query.params,
                     sourceUsed: selectedSource.name,
-                    latencyMs,
+                    latencyMs: Date.now() - startTime,
                     success: false
                 });
-            }
 
-            throw error;
+                // Continue to next source...
+            }
         }
+
+        // If we get here, ALL sources failed
+        throw new Error(`All available sources failed for query ${query.type}. Errors: ${JSON.stringify(errors)}`);
     }
 
     /**
