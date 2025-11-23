@@ -217,88 +217,92 @@ export default function WidgeTDCPro() {
 
                 {/* Widget Grid Area */}
                 <div className={`flex-1 overflow-y-auto p-4 scrollbar-thin ${isDarkMode ? 'scrollbar-track-slate-900 scrollbar-thumb-slate-700' : 'scrollbar-track-slate-100 scrollbar-thumb-slate-300'}`}>
-                    <div className="max-w-[1920px] mx-auto min-h-full">
+                    {activeTab === 'admin' ? (
+                        <AdminDashboard />
+                    ) : (
+                        <div className="max-w-[1920px] mx-auto min-h-full">
 
-                        {/* Empty State */}
-                        {widgets.length === 0 ? (
-                            <div className="h-[70vh] flex flex-col items-center justify-center animate-fade-in">
-                                <div className="relative mb-8 group cursor-pointer" onClick={() => setIsWidgetSelectorOpen(true)}>
-                                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-500" />
-                                    <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
-                                        <Plus size={40} className="text-primary" />
-                                    </div>
-                                </div>
-                                <h3 className="text-3xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
-                                    Initialize Dashboard
-                                </h3>
-                                <p className="text-slate-500 mb-8 text-center max-w-md">
-                                    Your workspace is empty. Add widgets to monitor agents, track metrics, and manage your workflow.
-                                </p>
-                                <button
-                                    onClick={() => setIsWidgetSelectorOpen(true)}
-                                    className="px-8 py-3 rounded-xl bg-primary hover:bg-primary-light text-white font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-1"
-                                >
-                                    Browse Widget Library
-                                </button>
-                            </div>
-                        ) : (
-                            <GridLayout
-                                className="layout"
-                                layout={layout}
-                                cols={12}
-                                rowHeight={100}
-                                width={1760}
-                                onLayoutChange={onLayoutChange}
-                                isDraggable={true}
-                                isResizable={true}
-                                compactType="vertical"
-                                preventCollision={false}
-                                draggableHandle=".widget-drag-handle"
-                            >
-                                {widgets.map(widgetInstance => {
-                                    const registryEntry = availableWidgets.find(w => w.id === widgetInstance.widgetType);
-
-                                    return (
-                                        <div key={widgetInstance.id} className={`ms-widget-container flex flex-col overflow-hidden group ${isDarkMode ? 'bg-slate-900/40' : 'bg-white/60'}`}>
-                                            {/* Widget Header */}
-                                            <div className="ms-widget-header widget-drag-handle shrink-0">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="p-1.5 rounded-md bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10">
-                                                        {/* Icon placeholder - could be dynamic based on widget type */}
-                                                        <div className="w-3 h-3 rounded-full bg-primary/80" />
-                                                    </div>
-                                                    <span className="ms-widget-title truncate">
-                                                        {registryEntry?.name || 'Unknown Widget'}
-                                                    </span>
-                                                </div>
-                                                <div className="ms-widget-actions opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                                    <button
-                                                        onClick={() => setSettingsWidgetId(widgetInstance.id)}
-                                                        className="ms-icon-button"
-                                                        title="Settings"
-                                                    >
-                                                        <Settings size={14} className="text-slate-400 hover:text-white" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => removeWidget(widgetInstance.id)}
-                                                        className="ms-icon-button hover:!bg-red-500/20 hover:!border-red-500/30"
-                                                        title="Remove"
-                                                    >
-                                                        <Trash2 size={14} className="text-slate-400 hover:text-red-400" />
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            {/* Widget Content */}
-                                            <div className="flex-1 overflow-hidden relative">
-                                                {renderWidget(widgetInstance)}
-                                            </div>
+                            {/* Empty State */}
+                            {widgets.length === 0 ? (
+                                <div className="h-[70vh] flex flex-col items-center justify-center animate-fade-in">
+                                    <div className="relative mb-8 group cursor-pointer" onClick={() => setIsWidgetSelectorOpen(true)}>
+                                        <div className="absolute inset-0 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-500" />
+                                        <div className="relative w-24 h-24 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10 flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                                            <Plus size={40} className="text-primary" />
                                         </div>
-                                    );
-                                })}
-                            </GridLayout>
-                        )}
-                    </div>
+                                    </div>
+                                    <h3 className="text-3xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
+                                        Initialize Dashboard
+                                    </h3>
+                                    <p className="text-slate-500 mb-8 text-center max-w-md">
+                                        Your workspace is empty. Add widgets to monitor agents, track metrics, and manage your workflow.
+                                    </p>
+                                    <button
+                                        onClick={() => setIsWidgetSelectorOpen(true)}
+                                        className="px-8 py-3 rounded-xl bg-primary hover:bg-primary-light text-white font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-1"
+                                    >
+                                        Browse Widget Library
+                                    </button>
+                                </div>
+                            ) : (
+                                <GridLayout
+                                    className="layout"
+                                    layout={layout}
+                                    cols={12}
+                                    rowHeight={100}
+                                    width={1760}
+                                    onLayoutChange={onLayoutChange}
+                                    isDraggable={true}
+                                    isResizable={true}
+                                    compactType="vertical"
+                                    preventCollision={false}
+                                    draggableHandle=".widget-drag-handle"
+                                >
+                                    {widgets.map(widgetInstance => {
+                                        const registryEntry = availableWidgets.find(w => w.id === widgetInstance.widgetType);
+
+                                        return (
+                                            <div key={widgetInstance.id} className={`ms-widget-container flex flex-col overflow-hidden group ${isDarkMode ? 'bg-slate-900/40' : 'bg-white/60'}`}>
+                                                {/* Widget Header */}
+                                                <div className="ms-widget-header widget-drag-handle shrink-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 rounded-md bg-gradient-to-br from-slate-800 to-slate-900 border border-white/10">
+                                                            {/* Icon placeholder - could be dynamic based on widget type */}
+                                                            <div className="w-3 h-3 rounded-full bg-primary/80" />
+                                                        </div>
+                                                        <span className="ms-widget-title truncate">
+                                                            {registryEntry?.name || 'Unknown Widget'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="ms-widget-actions opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                                        <button
+                                                            onClick={() => setSettingsWidgetId(widgetInstance.id)}
+                                                            className="ms-icon-button"
+                                                            title="Settings"
+                                                        >
+                                                            <Settings size={14} className="text-slate-400 hover:text-white" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => removeWidget(widgetInstance.id)}
+                                                            className="ms-icon-button hover:!bg-red-500/20 hover:!border-red-500/30"
+                                                            title="Remove"
+                                                        >
+                                                            <Trash2 size={14} className="text-slate-400 hover:text-red-400" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                {/* Widget Content */}
+                                                <div className="flex-1 overflow-hidden relative">
+                                                    {renderWidget(widgetInstance)}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </GridLayout>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Footer */}
