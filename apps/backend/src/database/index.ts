@@ -18,7 +18,7 @@ interface DatabaseStatement {
 
 interface Database {
   prepare: (sql: string) => DatabaseStatement;
-  run: (sql: string) => void;
+  run: (sql: string, params?: any[]) => void;
   close: () => void;
 }
 

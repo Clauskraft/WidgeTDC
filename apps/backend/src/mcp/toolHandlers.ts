@@ -1,4 +1,4 @@
-import { McpContext } from '../types.js';
+import { McpContext } from '@widget-tdc/mcp-types';
 import { MemoryRepository } from '../services/memory/memoryRepository.js';
 import { SragRepository } from '../services/srag/sragRepository.js';
 import { EvolutionRepository } from '../services/evolution/evolutionRepository.js';

@@ -5,9 +5,9 @@
  */
 
 import { Router } from 'express';
-import { getCognitiveMemory } from '../memory/CognitiveMemory';
-import { AutonomousAgent, startAutonomousLearning } from '../autonomous/AutonomousAgent';
-import { getSourceRegistry } from '../SourceRegistry';
+import { getCognitiveMemory } from './memory/CognitiveMemory';
+import { AutonomousAgent, startAutonomousLearning } from './autonomous/AutonomousAgent';
+import { getSourceRegistry } from './SourceRegistry';
 
 export const autonomousRouter = Router();
 
