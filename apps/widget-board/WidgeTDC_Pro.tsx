@@ -9,6 +9,7 @@ import WidgetConfigModal from './components/WidgetConfigModal';
 import { useWidgetRegistry } from './contexts/WidgetRegistryContext';
 import { useWidgetStore } from './components/widgetStore';
 import { WidgetInstance } from './types';
+import { AdminDashboard } from './src/components/AdminDashboard';
 
 // Dynamic widget loader is handled by Registry Context now
 
@@ -144,7 +145,7 @@ export default function WidgeTDCPro() {
                     W
                 </div>
                 <nav className="flex-1 space-y-6 w-full px-3 flex flex-col items-center">
-                    {[{ id: 'dashboard', icon: LayoutGrid, label: 'Widgets' }, { id: 'security', icon: Shield, label: 'Defense' }, { id: 'network', icon: Network, label: 'Net' }, { id: 'compliance', icon: FileText, label: 'Docs' }].map((item, index) => (
+                    {[{ id: 'dashboard', icon: LayoutGrid, label: 'Widgets' }, { id: 'security', icon: Shield, label: 'Defense' }, { id: 'network', icon: Network, label: 'Net' }, { id: 'compliance', icon: FileText, label: 'Docs' }, { id: 'admin', icon: Settings, label: 'Admin' }].map((item, index) => (
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
