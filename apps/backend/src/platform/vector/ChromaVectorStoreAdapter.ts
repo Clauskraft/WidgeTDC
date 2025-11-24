@@ -19,7 +19,7 @@ import type {
   VectorStoreStatistics,
   MetadataFilter,
   VectorEmbedding,
-} from './types.js';
+} from '../../../src/platform/vector/types.js';
 
 interface ChromaCollection {
   add: (params: {
