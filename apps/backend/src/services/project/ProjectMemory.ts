@@ -42,13 +42,14 @@ class ProjectMemoryService {
             const details = JSON.stringify(event.details || {});
 
             db.prepare(`
-        INSERT INTO project_lifecycle_events (event_type, status, details, created_at)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        INSERT INTO project_lifecycle_events (event_type, status, details)
+        VALUES (?, ?, ?)
         `).run(eventType, status, details);
 
             console.log(`[ProjectMemory] Logged event: ${event.eventType} - ${event.status}`);
         } catch (error) {
             console.error('[ProjectMemory] Failed to log event:', error);
+            console.error('[ProjectMemory] Event details:', JSON.stringify({ eventType: event.eventType, status: event.status, hasDetails: !!event.details }));
         }
     }
 
