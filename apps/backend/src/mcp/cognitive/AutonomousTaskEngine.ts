@@ -111,6 +111,7 @@ export class AutonomousTaskEngine {
     }
 
     private async executeTask(task: Task): Promise<TaskResult> {
+        const startTime = Date.now();
         try {
             const intent = this.taskToIntent(task);
             const result = await this.agent.executeAndLearn(intent, async (src) => {
@@ -120,6 +121,17 @@ export class AutonomousTaskEngine {
                 throw new Error(`Source ${src.name} does not support query operation`);
             });
             
+            const duration = Date.now() - startTime;
+            
+            // Emit event for TaskRecorder observation
+            eventBus.emit('autonomous.task.executed', {
+                taskType: task.type,
+                payload: task.payload,
+                success: true,
+                result: result.data,
+                duration
+            });
+            
             return {
                 success: true,
                 data: result.data,
@@ -127,6 +139,17 @@ export class AutonomousTaskEngine {
                 foundPattern: false
             };
         } catch (error: any) {
+            const duration = Date.now() - startTime;
+            
+            // Emit event for TaskRecorder observation (failure)
+            eventBus.emit('autonomous.task.executed', {
+                taskType: task.type,
+                payload: task.payload,
+                success: false,
+                error: error.message,
+                duration
+            });
+            
             return {
                 success: false,
                 error: error.message,

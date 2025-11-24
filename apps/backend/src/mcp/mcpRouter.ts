@@ -3,11 +3,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { MCPMessage } from '@widget-tdc/mcp-types';
 import { mcpRegistry } from './mcpRegistry.js';
 import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
+import { eventBus } from './EventBus.js';
 
 export const mcpRouter = Router();
 
 // Route MCP messages
 mcpRouter.post('/route', async (req, res) => {
+  const startTime = Date.now();
+  let success = false;
+  
   try {
     const message: MCPMessage = req.body;
     // Context for memory enrichment
@@ -25,12 +29,40 @@ mcpRouter.post('/route', async (req, res) => {
     const result = await mcpRegistry.route(enrichedMessage);
     // Persist result in working memory for future context
     await unifiedMemorySystem.updateWorkingMemory(ctx, result);
+    
+    success = true;
+    const duration = Date.now() - startTime;
+    
+    // Emit event for TaskRecorder observation
+    eventBus.emit('mcp.tool.executed', {
+      tool: enrichedMessage.tool,
+      payload: enrichedMessage.payload,
+      userId: ctx.userId,
+      orgId: ctx.orgId,
+      success: true,
+      result,
+      duration
+    });
+    
     res.json({
       success: true,
       messageId: enrichedMessage.id,
       result,
     });
   } catch (error: any) {
+    const duration = Date.now() - startTime;
+    
+    // Emit event for TaskRecorder observation (failure)
+    eventBus.emit('mcp.tool.executed', {
+      tool: req.body?.tool || 'unknown',
+      payload: req.body?.payload || {},
+      userId: (req as any).user?.id ?? 'anonymous',
+      orgId: (req as any).user?.orgId ?? 'default',
+      success: false,
+      error: error.message,
+      duration
+    });
+    
     console.error('MCP routing error:', error);
     res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }

@@ -1,6 +1,15 @@
 import { EventEmitter } from 'events';
 
-export type EventType = 'system.alert' | 'security.alert' | 'agent.decision' | 'agent.log';
+export type EventType = 
+    | 'system.alert' 
+    | 'security.alert' 
+    | 'agent.decision' 
+    | 'agent.log'
+    | 'mcp.tool.executed'
+    | 'autonomous.task.executed'
+    | 'taskrecorder.suggestion.created'
+    | 'taskrecorder.suggestion.approved'
+    | 'taskrecorder.execution.started';
 
 export interface BaseEvent {
     type: EventType;
@@ -15,7 +24,12 @@ class MCPEventBus extends EventEmitter {
         this.emit('*', event); // Catch-all
     }
 
-    onEvent(type: EventType | '*', listener: (event: BaseEvent) => void) {
+    // Direct emit for convenience (for non-BaseEvent objects)
+    emit(type: EventType | '*', ...args: any[]): boolean {
+        return super.emit(type, ...args);
+    }
+
+    onEvent(type: EventType | '*', listener: (event: BaseEvent | any) => void) {
         this.on(type, listener);
     }
 }
