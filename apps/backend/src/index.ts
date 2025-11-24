@@ -9,6 +9,7 @@ import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
+import { llmRouter } from './services/llm/llmController.js';
 
 // Swagger/OpenAPI Documentation (if using Fastify in future)
 // Note: Currently using Express, but Swagger can be added later
@@ -238,12 +239,12 @@ async function startServer() {
 
     // Step 3.7: Start HansPedder orchestrator
     try {
-        const { startHansPedder } = await import('./orchestrator/hansPedder.js');
-        await startHansPedder();
-        console.log('👔 HansPedder orchestrator started');
+      const { startHansPedder } = await import('./orchestrator/hansPedder.js');
+      await startHansPedder();
+      console.log('👔 HansPedder orchestrator started');
     } catch (err) {
-        console.error('⚠️ Failed to start HansPedder:', err);
-        // Non-critical, continue server startup
+      console.error('⚠️ Failed to start HansPedder:', err);
+      // Non-critical, continue server startup
     }
 
     // Step 4: Setup routes
@@ -254,6 +255,7 @@ async function startServer() {
     app.use('/api/evolution', evolutionRouter);
     app.use('/api/pal', palRouter);
     app.use('/api/security', securityRouter);
+    app.use('/api/ai', llmRouter);
 
     // Health check
     app.get('/health', (req, res) => {

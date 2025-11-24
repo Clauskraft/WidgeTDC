@@ -297,12 +297,14 @@ class PalAgent implements AgentCapabilities {
         const mode = this.determineMode(message.content);
         
         // Use EmotionAwareDecisionEngine for personal decisions
-        const decision = await emotionAwareDecisionEngine.makeDecision({
-            query: message.content,
-            context: message.metadata || {},
-            userId: message.metadata?.userId || 'system',
-            orgId: message.metadata?.orgId || 'default'
-        });
+        const decision = await emotionAwareDecisionEngine.makeDecision(
+            message.content,
+            {
+                orgId: message.metadata?.orgId || 'default',
+                userId: message.metadata?.userId || 'system',
+                boardId: message.metadata?.boardId
+            }
+        );
 
         // Route to specialized handler
         let result: any;
@@ -512,7 +514,7 @@ class PalAgent implements AgentCapabilities {
             type: 'compensation',
             analysis: this.generateCompensationAnalysis(message.content),
             marketData: {
-                sources: searchResults.results.slice(0, 3).map((r: any) => ({
+                sources: searchResults.slice(0, 3).map((r: any) => ({
                     source: r.source,
                     relevance: r.score
                 })),

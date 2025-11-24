@@ -2,9 +2,9 @@
  * Unified LLM Provider
  * 
  * Single interface for all LLM providers (OpenAI, Anthropic, Google, DeepSeek)
+ * NOW SECURED: Proxies all requests through the backend to avoid exposing API keys.
  */
 
-import { DeepSeekAPI } from './deepseek-stub';
 import type { LLMModel } from './llm-models';
 
 export interface ChatMessage {
@@ -33,163 +33,52 @@ export interface ChatCompletionResponse {
 /**
  * Unified LLM Provider Class
  * 
- * Provides a single interface for all LLM providers
+ * Provides a single interface for all LLM providers via Backend Proxy
  */
 export class UnifiedLLMProvider {
-  private openaiApiKey?: string;
-  private anthropicApiKey?: string;
-  private googleApiKey?: string;
-  private deepseekApiKey?: string;
 
-  private deepseekClient?: DeepSeekAPI;
-
-  constructor(config: {
-    openaiApiKey?: string;
-    anthropicApiKey?: string;
-    googleApiKey?: string;
-    deepseekApiKey?: string;
-  }) {
-    this.openaiApiKey = config.openaiApiKey;
-    this.anthropicApiKey = config.anthropicApiKey;
-    this.googleApiKey = config.googleApiKey;
-    this.deepseekApiKey = config.deepseekApiKey;
-
-    // Initialize DeepSeek client if API key is provided
-    if (this.deepseekApiKey) {
-      this.deepseekClient = new DeepSeekAPI({
-        apiKey: this.deepseekApiKey
-      });
-    }
+  constructor(config?: any) {
+    // Config is no longer needed as keys are in backend
   }
 
   /**
-   * Complete a chat using any provider
+   * Complete a chat using any provider via Backend Proxy
    */
   async complete(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
-    const provider = this.getProviderFromModel(options.model);
-
-    switch (provider) {
-      case 'openai':
-        return this.completeOpenAI(options);
-      case 'anthropic':
-        return this.completeAnthropic(options);
-      case 'google':
-        return this.completeGoogle(options);
-      case 'deepseek':
-        return this.completeDeepSeek(options);
-      default:
-        throw new Error(`Unsupported provider for model: ${options.model}`);
-    }
-  }
-
-  /**
-   * Complete using DeepSeek
-   */
-  private async completeDeepSeek(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
-    if (!this.deepseekClient) {
-      throw new Error('DeepSeek API key not configured');
-    }
-
     try {
-      const response = await this.deepseekClient.chat.completions.create({
-        model: options.model,
-        messages: options.messages,
-        temperature: options.temperature ?? 0.7,
-        max_tokens: options.maxTokens ?? 2000,
-        stream: false
+      const response = await fetch('/api/ai/completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(options),
       });
 
-      return {
-        content: response.choices[0].message.content,
-        model: options.model,
-        usage: {
-          promptTokens: response.usage?.prompt_tokens ?? 0,
-          completionTokens: response.usage?.completion_tokens ?? 0,
-          totalTokens: response.usage?.total_tokens ?? 0
-        }
-      };
-    } catch (error) {
-      console.error('DeepSeek API error:', error);
-      throw new Error(`DeepSeek API error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Backend error: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      console.error('LLM Proxy Error:', error);
+      throw error;
     }
-  }
-
-  /**
-   * Complete using OpenAI (placeholder)
-   */
-  private async completeOpenAI(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
-    if (!this.openaiApiKey) {
-      throw new Error('OpenAI API key not configured');
-    }
-
-    // TODO: Implement OpenAI integration
-    throw new Error('OpenAI integration not yet implemented');
-  }
-
-  /**
-   * Complete using Anthropic (placeholder)
-   */
-  private async completeAnthropic(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
-    if (!this.anthropicApiKey) {
-      throw new Error('Anthropic API key not configured');
-    }
-
-    // TODO: Implement Anthropic integration
-    throw new Error('Anthropic integration not yet implemented');
-  }
-
-  /**
-   * Complete using Google (placeholder)
-   */
-  private async completeGoogle(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
-    if (!this.googleApiKey) {
-      throw new Error('Google API key not configured');
-    }
-
-    // TODO: Implement Google integration
-    throw new Error('Google integration not yet implemented');
-  }
-
-  /**
-   * Get provider name from model ID
-   */
-  private getProviderFromModel(model: string): string {
-    if (model.startsWith('gpt-')) return 'openai';
-    if (model.startsWith('claude-')) return 'anthropic';
-    if (model.startsWith('gemini-')) return 'google';
-    if (model.startsWith('deepseek-')) return 'deepseek';
-
-    throw new Error(`Unknown model: ${model}`);
   }
 
   /**
    * Check if a provider is configured
+   * (Optimistically return true as backend handles configuration)
    */
   isProviderConfigured(provider: string): boolean {
-    switch (provider) {
-      case 'openai':
-        return !!this.openaiApiKey;
-      case 'anthropic':
-        return !!this.anthropicApiKey;
-      case 'google':
-        return !!this.googleApiKey;
-      case 'deepseek':
-        return !!this.deepseekApiKey;
-      default:
-        return false;
-    }
+    return true;
   }
 
   /**
    * Get list of configured providers
    */
   getConfiguredProviders(): string[] {
-    const providers: string[] = [];
-    if (this.openaiApiKey) providers.push('openai');
-    if (this.anthropicApiKey) providers.push('anthropic');
-    if (this.googleApiKey) providers.push('google');
-    if (this.deepseekApiKey) providers.push('deepseek');
-    return providers;
+    return ['openai', 'anthropic', 'google', 'deepseek'];
   }
 }
 
@@ -197,12 +86,7 @@ export class UnifiedLLMProvider {
  * Create a global LLM provider instance
  */
 export function createLLMProvider(): UnifiedLLMProvider {
-  return new UnifiedLLMProvider({
-    openaiApiKey: process.env.OPENAI_API_KEY,
-    anthropicApiKey: process.env.ANTHROPIC_API_KEY,
-    googleApiKey: process.env.GOOGLE_API_KEY,
-    deepseekApiKey: process.env.DEEPSEEK_API_KEY
-  });
+  return new UnifiedLLMProvider();
 }
 
 // Singleton instance
