@@ -90,7 +90,7 @@ export class DataIngestionEngine {
                 });
 
                 // Emit event for real-time updates
-                EventBus.emit('data:ingested', {
+                eventBus.emit('data:ingested', {
                     source: name,
                     count: entities.length,
                     entities: entities.slice(0, 5) // Sample of first 5
@@ -138,7 +138,7 @@ export class DataIngestionEngine {
         const rawData = await adapter.fetch();
         const entities = await adapter.transform(rawData);
 
-        EventBus.emit('data:ingested', {
+        eventBus.emit('data:ingested', {
             source: sourceName,
             count: entities.length,
             entities: entities.slice(0, 5)
