@@ -7,7 +7,7 @@
  * All MCP tools can be invoked from an agentic workflow via this adapter.
  */
 
-import { mcpRegistry } from '../../mcp/mcpRouter.js';
+import { mcpRegistry } from '../../mcp/mcpRegistry.js';
 import type { McpContext } from '@widget-tdc/mcp-types';
 
 export class AgentsetAdapter {
@@ -42,10 +42,18 @@ export class AgentsetAdapter {
         };
 
         // Route through MCP registry
+        // MCPMessage requires id, sourceId, targetId, createdAt
         const result = await mcpRegistry.route({
+            id: `agentic-${Date.now()}`,
+            sourceId: 'agentset-adapter',
+            targetId: toolName,
             tool: toolName,
-            payload,
-            context
+            payload: {
+                ...payload,
+                orgId: context.orgId,
+                userId: context.userId
+            },
+            createdAt: new Date().toISOString()
         });
 
         return result;

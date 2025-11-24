@@ -10,6 +10,7 @@ import { useWidgetRegistry } from './contexts/WidgetRegistryContext';
 import { useWidgetStore } from './components/widgetStore';
 import { WidgetInstance } from './types';
 import { AdminDashboard } from './src/components/AdminDashboard';
+import { ClausLogo } from './src/components/ClausLogo';
 
 export default function WidgeTDCPro() {
     const { availableWidgets } = useWidgetRegistry();
@@ -81,10 +82,12 @@ export default function WidgeTDCPro() {
                 {/* Header */}
                 <div className="h-16 flex items-center justify-between px-6 border-b border-white/5">
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 flex items-center justify-center">
-                            <MessageSquare size={18} className="text-white" />
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1a1a1a] to-black border border-white/10 flex items-center justify-center shadow-lg group-hover:border-blue-500/30 transition-all">
+                            <ClausLogo size={24} />
                         </div>
-                        <span className="font-semibold text-lg tracking-tight">Copilot</span>
+                        <span className="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">
+                            WidgeTDC
+                        </span>
                     </div>
                     <div className="flex items-center gap-2">
                         <button className="p-2 hover:bg-white/10 rounded-lg transition-colors"><MoreHorizontal size={20} className="text-gray-400" /></button>

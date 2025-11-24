@@ -754,11 +754,18 @@ export async function agenticRunHandler(payload: any, ctx: McpContext): Promise<
   }
   
   // Route through MCP registry
-  const { mcpRegistry } = await import('./mcpRouter.js');
+  const { mcpRegistry } = await import('./mcpRegistry.js');
   const result = await mcpRegistry.route({
+    id: `agentic-${Date.now()}`,
+    sourceId: 'agentic-handler',
+    targetId: firstTool.name,
     tool: firstTool.name,
-    payload: firstTool.payload || {},
-    context: ctx
+    payload: {
+      ...(firstTool.payload || {}),
+      orgId: ctx.orgId,
+      userId: ctx.userId
+    },
+    createdAt: new Date().toISOString()
   });
   
   // Log execution for audit (project memory)
