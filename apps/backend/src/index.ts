@@ -9,7 +9,6 @@ import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
-import { llmRouter } from './services/llm/llmController.js';
 
 // Swagger/OpenAPI Documentation (if using Fastify in future)
 // Note: Currently using Express, but Swagger can be added later
@@ -61,28 +60,6 @@ async function startServer() {
     // Step 1: Initialize database (MUST be first!)
     await initializeDatabase();
     console.log('🗄️  Database initialized');
-
-    // Step 1.2: Initialize Enterprise Infrastructure (Phase 1)
-    console.log('🏗️  Initializing Enterprise Infrastructure...');
-
-    // Initialize Prisma Database (PostgreSQL + pgvector)
-    try {
-      const { getDatabaseAdapter } = await import('./platform/db/PrismaDatabaseAdapter.js');
-      const prismaDb = getDatabaseAdapter();
-      await prismaDb.initialize();
-      console.log('✅ PostgreSQL + pgvector initialized');
-    } catch (error) {
-      console.warn('⚠️  Prisma not available:', error);
-      console.log('   Continuing with SQLite only');
-    }
-
-    // Initialize Event Bus (Redis in production, in-memory in dev)
-    try {
-      const { eventBus } = await import('./mcp/EventBus.js');
-      await eventBus.initialize();
-    } catch (error) {
-      console.warn('⚠️  EventBus initialization warning:', error);
-    }
 
     // Step 1.5: Initialize Neo4j Graph Database
     try {
@@ -190,7 +167,8 @@ async function startServer() {
       taskRecorderApproveHandler,
       taskRecorderRejectHandler,
       taskRecorderExecuteHandler,
-      taskRecorderGetPatternsHandler
+      taskRecorderGetPatternsHandler,
+      emailRagHandler
     } = await import('./mcp/toolHandlers.js');
 
     mcpRegistry.registerTool('taskrecorder.get_suggestions', taskRecorderGetSuggestionsHandler);
@@ -198,6 +176,9 @@ async function startServer() {
     mcpRegistry.registerTool('taskrecorder.reject', taskRecorderRejectHandler);
     mcpRegistry.registerTool('taskrecorder.execute', taskRecorderExecuteHandler);
     mcpRegistry.registerTool('taskrecorder.get_patterns', taskRecorderGetPatternsHandler);
+    
+    // Email RAG tool - wraps GraphRAG for email content
+    mcpRegistry.registerTool('email.rag', emailRagHandler);
 
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
@@ -259,18 +240,14 @@ async function startServer() {
     startAutonomousLearning(agent, 300000);
     console.log('🔄 Autonomous learning started (5min intervals)');
 
-    // Step 3.8: Initialize Ingestion Pipeline (Bridge between Senses and Memory)
-    const { ingestionPipeline } = await import('./services/ingestion/IngestionPipeline.js');
-    console.log('🌉 Ingestion Pipeline initialized (Senses -> Memory connected)');
-
-    // Step 3.9: Start HansPedder orchestrator
+    // Step 3.7: Start HansPedder orchestrator
     try {
-      const { startHansPedder } = await import('./orchestrator/hansPedder.js');
-      await startHansPedder();
-      console.log('👔 HansPedder orchestrator started');
+        const { startHansPedder } = await import('./orchestrator/hansPedder.js');
+        await startHansPedder();
+        console.log('👔 HansPedder orchestrator started');
     } catch (err) {
-      console.error('⚠️ Failed to start HansPedder:', err);
-      // Non-critical, continue server startup
+        console.error('⚠️ Failed to start HansPedder:', err);
+        // Non-critical, continue server startup
     }
 
     // Step 4: Setup routes
@@ -281,7 +258,6 @@ async function startServer() {
     app.use('/api/evolution', evolutionRouter);
     app.use('/api/pal', palRouter);
     app.use('/api/security', securityRouter);
-    app.use('/api/ai', llmRouter);
 
     // Health check
     app.get('/health', (req, res) => {
