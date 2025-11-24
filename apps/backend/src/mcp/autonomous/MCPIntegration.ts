@@ -173,4 +173,3 @@ export async function initializeAutonomousSources(): Promise<void> {
     // Register all MCP tools as sources
     await registerMCPToolsAsSources();
 }
-
