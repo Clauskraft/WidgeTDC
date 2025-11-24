@@ -162,6 +162,16 @@ async function startServer() {
     startAutonomousLearning(agent, 300000);
     console.log('🔄 Autonomous learning started (5min intervals)');
 
+    // Step 3.7: Start HansPedder orchestrator
+    try {
+        const { startHansPedder } = await import('./orchestrator/hansPedder.js');
+        await startHansPedder();
+        console.log('👔 HansPedder orchestrator started');
+    } catch (err) {
+        console.error('⚠️ Failed to start HansPedder:', err);
+        // Non-critical, continue server startup
+    }
+
     // Step 4: Setup routes
     app.use('/api/mcp', mcpRouter);
     app.use('/api/mcp/autonomous', autonomousRouter);

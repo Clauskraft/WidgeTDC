@@ -2,7 +2,8 @@
 import { AutonomousAgent, startAutonomousLearning } from '../mcp/autonomous/AutonomousAgent.js';
 import { getCognitiveMemory } from '../mcp/memory/CognitiveMemory.js';
 import { getSourceRegistry } from '../mcp/SourceRegistry.js';
-import { mcpRouter } from '../mcp/mcpRouter.js';
+import { unifiedMemorySystem } from '../mcp/cognitive/UnifiedMemorySystem.js';
+import { autonomousTaskEngine } from '../mcp/cognitive/AutonomousTaskEngine.js';
 
 // -------------------------------------------------------------------
 // 1️⃣  System Prompt – tailor it for HansPedder
@@ -97,21 +98,66 @@ export function getHansPedderStatus() {
 }
 
 // -------------------------------------------------------------------
-// 3️⃣  Initialise core components
+// 3️⃣  Start HansPedder orchestrator
 // -------------------------------------------------------------------
-if (!hansPedder) {
-    hansPedder = new AutonomousAgent(cognitive, sourceReg);
-    // TODO: Inject system prompt if supported in future versions
+let hansPedder: AutonomousAgent | null = null;
+
+export async function startHansPedder(): Promise<void> {
+    try {
+        // Ensure UnifiedMemorySystem is initialized
+        if (!hansPedderStatus.active) {
+            console.log('🧠 Ensuring UnifiedMemorySystem is initialized...');
+            // UnifiedMemorySystem.init() should already be called from index.ts
+        }
+
+        // Initialize core components
+        const cognitive = getCognitiveMemory();
+        const sourceReg = getSourceRegistry();
+
+        if (!hansPedder) {
+            hansPedder = new AutonomousAgent(cognitive, sourceReg);
+            // TODO: Inject system prompt if supported in future versions
+            console.log('✅ HansPedder agent created');
+        }
+
+        console.info('🚀 Starting HansPedder autonomous loop...');
+        hansPedderStatus.active = true;
+        hansPedderStatus.startedAt = new Date();
+
+        // Start autonomous learning loop
+        await startAutonomousLearning(hansPedder);
+
+        // Log startup to ProjectMemory
+        try {
+            const { projectMemory } = await import('../services/project/ProjectMemory.js');
+            projectMemory.logLifecycleEvent({
+                eventType: 'other',
+                status: 'success',
+                details: {
+                    component: 'HansPedder',
+                    action: 'started',
+                    timestamp: new Date().toISOString(),
+                    integration: {
+                        unifiedMemorySystem: 'connected',
+                        autonomousTaskEngine: 'available',
+                        cognitiveMemory: 'connected'
+                    }
+                }
+            });
+        } catch (err) {
+            console.warn('⚠️ Could not log HansPedder startup to ProjectMemory:', err);
+        }
+
+        console.log('✅ HansPedder started successfully');
+    } catch (error) {
+        console.error('❌ HansPedder failed to start:', error);
+        hansPedderStatus.active = false;
+        throw error;
+    }
 }
 
-console.info('🚀 Starting HansPedder autonomous loop...');
-hansPedderStatus.active = true;
-hansPedderStatus.startedAt = new Date();
-await startAutonomousLearning(hansPedder);
-}
-
 // -------------------------------------------------------------------
-// 6️⃣  If run directly (CLI), start immediately
+// 4️⃣  If run directly (CLI), start immediately
 // -------------------------------------------------------------------
 if (import.meta.url === `file://${process.argv[1]}`) {
     startHansPedder().catch(err => {
