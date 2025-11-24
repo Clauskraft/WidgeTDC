@@ -130,7 +130,7 @@ export class AgentOrchestratorServer implements MCPServer {
             console.log(`[ORCHESTRATOR] ☁️ Triggering GitHub Workflow: ${workflowFile}`);
             try {
                 // Execute gh workflow run
-                const { exec } = require('child_process');
+                const { exec } = await import('child_process');
                 exec(`gh workflow run ${workflowFile}`, (error: any, stdout: string, stderr: string) => {
                     if (error) {
                         console.error(`[ORCHESTRATOR] ❌ Failed to trigger workflow: ${error.message}`);
