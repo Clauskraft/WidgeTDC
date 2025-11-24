@@ -91,6 +91,17 @@ async function startServer() {
     mcpRegistry.registerTool('project.update_feature', projectMemoryUpdateFeatureHandler);
     mcpRegistry.registerTool('project.get_features', projectMemoryGetFeaturesHandler);
 
+    // Data Ingestion tools
+    const {
+      ingestionStartHandler,
+      ingestionStatusHandler,
+      ingestionConfigureHandler
+    } = await import('./mcp/ingestionHandlers.js');
+
+    mcpRegistry.registerTool('ingestion.start', ingestionStartHandler);
+    mcpRegistry.registerTool('ingestion.status', ingestionStatusHandler);
+    mcpRegistry.registerTool('ingestion.configure', ingestionConfigureHandler);
+
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
     mcpRegistry.registerServer(orchestrator);

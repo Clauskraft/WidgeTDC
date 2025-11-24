@@ -1,0 +1,161 @@
+// DataIngestionEngine – Autonomous data collection and enrichment
+import { projectMemory } from '../project/ProjectMemory.js';
+import { eventBus } from '../../mcp/EventBus.js';
+
+export interface DataSourceAdapter {
+    name: string;
+    type: 'local_files' | 'outlook_mail' | 'browser_history' | 'google_drive' | 'other';
+
+    /** Fetch raw data from the source */
+    fetch(): Promise<any[]>;
+
+    /** Transform raw data into normalized entities */
+    transform(raw: any[]): Promise<IngestedEntity[]>;
+
+    /** Health check */
+    isAvailable(): Promise<boolean>;
+}
+
+export interface IngestedEntity {
+    id: string;
+    type: string;
+    source: string;
+    title?: string;
+    content?: string;
+    metadata: Record<string, any>;
+    timestamp: Date;
+}
+
+export class DataIngestionEngine {
+    private adapters: Map<string, DataSourceAdapter> = new Map();
+    private isRunning = false;
+    private ingestedCount = 0;
+
+    /** Register a data source adapter */
+    registerAdapter(adapter: DataSourceAdapter): void {
+        this.adapters.set(adapter.name, adapter);
+        console.log(`📥 Registered data adapter: ${adapter.name} (${adapter.type})`);
+    }
+
+    /** Start ingestion from all registered adapters */
+    async ingestAll(): Promise<void> {
+        if (this.isRunning) {
+            console.warn('⚠️ Ingestion already running');
+            return;
+        }
+
+        this.isRunning = true;
+        this.ingestedCount = 0;
+
+        console.log(`🚀 Starting data ingestion from ${this.adapters.size} sources...`);
+
+        projectMemory.logLifecycleEvent({
+            eventType: 'other',
+            status: 'in_progress',
+            details: {
+                type: 'data_ingestion_started',
+                sources: Array.from(this.adapters.keys())
+            }
+        });
+
+        const results: any[] = [];
+
+        for (const [name, adapter] of this.adapters) {
+            try {
+                console.log(`📂 Ingesting from: ${name}...`);
+
+                // Check availability
+                const available = await adapter.isAvailable();
+                if (!available) {
+                    console.warn(`⚠️ ${name} not available, skipping`);
+                    results.push({ source: name, status: 'skipped', reason: 'not_available' });
+                    continue;
+                }
+
+                // Fetch raw data
+                const rawData = await adapter.fetch();
+                console.log(`  → Fetched ${rawData.length} items from ${name}`);
+
+                // Transform to normalized entities
+                const entities = await adapter.transform(rawData);
+                console.log(`  → Transformed ${entities.length} entities`);
+
+                // Store entities (for now, just log - later we'll save to memory/database)
+                this.ingestedCount += entities.length;
+
+                results.push({
+                    source: name,
+                    status: 'success',
+                    items: entities.length
+                });
+
+                // Emit event for real-time updates
+                EventBus.emit('data:ingested', {
+                    source: name,
+                    count: entities.length,
+                    entities: entities.slice(0, 5) // Sample of first 5
+                });
+
+            } catch (error: any) {
+                console.error(`❌ Failed to ingest from ${name}:`, error.message);
+                results.push({
+                    source: name,
+                    status: 'error',
+                    error: error.message
+                });
+            }
+        }
+
+        this.isRunning = false;
+
+        // Log completion
+        projectMemory.logLifecycleEvent({
+            eventType: 'other',
+            status: 'success',
+            details: {
+                type: 'data_ingestion_completed',
+                totalIngested: this.ingestedCount,
+                results
+            }
+        });
+
+        console.log(`✅ Data ingestion complete! Total entities: ${this.ingestedCount}`);
+    }
+
+    /** Ingest from a specific source */
+    async ingestFrom(sourceName: string): Promise<number> {
+        const adapter = this.adapters.get(sourceName);
+
+        if (!adapter) {
+            throw new Error(`Unknown data source: ${sourceName}`);
+        }
+
+        const available = await adapter.isAvailable();
+        if (!available) {
+            throw new Error(`Source ${sourceName} is not available`);
+        }
+
+        const rawData = await adapter.fetch();
+        const entities = await adapter.transform(rawData);
+
+        EventBus.emit('data:ingested', {
+            source: sourceName,
+            count: entities.length,
+            entities: entities.slice(0, 5)
+        });
+
+        return entities.length;
+    }
+
+    /** Get ingestion status */
+    getStatus() {
+        return {
+            running: this.isRunning,
+            totalIngested: this.ingestedCount,
+            adapters: Array.from(this.adapters.keys())
+        };
+    }
+}
+
+// Singleton instance
+export const dataIngestionEngine = new DataIngestionEngine();
