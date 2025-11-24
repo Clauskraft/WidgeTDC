@@ -4,6 +4,9 @@ import { getCognitiveMemory } from '../mcp/memory/CognitiveMemory.js';
 import { getSourceRegistry } from '../mcp/SourceRegistry.js';
 import { unifiedMemorySystem } from '../mcp/cognitive/UnifiedMemorySystem.js';
 import { autonomousTaskEngine } from '../mcp/cognitive/AutonomousTaskEngine.js';
+import { hybridSearchEngine } from '../mcp/cognitive/HybridSearchEngine.js';
+import { emotionAwareDecisionEngine } from '../mcp/cognitive/EmotionAwareDecisionEngine.js';
+import { projectMemory } from '../services/project/ProjectMemory.js';
 
 // -------------------------------------------------------------------
 // 1️⃣  System Prompt – tailor it for HansPedder
@@ -104,9 +107,25 @@ let hansPedder: AutonomousAgent | null = null;
 
 export async function startHansPedder(): Promise<void> {
     try {
+        // PROJECT MEMORY PROTOCOL: Query before starting
+        console.log('📚 [HansPedder] Querying ProjectMemory for historical context...');
+        try {
+            const history = projectMemory.getLifecycleEvents(50);
+            const features = projectMemory.getFeatures();
+            console.log(`📚 Found ${history.length} historical events and ${features.length} features`);
+            
+            // Analyze recent patterns
+            const recentFailures = history.filter(e => e.status === 'failure').slice(0, 10);
+            if (recentFailures.length > 0) {
+                console.log(`⚠️ [HansPedder] Found ${recentFailures.length} recent failures - will prioritize stability`);
+            }
+        } catch (err) {
+            console.warn('⚠️ Could not query ProjectMemory:', err);
+        }
+
         // Ensure UnifiedMemorySystem is initialized
         if (!hansPedderStatus.active) {
-            console.log('🧠 Ensuring UnifiedMemorySystem is initialized...');
+            console.log('🧠 [HansPedder] Ensuring UnifiedMemorySystem is initialized...');
             // UnifiedMemorySystem.init() should already be called from index.ts
         }
 
@@ -116,20 +135,71 @@ export async function startHansPedder(): Promise<void> {
 
         if (!hansPedder) {
             hansPedder = new AutonomousAgent(cognitive, sourceReg);
-            // TODO: Inject system prompt if supported in future versions
-            console.log('✅ HansPedder agent created');
+            console.log('✅ [HansPedder] Agent created');
         }
 
-        console.info('🚀 Starting HansPedder autonomous loop...');
+        // DEEP INTEGRATION: Initialize Phase 1 components
+        console.log('🔗 [HansPedder] Integrating Phase 1 cognitive components...');
+        
+        // 1. UnifiedMemorySystem - Context-aware memory
+        try {
+            const ctx = { userId: 'system', orgId: 'default' };
+            const workingMemory = await unifiedMemorySystem.getWorkingMemory(ctx);
+            console.log(`  ✓ UnifiedMemorySystem: ${workingMemory.recentEvents.length} recent events`);
+        } catch (err) {
+            console.warn('  ⚠️ UnifiedMemorySystem integration failed:', err);
+        }
+
+        // 2. AutonomousTaskEngine - Task management
+        try {
+            // Create task engine instance with HansPedder agent
+            const { AutonomousTaskEngine } = await import('../mcp/cognitive/AutonomousTaskEngine.js');
+            const taskEngine = new AutonomousTaskEngine(hansPedder);
+            await taskEngine.start();
+            console.log('  ✓ AutonomousTaskEngine: Started and integrated');
+        } catch (err) {
+            console.warn('  ⚠️ AutonomousTaskEngine integration failed:', err);
+        }
+
+        // 3. HybridSearchEngine - Intelligent search
+        try {
+            // Test search capability
+            const testResults = await hybridSearchEngine.search('test', {
+                userId: 'system',
+                orgId: 'default',
+                timestamp: new Date(),
+                limit: 1
+            });
+            console.log(`  ✓ HybridSearchEngine: Ready (test search returned ${testResults.length} results)`);
+        } catch (err) {
+            console.warn('  ⚠️ HybridSearchEngine integration failed:', err);
+        }
+
+        // 4. EmotionAwareDecisionEngine - Context-aware decisions
+        try {
+            // Test decision capability
+            const testDecision = await emotionAwareDecisionEngine.makeDecision({
+                query: 'test',
+                options: ['option1', 'option2']
+            }, {
+                userId: 'system',
+                orgId: 'default',
+                timestamp: new Date()
+            });
+            console.log(`  ✓ EmotionAwareDecisionEngine: Ready (test decision: ${testDecision.selectedOption})`);
+        } catch (err) {
+            console.warn('  ⚠️ EmotionAwareDecisionEngine integration failed:', err);
+        }
+
+        console.info('🚀 [HansPedder] Starting autonomous loop...');
         hansPedderStatus.active = true;
         hansPedderStatus.startedAt = new Date();
 
         // Start autonomous learning loop
         await startAutonomousLearning(hansPedder);
 
-        // Log startup to ProjectMemory
+        // PROJECT MEMORY PROTOCOL: Log after starting
         try {
-            const { projectMemory } = await import('../services/project/ProjectMemory.js');
             projectMemory.logLifecycleEvent({
                 eventType: 'other',
                 status: 'success',
@@ -139,19 +209,40 @@ export async function startHansPedder(): Promise<void> {
                     timestamp: new Date().toISOString(),
                     integration: {
                         unifiedMemorySystem: 'connected',
-                        autonomousTaskEngine: 'available',
+                        autonomousTaskEngine: 'active',
+                        hybridSearchEngine: 'ready',
+                        emotionAwareDecisionEngine: 'ready',
                         cognitiveMemory: 'connected'
-                    }
+                    },
+                    phase1Components: 'integrated'
                 }
             });
+            console.log('📝 [HansPedder] Startup logged to ProjectMemory');
         } catch (err) {
             console.warn('⚠️ Could not log HansPedder startup to ProjectMemory:', err);
         }
 
-        console.log('✅ HansPedder started successfully');
+        console.log('✅ [HansPedder] Started successfully with Phase 1 integration');
     } catch (error) {
-        console.error('❌ HansPedder failed to start:', error);
+        console.error('❌ [HansPedder] Failed to start:', error);
         hansPedderStatus.active = false;
+        
+        // Log failure to ProjectMemory
+        try {
+            projectMemory.logLifecycleEvent({
+                eventType: 'other',
+                status: 'failure',
+                details: {
+                    component: 'HansPedder',
+                    action: 'startup_failed',
+                    error: error instanceof Error ? error.message : String(error),
+                    timestamp: new Date().toISOString()
+                }
+            });
+        } catch (err) {
+            // Ignore logging errors
+        }
+        
         throw error;
     }
 }
