@@ -23,8 +23,17 @@ export const KnowledgeGraphWidget: React.FC = () => {
 
     useEffect(() => {
         fetchMemoryGraph()
-            .then(setGraph)
-            .catch((e) => setError(e.message));
+            .then((data) => {
+                // Use setTimeout to avoid synchronous setState
+                setTimeout(() => {
+                    setGraph(data);
+                }, 0);
+            })
+            .catch((e) => {
+                setTimeout(() => {
+                    setError(e.message);
+                }, 0);
+            });
     }, []);
 
     if (error) return <div className="p-4 text-red-400">Error: {error}</div>;

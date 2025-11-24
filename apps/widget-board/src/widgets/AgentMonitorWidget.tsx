@@ -22,14 +22,22 @@ export const AgentMonitorWidget: React.FC = () => {
     useEffect(() => {
         const fetchStatus = async () => {
             const agentsData = await agentService.getAgentStatus();
-            setAgents(agentsData);
+            // Use setTimeout to avoid synchronous setState
+            setTimeout(() => {
+                setAgents(agentsData);
+            }, 0);
         };
 
-        fetchStatus();
+        // Use setTimeout to avoid synchronous setState
+        setTimeout(() => {
+            fetchStatus();
+        }, 0);
 
         // Subscribe to real-time updates via WebSocket
         const unsubscribe = agentService.subscribeToStatus((updatedAgents) => {
-            setAgents(updatedAgents);
+            setTimeout(() => {
+                setAgents(updatedAgents);
+            }, 0);
         });
 
         return () => unsubscribe();

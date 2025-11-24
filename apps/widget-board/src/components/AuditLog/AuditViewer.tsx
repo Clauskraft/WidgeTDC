@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import './AuditViewer.css';
 
 export interface AuditEvent {
@@ -19,9 +19,13 @@ interface FilterOptions {
 }
 
 export const AuditViewer: React.FC<{ events: AuditEvent[] }> = ({ events }) => {
+  // Calculate dates outside render to avoid impure function calls
+  const initialStartDate = useMemo(() => Date.now() - 30 * 24 * 60 * 60 * 1000, []);
+  const initialEndDate = useMemo(() => Date.now(), []);
+  
   const [filters, setFilters] = useState<FilterOptions>({
-    startDate: Date.now() - 30 * 24 * 60 * 60 * 1000,
-    endDate: Date.now(),
+    startDate: initialStartDate,
+    endDate: initialEndDate,
     eventTypes: [],
     userId: undefined,
   });

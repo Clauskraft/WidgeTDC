@@ -59,12 +59,18 @@ export const AdminDashboard: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchData();
+        // Use setTimeout to avoid synchronous setState
+        const timeoutId = setTimeout(() => {
+            fetchData();
+        }, 0);
 
         // Auto-refresh every 5 seconds
         const interval = setInterval(fetchData, 5000);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearTimeout(timeoutId);
+            clearInterval(interval);
+        };
     }, []);
 
     if (loading) {

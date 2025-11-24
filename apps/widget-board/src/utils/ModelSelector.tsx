@@ -50,8 +50,11 @@ export function ModelSelector({
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const provider = getLLMProvider();
-    setConfiguredProviders(provider.getConfiguredProviders());
+    // Use setTimeout to avoid synchronous setState
+    setTimeout(() => {
+      const provider = getLLMProvider();
+      setConfiguredProviders(provider.getConfiguredProviders());
+    }, 0);
   }, []);
 
   // Filter models

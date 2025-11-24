@@ -24,12 +24,15 @@ export const ActivityStreamWidget: React.FC = () => {
     const eventSourceRef = useRef<EventSource | null>(null);
 
     useEffect(() => {
-        loadInitialEvents();
+        // Use setTimeout to avoid synchronous setState
+        setTimeout(() => {
+            loadInitialEvents();
 
-        // Set up SSE connection for real-time updates
-        if (!paused) {
-            connectToStream();
-        }
+            // Set up SSE connection for real-time updates
+            if (!paused) {
+                connectToStream();
+            }
+        }, 0);
 
         return () => {
             if (eventSourceRef.current) {
