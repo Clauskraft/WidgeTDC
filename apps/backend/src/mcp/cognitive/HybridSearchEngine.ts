@@ -18,6 +18,7 @@ export interface SearchResult {
     score: number;
     content: any;
     source: string;
+    metadata?: any;
 }
 
 export class HybridSearchEngine {
@@ -115,9 +116,8 @@ export class HybridSearchEngine {
             const memoryResults = this.memoryRepo.searchEntities({
                 orgId: ctx.orgId,
                 userId: ctx.userId,
-                keywords: [],
-                limit,
-                semanticQuery: query // Trigger semantic search
+                keywords: query ? [query] : [], // Use query as keyword for semantic search
+                limit
             });
 
             memoryResults.forEach((entity: any, index: number) => {

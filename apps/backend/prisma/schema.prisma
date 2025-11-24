@@ -1,0 +1,226 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// ============================================
+// UI State & Configuration
+// ============================================
+
+model Widget {
+  id            String   @id @default(uuid())
+  name          String
+  type          String
+  config        Json?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("widgets")
+}
+
+model Layout {
+  id            String   @id @default(uuid())
+  userId        String
+  orgId         String
+  layoutData    Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, orgId])
+  @@map("layouts")
+}
+
+// ============================================
+// Memory & Knowledge Graph
+// ============================================
+
+model MemoryEntity {
+  id            String   @id @default(uuid())
+  type          String
+  label         String
+  properties    Json?
+  userId        String
+  orgId         String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  relationsFrom MemoryRelation[] @relation("FromEntity")
+  relationsTo   MemoryRelation[] @relation("ToEntity")
+  tags          MemoryTag[]
+
+  @@index([userId, orgId])
+  @@index([type])
+  @@map("memory_entities")
+}
+
+model MemoryRelation {
+  id            String   @id @default(uuid())
+  fromId        String
+  toId          String
+  relationType  String
+  weight        Float    @default(1.0)
+  properties    Json?
+  userId        String
+  orgId         String
+  createdAt     DateTime @default(now())
+
+  from          MemoryEntity @relation("FromEntity", fields: [fromId], references: [id], onDelete: Cascade)
+  to            MemoryEntity @relation("ToEntity", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@index([fromId])
+  @@index([toId])
+  @@index([userId, orgId])
+  @@map("memory_relations")
+}
+
+model MemoryTag {
+  id            String   @id @default(uuid())
+  entityId      String
+  tag           String
+  userId        String
+  orgId         String
+  createdAt     DateTime @default(now())
+
+  entity        MemoryEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
+
+  @@index([tag])
+  @@index([userId, orgId])
+  @@map("memory_tags")
+}
+
+// ============================================
+// Vector Store (pgvector)
+// ============================================
+
+model VectorDocument {
+  id            String                 @id @default(uuid())
+  content       String
+  embedding     Unsupported("vector(768)")?  // HuggingFace embeddings are typically 768-dim
+  metadata      Json?
+  namespace     String                 @default("default")
+  userId        String
+  orgId         String
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@index([namespace])
+  @@index([userId, orgId])
+  @@map("vector_documents")
+}
+
+// ============================================
+// Autonomous Agent & Tasks
+// ============================================
+
+model AgentTask {
+  id            String   @id @default(uuid())
+  type          String
+  payload       Json
+  status        String   @default("pending") // pending, running, completed, failed, waiting_approval
+  priority      Int      @default(50)
+  result        Json?
+  error         String?
+  userId        String   @default("system")
+  orgId         String   @default("default")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  completedAt   DateTime?
+
+  @@index([status])
+  @@index([priority])
+  @@index([userId, orgId])
+  @@map("agent_tasks")
+}
+
+model ExecutionLog {
+  id            String   @id @default(uuid())
+  taskId        String?
+  taskType      String
+  success       Boolean
+  duration      Int?     // milliseconds
+  result        Json?
+  error         String?
+  userId        String   @default("system")
+  orgId         String   @default("default")
+  createdAt     DateTime @default(now())
+
+  @@index([taskType])
+  @@index([createdAt])
+  @@index([userId, orgId])
+  @@map("execution_logs")
+}
+
+// ============================================
+// Data Sources & Ingestion
+// ============================================
+
+model DataSource {
+  id            String   @id @default(uuid())
+  name          String   @unique
+  type          String
+  description   String?
+  enabled       Boolean  @default(false)
+  requiresApproval Boolean @default(true)
+  config        Json?
+  lastUsedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("data_sources")
+}
+
+model IngestedDocument {
+  id            String   @id @default(uuid())
+  sourceId      String
+  externalId    String
+  title         String?
+  content       String?
+  metadata      Json?
+  userId        String
+  orgId         String
+  ingestedAt    DateTime @default(now())
+
+  @@unique([sourceId, externalId])
+  @@index([userId, orgId])
+  @@map("ingested_documents")
+}
+
+// ============================================
+// MCP Resources & Prompts
+// ============================================
+
+model MCPResource {
+  id            String   @id @default(uuid())
+  uri           String   @unique
+  name          String
+  description   String?
+  mimeType      String?
+  payload       Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("mcp_resources")
+}
+
+model AgentPrompt {
+  id            String   @id @default(uuid())
+  agentId       String
+  version       Int
+  promptText    String
+  active        Boolean  @default(true)
+  performance   Json?    // KPIs, metrics
+  createdAt     DateTime @default(now())
+
+  @@unique([agentId, version])
+  @@map("agent_prompts")
+}

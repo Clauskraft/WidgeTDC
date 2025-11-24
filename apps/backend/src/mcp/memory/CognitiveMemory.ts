@@ -232,6 +232,19 @@ export class CognitiveMemory {
         }
     }
 
+    /**
+     * Get source health metrics
+     */
+    async getSourceHealth(sourceName: string): Promise<HealthMetrics | null> {
+        try {
+            const history = await this.getHealthHistory(sourceName, 1);
+            return history.length > 0 ? history[0] : null;
+        } catch (error) {
+            console.error('Failed to get source health:', error);
+            return null;
+        }
+    }
+
     // ========================================================================
     // Context Awareness
     // ========================================================================

@@ -51,8 +51,7 @@ export class UnifiedGraphRAG {
         // 1. Get seed nodes from Hybrid Search (High precision entry points)
         const seedResults = await hybridSearchEngine.search(query, {
             ...context,
-            limit: 5,
-            timestamp: new Date()
+            limit: 5
         });
 
         if (seedResults.length === 0) {
@@ -140,7 +139,8 @@ export class UnifiedGraphRAG {
         // Strategy 1: Get patterns involving this widget/source (existing)
         const patterns = await memory.getWidgetPatterns(node.id);
         
-        for (const p of patterns) {
+        // UsagePattern is an object, not an array - iterate over timePatterns
+        for (const p of patterns.timePatterns || []) {
             expandedNodes.push({
                 id: `pattern-${p.patternId}`,
                 type: 'pattern',

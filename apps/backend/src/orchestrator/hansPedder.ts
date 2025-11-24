@@ -178,15 +178,11 @@ export async function startHansPedder(): Promise<void> {
         // 4. EmotionAwareDecisionEngine - Context-aware decisions
         try {
             // Test decision capability
-            const testDecision = await emotionAwareDecisionEngine.makeDecision({
-                query: 'test',
-                options: ['option1', 'option2']
-            }, {
+            const testDecision = await emotionAwareDecisionEngine.makeDecision('test', {
                 userId: 'system',
-                orgId: 'default',
-                timestamp: new Date()
+                orgId: 'default'
             });
-            console.log(`  ✓ EmotionAwareDecisionEngine: Ready (test decision: ${testDecision.selectedOption})`);
+            console.log(`  ✓ EmotionAwareDecisionEngine: Ready (confidence: ${testDecision.confidence})`);
         } catch (err) {
             console.warn('  ⚠️ EmotionAwareDecisionEngine integration failed:', err);
         }

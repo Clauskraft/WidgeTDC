@@ -27,15 +27,15 @@ async function initializeAdapters() {
         excludePatterns: ['node_modules', '.git', 'dist', 'build', '$RECYCLE.BIN']
     });
 
-    dataIngestionEngine.registerAdapter(localScanner);
+    await dataIngestionEngine.registerAdapter(localScanner, 'Local File Scanner', false);
 
     // Browser history reader
     const browserReader = new BrowserHistoryReader();
-    dataIngestionEngine.registerAdapter(browserReader);
+    await dataIngestionEngine.registerAdapter(browserReader, 'Browser History Reader', false);
 
     // Outlook email reader
     const outlookReader = new OutlookEmailReader();
-    dataIngestionEngine.registerAdapter(outlookReader);
+    await dataIngestionEngine.registerAdapter(outlookReader, 'Outlook Email Reader', false);
 
     initialized = true;
     console.log('✅ Data ingestion adapters initialized (Local Files, Browser History, Outlook Email)');

@@ -10,7 +10,7 @@ import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
 import { getChromaVectorStore } from '../platform/vector/ChromaVectorStoreAdapter.js';
-import type { VectorRecord, VectorQuery } from '../platform/vector/types.js';
+import type { VectorRecord, VectorQuery } from '../../platform/vector/types.js';
 import { projectMemory } from '../services/project/ProjectMemory.js';
 import { getTaskRecorder } from './cognitive/TaskRecorder.js';
 import { eventBus } from './EventBus.js';
