@@ -392,8 +392,7 @@ autonomousRouter.post('/decision', async (req, res) => {
 
         const decision = await emotionAwareDecisionEngine.makeDecision(query, {
             userId,
-            orgId,
-            timestamp: new Date()
+            orgId
         });
 
         res.json({

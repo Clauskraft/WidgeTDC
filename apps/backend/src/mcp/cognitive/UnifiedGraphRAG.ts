@@ -185,8 +185,7 @@ export class UnifiedGraphRAG {
         // Strategy 3: Use UnifiedMemorySystem for episodic memory connections
         const workingMemory = await unifiedMemorySystem.getWorkingMemory({
             userId: context.userId,
-            orgId: context.orgId,
-            timestamp: new Date()
+            orgId: context.orgId
         });
 
         // Find related events/features based on semantic similarity

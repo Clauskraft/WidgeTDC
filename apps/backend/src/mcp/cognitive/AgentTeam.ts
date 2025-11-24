@@ -194,8 +194,7 @@ class MemoryAgent implements AgentCapabilities {
         // Use UnifiedMemorySystem for memory operations
         const memory = await unifiedMemorySystem.getWorkingMemory({
             userId: message.metadata?.userId || 'system',
-            orgId: message.metadata?.orgId || 'default',
-            timestamp: new Date()
+            orgId: message.metadata?.orgId || 'default'
         });
 
         // Use GraphRAG for memory retrieval
@@ -373,8 +372,7 @@ class PalAgent implements AgentCapabilities {
         // Use UnifiedMemorySystem to recall user preferences
         const memory = await unifiedMemorySystem.getWorkingMemory({
             userId: message.metadata?.userId || 'system',
-            orgId: message.metadata?.orgId || 'default',
-            timestamp: new Date()
+            orgId: message.metadata?.orgId || 'default'
         });
 
         return {

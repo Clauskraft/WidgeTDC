@@ -313,3 +313,6 @@ export class AutonomousTaskEngine {
         return [...this.executionHistory];
     }
 }
+
+// Export singleton instance
+export const autonomousTaskEngine = new AutonomousTaskEngine();

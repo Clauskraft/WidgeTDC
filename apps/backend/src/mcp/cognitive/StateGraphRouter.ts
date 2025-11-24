@@ -209,8 +209,7 @@ export class StateGraphRouter {
         // Use UnifiedMemorySystem to search for relevant information
         const searchResults = await this.memory.getWorkingMemory({
             userId: 'system',
-            orgId: 'default',
-            timestamp: new Date()
+            orgId: 'default'
         });
         
         state.scratchpad.research = {
