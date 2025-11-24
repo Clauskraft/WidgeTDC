@@ -180,7 +180,7 @@ export class Neo4jGraphAdapter {
             const relationships: GraphRelationship[] = [];
             const paths: any[] = [];
 
-            result.records.forEach(record => {
+            (result.records || []).forEach(record => {
                 record.keys.forEach(key => {
                     const value = record.get(key);
                     
@@ -392,11 +392,15 @@ export class Neo4jGraphAdapter {
             `);
             
             const labelCounts: Record<string, number> = {};
-            labelResult.records.forEach(record => {
+            let nodeCount = 0;
+            let relationshipCount = 0;
+
+            (labelResult.records || []).forEach(record => {
                 const labels = record.get('labels');
                 const count = record.get('count').toNumber();
                 labels.forEach((label: string) => {
                     labelCounts[label] = (labelCounts[label] || 0) + count;
+                    nodeCount += count;
                 });
             });
 
