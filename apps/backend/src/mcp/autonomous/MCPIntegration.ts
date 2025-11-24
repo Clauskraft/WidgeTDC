@@ -10,6 +10,9 @@ import { getSourceRegistry } from '../SourceRegistry.js';
 import { DataSource } from './DecisionEngine.js';
 import { SelfHealingAdapter } from './SelfHealingAdapter.js';
 import { getCognitiveMemory } from '../memory/CognitiveMemory.js';
+import { OutlookJsonAdapter } from '../../services/external/OutlookJsonAdapter.js';
+import { join } from 'path';
+import { cwd } from 'process';
 
 /**
  * Register all MCP tools as autonomous data sources
@@ -130,11 +133,39 @@ export async function registerDatabaseSource(): Promise<void> {
 }
 
 /**
+ * Register Outlook JSON source
+ */
+export async function registerOutlookSource(): Promise<void> {
+    const sourceRegistry = getSourceRegistry();
+    // Path to data file
+    const dataPath = join(cwd(), 'apps', 'backend', 'data', 'outlook-mails.json');
+    
+    const adapter = new OutlookJsonAdapter(dataPath);
+    
+    sourceRegistry.registerSource({
+        name: 'outlook-mail',
+        type: 'email-adapter',
+        capabilities: ['email.search', 'email.read', 'communication.history'],
+        isHealthy: async () => true, // File adapter is always "healthy" if file exists or not (just returns empty)
+        estimatedLatency: 20, // Fast local read
+        costPerQuery: 0,
+        query: async (operation: string, params: any) => {
+            return await adapter.query(operation, params);
+        }
+    });
+
+    console.log(`📌 Registered Outlook JSON source (path: ${dataPath})`);
+}
+
+/**
  * Initialize all autonomous data sources
  */
 export async function initializeAutonomousSources(): Promise<void> {
     // Register database first (highest priority for most queries)
     await registerDatabaseSource();
+
+    // Register Outlook source
+    await registerOutlookSource();
 
     // Wait a bit for MCP tools to be registered
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -142,4 +173,3 @@ export async function initializeAutonomousSources(): Promise<void> {
     // Register all MCP tools as sources
     await registerMCPToolsAsSources();
 }
-
