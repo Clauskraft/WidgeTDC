@@ -146,7 +146,7 @@ answer: await this.synthesizeAnswer(query, topNodes, context);
 - ✅ **REST API Endpoint** - `POST /api/mcp/autonomous/graphrag` - Secondary/compatibility layer
 - ⚠️ **HansPedder** - Not used by orchestrator yet
 
-**Architecture Note:** Following WidgeTDC pattern, MCP tools are the primary interface. 
+**Architecture Note:** Following WidgeTDC pattern, MCP tools are the primary interface.
 REST endpoints exist for compatibility but MCP is preferred for widget-to-service communication.
 
 ---
@@ -196,7 +196,7 @@ REST endpoints exist for compatibility but MCP is preferred for widget-to-servic
 1. ✅ **MCP Tool Exposure** - **ALREADY IMPLEMENTED**
 
    **Primary Interface:** MCP Tool (not REST API)
-   
+
    ```typescript
    // MCP Tool: autonomous.graphrag
    {
@@ -204,8 +204,8 @@ REST endpoints exist for compatibility but MCP is preferred for widget-to-servic
      "maxHops": 2
    }
    ```
-   
-   **Note:** REST API endpoint exists for compatibility (`POST /api/mcp/autonomous/graphrag`), 
+
+   **Note:** REST API endpoint exists for compatibility (`POST /api/mcp/autonomous/graphrag`),
    but MCP tool is the primary interface following WidgeTDC architecture pattern.
 
 2. **Improve Answer Synthesis**
