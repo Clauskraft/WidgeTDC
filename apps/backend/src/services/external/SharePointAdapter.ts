@@ -1,9 +1,11 @@
-import { DataSourceAdapter } from '../../services/ingestion/DataIngestionEngine.js';
+import { DataSourceAdapter, type IngestedEntity } from '../ingestion/DataIngestionEngine.js';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
 /** Simple JSON‑based SharePoint adapter (placeholder) */
-export class SharePointAdapter implements IDataSourceAdapter {
+export class SharePointAdapter implements DataSourceAdapter {
+    name = 'SharePoint';
+    type: 'google_drive' = 'google_drive';
     private filePath: string;
     private items: any[] = [];
     private lastLoaded = 0;
@@ -39,16 +41,18 @@ export class SharePointAdapter implements IDataSourceAdapter {
         return this.items;
     }
 
-    async transform(raw: any[]): Promise<any[]> {
+    async transform(raw: any[]): Promise<IngestedEntity[]> {
         return raw.map(item => ({
-            sourceId: item.id ?? item.title,
+            id: item.id ?? item.title,
             type: 'list_item',
+            source: 'SharePoint',
+            title: item.title ?? item.name ?? '',
             content: item.title ?? item.name ?? '',
             metadata: {
                 provider: 'SharePoint',
-                raw: item
-            },
-            timestamp: new Date(item.lastModifiedDateTime ?? Date.now())
+                raw: item,
+                timestamp: new Date(item.lastModifiedDateTime ?? Date.now()).toISOString()
+            }
         }));
     }
 

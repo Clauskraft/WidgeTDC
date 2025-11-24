@@ -323,7 +323,7 @@ export class ChromaVectorStoreAdapter implements VectorStoreAdapter {
     }
 
     // Convert filters
-    const where = this.convertFilters(query.filters);
+    let where = this.convertFilters(query.filters);
     
     // Add namespace filter if specified
     if (query.namespace) {
@@ -347,12 +347,19 @@ export class ChromaVectorStoreAdapter implements VectorStoreAdapter {
     // Convert to VectorSearchResult format
     const searchResults: VectorSearchResult[] = [];
 
-    for (let i = 0; i < results.ids[0].length; i++) {
-      const id = results.ids[0][i];
-      const distance = results.distances[0][i];
-      const metadata = results.metadatas[0][i];
-      const document = results.documents[0]?.[i];
-      const embedding = results.embeddings[0]?.[i];
+    // Handle ChromaDB result structure (embeddings can be nested)
+    const ids = results.ids[0] || [];
+    const distances = results.distances[0] || [];
+    const metadatas = results.metadatas[0] || [];
+    const documents = results.documents[0] || [];
+    const embeddings = Array.isArray(results.embeddings[0]) ? results.embeddings[0] : (results.embeddings[0] ? [results.embeddings[0]] : []);
+
+    for (let i = 0; i < ids.length; i++) {
+      const id = ids[i];
+      const distance = distances[i];
+      const metadata = metadatas[i];
+      const document = documents[i];
+      const embedding = Array.isArray(embeddings[i]) ? embeddings[i] : [];
 
       // Convert distance to similarity score (ChromaDB uses distance, we want similarity)
       // Cosine distance: 0 = identical, 2 = opposite

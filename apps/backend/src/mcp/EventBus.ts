@@ -9,7 +9,8 @@ export type EventType =
     | 'autonomous.task.executed'
     | 'taskrecorder.suggestion.created'
     | 'taskrecorder.suggestion.approved'
-    | 'taskrecorder.execution.started';
+    | 'taskrecorder.execution.started'
+    | 'data:ingested';
 
 export interface BaseEvent {
     type: EventType;

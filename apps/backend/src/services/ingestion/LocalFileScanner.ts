@@ -139,9 +139,9 @@ export class LocalFileScanner implements DataSourceAdapter {
                         path: file.path,
                         size: file.size,
                         extension: file.extension,
-                        modifiedAt: file.modifiedAt
-                    },
-                    timestamp: new Date()
+                        modifiedAt: file.modifiedAt,
+                        timestamp: new Date().toISOString()
+                    }
                 });
             } catch (error: any) {
                 console.warn(`Failed to transform file ${file.path}:`, error.message);

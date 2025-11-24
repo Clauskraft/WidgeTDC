@@ -1,9 +1,11 @@
-import { DataSourceAdapter } from '../../services/ingestion/DataIngestionEngine.js';
+import { DataSourceAdapter, type IngestedEntity } from '../ingestion/DataIngestionEngine.js';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
 /** Simple JSON‑based Microsoft Teams adapter (placeholder) */
-export class TeamsAdapter implements IDataSourceAdapter {
+export class TeamsAdapter implements DataSourceAdapter {
+    name = 'Teams';
+    type: 'other' = 'other';
     private filePath: string;
     private items: any[] = [];
     private lastLoaded = 0;
@@ -39,16 +41,18 @@ export class TeamsAdapter implements IDataSourceAdapter {
         return this.items;
     }
 
-    async transform(raw: any[]): Promise<any[]> {
+    async transform(raw: any[]): Promise<IngestedEntity[]> {
         return raw.map(item => ({
-            sourceId: item.id ?? item.messageId,
+            id: item.id ?? item.messageId,
             type: 'message',
+            source: 'Teams',
+            title: item.subject ?? 'Teams Message',
             content: item.body?.content || item.text || '',
             metadata: {
                 provider: 'Teams',
-                raw: item
-            },
-            timestamp: new Date(item.lastModifiedDateTime ?? Date.now())
+                raw: item,
+                timestamp: new Date(item.lastModifiedDateTime ?? Date.now()).toISOString()
+            }
         }));
     }
 

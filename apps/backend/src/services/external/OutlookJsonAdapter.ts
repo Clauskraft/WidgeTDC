@@ -1,4 +1,4 @@
-import { IDataSourceAdapter } from '../../mcp/autonomous/DecisionEngine.js';
+import { DataSourceAdapter } from '../ingestion/DataIngestionEngine.js';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
@@ -19,7 +19,9 @@ interface OutlookEmail {
     isRead: boolean;
 }
 
-export class OutlookJsonAdapter implements IDataSourceAdapter {
+export class OutlookJsonAdapter implements DataSourceAdapter {
+    name = 'Outlook';
+    type: 'outlook_mail' = 'outlook_mail';
     private filePath: string;
     private emails: OutlookEmail[] = [];
     private lastLoaded: number = 0;
@@ -65,10 +67,12 @@ export class OutlookJsonAdapter implements IDataSourceAdapter {
     /**
      * Transform Outlook emails to Unified Memory entities
      */
-    transform(items: any[]): any[] {
-        return items.map((email: OutlookEmail) => ({
-            sourceId: email.id,
+    async transform(raw: any[]): Promise<IngestedEntity[]> {
+        return raw.map((email: OutlookEmail) => ({
+            id: email.id,
             type: 'email',
+            source: 'Outlook',
+            title: email.subject,
             content: `${email.subject}\n\nFrom: ${email.sender.name} <${email.sender.address}>\nDate: ${email.receivedDateTime}\n\n${email.bodyPreview}`,
             metadata: {
                 subject: email.subject,
@@ -77,9 +81,9 @@ export class OutlookJsonAdapter implements IDataSourceAdapter {
                 receivedAt: email.receivedDateTime,
                 importance: email.importance,
                 isRead: email.isRead,
-                source: 'outlook_json'
-            },
-            timestamp: new Date(email.receivedDateTime).toISOString()
+                source: 'outlook_json',
+                timestamp: new Date(email.receivedDateTime).toISOString()
+            }
         }));
     }
 

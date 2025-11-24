@@ -40,11 +40,11 @@ export class DataIngestionEngine {
     }
 
     /** Start ingestion from all registered adapters */
-    async ingestAll(): Promise < void> {
-    if(this.isRunning) {
-    console.warn('⚠️ Ingestion already running');
-    return;
-}
+    async ingestAll(): Promise<void> {
+        if (this.isRunning) {
+            console.warn('⚠️ Ingestion already running');
+            return;
+        }
 
 // Load config
 await dataSourceConfig.load();
