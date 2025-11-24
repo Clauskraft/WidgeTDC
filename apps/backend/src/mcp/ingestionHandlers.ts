@@ -2,13 +2,14 @@
 import { dataIngestionEngine } from '../services/ingestion/DataIngestionEngine.js';
 import { LocalFileScanner } from '../services/ingestion/LocalFileScanner.js';
 import { BrowserHistoryReader } from '../services/ingestion/BrowserHistoryReader.js';
+import { OutlookEmailReader } from '../services/ingestion/OutlookEmailReader.js';
 import * as os from 'os';
 import * as path from 'path';
 
 // Initialize adapters on first import
 let initialized = false;
 
-function initializeAdapters() {
+async function initializeAdapters() {
     if (initialized) return;
 
     const homeDir = os.homedir();
@@ -32,12 +33,16 @@ function initializeAdapters() {
     const browserReader = new BrowserHistoryReader();
     dataIngestionEngine.registerAdapter(browserReader);
 
+    // Outlook email reader
+    const outlookReader = new OutlookEmailReader();
+    dataIngestionEngine.registerAdapter(outlookReader);
+
     initialized = true;
-    console.log('✅ Data ingestion adapters initialized');
+    console.log('✅ Data ingestion adapters initialized (Local Files, Browser History, Outlook Email)');
 }
 
 export async function ingestionStartHandler(params: any): Promise<any> {
-    initializeAdapters();
+    await initializeAdapters();
 
     const source = params.source;
 
@@ -59,7 +64,7 @@ export async function ingestionStartHandler(params: any): Promise<any> {
 }
 
 export async function ingestionStatusHandler(params: any): Promise<any> {
-    initializeAdapters();
+    await initializeAdapters();
 
     const status = dataIngestionEngine.getStatus();
     return {
@@ -69,7 +74,7 @@ export async function ingestionStatusHandler(params: any): Promise<any> {
 }
 
 export async function ingestionConfigureHandler(params: any): Promise<any> {
-    initializeAdapters();
+    await initializeAdapters();
 
     // Allow dynamic configuration of adapters
     // For now, just return current config
