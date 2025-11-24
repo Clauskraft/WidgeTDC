@@ -167,7 +167,6 @@ export async function startHansPedder(): Promise<void> {
             const testResults = await hybridSearchEngine.search('test', {
                 userId: 'system',
                 orgId: 'default',
-                timestamp: new Date(),
                 limit: 1
             });
             console.log(`  ✓ HybridSearchEngine: Ready (test search returned ${testResults.length} results)`);
