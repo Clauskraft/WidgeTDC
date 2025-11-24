@@ -35,14 +35,6 @@ mcpRouter.post('/route', async (req, res) => {
     res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
 });
-  } catch (error: any) {
-  console.error('MCP routing error:', error);
-  res.status(500).json({
-    success: false,
-    error: error.message || 'Internal server error',
-  });
-}
-});
 
 // Get list of available tools
 mcpRouter.get('/tools', (req, res) => {
