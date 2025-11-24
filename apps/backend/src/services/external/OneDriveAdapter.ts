@@ -1,15 +1,17 @@
+// OneDrive JSON adapter (placeholder, no OAuth required)
 import { DataSourceAdapter } from '../../services/ingestion/DataIngestionEngine.js';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
-/** Simple JSON‑based OneDrive adapter (placeholder) */
 export class OneDriveAdapter implements DataSourceAdapter {
+    name = 'OneDrive';
+    type: 'other' = 'other';
     private filePath: string;
     private items: any[] = [];
     private lastLoaded = 0;
 
     constructor(filePath?: string) {
-        // Default location – you can export OneDrive data to this JSON file
+        // Default JSON export location; can be overridden
         this.filePath = filePath || `${process.cwd()}/apps/backend/data/onedrive-items.json`;
     }
 
@@ -32,7 +34,7 @@ export class OneDriveAdapter implements DataSourceAdapter {
     }
 
     async fetch(): Promise<any[]> {
-        const STALE = 5 * 60 * 1000; // 5 min
+        const STALE = 5 * 60 * 1000; // 5 minutes
         if (this.items.length === 0 || Date.now() - this.lastLoaded > STALE) {
             await this.load();
         }
@@ -40,7 +42,7 @@ export class OneDriveAdapter implements DataSourceAdapter {
     }
 
     async transform(raw: any[]): Promise<any[]> {
-        // Normalise to a generic entity shape expected by the ingestion engine
+        // Convert OneDrive items to generic ingestion entities
         return raw.map(item => ({
             sourceId: item.id ?? item.name,
             type: 'file',
