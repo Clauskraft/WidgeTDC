@@ -100,7 +100,12 @@ export class AutonomousTaskEngine {
 
     async start() {
         console.log('🤖 AutonomousTaskEngine started');
+        
+        // Run the task loop in the background (non-blocking)
+        this.runTaskLoop();
+    }
 
+    private async runTaskLoop() {
         while (this.active) {
             if (this.queue.isEmpty()) {
                 await new Promise((r) => setTimeout(r, 1000));
