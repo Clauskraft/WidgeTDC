@@ -46,127 +46,128 @@ export class DataIngestionEngine {
             return;
         }
 
-// Load config
-await dataSourceConfig.load();
+        // Load config
+        await dataSourceConfig.load();
 
-this.isRunning = true;
-this.ingestedCount = 0;
+        this.isRunning = true;
+        this.ingestedCount = 0;
 
-console.log(`🚀 Starting data ingestion from ${this.adapters.size} sources...`);
+        console.log(`🚀 Starting data ingestion from ${this.adapters.size} sources...`);
 
-projectMemory.logLifecycleEvent({
-    eventType: 'other',
-    status: 'in_progress',
-    details: {
-        type: 'data_ingestion_started',
-        sources: Array.from(this.adapters.keys())
-    }
-});
-
-const results: any[] = [];
-
-for (const [name, adapter] of this.adapters) {
-    try {
-        // Check if source is enabled
-        if (!dataSourceConfig.isEnabled(name)) {
-            console.log(`⏭️ ${name} is disabled, skipping`);
-            results.push({ source: name, status: 'skipped', reason: 'disabled' });
-            continue;
-        }
-
-        console.log(`📂 Ingesting from: ${name}...`);
-
-        // Check availability
-        const available = await adapter.isAvailable();
-        if (!available) {
-            console.warn(`⚠️ ${name} not available, skipping`);
-            results.push({ source: name, status: 'skipped', reason: 'not_available' });
-            continue;
-        }
-
-        // Fetch raw data
-        const rawData = await adapter.fetch();
-        console.log(`  → Fetched ${rawData.length} items from ${name}`);
-
-        // Transform to normalized entities
-        const entities = await adapter.transform(rawData);
-        console.log(`  → Transformed ${entities.length} entities`);
-
-        // Store entities (for now, just log - later we'll save to memory/database)
-        this.ingestedCount += entities.length;
-
-        // Auto-add to Vidensarkiv (Knowledge Archive) for continuous learning
-        try {
-            const { getChromaVectorStore } = await import('../../platform/vector/ChromaVectorStoreAdapter.js');
-            const vectorStore = getChromaVectorStore();
-            
-            // Batch add entities to vidensarkiv
-            const vectorRecords = entities.map(entity => ({
-                id: entity.id,
-                content: entity.content || entity.title || JSON.stringify(entity.metadata),
-                embedding: [], // Will be generated automatically
-                metadata: {
-                    ...entity.metadata,
-                    datasetType: 'new',
-                    source: name,
-                    type: entity.type,
-                    ingestedAt: new Date().toISOString()
-                },
-                namespace: `org:default:user:system` // TODO: Get from context
-            }));
-
-            if (vectorRecords.length > 0) {
-                await vectorStore.batchUpsert({
-                    records: vectorRecords,
-                    namespace: `org:default:user:system`
-                });
-                console.log(`  → Added ${vectorRecords.length} entities to vidensarkiv`);
+        projectMemory.logLifecycleEvent({
+            eventType: 'other',
+            status: 'in_progress',
+            details: {
+                type: 'data_ingestion_started',
+                sources: Array.from(this.adapters.keys())
             }
-        } catch (err) {
-            console.warn(`⚠️ Failed to add to vidensarkiv:`, err);
-            // Non-critical, continue ingestion
+        });
+
+        const results: any[] = [];
+
+        for (const [name, adapter] of this.adapters) {
+            try {
+                // Check if source is enabled
+                if (!dataSourceConfig.isEnabled(name)) {
+                    console.log(`⏭️ ${name} is disabled, skipping`);
+                    results.push({ source: name, status: 'skipped', reason: 'disabled' });
+                    continue;
+                }
+
+                console.log(`📂 Ingesting from: ${name}...`);
+
+                // Check availability
+                const available = await adapter.isAvailable();
+                if (!available) {
+                    console.warn(`⚠️ ${name} not available, skipping`);
+                    results.push({ source: name, status: 'skipped', reason: 'not_available' });
+                    continue;
+                }
+
+                // Fetch raw data
+                const rawData = await adapter.fetch();
+                console.log(`  → Fetched ${rawData.length} items from ${name}`);
+
+                // Transform to normalized entities
+                const entities = await adapter.transform(rawData);
+                console.log(`  → Transformed ${entities.length} entities`);
+
+                // Store entities (for now, just log - later we'll save to memory/database)
+                this.ingestedCount += entities.length;
+
+                // Auto-add to Vidensarkiv (Knowledge Archive) for continuous learning
+                try {
+                    const { getChromaVectorStore } = await import('../../platform/vector/ChromaVectorStoreAdapter.js');
+                    const vectorStore = getChromaVectorStore();
+
+                    // Batch add entities to vidensarkiv
+                    const vectorRecords = entities.map(entity => ({
+                        id: entity.id,
+                        content: entity.content || entity.title || JSON.stringify(entity.metadata),
+                        embedding: [], // Will be generated automatically
+                        metadata: {
+                            ...entity.metadata,
+                            datasetType: 'new',
+                            source: name,
+                            type: entity.type,
+                            ingestedAt: new Date().toISOString()
+                        },
+                        namespace: `org:default:user:system` // TODO: Get from context
+                    }));
+
+                    if (vectorRecords.length > 0) {
+                        await vectorStore.batchUpsert({
+                            records: vectorRecords,
+                            namespace: `org:default:user:system`
+                        });
+                        console.log(`  → Added ${vectorRecords.length} entities to vidensarkiv`);
+                    }
+                } catch (err) {
+                    console.warn(`⚠️ Failed to add to vidensarkiv:`, err);
+                    // Non-critical, continue ingestion
+                }
+
+                results.push({
+                    source: name,
+                    status: 'success',
+                    items: entities.length
+                });
+
+                // Mark as used
+                await dataSourceConfig.markUsed(name);
+
+                // Emit event for real-time updates
+                // Emit event for real-time updates
+                eventBus.emit('data:ingested', {
+                    source: name,
+                    count: entities.length,
+                    entities: entities // Send ALL entities so IngestionPipeline can process them
+                });
+
+            } catch (error: any) {
+                console.error(`❌ Failed to ingest from ${name}:`, error.message);
+                results.push({
+                    source: name,
+                    status: 'error',
+                    error: error.message
+                });
+            }
         }
 
-        results.push({
-            source: name,
+        this.isRunning = false;
+
+        // Log completion
+        projectMemory.logLifecycleEvent({
+            eventType: 'other',
             status: 'success',
-            items: entities.length
+            details: {
+                type: 'data_ingestion_completed',
+                totalIngested: this.ingestedCount,
+                results
+            }
         });
 
-        // Mark as used
-        await dataSourceConfig.markUsed(name);
-
-        // Emit event for real-time updates
-        eventBus.emit('data:ingested', {
-            source: name,
-            count: entities.length,
-            entities: entities.slice(0, 5) // Sample of first 5
-        });
-
-    } catch (error: any) {
-        console.error(`❌ Failed to ingest from ${name}:`, error.message);
-        results.push({
-            source: name,
-            status: 'error',
-            error: error.message
-        });
-    }
-}
-
-this.isRunning = false;
-
-// Log completion
-projectMemory.logLifecycleEvent({
-    eventType: 'other',
-    status: 'success',
-    details: {
-        type: 'data_ingestion_completed',
-        totalIngested: this.ingestedCount,
-        results
-    }
-});
-
-console.log(`✅ Data ingestion complete! Total entities: ${this.ingestedCount}`);
+        console.log(`✅ Data ingestion complete! Total entities: ${this.ingestedCount}`);
     }
 
     /** Ingest from a specific source */
@@ -201,16 +202,16 @@ console.log(`✅ Data ingestion complete! Total entities: ${this.ingestedCount}`
         return entities.length;
     }
 
-/** Get ingestion status */
-getStatus() {
-    return {
-        running: this.isRunning,
-        totalIngested: this.ingestedCount,
-        adapters: Array.from(this.adapters.keys()),
-        enabled: dataSourceConfig.getEnabledSources(),
-        pendingApprovals: dataSourceConfig.getPendingApprovals()
-    };
-}
+    /** Get ingestion status */
+    getStatus() {
+        return {
+            running: this.isRunning,
+            totalIngested: this.ingestedCount,
+            adapters: Array.from(this.adapters.keys()),
+            enabled: dataSourceConfig.getEnabledSources(),
+            pendingApprovals: dataSourceConfig.getPendingApprovals()
+        };
+    }
 }
 
 // Singleton instance

@@ -237,7 +237,11 @@ async function startServer() {
     startAutonomousLearning(agent, 300000);
     console.log('🔄 Autonomous learning started (5min intervals)');
 
-    // Step 3.7: Start HansPedder orchestrator
+    // Step 3.8: Initialize Ingestion Pipeline (Bridge between Senses and Memory)
+    const { ingestionPipeline } = await import('./services/ingestion/IngestionPipeline.js');
+    console.log('🌉 Ingestion Pipeline initialized (Senses -> Memory connected)');
+
+    // Step 3.9: Start HansPedder orchestrator
     try {
       const { startHansPedder } = await import('./orchestrator/hansPedder.js');
       await startHansPedder();
