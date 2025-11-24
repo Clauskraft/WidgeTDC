@@ -13,6 +13,7 @@ import { eventBus } from './EventBus.js';
 import { hybridSearchEngine } from './cognitive/HybridSearchEngine.js';
 import { emotionAwareDecisionEngine } from './cognitive/EmotionAwareDecisionEngine.js';
 import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
+import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
 
 // WebSocket server for real-time events (will be injected)
 let wsServer: any = null;
@@ -396,6 +397,39 @@ autonomousRouter.post('/decision', async (req, res) => {
         });
     } catch (error: any) {
         console.error('Emotion-aware decision error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * GraphRAG endpoint - Multi-hop reasoning over knowledge graph
+ */
+autonomousRouter.post('/graphrag', async (req, res) => {
+    try {
+        const { query, maxHops, context } = req.body;
+        const userId = (req as any).user?.id || context?.userId || 'anonymous';
+        const orgId = (req as any).user?.orgId || context?.orgId || 'default';
+
+        if (!query) {
+            return res.status(400).json({ error: 'Query is required' });
+        }
+
+        const result = await unifiedGraphRAG.query(query, {
+            userId,
+            orgId
+        });
+
+        res.json({
+            success: true,
+            result,
+            query,
+            maxHops: maxHops || 2
+        });
+    } catch (error: any) {
+        console.error('GraphRAG error:', error);
         res.status(500).json({
             success: false,
             error: error.message

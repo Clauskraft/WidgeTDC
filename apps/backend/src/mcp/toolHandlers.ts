@@ -5,6 +5,7 @@ import { EvolutionRepository } from '../services/evolution/evolutionRepository.j
 import { PalRepository } from '../services/pal/palRepository.js';
 import { NotesRepository } from '../services/notes/notesRepository.js';
 import { getLlmService } from '../services/llm/llmService.js';
+import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
 
 const memoryRepo = new MemoryRepository();
 const sragRepo = new SragRepository();
@@ -668,5 +669,31 @@ export async function notesGetHandler(payload: any, ctx: McpContext): Promise<an
       updatedAt: note.updatedAt,
       createdAt: note.createdAt,
     },
+  };
+}
+
+// Autonomous Cognitive Tools
+export async function autonomousGraphRAGHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { query, maxHops } = payload;
+
+  if (!query) {
+    throw new Error('Query is required for GraphRAG');
+  }
+
+  const result = await unifiedGraphRAG.query(query, {
+    userId: ctx.userId || 'anonymous',
+    orgId: ctx.orgId || 'default'
+  });
+
+  return {
+    success: true,
+    result: {
+      answer: result.answer,
+      reasoning_path: result.reasoning_path,
+      nodes: result.nodes,
+      confidence: result.confidence
+    },
+    query,
+    maxHops: maxHops || 2
   };
 }

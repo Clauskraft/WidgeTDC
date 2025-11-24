@@ -120,10 +120,10 @@ answer: "Reasoning complete. See nodes for details."
   - Router node calls `graphRag.query()` to understand query
   - Uses confidence score for routing decisions
 
-### Not Integrated:
-- ❌ **API Endpoint** - No REST endpoint exposed
-- ❌ **AutonomousRouter** - Not in autonomous API
-- ❌ **HansPedder** - Not used by orchestrator
+### Now Integrated:
+- ✅ **REST API Endpoint** - `POST /api/mcp/autonomous/graphrag` - Added
+- ✅ **MCP Tool** - `autonomous.graphrag` - Registered
+- ⚠️ **HansPedder** - Not used by orchestrator yet
 
 ---
 

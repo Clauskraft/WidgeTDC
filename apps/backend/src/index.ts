@@ -102,6 +102,13 @@ async function startServer() {
     mcpRegistry.registerTool('ingestion.status', ingestionStatusHandler);
     mcpRegistry.registerTool('ingestion.configure', ingestionConfigureHandler);
 
+    // Autonomous Cognitive Tools
+    const {
+      autonomousGraphRAGHandler
+    } = await import('./mcp/toolHandlers.js');
+
+    mcpRegistry.registerTool('autonomous.graphrag', autonomousGraphRAGHandler);
+
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
     mcpRegistry.registerServer(orchestrator);
