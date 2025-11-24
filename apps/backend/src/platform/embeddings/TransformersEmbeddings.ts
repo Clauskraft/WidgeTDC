@@ -5,7 +5,7 @@
  * Supports sentence-transformers models for semantic similarity.
  */
 
-import { pipeline, Pipeline } from '@xenova/transformers';
+import { pipeline } from '@xenova/transformers';
 
 export interface EmbeddingOptions {
     model?: string;
@@ -14,7 +14,7 @@ export interface EmbeddingOptions {
 
 export class TransformersEmbeddings {
     private modelName: string;
-    private extractor: Pipeline | null = null;
+    private extractor: any = null; // Pipeline type from @xenova/transformers
     private initialized: boolean = false;
 
     constructor(modelName: string = 'Xenova/all-MiniLM-L6-v2') {
@@ -65,7 +65,7 @@ export class TransformersEmbeddings {
             });
 
             // Convert tensor to array
-            const embedding = Array.from(output.data);
+            const embedding = Array.from(output.data) as number[];
 
             return embedding;
         } catch (error) {

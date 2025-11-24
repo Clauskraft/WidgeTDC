@@ -197,8 +197,8 @@ export class AutonomousTaskEngine {
         console.log('🧠 [Learning Loop] Starting memory optimization...');
 
         try {
-            const { getChromaVectorStore } = await import('../../platform/vector/ChromaVectorStoreAdapter.js');
-            const vectorStore = getChromaVectorStore();
+            const { getPgVectorStore } = await import('../../platform/vector/PgVectorStoreAdapter.js');
+            const vectorStore = getPgVectorStore();
 
             // 1. Consolidation: Find duplicates/similar items
             // (Simplified implementation: In a real scenario, we'd cluster vectors)

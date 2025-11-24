@@ -1,5 +1,5 @@
 import { eventBus } from '../../mcp/EventBus.js';
-import { getChromaVectorStore } from '../../platform/vector/ChromaVectorStoreAdapter.js';
+import { getPgVectorStore } from '../../platform/vector/PgVectorStoreAdapter.js';
 import { IngestedEntity } from './DataIngestionEngine.js';
 import { unifiedMemorySystem } from '../../mcp/cognitive/UnifiedMemorySystem.js';
 
@@ -10,7 +10,7 @@ import { unifiedMemorySystem } from '../../mcp/cognitive/UnifiedMemorySystem.js'
  * Listens for new data, vectorizes it, and stores it in the Knowledge Archive.
  */
 export class IngestionPipeline {
-    private vectorStore = getChromaVectorStore();
+    private vectorStore = getPgVectorStore();
     private isProcessing = false;
 
     constructor() {

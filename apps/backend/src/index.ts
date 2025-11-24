@@ -62,6 +62,28 @@ async function startServer() {
     await initializeDatabase();
     console.log('🗄️  Database initialized');
 
+    // Step 1.2: Initialize Enterprise Infrastructure (Phase 1)
+    console.log('🏗️  Initializing Enterprise Infrastructure...');
+
+    // Initialize Prisma Database (PostgreSQL + pgvector)
+    try {
+      const { getDatabaseAdapter } = await import('./platform/db/PrismaDatabaseAdapter.js');
+      const prismaDb = getDatabaseAdapter();
+      await prismaDb.initialize();
+      console.log('✅ PostgreSQL + pgvector initialized');
+    } catch (error) {
+      console.warn('⚠️  Prisma not available:', error);
+      console.log('   Continuing with SQLite only');
+    }
+
+    // Initialize Event Bus (Redis in production, in-memory in dev)
+    try {
+      const { eventBus } = await import('./mcp/EventBus.js');
+      await eventBus.initialize();
+    } catch (error) {
+      console.warn('⚠️  EventBus initialization warning:', error);
+    }
+
     // Step 1.5: Initialize Neo4j Graph Database
     try {
       const { getNeo4jGraphAdapter } = await import('./platform/graph/Neo4jGraphAdapter.js');

@@ -1,172 +1,135 @@
-# WidgeTDC Quick Start Guide
+# 🚀 Quick Start Guide
 
-Dette er den hurtigste måde at få WidgeTDC op at køre på.
+## Fastest Way to Get Running
 
-## Forudsætninger
+### Option 1: Automated Setup (Recommended)
 
-- **Node.js** (v18 eller nyere)
-- **Python** (v3.7 eller nyere)
-- **npm** (installeret sammen med Node.js)
+Run the setup script as Administrator:
 
-## Hurtig Start (Anbefalet)
-
-### 1. Kør Auto-Start Scriptet
-
-```bash
-python start_fixed.py
+```powershell
+# Run PowerShell as Administrator
+.\setup-enterprise.ps1
 ```
 
-Dette script gør automatisk følgende:
-- ✅ Installerer alle dependencies
-- ✅ Bygger shared packages (mcp-types, domain-types)
-- ✅ Opretter `.env` fil hvis den mangler
-- ✅ Starter backend på http://localhost:3001
-- ✅ Starter frontend på http://localhost:5173
-- ✅ Åbner browseren automatisk
+This will:
+- Clean and reinstall dependencies
+- Install @xenova/transformers for local embeddings
+- Create .env file with correct settings
+- Generate Prisma client
 
-### 2. Verificer at Alt Kører
-
-I en **ny** terminal:
+### Option 2: Manual Setup
 
 ```bash
-python check_health.py
-```
-
-Dette tjekker om:
-- ✅ Backend svarer på port 3001
-- ✅ Frontend svarer på port 5173
-- ✅ API endpoints er tilgængelige
-
-## Manuel Start (Hvis auto-scriptet fejler)
-
-### 1. Installer Dependencies
-
-```bash
-# Root dependencies
-npm install
-
-# Build shared packages (VIGTIGT!)
-cd packages/shared/mcp-types
-npm install
-npm run build
-cd ../domain-types
-npm install
-npm run build
-cd ../../..
-
-# Backend dependencies
+# 1. Install dependencies
 cd apps/backend
 npm install
+npm install @xenova/transformers
+
+# 2. Configure environment
+cp .env.example .env
+# Add this line to .env:
+echo "EMBEDDING_PROVIDER=transformers" >> .env
+
+# 3. Generate Prisma client
+npx prisma generate
+
+# 4. Start Docker services
 cd ../..
+docker-compose up -d
 
-# Frontend dependencies
-cd apps/widget-board
-npm install
-cd ../..
-```
-
-### 2. Start Backend
-
-```bash
+# 5. Run database migrations
 cd apps/backend
+npx prisma migrate dev --name init
+
+# 6. Build and run
+npm run build
 npm run dev
 ```
 
-### 3. Start Frontend (i ny terminal)
+### Option 3: Production Setup (PM2)
 
 ```bash
-cd apps/widget-board
-npm run dev
+# After manual setup above:
+
+# Build
+npm run build
+
+# Start with PM2
+pm2 start ../../ecosystem.config.js
+
+# Monitor
+pm2 logs widgetdc-backend
+pm2 monit
 ```
 
-## Miljøvariabler (.env)
+## Troubleshooting
 
-Backenden bruger en `.env` fil. Hvis `start_fixed.py` opretter den automatisk, men du kan redigere den:
+### Permission Errors (EACCES)
+**Solution:** Run PowerShell/terminal as Administrator
 
-**Lokation:** `apps/backend/.env`
+### .env File
+Cannot be committed to git (it's in .gitignore for security).
 
-**Vigtige indstillinger:**
-
+**What to add:**
 ```env
-# Database (SQLite)
-DATABASE_URL=./widget-tdc.db
-
-# JWT Secret (Skift i production!)
-JWT_SECRET=dev-secret-key-only-for-local-testing-change-me
-
-# Port
+DATABASE_URL="postgresql://widgetdc:widgetdc_dev@localhost:5432/widgetdc?schema=public"
+REDIS_URL="redis://localhost:6379"
+NODE_ENV="development"
 PORT=3001
+EMBEDDING_PROVIDER="transformers"
 ```
 
-## Typiske Problemer
+### First Run Slow
+Transformers.js downloads ~50MB model on first use. Subsequent runs are fast.
 
-### Problem: "Cannot find module '@widget-tdc/mcp-types'"
+### Using OpenAI Instead (Better Quality)
+```env
+EMBEDDING_PROVIDER="openai"
+OPENAI_API_KEY="sk-your-key-here"
+```
 
-**Løsning:** Shared packages ikke bygget. Kør:
+## Verify It Works
 
 ```bash
-cd packages/shared/mcp-types && npm run build
-cd ../domain-types && npm run build
+# Check services
+docker ps
+# Should show: postgres, redis, neo4j
+
+# Check backend
+pm2 status
+# Or if using npm run dev, check console output
+
+# Look for these log messages:
+# ✅ PostgreSQL + pgvector initialized
+# 🧠 PgVector Store initialized (transformers, 384D)
+# 🔴 Using Redis Event Bus OR 💾 Using In-Memory Event Bus
 ```
 
-### Problem: "Port 3001 already in use"
+## Test Semantic Search
 
-**Løsning:** En anden proces bruger porten. Find og stop den:
+Once running, test via API:
 
 ```bash
-# Windows
-netstat -ano | findstr :3001
-taskkill /PID <PID> /F
+# Insert some test data (embeddings generated automatically)
+POST http://localhost:3001/api/mcp/route
+{
+  "tool": "vidensarkiv.add",
+  "payload": {
+    "content": "Machine learning is a subset of artificial intelligence"
+  }
+}
 
-# Mac/Linux
-lsof -i :3001
-kill <PID>
+# Search semantically
+POST http://localhost:3001/api/mcp/route
+{
+  "tool": "vidensarkiv.search",
+  "payload": {
+    "query": "What is AI?",
+    "limit": 5
+  }
+}
 ```
 
-### Problem: Hvid skærm i browseren
+---
 
-**Løsning:**
-1. Tryk F12 i browseren
-2. Gå til "Console" tab
-3. Tag screenshot af fejlene
-4. Backend logger kan også hjælpe - se terminalen hvor `npm run dev` kører
-
-## Database
-
-Backend bruger SQLite som standard. Databasefilen oprettes automatisk ved første start:
-
-**Lokation:** `apps/backend/widget-tdc.db`
-
-### Seed Data
-
-Hvis du vil have test-data:
-
-```bash
-cd apps/backend
-npm run build
-node dist/database/seeds.js
-```
-
-## Næste Skridt
-
-Når systemet kører:
-
-1. **Frontend:** http://localhost:5173
-2. **Backend API:** http://localhost:3001/health
-3. **Backend Docs:** Se [apps/backend/README.md](apps/backend/README.md)
-4. **Widget Development:** Se [apps/widget-board/README.md](apps/widget-board/README.md)
-
-## Support
-
-Hvis du støder på problemer:
-
-1. Kør `python check_health.py` for diagnostik
-2. Tjek terminal logs for fejl
-3. Tjek browser console (F12) for frontend fejl
-4. Se [TROUBLESHOOTING.md](TROUBLESHOOTING.md) (hvis den findes)
-
-## Stop Serverne
-
-Tryk **Ctrl+C** i terminalen hvor `start_fixed.py` kører.
-
-Dette stopper både backend og frontend automatisk.
+**Status:** Everything is ready. Just need to run setup script or manual steps above.

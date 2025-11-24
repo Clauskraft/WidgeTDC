@@ -5,7 +5,7 @@
  * Replaces implicit graph patterns with explicit nodes and relationships.
  */
 
-import neo4j, { Driver, Session, Result } from 'neo4j-driver';
+import neo4j, { Driver, Session } from 'neo4j-driver';
 
 export interface GraphNode {
     id: string;
@@ -174,13 +174,13 @@ export class Neo4jGraphAdapter {
     async query(cypher: string, parameters?: Record<string, any>): Promise<GraphQueryResult> {
         const session = this.getSession();
         try {
-            const result: Result = await session.run(cypher, parameters || {});
+            const result = await session.run(cypher, parameters || {});
             
             const nodes: GraphNode[] = [];
             const relationships: GraphRelationship[] = [];
             const paths: any[] = [];
 
-            (result.records || []).forEach(record => {
+            (result.records || []).forEach((record: any) => {
                 record.keys.forEach(key => {
                     const value = record.get(key);
                     

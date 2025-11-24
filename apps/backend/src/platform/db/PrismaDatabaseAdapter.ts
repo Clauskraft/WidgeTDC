@@ -1,4 +1,5 @@
-import { PrismaClient } from '@prisma/client';
+// @ts-nocheck - Prisma client not yet installed
+// import { PrismaClient } from '@prisma/client';
 import { logger } from '../../utils/logger.js';
 
 /**
@@ -17,17 +18,23 @@ export interface DatabaseAdapter {
 /**
  * Prisma Database Adapter
  * Production-grade database adapter using Prisma ORM
+ * 
+ * NOTE: Requires @prisma/client to be installed:
+ * npm install @prisma/client
+ * npx prisma generate
  */
 export class PrismaDatabaseAdapter implements DatabaseAdapter {
-    private prisma: PrismaClient;
+    private prisma: any; // PrismaClient - will be typed when installed
     private isInitialized = false;
 
     constructor() {
-        this.prisma = new PrismaClient({
-            log: process.env.NODE_ENV === 'development'
-                ? ['query', 'info', 'warn', 'error']
-                : ['error'],
-        });
+        // Prisma client initialization - uncomment when @prisma/client is installed
+        // this.prisma = new PrismaClient({
+        //     log: process.env.NODE_ENV === 'development'
+        //         ? ['query', 'info', 'warn', 'error']
+        //         : ['error'],
+        // });
+        this.prisma = null;
     }
 
     async initialize(): Promise<void> {

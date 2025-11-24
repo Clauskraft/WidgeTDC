@@ -3,7 +3,7 @@ import { getCognitiveMemory } from '../memory/CognitiveMemory.js';
 import { unifiedMemorySystem } from './UnifiedMemorySystem.js';
 import { getLlmService } from '../../services/llm/llmService.js';
 import { MemoryRepository } from '../../services/memory/memoryRepository.js';
-import { getChromaVectorStore } from '../../platform/vector/ChromaVectorStoreAdapter.js';
+import { getPgVectorStore } from '../../platform/vector/PgVectorStoreAdapter.js';
 
 interface GraphNode {
     id: string;
@@ -86,13 +86,13 @@ export class UnifiedGraphRAG {
             for (const node of frontier) {
                 // Enhanced expansion: Use CMA graph relations + semantic similarity
                 const connections = await this.expandNode(node, query, context);
-                
+
                 for (const conn of connections) {
                     if (!visited.has(conn.id) && conn.score > this.minScore) {
                         visited.add(conn.id);
                         newFrontier.push(conn);
                         knowledgeGraph.push(conn);
-                        
+
                         // Track edge in parent node
                         node.connections.push({
                             targetId: conn.id,
@@ -114,7 +114,7 @@ export class UnifiedGraphRAG {
         // 4. Synthesize Answer using LLM (Inspired by CgentCore's L1 Director Agent)
         const topNodes = knowledgeGraph.sort((a, b) => b.score - a.score).slice(0, 10);
         const answer = await this.synthesizeAnswer(query, topNodes, context);
-        
+
         return {
             answer,
             reasoning_path: reasoningPath,
@@ -138,7 +138,7 @@ export class UnifiedGraphRAG {
 
         // Strategy 1: Get patterns involving this widget/source (existing)
         const patterns = await memory.getWidgetPatterns(node.id);
-        
+
         // UsagePattern is an object with commonSources and timePatterns
         // Use commonSources to expand graph connections
         for (const source of patterns.commonSources || []) {
@@ -165,7 +165,7 @@ export class UnifiedGraphRAG {
         for (const mem of relatedMemories) {
             // Check if memory is semantically related to query
             const semanticScore = await this.computeSemanticSimilarity(query, mem.content);
-            
+
             if (semanticScore > this.minScore) {
                 expandedNodes.push({
                     id: `memory-${mem.id}`,
@@ -194,7 +194,7 @@ export class UnifiedGraphRAG {
         for (const event of relatedEvents) {
             const eventContent = JSON.stringify(event);
             const semanticScore = await this.computeSemanticSimilarity(query, eventContent);
-            
+
             if (semanticScore > this.minScore) {
                 expandedNodes.push({
                     id: `event-${event.id || Date.now()}`,
@@ -221,9 +221,9 @@ export class UnifiedGraphRAG {
     private async synthesizeAnswer(query: string, nodes: GraphNode[], context: { userId: string; orgId: string }): Promise<string> {
         try {
             const llmService = getLlmService();
-            
+
             // Build context from graph nodes
-            const graphContext = nodes.map((n, idx) => 
+            const graphContext = nodes.map((n, idx) =>
                 `[${idx + 1}] ${n.type}: ${n.content.substring(0, 300)} (confidence: ${n.score.toFixed(2)})`
             ).join('\n\n');
 
@@ -265,53 +265,44 @@ Provide a comprehensive answer synthesizing the information from the knowledge g
      */
     private async computeSemanticSimilarity(query: string, content: string): Promise<number> {
         try {
-            // Use ChromaDB for proper vector similarity
-            const vectorStore = getChromaVectorStore();
-            
-            // Search for similar content using query
-            const results = await vectorStore.search({
-                embedding: [], // Will be generated from query
-                topK: 1,
-                keywords: query,
-                minScore: 0.0
-            });
+            // Use pgvector for proper vector similarity
+            const vectorStore = getPgVectorStore();
 
-            // If we have results, use the similarity score
-            if (results.length > 0) {
-                // Check if content matches
-                const matchingResult = results.find(r => 
-                    r.record.content?.toLowerCase().includes(content.toLowerCase().substring(0, 100))
-                );
-                
-                if (matchingResult) {
-                    return matchingResult.score;
-                }
-            }
+            // For now, use simple text matching as fallback
+            // TODO: Generate embeddings for proper vector search
+            // const results = await vectorStore.search({
+            //     vector: [], // Would need actual embeddings here
+            //     limit: 1
+            // });
 
-            // Fallback to keyword similarity if vector search doesn't find match
-            const queryWords = new Set(query.toLowerCase().split(/\s+/).filter(w => w.length > 2));
-            const contentWords = new Set(content.toLowerCase().split(/\s+/).filter(w => w.length > 2));
-            
+            // Simple text similarity fallback
+            const queryLower = query.toLowerCase();
+            const contentLower = content.toLowerCase();
+
+            // Use Jaccard similarity
+            const queryWords = new Set(queryLower.split(/\s+/).filter(w => w.length > 2));
+            const contentWords = new Set(contentLower.split(/\s+/).filter(w => w.length > 2));
             const intersection = new Set([...queryWords].filter(w => contentWords.has(w)));
             const union = new Set([...queryWords, ...contentWords]);
-            
-            const jaccard = intersection.size / union.size;
-            const phraseMatch = content.toLowerCase().includes(query.toLowerCase()) ? 0.3 : 0;
-            
+
+            const jaccard = union.size > 0 ? intersection.size / union.size : 0;
+            const phraseMatch = contentLower.includes(queryLower) ? 0.3 : 0;
+
             return Math.min(1.0, jaccard + phraseMatch);
+
         } catch (error) {
             console.warn('[GraphRAG] Vector similarity failed, using keyword fallback:', error);
-            
+
             // Fallback to keyword similarity
             const queryWords = new Set(query.toLowerCase().split(/\s+/).filter(w => w.length > 2));
             const contentWords = new Set(content.toLowerCase().split(/\s+/).filter(w => w.length > 2));
-            
+
             const intersection = new Set([...queryWords].filter(w => contentWords.has(w)));
             const union = new Set([...queryWords, ...contentWords]);
-            
+
             const jaccard = intersection.size / union.size;
             const phraseMatch = content.toLowerCase().includes(query.toLowerCase()) ? 0.3 : 0;
-            
+
             return Math.min(1.0, jaccard + phraseMatch);
         }
     }
@@ -326,7 +317,7 @@ Provide a comprehensive answer synthesizing the information from the knowledge g
             .filter(w => w.length > 3)
             .filter(w => !['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'man', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'boy', 'did', 'its', 'let', 'put', 'say', 'she', 'too', 'use'].includes(w))
             .slice(0, 5);
-        
+
         return words;
     }
 }

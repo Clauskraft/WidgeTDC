@@ -1,5 +1,6 @@
 import { getDatabaseAdapter } from '../../platform/db/PrismaDatabaseAdapter.js';
 import { logger } from '../../utils/logger.js';
+import { getEmbeddingService } from '../../services/embeddings/EmbeddingService.js';
 
 interface VectorRecord {
     id: string;
@@ -11,6 +12,7 @@ interface VectorRecord {
 
 interface VectorQuery {
     vector?: number[];
+    text?: string; // NEW: Allow text-based queries
     limit?: number;
     filter?: Record<string, any>;
     namespace?: string;
@@ -24,30 +26,39 @@ interface VectorSearchResult {
 }
 
 /**
- * PgVector Store Adapter
+ * PgVector Store Adapter with Automatic Embedding Generation
  * Replaces ChromaDB with PostgreSQL pgvector extension
  */
 export class PgVectorStoreAdapter {
     private db = getDatabaseAdapter();
+    private embeddings = getEmbeddingService();
     private isInitialized = false;
 
     async initialize(): Promise<void> {
         if (this.isInitialized) return;
 
         await this.db.initialize();
+        await this.embeddings.initialize();
 
-        logger.info('🧠 PgVector Store initialized');
+        logger.info(`🧠 PgVector Store initialized (${this.embeddings.getProviderName()}, ${this.embeddings.getDimensions()}D)`);
         this.isInitialized = true;
     }
 
     /**
-     * Upsert a vector document
+     * Upsert a vector document (auto-generates embeddings)
      */
     async upsert(record: VectorRecord): Promise<void> {
         const prisma = this.db.getClient();
 
-        const embeddingStr = record.embedding
-            ? `[${record.embedding.join(',')}]`
+        // Auto-generate embedding if not provided
+        let embedding = record.embedding;
+        if (!embedding && record.content) {
+            embedding = await this.embeddings.generateEmbedding(record.content);
+            logger.debug(`Generated embedding for "${record.content.substring(0, 50)}..."`);
+        }
+
+        const embeddingStr = embedding
+            ? `[${embedding.join(',')}]`
             : null;
 
         await prisma.$executeRawUnsafe(`
@@ -86,14 +97,23 @@ export class PgVectorStoreAdapter {
 
     /**
      * Search for similar vectors using cosine similarity
+     * Supports both vector and text-based queries
      */
     async search(query: VectorQuery): Promise<VectorSearchResult[]> {
-        if (!query.vector) {
-            throw new Error('Vector is required for similarity search');
+        let searchVector = query.vector;
+
+        // Generate embedding from text if no vector provided
+        if (!searchVector && query.text) {
+            searchVector = await this.embeddings.generateEmbedding(query.text);
+            logger.debug(`Generated query embedding for: "${query.text.substring(0, 50)}..."`);
+        }
+
+        if (!searchVector) {
+            throw new Error('Either vector or text is required for similarity search');
         }
 
         const prisma = this.db.getClient();
-        const vectorStr = `[${query.vector.join(',')}]`;
+        const vectorStr = `[${searchVector.join(',')}]`;
         const limit = query.limit || 10;
         const namespace = query.namespace || 'default';
 
