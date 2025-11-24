@@ -49,11 +49,12 @@
 
 | Component | Status | Fil | Notes |
 |-----------|--------|-----|-------|
-| UnifiedGraphRAG | ⚠️ Partial | `UnifiedGraphRAG.ts` | Fil eksisterer, skal verificeres |
-| Multi-hop reasoning | ❌ Not Started | - | Ikke implementeret |
+| UnifiedGraphRAG | ✅ Implemented | `UnifiedGraphRAG.ts` | ✅ Core implementeret, multi-hop working |
+| Multi-hop reasoning | ✅ Implemented | - | ✅ 2-hop traversal, pattern-based expansion |
 | AgentTeam | ❌ Not Started | - | Ikke implementeret |
 | Agent communication | ❌ Not Started | - | Ikke implementeret |
-| Neo4j + Pinecone | ❌ Not Started | - | Ikke sat op |
+| Neo4j + Pinecone | ❌ Not Started | - | Ikke sat op (bruger implicit graph) |
+| API Endpoint | ❌ Missing | - | Ikke eksponeret via REST |
 
 ### Week 7-8: State Graph Router + Creative Evolution
 
