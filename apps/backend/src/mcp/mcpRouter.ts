@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { MCPMessage } from '@widget-tdc/mcp-types';
 import { mcpRegistry } from './mcpRegistry.js';
+import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
 
 export const mcpRouter = Router();
 
@@ -9,37 +10,38 @@ export const mcpRouter = Router();
 mcpRouter.post('/route', async (req, res) => {
   try {
     const message: MCPMessage = req.body;
-
-    // Validate message
-    if (!message.tool || !message.payload) {
-      return res.status(400).json({
-        error: 'Invalid MCP message format. Required: tool, payload',
-      });
-    }
-
-    // Ensure message has ID and timestamp
-    if (!message.id) {
-      message.id = uuidv4();
-    }
-    if (!message.createdAt) {
-      message.createdAt = new Date().toISOString();
-    }
-
-    // Route the message
-    const result = await mcpRegistry.route(message);
-
+    // Context for memory enrichment
+    const ctx = {
+      userId: (req as any).user?.id ?? 'anonymous',
+      orgId: (req as any).user?.orgId ?? 'default',
+      timestamp: new Date()
+    };
+    // Enrich message with memory context
+    const enrichedMessage = await unifiedMemorySystem.enrichMCPRequest(message, ctx);
+    // Ensure ID/timestamp
+    if (!enrichedMessage.id) enrichedMessage.id = uuidv4();
+    if (!enrichedMessage.createdAt) enrichedMessage.createdAt = new Date().toISOString();
+    // Route the enriched message
+    const result = await mcpRegistry.route(enrichedMessage);
+    // Persist result in working memory for future context
+    await unifiedMemorySystem.updateWorkingMemory(ctx, result);
     res.json({
       success: true,
-      messageId: message.id,
+      messageId: enrichedMessage.id,
       result,
     });
   } catch (error: any) {
     console.error('MCP routing error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message || 'Internal server error',
-    });
+    res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }
+});
+  } catch (error: any) {
+  console.error('MCP routing error:', error);
+  res.status(500).json({
+    success: false,
+    error: error.message || 'Internal server error',
+  });
+}
 });
 
 // Get list of available tools

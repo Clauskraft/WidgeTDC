@@ -99,29 +99,15 @@ export function getHansPedderStatus() {
 // -------------------------------------------------------------------
 // 3️⃣  Initialise core components
 // -------------------------------------------------------------------
-// Note: These must be called AFTER database initialization
-// We wrap the agent creation in the start function or a lazy getter
+if (!hansPedder) {
+    hansPedder = new AutonomousAgent(cognitive, sourceReg);
+    // TODO: Inject system prompt if supported in future versions
+}
 
-let hansPedder: AutonomousAgent | null = null;
-
-// -------------------------------------------------------------------
-// 5️⃣  Export start function for the backend server
-// -------------------------------------------------------------------
-export async function startHansPedder() {
-    // Ensure dependencies are ready
-    const cognitive = getCognitiveMemory();
-    const sourceReg = getSourceRegistry();
-
-    // Initialize agent if not already done
-    if (!hansPedder) {
-        hansPedder = new AutonomousAgent(cognitive, sourceReg);
-        // TODO: Inject system prompt if supported in future versions
-    }
-
-    console.info('🚀 Starting HansPedder autonomous loop...');
-    hansPedderStatus.active = true;
-    hansPedderStatus.startedAt = new Date();
-    await startAutonomousLearning(hansPedder);
+console.info('🚀 Starting HansPedder autonomous loop...');
+hansPedderStatus.active = true;
+hansPedderStatus.startedAt = new Date();
+await startAutonomousLearning(hansPedder);
 }
 
 // -------------------------------------------------------------------
