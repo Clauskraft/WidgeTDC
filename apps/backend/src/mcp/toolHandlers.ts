@@ -335,7 +335,7 @@ export async function palAnalyzeSentimentHandler(payload: any, ctx: McpContext):
 
 // Notes tool handlers
 export async function notesListHandler(payload: any, ctx: McpContext): Promise<any> {
-  const notes = notesRepo.listNotes(ctx.orgId, ctx.userId);
+  const notes = notesRepo.getNotes(ctx.userId, ctx.orgId);
   return { notes };
 }
 
@@ -344,9 +344,14 @@ export async function notesCreateHandler(payload: any, ctx: McpContext): Promise
   const noteId = notesRepo.createNote({
     orgId: ctx.orgId,
     userId: ctx.userId,
+    source: 'manual',
     title,
-    content,
-    tags: tags || [],
+    body: content || '',
+    tags: Array.isArray(tags) ? tags.join(',') : (tags || ''),
+    owner: ctx.userId,
+    compliance: 'clean',
+    retention: '90d',
+    attachments: 0
   });
   return { id: noteId };
 }
