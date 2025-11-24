@@ -40,6 +40,13 @@ export class PrismaDatabaseAdapter implements DatabaseAdapter {
     async initialize(): Promise<void> {
         if (this.isInitialized) return;
 
+        // Bug 3 Fix: Check if Prisma client is available before connecting
+        if (!this.prisma) {
+            logger.warn('⚠️  Prisma client not initialized. Install @prisma/client and run npx prisma generate');
+            logger.info('   Continuing without PostgreSQL - using SQLite fallback');
+            return; // Gracefully skip if Prisma not available
+        }
+
         try {
             await this.prisma.$connect();
             logger.info('🗄️  Prisma Database connected');

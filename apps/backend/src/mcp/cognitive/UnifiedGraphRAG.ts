@@ -300,7 +300,8 @@ Provide a comprehensive answer synthesizing the information from the knowledge g
             const intersection = new Set([...queryWords].filter(w => contentWords.has(w)));
             const union = new Set([...queryWords, ...contentWords]);
 
-            const jaccard = intersection.size / union.size;
+            // Fix: Check for division by zero (Bug 2)
+            const jaccard = union.size > 0 ? intersection.size / union.size : 0;
             const phraseMatch = content.toLowerCase().includes(query.toLowerCase()) ? 0.3 : 0;
 
             return Math.min(1.0, jaccard + phraseMatch);

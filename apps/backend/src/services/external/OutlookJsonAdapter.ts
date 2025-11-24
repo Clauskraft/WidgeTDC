@@ -88,6 +88,13 @@ export class OutlookJsonAdapter implements DataSourceAdapter {
     }
 
     /**
+     * Check if the adapter is available (file exists)
+     */
+    async isAvailable(): Promise<boolean> {
+        return existsSync(this.filePath);
+    }
+
+    /**
      * Support direct queries
      */
     async query(operation: string, params: any): Promise<any> {

@@ -12,18 +12,18 @@ import { agentTeam } from './cognitive/AgentTeam.js';
 import { getPgVectorStore } from '../platform/vector/PgVectorStoreAdapter.js';
 // Vector types for PgVectorStoreAdapter
 type VectorRecord = {
-    id: string;
-    content: string;
-    embedding?: number[];
-    metadata?: Record<string, any>;
-    namespace?: string;
+  id: string;
+  content: string;
+  embedding?: number[];
+  metadata?: Record<string, any>;
+  namespace?: string;
 };
 type VectorQuery = {
-    vector?: number[];
-    text?: string;
-    limit?: number;
-    filter?: Record<string, any>;
-    namespace?: string;
+  vector?: number[];
+  text?: string;
+  limit?: number;
+  filter?: Record<string, any>;
+  namespace?: string;
 };
 import { projectMemory } from '../services/project/ProjectMemory.js';
 import { getTaskRecorder } from './cognitive/TaskRecorder.js';
@@ -205,7 +205,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 export async function sragGovernanceCheckHandler(payload: any, ctx: McpContext): Promise<any> {
   const { docId } = payload;
   const doc = sragRepo.getDocumentById(parseInt(docId, 10));
-  
+
   if (!doc) {
     return { compliant: false, reason: 'Document not found' };
   }
@@ -259,7 +259,7 @@ export async function evolutionGetPromptHandler(payload: any, _ctx: McpContext):
 export async function evolutionAnalyzePromptsHandler(payload: any, _ctx: McpContext): Promise<any> {
   const { agentId } = payload;
   const prompts = evolutionRepo.getAllPrompts(agentId).slice(0, 10);
-  
+
   // Generate LLM analysis
   const llmService = getLlmService();
   const systemContext = `You are a prompt engineering expert. Analyze prompt evolution and suggest improvements.`;
@@ -323,11 +323,11 @@ export async function palAnalyzeSentimentHandler(payload: any, ctx: McpContext):
   const lowerText = text.toLowerCase();
   const positiveCount = positiveWords.filter(w => lowerText.includes(w)).length;
   const negativeCount = negativeWords.filter(w => lowerText.includes(w)).length;
-  
+
   let sentiment = 'neutral';
   if (positiveCount > negativeCount) sentiment = 'positive';
   else if (negativeCount > positiveCount) sentiment = 'negative';
-  
+
   return { sentiment, score: positiveCount - negativeCount };
 }
 
@@ -357,8 +357,8 @@ export async function notesCreateHandler(payload: any, ctx: McpContext): Promise
 
 export async function notesUpdateHandler(payload: any, ctx: McpContext): Promise<any> {
   const { id, title, content, tags } = payload;
-  notesRepo.updateNote(parseInt(id, 10), ctx.userId, ctx.orgId, { 
-    title, 
+  notesRepo.updateNote(parseInt(id, 10), ctx.userId, ctx.orgId, {
+    title,
     body: content,
     tags: Array.isArray(tags) ? tags.join(',') : tags
   });
@@ -489,7 +489,7 @@ export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext):
     namespace: namespace || ctx.orgId,
   }));
 
-  await vectorStore.batchUpsert(vectorRecords);
+  await vectorStore.batchUpsert({ records: vectorRecords, namespace: namespace || ctx.orgId });
 
   // Log to ProjectMemory
   projectMemory.logLifecycleEvent({
@@ -512,22 +512,21 @@ export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext):
 
 export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext): Promise<any> {
   const vectorStore = getPgVectorStore();
-  const { id, limit = 5, namespace } = payload;
+  const { content, limit = 5, namespace } = payload;
 
-  const record = await vectorStore.getById(id);
-  if (!record) {
-    throw new Error(`Record ${id} not found`);
+  // Search for related content using the provided content text
+  if (!content) {
+    throw new Error('Content is required for finding related records');
   }
 
   const related = await vectorStore.search({
-    text: record.content,
+    text: content,
     limit,
     namespace: namespace || ctx.orgId,
   });
 
   return {
     success: true,
-    record,
     related: related.map(r => ({
       id: r.id,
       content: r.content,
@@ -537,12 +536,12 @@ export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext
   };
 }
 
-export async function vidensarkivListHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function vidensarkivListHandler(payload: any, _ctx: McpContext): Promise<any> {
   const vectorStore = getPgVectorStore();
   const { namespace } = payload;
 
-  const namespaces = await vectorStore.listNamespaces();
-  const filtered = namespace ? namespaces.filter(n => n === namespace) : namespaces;
+  const stats = await vectorStore.getStatistics();
+  const filtered = namespace ? stats.namespaces.filter(n => n === namespace) : stats.namespaces;
 
   return {
     success: true,
@@ -551,19 +550,17 @@ export async function vidensarkivListHandler(payload: any, ctx: McpContext): Pro
   };
 }
 
-export async function vidensarkivStatsHandler(payload: any, _ctx: McpContext): Promise<any> {
+export async function vidensarkivStatsHandler(_payload: any, _ctx: McpContext): Promise<any> {
   const vectorStore = getPgVectorStore();
-  
+
   const stats = await vectorStore.getStatistics();
-  const namespaces = await vectorStore.listNamespaces();
 
   return {
     success: true,
     statistics: {
       totalRecords: stats.totalRecords,
-      namespaces: namespaces.length,
-      dimensions: stats.dimensions,
-      provider: stats.provider
+      namespaces: stats.namespaces.length,
+      namespaceList: stats.namespaces
     },
     health: {
       status: 'healthy',
@@ -653,7 +650,7 @@ export async function taskRecorderExecuteHandler(payload: any, ctx: McpContext):
   }
 
   const recorder = getTaskRecorder();
-  
+
   // Request execution (will check approval status)
   const result = await recorder.requestTaskExecution({
     suggestionId,
@@ -705,4 +702,18 @@ export async function taskRecorderGetPatternsHandler(_payload: any, _ctx: McpCon
     })),
     count: patterns.length
   };
+}
+
+// ---------------------------------------------------
+// Email RAG Handler – wraps autonomousGraphRAG for email content
+// ---------------------------------------------------
+export async function emailRagHandler(payload: any, ctx: McpContext): Promise<any> {
+  // Expected payload: { email: { subject: string, body: string } }
+  const { email } = payload;
+  if (!email?.body) {
+    throw new Error('Email body is required for RAG');
+  }
+  // Reuse the existing Graph RAG handler logic
+  const result = await autonomousGraphRAGHandler({ query: email.body, topK: 5 }, ctx);
+  return result;
 }
