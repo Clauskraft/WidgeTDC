@@ -147,7 +147,7 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
   }, [filteredFeeds, selectedFeedId]);
 
   const selectedFeed = feeds.find(feed => feed.id === selectedFeedId);
-  const selectedThreats = threats.filter(item => item.feedId === (selectedFeed?.id ?? '')).slice(0, 5);
+  const selectedThreats = threats.filter(item => item.feedId === (selectedFeed ? selectedFeed.id : '')).slice(0, 5);
 
   if (loading) return <div>Loading permissions...</div>;
 
