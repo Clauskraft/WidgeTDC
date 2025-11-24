@@ -2,7 +2,9 @@ import { getDatabase } from '../../database/index.js';
 import { PalEventInput } from '@widget-tdc/mcp-types';
 
 export class PalRepository {
-  private db = getDatabase();
+  private get db() {
+    return getDatabase();
+  }
 
   // User Profile operations
   getUserProfile(userId: string, orgId: string): any {

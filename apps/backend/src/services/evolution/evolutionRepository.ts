@@ -2,14 +2,16 @@ import { getDatabase } from '../../database/index.js';
 import { AgentRunReport } from '@widget-tdc/mcp-types';
 
 export class EvolutionRepository {
-  private db = getDatabase();
+  private get db() {
+    return getDatabase();
+  }
 
   createPrompt(agentId: string, promptText: string, createdBy: string = 'evolution-agent'): number {
     // Get current max version for this agent
     const maxVersionRow = this.db.prepare(`
       SELECT MAX(version) as max_version FROM agent_prompts WHERE agent_id = ?
     `).get(agentId) as any;
-    
+
     const nextVersion = (maxVersionRow?.max_version || 0) + 1;
 
     const result = this.db.prepare(`

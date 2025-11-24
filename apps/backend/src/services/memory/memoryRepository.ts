@@ -3,7 +3,9 @@ import { MemoryEntityInput, MemorySearchQuery } from '@widget-tdc/mcp-types';
 // Note: In production, integrate with vector database like Pinecone or Weaviate
 
 export class MemoryRepository {
-  private db = getDatabase();
+  private get db() {
+    return getDatabase();
+  }
   private vectorCache = new Map<string, number[]>(); // Simple cache for vectors
 
   // Simple tokenization (placeholder - gpt-3-encoder alternative)
@@ -52,7 +54,7 @@ export class MemoryRepository {
 
   ingestEntity(input: MemoryEntityInput): number {
     const importance = input.importance || 3;
-    
+
     const result = this.db.prepare(`
       INSERT INTO memory_entities (org_id, user_id, entity_type, content, importance)
       VALUES (?, ?, ?, ?, ?)
@@ -65,7 +67,7 @@ export class MemoryRepository {
       const insertTag = this.db.prepare(`
         INSERT INTO memory_tags (entity_id, tag) VALUES (?, ?)
       `);
-      
+
       for (const tag of input.tags) {
         insertTag.run(entityId, tag);
       }
@@ -166,7 +168,7 @@ export class MemoryRepository {
     const rows = this.db.prepare(`
       SELECT tag FROM memory_tags WHERE entity_id = ?
     `).all(entityId);
-    
+
     return rows.map((row: any) => row.tag);
   }
 

@@ -19,7 +19,9 @@ export interface Note {
 }
 
 export class NotesRepository {
-    private db = getDatabase();
+    private get db() {
+        return getDatabase();
+    }
 
     constructor() {
         this.initTables();

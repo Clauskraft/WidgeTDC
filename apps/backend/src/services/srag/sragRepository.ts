@@ -2,7 +2,9 @@ import { getDatabase } from '../../database/index.js';
 import { RawDocumentInput, StructuredFactInput } from '@widget-tdc/mcp-types';
 
 export class SragRepository {
-  private db = getDatabase();
+  private get db() {
+    return getDatabase();
+  }
 
   ingestDocument(input: RawDocumentInput): number {
     const result = this.db.prepare(`
