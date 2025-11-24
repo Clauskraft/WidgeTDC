@@ -117,6 +117,23 @@ async function startServer() {
     mcpRegistry.registerTool('autonomous.agentteam', autonomousAgentTeamHandler);
     mcpRegistry.registerTool('autonomous.agentteam.coordinate', autonomousAgentTeamCoordinateHandler);
 
+    // Vidensarkiv (Knowledge Archive) Tools - Persistent vector database
+    const {
+      vidensarkivSearchHandler,
+      vidensarkivAddHandler,
+      vidensarkivBatchAddHandler,
+      vidensarkivGetRelatedHandler,
+      vidensarkivListHandler,
+      vidensarkivStatsHandler
+    } = await import('./mcp/toolHandlers.js');
+
+    mcpRegistry.registerTool('vidensarkiv.search', vidensarkivSearchHandler);
+    mcpRegistry.registerTool('vidensarkiv.add', vidensarkivAddHandler);
+    mcpRegistry.registerTool('vidensarkiv.batch_add', vidensarkivBatchAddHandler);
+    mcpRegistry.registerTool('vidensarkiv.get_related', vidensarkivGetRelatedHandler);
+    mcpRegistry.registerTool('vidensarkiv.list', vidensarkivListHandler);
+    mcpRegistry.registerTool('vidensarkiv.stats', vidensarkivStatsHandler);
+
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
     mcpRegistry.registerServer(orchestrator);

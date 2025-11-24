@@ -85,6 +85,38 @@ for (const [name, adapter] of this.adapters) {
         // Store entities (for now, just log - later we'll save to memory/database)
         this.ingestedCount += entities.length;
 
+        // Auto-add to Vidensarkiv (Knowledge Archive) for continuous learning
+        try {
+            const { getChromaVectorStore } = await import('../../platform/vector/ChromaVectorStoreAdapter.js');
+            const vectorStore = getChromaVectorStore();
+            
+            // Batch add entities to vidensarkiv
+            const vectorRecords = entities.map(entity => ({
+                id: entity.id,
+                content: entity.content || entity.title || JSON.stringify(entity.metadata),
+                embedding: [], // Will be generated automatically
+                metadata: {
+                    ...entity.metadata,
+                    datasetType: 'new',
+                    source: name,
+                    type: entity.type,
+                    ingestedAt: new Date().toISOString()
+                },
+                namespace: `org:default:user:system` // TODO: Get from context
+            }));
+
+            if (vectorRecords.length > 0) {
+                await vectorStore.batchUpsert({
+                    records: vectorRecords,
+                    namespace: `org:default:user:system`
+                });
+                console.log(`  → Added ${vectorRecords.length} entities to vidensarkiv`);
+            }
+        } catch (err) {
+            console.warn(`⚠️ Failed to add to vidensarkiv:`, err);
+            // Non-critical, continue ingestion
+        }
+
         results.push({
             source: name,
             status: 'success',

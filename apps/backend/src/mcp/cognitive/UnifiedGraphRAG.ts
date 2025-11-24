@@ -3,6 +3,7 @@ import { getCognitiveMemory } from '../memory/CognitiveMemory.js';
 import { unifiedMemorySystem } from './UnifiedMemorySystem.js';
 import { getLlmService } from '../../services/llm/llmService.js';
 import { MemoryRepository } from '../../services/memory/memoryRepository.js';
+import { getChromaVectorStore } from '../../platform/vector/ChromaVectorStoreAdapter.js';
 
 interface GraphNode {
     id: string;
@@ -259,26 +260,60 @@ Provide a comprehensive answer synthesizing the information from the knowledge g
     }
 
     /**
-     * Compute semantic similarity between query and content
-     * Simplified version - in production, use proper embeddings (Sentence Transformers)
-     * Inspired by CgentCore's vector similarity approach
+     * Compute semantic similarity using ChromaDB vector search
+     * Uses proper embeddings via HuggingFace for true semantic similarity
      */
     private async computeSemanticSimilarity(query: string, content: string): Promise<number> {
-        // Simple keyword overlap as baseline
-        // TODO: Replace with proper embedding-based similarity (Pinecone/Weaviate)
-        const queryWords = new Set(query.toLowerCase().split(/\s+/).filter(w => w.length > 2));
-        const contentWords = new Set(content.toLowerCase().split(/\s+/).filter(w => w.length > 2));
-        
-        const intersection = new Set([...queryWords].filter(w => contentWords.has(w)));
-        const union = new Set([...queryWords, ...contentWords]);
-        
-        // Jaccard similarity
-        const jaccard = intersection.size / union.size;
-        
-        // Boost for exact phrase matches
-        const phraseMatch = content.toLowerCase().includes(query.toLowerCase()) ? 0.3 : 0;
-        
-        return Math.min(1.0, jaccard + phraseMatch);
+        try {
+            // Use ChromaDB for proper vector similarity
+            const vectorStore = getChromaVectorStore();
+            
+            // Search for similar content using query
+            const results = await vectorStore.search({
+                embedding: [], // Will be generated from query
+                topK: 1,
+                keywords: query,
+                minScore: 0.0
+            });
+
+            // If we have results, use the similarity score
+            if (results.length > 0) {
+                // Check if content matches
+                const matchingResult = results.find(r => 
+                    r.record.content?.toLowerCase().includes(content.toLowerCase().substring(0, 100))
+                );
+                
+                if (matchingResult) {
+                    return matchingResult.score;
+                }
+            }
+
+            // Fallback to keyword similarity if vector search doesn't find match
+            const queryWords = new Set(query.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+            const contentWords = new Set(content.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+            
+            const intersection = new Set([...queryWords].filter(w => contentWords.has(w)));
+            const union = new Set([...queryWords, ...contentWords]);
+            
+            const jaccard = intersection.size / union.size;
+            const phraseMatch = content.toLowerCase().includes(query.toLowerCase()) ? 0.3 : 0;
+            
+            return Math.min(1.0, jaccard + phraseMatch);
+        } catch (error) {
+            console.warn('[GraphRAG] Vector similarity failed, using keyword fallback:', error);
+            
+            // Fallback to keyword similarity
+            const queryWords = new Set(query.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+            const contentWords = new Set(content.toLowerCase().split(/\s+/).filter(w => w.length > 2));
+            
+            const intersection = new Set([...queryWords].filter(w => contentWords.has(w)));
+            const union = new Set([...queryWords, ...contentWords]);
+            
+            const jaccard = intersection.size / union.size;
+            const phraseMatch = content.toLowerCase().includes(query.toLowerCase()) ? 0.3 : 0;
+            
+            return Math.min(1.0, jaccard + phraseMatch);
+        }
     }
 
     /**

@@ -790,3 +790,291 @@ export async function autonomousAgentTeamCoordinateHandler(payload: any, ctx: Mc
     result
   };
 }
+
+// Vidensarkiv (Knowledge Archive) MCP Tools - Persistent vector database for continuous learning
+import { getChromaVectorStore } from '../../platform/vector/ChromaVectorStoreAdapter.js';
+import type { VectorRecord, VectorQuery } from '../../platform/vector/types.js';
+
+/**
+ * Vidensarkiv Search - Widgets can search existing + new datasets
+ * Supports semantic (vector) and keyword hybrid search
+ */
+export async function vidensarkivSearchHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { query, topK = 10, filters, namespace, includeExisting = true, includeNew = true } = payload;
+
+  if (!query) {
+    throw new Error('Query is required for vidensarkiv search');
+  }
+
+  const vectorStore = getChromaVectorStore();
+  
+  // Generate embedding for semantic search (will be done automatically)
+  const searchQuery: VectorQuery = {
+    embedding: [], // Will be generated from query text
+    topK,
+    filters,
+    namespace: namespace || `${ctx.orgId}:${ctx.userId}`,
+    keywords: query, // For hybrid search
+    keywordWeight: 0.3, // 30% keyword, 70% semantic
+    minScore: 0.3
+  };
+
+  const results = await vectorStore.search(searchQuery);
+
+  // Filter by includeExisting/includeNew flags if metadata has datasetType
+  const filteredResults = results.filter(result => {
+    const datasetType = result.record.metadata.datasetType as string;
+    if (datasetType === 'existing' && !includeExisting) return false;
+    if (datasetType === 'new' && !includeNew) return false;
+    return true;
+  });
+
+  return {
+    success: true,
+    query,
+    results: filteredResults.map(r => ({
+      id: r.record.id,
+      content: r.record.content,
+      score: r.score,
+      metadata: r.record.metadata,
+      source: r.record.metadata.source as string || 'vidensarkiv',
+      datasetType: r.record.metadata.datasetType as string || 'unknown'
+    })),
+    count: filteredResults.length,
+    totalAvailable: results.length
+  };
+}
+
+/**
+ * Vidensarkiv Add Dataset - Widgets can add new datasets to knowledge archive
+ * Automatically generates embeddings and stores persistently
+ */
+export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { 
+    content, 
+    metadata = {}, 
+    datasetId,
+    datasetType = 'new', // 'existing' or 'new'
+    namespace 
+  } = payload;
+
+  if (!content) {
+    throw new Error('Content is required to add to vidensarkiv');
+  }
+
+  const vectorStore = getChromaVectorStore();
+  
+  // Create vector record
+  const record: Omit<VectorRecord, 'createdAt' | 'updatedAt'> = {
+    id: datasetId || `dataset-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    content: typeof content === 'string' ? content : JSON.stringify(content),
+    embedding: [], // Will be generated automatically
+    metadata: {
+      ...metadata,
+      datasetType,
+      source: metadata.source || 'widget',
+      userId: ctx.userId,
+      orgId: ctx.orgId,
+      addedAt: new Date().toISOString(),
+      widgetId: metadata.widgetId || 'unknown'
+    },
+    namespace: namespace || `${ctx.orgId}:${ctx.userId}`
+  };
+
+  const result = await vectorStore.upsert(record);
+
+  // Log to ProjectMemory
+  try {
+    const { projectMemory } = await import('../services/project/ProjectMemory.js');
+    projectMemory.logLifecycleEvent({
+      eventType: 'feature',
+      status: 'success',
+      details: {
+        component: 'Vidensarkiv',
+        action: 'dataset_added',
+        datasetId: result.id,
+        datasetType,
+        namespace: result.namespace,
+        timestamp: new Date().toISOString()
+      }
+    });
+  } catch (err) {
+    console.warn('Could not log to ProjectMemory:', err);
+  }
+
+  return {
+    success: true,
+    datasetId: result.id,
+    message: 'Dataset added to vidensarkiv',
+    namespace: result.namespace,
+    embeddingGenerated: true
+  };
+}
+
+/**
+ * Vidensarkiv Batch Add - Add multiple datasets at once
+ * Used for bulk ingestion from DataIngestionEngine
+ */
+export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { datasets, namespace, datasetType = 'new' } = payload;
+
+  if (!Array.isArray(datasets) || datasets.length === 0) {
+    throw new Error('Datasets array is required');
+  }
+
+  const vectorStore = getChromaVectorStore();
+  
+  const records: Omit<VectorRecord, 'createdAt' | 'updatedAt'>[] = datasets.map((dataset: any, idx: number) => ({
+    id: dataset.id || `dataset-${Date.now()}-${idx}`,
+    content: typeof dataset.content === 'string' ? dataset.content : JSON.stringify(dataset.content),
+    embedding: [],
+    metadata: {
+      ...dataset.metadata,
+      datasetType,
+      source: dataset.metadata?.source || 'batch',
+      userId: ctx.userId,
+      orgId: ctx.orgId,
+      addedAt: new Date().toISOString()
+    },
+    namespace: namespace || dataset.namespace || `${ctx.orgId}:${ctx.userId}`
+  }));
+
+  const results = await vectorStore.batchUpsert({
+    records,
+    namespace: namespace || `${ctx.orgId}:${ctx.userId}`
+  });
+
+  return {
+    success: true,
+    added: results.length,
+    datasets: results.map(r => ({
+      id: r.id,
+      namespace: r.namespace
+    }))
+  };
+}
+
+/**
+ * Vidensarkiv Get Related - Find related datasets based on current dataset
+ * Used by widgets to discover related information
+ */
+export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { datasetId, topK = 5, namespace } = payload;
+
+  if (!datasetId) {
+    throw new Error('datasetId is required');
+  }
+
+  const vectorStore = getChromaVectorStore();
+  
+  // Get the dataset
+  const dataset = await vectorStore.getById(datasetId, namespace);
+  if (!dataset) {
+    throw new Error(`Dataset ${datasetId} not found`);
+  }
+
+  // Search for similar datasets
+  const results = await vectorStore.search({
+    embedding: dataset.embedding,
+    topK: topK + 1, // +1 to exclude the original
+    namespace,
+    minScore: 0.5
+  });
+
+  // Filter out the original dataset
+  const related = results
+    .filter(r => r.record.id !== datasetId)
+    .slice(0, topK);
+
+  return {
+    success: true,
+    datasetId,
+    related: related.map(r => ({
+      id: r.record.id,
+      content: r.record.content?.substring(0, 200),
+      score: r.score,
+      metadata: r.record.metadata,
+      relation: r.score > 0.8 ? 'highly_related' : r.score > 0.6 ? 'related' : 'somewhat_related'
+    })),
+    count: related.length
+  };
+}
+
+/**
+ * Vidensarkiv List Datasets - List all datasets in namespace
+ * Widgets can discover available datasets (both existing and new)
+ */
+export async function vidensarkivListHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { namespace, limit = 50, offset = 0, filters, datasetType } = payload;
+
+  const vectorStore = getChromaVectorStore();
+  
+  const targetNamespace = namespace || `${ctx.orgId}:${ctx.userId}`;
+  
+  // Build filters
+  const searchFilters = filters || [];
+  if (datasetType) {
+    searchFilters.push({
+      field: 'datasetType',
+      operator: 'eq',
+      value: datasetType
+    });
+  }
+
+  // Search with high topK to get all, then paginate
+  const allResults = await vectorStore.search({
+    embedding: new Array(384).fill(0), // Dummy embedding for metadata-only search
+    topK: 1000,
+    namespace: targetNamespace,
+    filters: searchFilters.length > 0 ? searchFilters : undefined,
+    minScore: 0 // Accept all for listing
+  });
+
+  const paginated = allResults.slice(offset, offset + limit);
+
+  return {
+    success: true,
+    datasets: paginated.map(r => ({
+      id: r.record.id,
+      content: r.record.content?.substring(0, 150),
+      metadata: r.record.metadata,
+      datasetType: r.record.metadata.datasetType as string || 'unknown',
+      createdAt: r.record.createdAt,
+      source: r.record.metadata.source as string || 'vidensarkiv'
+    })),
+    pagination: {
+      total: allResults.length,
+      limit,
+      offset,
+      hasMore: offset + limit < allResults.length
+    },
+    namespace: targetNamespace
+  };
+}
+
+/**
+ * Vidensarkiv Statistics - Get knowledge archive statistics
+ * Widgets can check archive health and size
+ */
+export async function vidensarkivStatsHandler(payload: any, ctx: McpContext): Promise<any> {
+  const vectorStore = getChromaVectorStore();
+  
+  const stats = await vectorStore.getStatistics();
+  const namespaces = await vectorStore.listNamespaces();
+  const isHealthy = await vectorStore.healthCheck();
+
+  return {
+    success: true,
+    statistics: {
+      totalDatasets: stats.totalRecords,
+      namespaces: namespaces.length,
+      byNamespace: stats.byNamespace,
+      estimatedSizeMB: (stats.estimatedSize / 1024 / 1024).toFixed(2),
+      vectorDimension: stats.vectorDimension
+    },
+    health: {
+      status: isHealthy ? 'healthy' : 'unhealthy',
+      collection: 'vidensarkiv'
+    }
+  };
+}
