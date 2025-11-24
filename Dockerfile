@@ -6,10 +6,12 @@ FROM node:20-alpine AS builder
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files (root and workspaces)
 COPY package*.json ./
+COPY apps/widget-board/package.json ./apps/widget-board/
+COPY packages/*/package.json ./packages/*/
 
-# Install dependencies
+# Install dependencies (this will install workspace dependencies)
 RUN npm ci --legacy-peer-deps
 
 # Copy source code
