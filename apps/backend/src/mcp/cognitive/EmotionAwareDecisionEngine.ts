@@ -27,6 +27,7 @@ export interface Decision {
     emotionalFit: number;
     dataQuality: number;
     contextRelevance: number;
+    emotionalState?: EmotionalState;
 }
 
 export class EmotionAwareDecisionEngine {

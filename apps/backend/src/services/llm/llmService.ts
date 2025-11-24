@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-// DeepSeek uses OpenAI-compatible API, no separate stub needed
+import { DeepSeekAPI } from '../../utils/deepseek-stub.js'; // We might need to create this or use the sdk if available
 // import { GoogleGenerativeAI } from '@google/generative-ai'; // Using dynamic import or assuming it's available
 
 export interface ChatMessage {
