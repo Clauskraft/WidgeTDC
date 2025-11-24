@@ -162,39 +162,23 @@ export class CognitiveMemory {
         INSERT INTO mcp_source_health 
         (id, source_name, health_score, latency_p50, latency_p95, latency_p99,
          success_rate, request_count, error_count, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES ($id, $sourceName, $healthScore, $p50, $p95, $p99, $successRate, $requestCount, $errorCount, $timestamp)
       `;
 
             const id = `${metrics.sourceName}-${Date.now()}`;
 
-            if (this.db.prepare) {
-                const stmt = this.db.prepare(sql);
-                stmt.run(
-                    id,
-                    metrics.sourceName,
-                    metrics.healthScore,
-                    metrics.latency.p50,
-                    metrics.latency.p95,
-                    metrics.latency.p99,
-                    metrics.successRate,
-                    metrics.requestCount,
-                    metrics.errorCount,
-                    metrics.timestamp.toISOString()
-                );
-            } else {
-                this.db.run(sql, [
-                    id,
-                    metrics.sourceName,
-                    metrics.healthScore,
-                    metrics.latency.p50,
-                    metrics.latency.p95,
-                    metrics.latency.p99,
-                    metrics.successRate,
-                    metrics.requestCount,
-                    metrics.errorCount,
-                    metrics.timestamp.toISOString()
-                ]);
-            }
+            this.db.prepare(sql).run({
+                $id: id,
+                $sourceName: metrics.sourceName,
+                $healthScore: metrics.healthScore,
+                $p50: metrics.latency.p50,
+                $p95: metrics.latency.p95,
+                $p99: metrics.latency.p99,
+                $successRate: metrics.successRate,
+                $requestCount: metrics.requestCount,
+                $errorCount: metrics.errorCount,
+                $timestamp: metrics.timestamp.toISOString()
+            } as any);
         } catch (error) {
             console.error('Failed to record health metrics:', error);
         }
