@@ -9,7 +9,12 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@widget-tdc/mcp-types": ["../../packages/shared/mcp-types/src/index.ts"],
+      "@widget-tdc/mcp-types/*": ["../../packages/shared/mcp-types/src/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": [
