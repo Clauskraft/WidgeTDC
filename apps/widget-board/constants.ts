@@ -19,6 +19,9 @@ import StatusWidget from './widgets/StatusWidget';
 import Phase1CFastTrackKanbanWidget from './widgets/Phase1CFastTrackKanbanWidget';
 import { WidgetDefinition } from './types';
 import KanbanWidget from './widgets/KanbanWidget';
+import FeedIngestionWidget from './widgets/FeedIngestionWidget';
+import SearchInterfaceWidget from './widgets/SearchInterfaceWidget';
+import ActivityStreamWidget from './widgets/ActivityStreamWidget';
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
   {
@@ -185,6 +188,36 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     name: 'Widget Importer',
     component: WidgetImporterWidget,
     category: 'system',
+    defaultLayout: { w: 8, h: 10 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 8,
+  },
+  {
+    id: 'FeedIngestionWidget',
+    name: '🔄 Feed Ingestion',
+    component: FeedIngestionWidget,
+    category: 'cybersecurity',
+    defaultLayout: { w: 8, h: 10 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 8,
+  },
+  {
+    id: 'SearchInterfaceWidget',
+    name: '🔍 Security Search',
+    component: SearchInterfaceWidget,
+    category: 'cybersecurity',
+    defaultLayout: { w: 8, h: 10 },
+    source: 'proprietary',
+    minW: 6,
+    minH: 8,
+  },
+  {
+    id: 'ActivityStreamWidget',
+    name: '📡 Activity Stream',
+    component: ActivityStreamWidget,
+    category: 'cybersecurity',
     defaultLayout: { w: 8, h: 10 },
     source: 'proprietary',
     minW: 6,

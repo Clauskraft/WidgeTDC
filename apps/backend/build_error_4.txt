@@ -1,0 +1,68 @@
+src/database-simple.ts(1,22): error TS2307: Cannot find module 'better-sqlite3' or its corresponding type declarations.
+src/database/seeds.ts(21,9): error TS2554: Expected 1 arguments, but got 3.
+src/mcp/autonomousRouter.ts(8,36): error TS2307: Cannot find module '../memory/CognitiveMemory' or its corresponding type declarations.
+src/mcp/autonomousRouter.ts(9,58): error TS2307: Cannot find module '../autonomous/AutonomousAgent' or its corresponding type declarations.
+src/mcp/autonomousRouter.ts(10,35): error TS2307: Cannot find module '../SourceRegistry' or its corresponding type declarations.
+src/mcp/toolHandlers.ts(1,28): error TS2307: Cannot find module '../types.js' or its corresponding type declarations.
+src/routes/sys.ts(2,16): error TS2307: Cannot find module 'systeminformation' or its corresponding type declarations.
+src/services/auth/aulaOAuth.ts(4,42): error TS2307: Cannot find module '../personal/personalRepository' or its corresponding type declarations.
+src/services/auth/aulaOAuth.ts(5,26): error TS2307: Cannot find module '../../utils/audit' or its corresponding type declarations.
+src/services/evolution/codeGenerator.test.ts(3,10): error TS2305: Module '"@google/generative-ai"' has no exported member 'genAI'.
+src/services/evolution/codeGenerator.ts(2,10): error TS2305: Module '"@google/generative-ai"' has no exported member 'genAI'.
+src/services/evolution/codeGenerator.ts(3,40): error TS2307: Cannot find module '../../types' or its corresponding type declarations.
+src/services/notifications/aulaPoller.test.ts(4,10): error TS2305: Module '"@google/generative-ai"' has no exported member 'genAI'.
+src/services/notifications/aulaPoller.test.ts(5,23): error TS2307: Cannot find module '../personal/personalRepository' or its corresponding type declarations.
+src/services/notifications/aulaPoller.test.ts(32,23): error TS2339: Property 'mcpEmitter' does not exist on type 'typeof import("C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/backend/src/mcp/gateway/index")'.
+src/services/notifications/aulaPoller.test.ts(35,37): error TS2554: Expected 2 arguments, but got 3.
+src/services/notifications/aulaPoller.test.ts(37,30): error TS2339: Property 'mcpEmitter' does not exist on type 'typeof import("C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/backend/src/mcp/gateway/index")'.
+src/services/notifications/aulaPoller.test.ts(48,37): error TS2554: Expected 2 arguments, but got 3.
+src/services/notifications/aulaPoller.test.ts(50,30): error TS2339: Property 'mcpEmitter' does not exist on type 'typeof import("C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/backend/src/mcp/gateway/index")'.
+src/services/notifications/aulaPoller.test.ts(57,44): error TS2554: Expected 2 arguments, but got 3.
+src/services/notifications/aulaPoller.ts(4,10): error TS2305: Module '"@google/generative-ai"' has no exported member 'genAI'.
+src/services/notifications/aulaPoller.ts(5,42): error TS2307: Cannot find module '../personal/personalRepository' or its corresponding type declarations.
+src/services/notifications/aulaPoller.ts(6,10): error TS2305: Module '"../../mcp/gateway"' has no exported member 'mcpEmitter'.
+src/services/notifications/aulaPoller.ts(8,26): error TS2307: Cannot find module '../../utils/audit' or its corresponding type declarations.
+src/services/notifications/aulaPoller.ts(84,27): error TS2339: Property 'createDecipher' does not exist on type 'Crypto'.
+src/services/notifications/aulaPoller.ts(92,27): error TS2339: Property 'createCipher' does not exist on type 'Crypto'.
+src/services/security/openSearchClient.ts(35,52): error TS2315: Type 'ApiResponse' is not generic.
+src/services/security/securityController.ts(48,47): error TS2345: Argument of type '{ query?: string; severity?: string; timeframe?: string; sources?: string[]; }' is not assignable to parameter of type 'SearchParams'.
+  Property 'query' is optional in type '{ query?: string; severity?: string; timeframe?: string; sources?: string[]; }' but required in type 'SearchParams'.
+src/services/security/securityRepository.ts(47,14): error TS2558: Expected 0 type arguments, but got 2.
+src/services/security/securityRepository.ts(105,14): error TS2558: Expected 0 type arguments, but got 2.
+src/services/security/securityRepository.ts(189,14): error TS2558: Expected 0 type arguments, but got 2.
+src/services/security/securityRepository.ts(229,14): error TS2339: Property 'changes' does not exist on type '{ lastInsertRowid: number | bigint; }'.
+src/services/security/securityRepository.ts(234,14): error TS2558: Expected 0 type arguments, but got 2.
+src/services/security/securityRepository.ts(266,26): error TS2339: Property 'all' does not exist on type 'Database'.
+src/services/security/securityRepository.ts(275,18): error TS2339: Property 'get' does not exist on type 'Database'.
+src/services/security/securityRepository.ts(285,25): error TS2339: Property 'get' does not exist on type 'Database'.
+src/services/security/securityRepository.ts(299,5): error TS2554: Expected 1 arguments, but got 2.
+src/services/security/securityRepository.ts(308,5): error TS2554: Expected 1 arguments, but got 2.
+src/services/security/securityService.ts(33,5): error TS2353: Object literal may only specify known properties, and 'lastUpdate' does not exist in type 'SecurityFeed'.
+src/services/security/securityService.ts(89,57): error TS2339: Property 'buckets' does not exist on type 'Aggregate'.
+  Property 'buckets' does not exist on type 'CardinalityAggregate'.
+src/services/security/securityService.ts(90,63): error TS2339: Property 'buckets' does not exist on type 'Aggregate'.
+  Property 'buckets' does not exist on type 'CardinalityAggregate'.
+src/services/security/securityService.ts(91,59): error TS2339: Property 'buckets' does not exist on type 'Aggregate'.
+  Property 'buckets' does not exist on type 'CardinalityAggregate'.
+src/services/security/securityService.ts(131,5): error TS2322: Type '{ id: any; title: any; description: any; source: any; url: any; severity: ThreatLevel; score: any; ingestedAt: any; }[]' is not assignable to type 'SecuritySearchResult[]'.
+  Type '{ id: any; title: any; description: any; source: any; url: any; severity: ThreatLevel; score: any; ingestedAt: any; }' is missing the following properties from type 'SecuritySearchResult': summary, timestamp, tags
+src/services/security/securityService.ts(195,39): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(params?: Search_Request, options?: TransportRequestOptions): TransportRequestPromise<Search_Response>', gave the following error.
+    Type '{ ingestedAt: { order: string; }; }' is not assignable to type 'string'.
+  Overload 2 of 4, '(callback: callbackFn<Search_Response>): TransportRequestCallback', gave the following error.
+    Object literal may only specify known properties, and 'index' does not exist in type 'callbackFn<Search_Response>'.
+src/services/security/securityService.ts(239,94): error TS2551: Property 'value' does not exist on type 'number | TotalHits'. Did you mean 'valueOf'?
+  Property 'value' does not exist on type 'number'.
+src/services/security/securityService.ts(362,35): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(params?: Search_Request, options?: TransportRequestOptions): TransportRequestPromise<Search_Response>', gave the following error.
+    Type '{ ingestedAt: { order: string; }; }' is not assignable to type 'string'.
+  Overload 2 of 4, '(callback: callbackFn<Search_Response>): TransportRequestCallback', gave the following error.
+    Object literal may only specify known properties, and 'index' does not exist in type 'callbackFn<Search_Response>'.
+src/services/security/securityService.ts(370,78): error TS2551: Property 'value' does not exist on type 'number | TotalHits'. Did you mean 'valueOf'?
+  Property 'value' does not exist on type 'number'.
+src/services/security/securityService.ts(371,7): error TS2322: Type '{ id: string; title: string; summary: string; source: string; severity: ThreatLevel; timestamp: any; tags: string[]; score: string | number; }[]' is not assignable to type 'SecuritySearchResult[]'.
+  Type '{ id: string; title: string; summary: string; source: string; severity: ThreatLevel; timestamp: any; tags: string[]; score: string | number; }' is not assignable to type 'SecuritySearchResult'.
+    Types of property 'score' are incompatible.
+      Type 'string | number' is not assignable to type 'number'.
+        Type 'string' is not assignable to type 'number'.
+src/services/srag/sragController.ts(109,24): error TS2304: Cannot find name 'query'.

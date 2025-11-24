@@ -97,6 +97,23 @@ export class AgentOrchestratorServer implements MCPServer {
         'security-compliance': 'agent-block-6-security.yml',
     };
 
+    private broadcastCallback?: (message: any) => void;
+
+    public setBroadcaster(callback: (message: any) => void) {
+        this.broadcastCallback = callback;
+    }
+
+    private broadcastStatusUpdate() {
+        if (this.broadcastCallback) {
+            const statuses = Array.from(this.agentStatuses.values());
+            this.broadcastCallback({
+                type: 'resource_updated',
+                uri: 'agents://status',
+                content: statuses
+            });
+        }
+    }
+
     private async triggerAgent(agentId: string) {
         if (!this.agentStatuses.has(agentId)) {
             throw new Error(`Agent ${agentId} not found`);
@@ -104,6 +121,7 @@ export class AgentOrchestratorServer implements MCPServer {
 
         const currentStatus = this.agentStatuses.get(agentId)!;
         this.agentStatuses.set(agentId, { ...currentStatus, status: 'running', lastRun: new Date().toISOString() });
+        this.broadcastStatusUpdate();
 
         console.log(`[ORCHESTRATOR] 🚀 Starting Agent: ${currentStatus.name} (Block ${currentStatus.block_number})`);
 
@@ -137,6 +155,7 @@ export class AgentOrchestratorServer implements MCPServer {
         setTimeout(() => {
             console.log(`[ORCHESTRATOR] ✅ Agent Finished (Local Simulation): ${currentStatus.name}`);
             this.agentStatuses.set(agentId, { ...currentStatus, status: 'completed', lastRun: new Date().toISOString() });
+            this.broadcastStatusUpdate();
 
             // Trigger cascade
             this.checkAndTriggerDependents(agentId);
@@ -246,6 +265,7 @@ export class AgentOrchestratorServer implements MCPServer {
             if (this.agentStatuses.has(agentId)) {
                 const current = this.agentStatuses.get(agentId)!;
                 this.agentStatuses.set(agentId, { ...current, status, lastRun: new Date().toISOString() });
+                this.broadcastStatusUpdate();
 
                 // If manually completed, check cascade
                 if (status === 'completed') {

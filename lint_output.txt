@@ -1,0 +1,1610 @@
+
+> widget-tdc-monorepo@1.0.0 lint
+> eslint . --ext .ts,.tsx,.js,.jsx
+
+(node:43352) ESLintIgnoreWarning: The ".eslintignore" file is no longer supported. Switch to using the "ignores" property in "eslint.config.js": https://eslint.org/docs/latest/use/configure/migration-guide#ignoring-files
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43352) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/claus/Projects/WidgeTDC/WidgeTDC/eslint.config.js?mtime=1763813496938 is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\claus\Projects\WidgeTDC\WidgeTDC\package.json.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\database\index.ts
+  12:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\index.ts
+   85:34  error    'getCognitiveMemory' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   95:11  error    'memory' is assigned a value but never used              @typescript-eslint/no-unused-vars
+  108:48  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  110:44  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  115:40  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\autonomousRouter.ts
+   69:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   89:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  149:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  190:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\autonomous\AutonomousAgent.ts
+   17:14  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+   24:11  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+   40:42  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+   92:58  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+   94:15  error    'queryId' is assigned a value but never used                                     @typescript-eslint/no-unused-vars
+  110:23  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+  157:29  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+  287:9   error    'allCandidates' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  290:19  error    'sql' is assigned a value but never used                                         @typescript-eslint/no-unused-vars
+  296:19  error    'id' is assigned a value but never used                                          @typescript-eslint/no-unused-vars
+  297:19  error    'intent' is assigned a value but never used                                      @typescript-eslint/no-unused-vars
+  314:34  warning  Unexpected any. Specify a different type                                         @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\autonomous\DecisionEngine.ts
+   14:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   26:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   26:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   69:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  349:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\autonomous\SelfHealingAdapter.ts
+   24:38  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+   24:52  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+   68:44  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+   68:58  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+   98:25  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  128:25  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  143:16  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  145:17  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  146:16  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  180:17  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  182:16  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  193:18  error    'error' is defined but never used                                            @typescript-eslint/no-unused-vars
+  210:45  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  218:45  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  241:22  error    'error' is defined but never used                                            @typescript-eslint/no-unused-vars
+  241:29  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  289:60  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  289:74  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  308:25  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  325:52  error    'params' is defined but never used. Allowed unused args must match /^_/u     @typescript-eslint/no-unused-vars
+  325:60  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  325:66  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  329:40  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  342:33  error    'latencyMs' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  342:52  error    'success' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+  385:37  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+  390:38  warning  Unexpected any. Specify a different type                                     @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\gateway\index.ts
+  17:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  30:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\mcpRegistry.ts
+   3:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   3:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  46:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\mcpRouter.ts
+  36:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  70:14  error    'e' is defined but never used             @typescript-eslint/no-unused-vars
+  74:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\mcpWebsocketServer.ts
+  54:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  89:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\memory\CognitiveMemory.ts
+    8:25  error    'QueryPattern' is defined but never used  @typescript-eslint/no-unused-vars
+   35:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   37:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   88:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  107:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  211:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  332:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\memory\FailureMemory.ts
+   17:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   18:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   33:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   35:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   45:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  234:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  234:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  235:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  295:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  310:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  310:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  326:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  326:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\memory\PatternMemory.ts
+   46:17  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   48:27  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   58:22  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   98:22  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  236:63  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  251:37  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  251:43  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  255:17  error    'timestamp' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  255:28  error    'requestId' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  258:23  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  313:54  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  313:70  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  331:49  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  331:65  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\servers\AgentOrchestratorServer.ts
+   34:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   38:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  100:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  102:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  133:34  error    A `require()` style import is forbidden   @typescript-eslint/no-require-imports
+  134:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  236:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  236:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\mcp\toolHandlers.ts
+   17:50  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   17:82  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   58:49  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   58:81  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   73:54  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   73:85  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   97:57  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   97:88  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  127:49  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  127:80  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  185:55  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  185:60  error    'ctx' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  185:86  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  215:58  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  215:63  error    'ctx' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  215:89  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  232:63  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  232:68  error    'ctx' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  232:94  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  275:44  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  284:59  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  284:90  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  285:18  error    'documentIds' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+  339:48  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  339:79  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  368:54  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  368:85  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  370:7   error    'profile' is never reassigned. Use 'const' instead                     prefer-const
+  378:55  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  393:53  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  430:59  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  430:90  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  477:59  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  477:90  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  541:49  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  541:80  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  574:51  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  574:82  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  602:51  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  602:82  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  609:18  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  627:51  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  627:82  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  642:48  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  642:79  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\middleware\inputValidation.ts
+   74:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   74:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   90:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  113:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  177:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  230:16  error    'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\agent\agentController.ts
+  31:43  error  The `{}` ("empty object") type allows any non-nullish value, including literals like `0` and `""`.
+- If that's what you want, disable this lint rule with an inline comment or configure the 'allowObjectTypes' rule option.
+- If you want a type meaning "any object", you probably want `object` instead.
+- If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
+  31:47  error  The `{}` ("empty object") type allows any non-nullish value, including literals like `0` and `""`.
+- If that's what you want, disable this lint rule with an inline comment or configure the 'allowObjectTypes' rule option.
+- If you want a type meaning "any object", you probably want `object` instead.
+- If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\auth\aulaOAuth.ts
+  43:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  43:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\evolution\codeGenerator.ts
+   3:10  error  'EvolutionPromptVersion' is defined but never used  @typescript-eslint/no-unused-vars
+  15:7   error  'code' is never reassigned. Use 'const' instead     prefer-const
+  29:9   error  'refinePrompt' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\evolution\evolutionController.ts
+   39:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   70:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   96:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  124:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\evolution\evolutionRepository.ts
+  11:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  60:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  68:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  92:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\memory\memoryController.ts
+   10:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   12:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   16:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   55:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  133:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  153:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\memory\memoryRepository.ts
+   19:28  error    'index' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+   77:45  warning  Unexpected any. Specify a different type                                 @typescript-eslint/no-explicit-any
+   84:19  warning  Unexpected any. Specify a different type                                 @typescript-eslint/no-explicit-any
+   97:21  warning  Unexpected any. Specify a different type                                 @typescript-eslint/no-explicit-any
+  159:30  warning  Unexpected any. Specify a different type                                 @typescript-eslint/no-explicit-any
+  170:27  warning  Unexpected any. Specify a different type                                 @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\network\networkController.ts
+    5:8   error    'axios' is defined but never used                                         @typescript-eslint/no-unused-vars
+   82:61  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+   85:78  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  167:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  228:97  error    'stderr' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  239:33  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  240:30  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  247:22  error    'parseError' is defined but never used                                    @typescript-eslint/no-unused-vars
+  251:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  267:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  282:97  error    'stderr' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  292:22  error    'parseError' is defined but never used                                    @typescript-eslint/no-unused-vars
+  296:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  311:57  error    'err' is defined but never used. Allowed unused args must match /^_/u     @typescript-eslint/no-unused-vars
+  311:62  error    'stdout' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  311:70  error    'stderr' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  313:19  error    'hostsBlock' is assigned a value but never used                           @typescript-eslint/no-unused-vars
+  335:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  347:97  error    'stderr' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  358:72  warning  Unexpected any. Specify a different type                                  @typescript-eslint/no-explicit-any
+  381:30  error    'statsError' is defined but never used                                    @typescript-eslint/no-unused-vars
+  397:22  error    'parseError' is defined but never used                                    @typescript-eslint/no-unused-vars
+  401:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  417:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  433:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  449:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  484:18  error    'e' is defined but never used                                             @typescript-eslint/no-unused-vars
+  710:79  error    'stderr' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  753:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  773:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+  790:14  error    'error' is defined but never used                                         @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\notes\notesRepository.ts
+    1:10  error    'Database' is defined but never used      @typescript-eslint/no-unused-vars
+   83:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  115:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  143:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  145:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  146:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  147:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  148:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  149:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  151:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  153:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  154:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  155:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\notifications\aulaPoller.test.ts
+  24:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  45:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\pal\palController.ts
+   25:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   63:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   80:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   94:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  193:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\pal\palRepository.ts
+    8:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   33:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   66:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   74:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   89:90  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   97:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:86  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\sc\scController.ts
+  156:11  error  'totalIssues' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  191:11  error  'fileContent' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  200:14  error  'e' is defined but never used                            @typescript-eslint/no-unused-vars
+  284:11  error  'allRecommendations' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  285:11  error  'allConcerns' is assigned a value but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\security\securityController.ts
+  118:12  error  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+  130:12  error  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+  141:12  error  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+  152:12  error  '_error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\security\securityRepository.ts
+  264:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\security\securityService.ts
+   26:10  error    'Client' is defined but never used                @typescript-eslint/no-unused-vars
+   90:11  error    'pipelineAgg' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   91:11  error    'statusAgg' is assigned a value but never used    @typescript-eslint/no-unused-vars
+   97:42  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  131:27  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  224:56  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  333:17  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  350:19  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  372:54  warning  Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\srag\sragController.ts
+  125:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  163:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\src\services\srag\sragRepository.ts
+  31:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  50:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  65:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  77:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend\test-code.js
+   9:10  error    'displayUserName' is defined but never used  @typescript-eslint/no-unused-vars
+  13:7   error    'data' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  13:13  warning  Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\WidgeTDC_Pro.tsx
+  29:42  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+  34:12  error    'logs' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  34:18  error    'setLogs' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+  43:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\WidgeTDC_Pro.tsx:43:9
+  41 |     // Sync layout with widgets
+  42 |     useEffect(() => {
+> 43 |         setLayout(prevLayout => {
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |             const currentWidgetIds = new Set(widgets.map(w => w.id));
+  45 |
+  46 |             // 1. Keep existing layout items for active widgets  react-hooks/set-state-in-effect
+  47:17  error    'newLayout' is never reassigned. Use 'const' instead                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      prefer-const
+  78:40  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\AcrylicCard.tsx
+  8:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\DashboardShell.tsx
+  105:9  warning  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  198:5  warning  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+  201:5  warning  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\DataWeaverWizard.tsx
+    3:141  error    'Loader' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   33:50   warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   43:22   error    'error' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   94:48   error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\DataWeaverWizard.tsx:94:48
+  92 |     const handleCreateWidget = () => {
+  93 |         try {
+> 94 |             const newWidgetId = `data-weaver-${Date.now()}`;
+     |                                                ^^^^^^^^^^ Cannot call impure function
+  95 |
+  96 |             registerWidget({
+  97 |                 id: newWidgetId,  react-hooks/purity
+  107:18   error    'e' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\GenericDataWidget.tsx
+   5:12  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  24:13  error    Unexpected lexical declaration in case block  no-case-declarations
+  32:52  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  47:45  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\MCPEventBus.ts
+   1:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\MCPTypes.ts
+  15:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  28:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\NotificationManager.tsx
+  26:13  warning  Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\QuickToggle.tsx
+  4:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\SettingsPanel.tsx
+  23:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:14  error    'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\TaskBacklogModal.tsx
+  40:6   warning  React Hook useEffect has a missing dependency: 'loadTasks'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  85:55  warning  Unexpected any. Specify a different type                                                                      @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\WidgetConfigModal.tsx
+  18:3   error    'widgetId' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  26:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\WidgetConfigModal.tsx:26:5
+  24 |
+  25 |   useEffect(() => {
+> 26 |     setConfig(initialConfig);
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |   }, [initialConfig, isOpen]);
+  28 |
+  29 |   const handleSave = () => {  react-hooks/set-state-in-effect
+  34:50  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\WidgetContainer.tsx
+  90:9  error  'isDark' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\WidgetSelector.tsx
+    2:13  error    'Plus' is defined but never used          @typescript-eslint/no-unused-vars
+    5:8   error    'AcrylicCard' is defined but never used   @typescript-eslint/no-unused-vars
+   74:91  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  156:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  194:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\components\useMcpEvent.ts
+  13:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\constants.ts
+  21:8  error  'KanbanWidget' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\contexts\PermissionContext.tsx
+   6:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  13:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\contexts\WidgetRegistryContext.tsx
+   77:7   error    'versionToString' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+   89:50  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+   95:54  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-explicit-any
+  141:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\contexts\WidgetRegistryContext.tsx:141:9
+  139 |         const customWidgets: WidgetDefinition[] = JSON.parse(savedWidgetsJSON);
+  140 |
+> 141 |         setEntries(prev => {
+      |         ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  142 |           const updated = new Map<string, WidgetRegistryEntry>(prev);
+  143 |           customWidgets.forEach(widgetDef => {
+  144 |             // Re-hydrate the widget with its component and register it  react-hooks/set-state-in-effect
+  154:6   warning  React Hook useEffect has a missing dependency: 'widgetModules'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 react-hooks/exhaustive-deps
+  193:19  error    'component' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\mcp\MCPTypes.ts
+   8:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  15:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  29:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\components\AdminDashboard.tsx
+  62:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\components\AdminDashboard.tsx:62:9
+  60 |
+  61 |     useEffect(() => {
+> 62 |         fetchData();
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  63 |
+  64 |         // Auto-refresh every 5 seconds
+  65 |         const interval = setInterval(fetchData, 5000);  react-hooks/set-state-in-effect
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\components\AgentChatWidget.tsx
+  10:67  error  'id' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  73:14  error  Unknown property 'jsx' found                                          react/no-unknown-property
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\components\AuditLog\AuditViewer.tsx
+  23:16  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\components\AuditLog\AuditViewer.tsx:23:16
+  21 | export const AuditViewer: React.FC<{ events: AuditEvent[] }> = ({ events }) => {
+  22 |   const [filters, setFilters] = useState<FilterOptions>({
+> 23 |     startDate: Date.now() - 30 * 24 * 60 * 60 * 1000,
+     |                ^^^^^^^^^^ Cannot call impure function
+  24 |     endDate: Date.now(),
+  25 |     eventTypes: [],
+  26 |     userId: undefined,  react-hooks/purity
+  24:14  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\components\AuditLog\AuditViewer.tsx:24:14
+  22 |   const [filters, setFilters] = useState<FilterOptions>({
+  23 |     startDate: Date.now() - 30 * 24 * 60 * 60 * 1000,
+> 24 |     endDate: Date.now(),
+     |              ^^^^^^^^^^ Cannot call impure function
+  25 |     eventTypes: [],
+  26 |     userId: undefined,
+  27 |   });                                                                               react-hooks/purity
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\contexts\MCPContext.tsx
+  185:6  warning  React Hook useEffect has a missing dependency: 'disconnect'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\hooks\__tests__\useMCP.test.ts
+  31:7   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-dynamic-delete')
+  32:29  warning  Unexpected any. Specify a different type                                                                 @typescript-eslint/no-explicit-any
+  51:50  warning  Unexpected any. Specify a different type                                                                 @typescript-eslint/no-explicit-any
+  67:19  warning  Unexpected any. Specify a different type                                                                 @typescript-eslint/no-explicit-any
+  77:50  warning  Unexpected any. Specify a different type                                                                 @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\hooks\useAuditLog.ts
+  22:6  warning  React Hook useEffect has a missing dependency: 'fetchAuditLog'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\hooks\useMCP.ts
+   8:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\hooks\useMcpEvent.ts
+   8:9   warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+  25:18  warning  React Hook useEffect has a spread element in its dependency array. This means we can't statically verify whether you've passed the correct dependencies  react-hooks/exhaustive-deps
+  30:9   warning  Unexpected any. Specify a different type                                                                                                                 @typescript-eslint/no-explicit-any
+  46:7   warning  React Hook useEffect has a spread element in its dependency array. This means we can't statically verify whether you've passed the correct dependencies  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\hooks\useWidgetLayout.ts
+  13:10  error  'savedLayouts' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\services\AgentService.ts
+   1:10  error    'PlatformServices' is defined but never used     @typescript-eslint/no-unused-vars
+   6:37  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  51:42  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  52:15  error    'wsProtocol' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\services\AuditLogService.ts
+  2:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  8:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\services\FeedIngestionService.ts
+  4:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\services\SecurityOverwatchService.ts
+  12:57   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:106  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:28   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:129  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:145  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\services\UnifiedDataService.ts
+   11:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   16:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   26:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   36:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   45:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   48:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  110:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  202:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  237:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\stores\widgetStore.ts
+  15:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\utils\ModelSelector.tsx
+   8:37  error  'getModelsByProvider' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+  54:5   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\utils\ModelSelector.tsx:54:5
+  52 |   useEffect(() => {
+  53 |     const provider = getLLMProvider();
+> 54 |     setConfiguredProviders(provider.getConfiguredProviders());
+     |     ^^^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  55 |   }, []);
+  56 |
+  57 |   // Filter models  react-hooks/set-state-in-effect
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\utils\deepseek-integration.tsx
+  284:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\utils\deepseek-stub.ts
+  9:28  error    'options' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  9:37  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\utils\llm-provider.ts
+    8:15  error  'LLMModel' is defined but never used                                       @typescript-eslint/no-unused-vars
+  120:32  error  'options' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  132:35  error  'options' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  144:32  error  'options' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\utils\performanceOptimization.ts
+   14:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  111:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  129:14  error    'e' is defined but never used             @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\utils\securityApi.ts
+  52:42  error    'orgId' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  62:50  error    'data' is defined but never used. Allowed unused args must match /^_/u   @typescript-eslint/no-unused-vars
+  62:56  warning  Unexpected any. Specify a different type                                 @typescript-eslint/no-explicit-any
+  70:11  error    'response' is assigned a value but never used                            @typescript-eslint/no-unused-vars
+  73:12  error    'e' is defined but never used                                            @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\widgets\ActivityStreamWidget.tsx
+  27:9   error    Error: Cannot access variable before it is declared
+
+`loadInitialEvents` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\widgets\ActivityStreamWidget.tsx:27:9
+  25 |
+  26 |     useEffect(() => {
+> 27 |         loadInitialEvents();
+     |         ^^^^^^^^^^^^^^^^^ `loadInitialEvents` accessed before it is declared
+  28 |
+  29 |         // Set up SSE connection for real-time updates
+  30 |         if (!paused) {
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\widgets\ActivityStreamWidget.tsx:41:5
+  39 |     }, [paused, severityFilter, categoryFilter]);
+  40 |
+> 41 |     const loadInitialEvents = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 42 |         try {
+     | ^^^^^^^^^^^^^
+> 43 |             const data = await securityOverwatch.getActivities({
+     …
+     | ^^^^^^^^^^^^^
+> 51 |         }
+     | ^^^^^^^^^^^^^
+> 52 |     };
+     | ^^^^^^^ `loadInitialEvents` is declared here
+  53 |
+  54 |     const connectToStream = () => {
+  55 |         if (eventSourceRef.current) {                            react-hooks/immutability
+  31:13  error    Error: Cannot access variable before it is declared
+
+`connectToStream` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\widgets\ActivityStreamWidget.tsx:31:13
+  29 |         // Set up SSE connection for real-time updates
+  30 |         if (!paused) {
+> 31 |             connectToStream();
+     |             ^^^^^^^^^^^^^^^ `connectToStream` accessed before it is declared
+  32 |         }
+  33 |
+  34 |         return () => {
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\widgets\ActivityStreamWidget.tsx:54:5
+  52 |     };
+  53 |
+> 54 |     const connectToStream = () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 55 |         if (eventSourceRef.current) {
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 56 |             eventSourceRef.current.close();
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 68 |         );
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 69 |     };
+     | ^^^^^^^ `connectToStream` is declared here
+  70 |
+  71 |     const handleAcknowledge = async (eventId: string) => {
+  72 |         try {  react-hooks/immutability
+  39:8   warning  React Hook useEffect has missing dependencies: 'connectToStream' and 'loadInitialEvents'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\widgets\FeedIngestionWidget.tsx
+   3:38  error    'AlertTriangle' is defined but never used                                                                     @typescript-eslint/no-unused-vars
+  25:8   warning  React Hook useEffect has a missing dependency: 'loadFeeds'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\src\widgets\SearchInterfaceWidget.tsx
+  3:18  error  'AlertCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\tests\widget-features.spec.ts
+  152:11  error  'initialBg' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\types.ts
+    1:15  error    'Layout' is defined but never used        @typescript-eslint/no-unused-vars
+   24:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   79:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\types\dashboard.ts
+  2:15  error  'Layout' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\utils\request.ts
+  2:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  4:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  5:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  9:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\utils\securityApi.ts
+  19:10   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:19   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  21:24   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:12   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:12   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:14   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  35:12   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  55:13   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  62:125  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  72:92   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\vitest.setup.ts
+  2:10  error  'expect' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\ActivityStreamWidget.tsx
+  126:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\ActivityStreamWidget.tsx:126:7
+  124 |         eventSourceRef.current = null;
+  125 |       }
+> 126 |       setIsStreamConnected(false);
+      |       ^^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  127 |       return;
+  128 |     }
+  129 |  react-hooks/set-state-in-effect
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\AgentChatWidget.tsx
+   75:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   83:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  108:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  125:21  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\AgentStatusDashboardWidget.tsx
+  2:72  error  'Settings' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\AgentTeamBuilderWidget.tsx
+  48:9  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\AgentTeamBuilderWidget.tsx:48:9
+  46 |             });
+  47 |         }
+> 48 |         setGroups(generatedGroups);
+     |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  49 |     }, []);
+  50 |
+  51 |     return (  react-hooks/set-state-in-effect
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\AiPalWidget.tsx
+  307:69  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\AudioTranscriberWidget.tsx
+  1:35  error  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\CmaDecisionWidget.tsx
+  49:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\CodeAnalysisWidget.tsx
+  2:60  error  'XCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\DarkWebMonitorWidget.tsx
+  72:12  error  'err' is defined but never used                 @typescript-eslint/no-unused-vars
+  84:9   error  'hasAccess' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\EvolutionAgentWidget.tsx
+  67:51  warning  Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  80:19  warning  Unexpected any. Specify a different type                                                                          @typescript-eslint/no-explicit-any
+  89:6   warning  React Hook useEffect has a missing dependency: 'loadAgentData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\FeedIngestionWidget.tsx
+  301:6  warning  React Hook useMemo has a missing dependency: 'feeds'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\IntelligentNotesWidget.tsx
+  225:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\KanbanWidget.tsx
+  26:57  error    'widgetId' is defined but never used. Allowed unused args must match /^_/u                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  36:14  error    'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  43:5   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\KanbanWidget.tsx:43:5
+  41 |
+  42 |   useEffect(() => {
+> 43 |     refreshKanban();
+     |     ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  44 |   }, []);
+  45 |
+  46 |   useEffect(() => {  react-hooks/set-state-in-effect
+  44:6   warning  React Hook useEffect has a missing dependency: 'refreshKanban'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react-hooks/exhaustive-deps
+  49:6   warning  React Hook useEffect has a missing dependency: 'refreshKanban'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\LiveConversationWidget.tsx
+   47:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  105:80  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  106:81  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\LocalScanWidget.tsx
+   6:23  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   7:24  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   8:30  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+   9:34  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  10:34  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  11:33  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  12:36  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  13:45  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  14:39  warning  Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  34:26  error    'isLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\MCPConnectorWidget.tsx
+  2:39  error  'FormField' is defined but never used           @typescript-eslint/no-unused-vars
+  2:68  error  'DataSourceCategory' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\MCPEmailRAGWidget.tsx
+  33:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\MCPEmailRAGWidget.tsx:33:5
+  31 |   useEffect(() => {
+  32 |     // I en rigtig app ville dette være et API-kald via MCP
+> 33 |     setEmails(MOCK_EMAILS);
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  34 |   }, []);
+  35 |
+  36 |   const analyzeEmail = async (email: Email) => {  react-hooks/set-state-in-effect
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\McpRouterWidget.tsx
+   5:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  81:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\NexusTerminalWidget.tsx
+    5:40  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+    9:13  error    'url' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+   38:47  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+   70:63  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  122:52  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+  163:16  error    'error' is defined but never used                                      @typescript-eslint/no-unused-vars
+  222:21  warning  Unexpected any. Specify a different type                               @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PerformanceMonitorWidget.tsx
+  63:18  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PerformanceMonitorWidget.tsx:63:18
+  61 |             </div>
+  62 |             <div className="grid grid-cols-3 gap-4">
+> 63 |                 <MetricDisplay label="CPU" value={currentMetrics.cpu_percent} unit="%" />
+     |                  ^^^^^^^^^^^^^ This component is created during render
+  64 |                 <MetricDisplay label="Hukommelse" value={currentMetrics.memory_percent} unit="%" />
+  65 |                 <MetricDisplay label="Svar tid" value={currentMetrics.api_response_time} unit="ms" />
+  66 |             </div>
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PerformanceMonitorWidget.tsx:48:84
+  46 |   };
+  47 |
+> 48 |   const MetricDisplay: React.FC<{ label: string; value: number; unit: string; }> = ({label, value, unit}) => (
+     |                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 49 |       <div className="text-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 50 |           <div className="text-2xl font-bold">{value.toFixed(1)}{unit}</div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 51 |           <div className="text-sm text-gray-500 dark:text-gray-400">{label}</div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 52 |       </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 53 |   );
+     | ^^^^ The component is created during render here
+  54 |
+  55 |   return (
+  56 |     <div className="h-full flex flex-col -m-4">                                                                                            react-hooks/static-components
+  64:18  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PerformanceMonitorWidget.tsx:64:18
+  62 |             <div className="grid grid-cols-3 gap-4">
+  63 |                 <MetricDisplay label="CPU" value={currentMetrics.cpu_percent} unit="%" />
+> 64 |                 <MetricDisplay label="Hukommelse" value={currentMetrics.memory_percent} unit="%" />
+     |                  ^^^^^^^^^^^^^ This component is created during render
+  65 |                 <MetricDisplay label="Svar tid" value={currentMetrics.api_response_time} unit="ms" />
+  66 |             </div>
+  67 |             <div className="h-20 rounded-lg p-2 flex items-end gap-0.5 bg-gray-100 dark:bg-gray-700">
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PerformanceMonitorWidget.tsx:48:84
+  46 |   };
+  47 |
+> 48 |   const MetricDisplay: React.FC<{ label: string; value: number; unit: string; }> = ({label, value, unit}) => (
+     |                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 49 |       <div className="text-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 50 |           <div className="text-2xl font-bold">{value.toFixed(1)}{unit}</div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 51 |           <div className="text-sm text-gray-500 dark:text-gray-400">{label}</div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 52 |       </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 53 |   );
+     | ^^^^ The component is created during render here
+  54 |
+  55 |   return (
+  56 |     <div className="h-full flex flex-col -m-4">         react-hooks/static-components
+  65:18  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PerformanceMonitorWidget.tsx:65:18
+  63 |                 <MetricDisplay label="CPU" value={currentMetrics.cpu_percent} unit="%" />
+  64 |                 <MetricDisplay label="Hukommelse" value={currentMetrics.memory_percent} unit="%" />
+> 65 |                 <MetricDisplay label="Svar tid" value={currentMetrics.api_response_time} unit="ms" />
+     |                  ^^^^^^^^^^^^^ This component is created during render
+  66 |             </div>
+  67 |             <div className="h-20 rounded-lg p-2 flex items-end gap-0.5 bg-gray-100 dark:bg-gray-700">
+  68 |                 {Array.from({ length: 60 }).map((_, i) => {
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PerformanceMonitorWidget.tsx:48:84
+  46 |   };
+  47 |
+> 48 |   const MetricDisplay: React.FC<{ label: string; value: number; unit: string; }> = ({label, value, unit}) => (
+     |                                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 49 |       <div className="text-center p-3 rounded-lg bg-gray-100 dark:bg-gray-700">
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 50 |           <div className="text-2xl font-bold">{value.toFixed(1)}{unit}</div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 51 |           <div className="text-sm text-gray-500 dark:text-gray-400">{label}</div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 52 |       </div>
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 53 |   );
+     | ^^^^ The component is created during render here
+  54 |
+  55 |   return (
+  56 |     <div className="h-full flex flex-col -m-4">  react-hooks/static-components
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PersonaCoordinatorWidget.tsx
+  56:10  error  'selectedFile' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\Phase1CFastTrackKanbanWidget.tsx
+  64:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\Phase1CFastTrackKanbanWidget.tsx:64:5
+  62 |       .filter(task => task.status === 'complete')
+  63 |       .reduce((sum, task) => sum + task.days, 0);
+> 64 |     setCompletedDays(completed);
+     |     ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  65 |   }, [tasks]);
+  66 |
+  67 |   const statuses = ['scheduled', 'executing', 'blocked', 'complete'] as const;  react-hooks/set-state-in-effect
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PromptLibraryWidget.tsx
+  18:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\PromptLibraryWidget.tsx:18:5
+  16 |   useEffect(() => {
+  17 |     // In a real app, this would be a fetch call
+> 18 |     setPrompts(MOCK_PROMPTS);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  19 |   }, []);
+  20 |
+  21 |   const copyToClipboard = (text: string, promptId: string) => {  react-hooks/set-state-in-effect
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\SearchInterfaceWidget.tsx
+  251:6  warning  React Hook useCallback has a missing dependency: 'results.length'. Either include it or remove the dependency array. You can also replace multiple useState variables with useReducer if 'setHistory' needs the current value of 'results.length'  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\SragGovernanceWidget.tsx
+    5:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx
+  38:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:38:12
+  36 |         
+  37 |         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-1">
+> 38 |           <StatusItem 
+     |            ^^^^^^^^^^ This component is created during render
+  39 |             label="Application" 
+  40 |             value="WidgetBoard" 
+  41 |             status="success" 
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:10:116
+   8 |   const { state } = useGlobalState();
+   9 |
+> 10 |   const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
+     |                                                                                                                    ^^^
+> 11 |     label, 
+     | ^^^^^^^^^^^
+> 12 |     value, 
+     …
+     | ^^^^^^^^^^^
+> 26 |     );
+     | ^^^^^^^^^^^
+> 27 |   };
+     | ^^^^ The component is created during render here
+  28 |
+  29 |   return (
+  30 |     <div className="h-full flex flex-col -m-4">                                         react-hooks/static-components
+  43:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:43:12
+  41 |             status="success" 
+  42 |           />
+> 43 |           <StatusItem 
+     |            ^^^^^^^^^^ This component is created during render
+  44 |             label="Version" 
+  45 |             value="0.0.0" 
+  46 |             status="info" 
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:10:116
+   8 |   const { state } = useGlobalState();
+   9 |
+> 10 |   const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
+     |                                                                                                                    ^^^
+> 11 |     label, 
+     | ^^^^^^^^^^^
+> 12 |     value, 
+     …
+     | ^^^^^^^^^^^
+> 26 |     );
+     | ^^^^^^^^^^^
+> 27 |   };
+     | ^^^^ The component is created during render here
+  28 |
+  29 |   return (
+  30 |     <div className="h-full flex flex-col -m-4">                                                                                                   react-hooks/static-components
+  48:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:48:12
+  46 |             status="info" 
+  47 |           />
+> 48 |           <StatusItem 
+     |            ^^^^^^^^^^ This component is created during render
+  49 |             label="Theme" 
+  50 |             value={state.theme === 'dark' ? 'Mørk' : 'Lys'} 
+  51 |             status="info" 
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:10:116
+   8 |   const { state } = useGlobalState();
+   9 |
+> 10 |   const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
+     |                                                                                                                    ^^^
+> 11 |     label, 
+     | ^^^^^^^^^^^
+> 12 |     value, 
+     …
+     | ^^^^^^^^^^^
+> 26 |     );
+     | ^^^^^^^^^^^
+> 27 |   };
+     | ^^^^ The component is created during render here
+  28 |
+  29 |   return (
+  30 |     <div className="h-full flex flex-col -m-4">                                                                      react-hooks/static-components
+  53:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:53:12
+  51 |             status="info" 
+  52 |           />
+> 53 |           <StatusItem 
+     |            ^^^^^^^^^^ This component is created during render
+  54 |             label="Tilgængelige widgets" 
+  55 |             value={availableWidgets.length} 
+  56 |             status={availableWidgets.length > 0 ? 'success' : 'warning'} 
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:10:116
+   8 |   const { state } = useGlobalState();
+   9 |
+> 10 |   const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
+     |                                                                                                                    ^^^
+> 11 |     label, 
+     | ^^^^^^^^^^^
+> 12 |     value, 
+     …
+     | ^^^^^^^^^^^
+> 26 |     );
+     | ^^^^^^^^^^^
+> 27 |   };
+     | ^^^^ The component is created during render here
+  28 |
+  29 |   return (
+  30 |     <div className="h-full flex flex-col -m-4">                        react-hooks/static-components
+  58:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:58:12
+  56 |             status={availableWidgets.length > 0 ? 'success' : 'warning'} 
+  57 |           />
+> 58 |           <StatusItem 
+     |            ^^^^^^^^^^ This component is created during render
+  59 |             label="Reducer bevægelse" 
+  60 |             value={state.reduceMotion ? 'Aktiveret' : 'Deaktiveret'} 
+  61 |             status="info" 
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:10:116
+   8 |   const { state } = useGlobalState();
+   9 |
+> 10 |   const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
+     |                                                                                                                    ^^^
+> 11 |     label, 
+     | ^^^^^^^^^^^
+> 12 |     value, 
+     …
+     | ^^^^^^^^^^^
+> 26 |     );
+     | ^^^^^^^^^^^
+> 27 |   };
+     | ^^^^ The component is created during render here
+  28 |
+  29 |   return (
+  30 |     <div className="h-full flex flex-col -m-4">  react-hooks/static-components
+  63:12  error  Error: Cannot create components during render
+
+Components created during render will reset their state each time they are created. Declare components outside of render.
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:63:12
+  61 |             status="info" 
+  62 |           />
+> 63 |           <StatusItem 
+     |            ^^^^^^^^^^ This component is created during render
+  64 |             label="Status" 
+  65 |             value="Kørende" 
+  66 |             status="success" 
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\StatusWidget.tsx:10:116
+   8 |   const { state } = useGlobalState();
+   9 |
+> 10 |   const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
+     |                                                                                                                    ^^^
+> 11 |     label, 
+     | ^^^^^^^^^^^
+> 12 |     value, 
+     …
+     | ^^^^^^^^^^^
+> 26 |     );
+     | ^^^^^^^^^^^
+> 27 |   };
+     | ^^^^ The component is created during render here
+  28 |
+  29 |   return (
+  30 |     <div className="h-full flex flex-col -m-4">                                                                                                  react-hooks/static-components
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\SystemSettingsWidget.tsx
+  41:6  warning  React Hook React.useEffect has a missing dependency: 'handleCallback'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\VideoAnalyzerWidget.tsx
+  1:27  error  'useCallback' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\WidgetImporterWidget.tsx
+  59:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  94:14  error    'e' is defined but never used             @typescript-eslint/no-unused-vars
+  94:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\__tests__\ActivityStreamWidget.test.tsx
+  3:8  error  'userEvent' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\widgets\__tests__\LocalScanWidget.test.tsx
+  1:42  error  'waitFor' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\database\config.js
+  1:1  error  'module' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\database\models\User.js
+  1:23  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  1:23  error  'require' is not defined                 no-undef
+  3:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\database\models\Widget.js
+  1:23  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  1:23  error  'require' is not defined                 no-undef
+  3:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\database\seeds\001-demo-users.js
+  1:1  error  'module' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\jest.config.js
+  1:1  error  'module' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\audit-log\src\gdpr-compliance.ts
+   1:10  error  'SHA256HashChain' is defined but never used  @typescript-eslint/no-unused-vars
+   1:27  error  'HashChainEntry' is defined but never used   @typescript-eslint/no-unused-vars
+  66:18  error  A `require()` style import is forbidden      @typescript-eslint/no-require-imports
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\evolution.d.ts
+  17:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\evolution.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\index.js
+  17:23  error  'exports' is not defined                 no-undef
+  19:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  19:14  error  'require' is not defined                 no-undef
+  19:35  error  'exports' is not defined                 no-undef
+  20:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  20:14  error  'require' is not defined                 no-undef
+  20:33  error  'exports' is not defined                 no-undef
+  21:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  21:14  error  'require' is not defined                 no-undef
+  21:38  error  'exports' is not defined                 no-undef
+  22:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  22:14  error  'require' is not defined                 no-undef
+  22:32  error  'exports' is not defined                 no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\memory.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\pal.d.ts
+  22:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\pal.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\srag.d.ts
+  14:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\dist\srag.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\src\evolution.ts
+  20:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\src\pal.ts
+  26:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\domain-types\src\srag.ts
+  17:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\evolution.d.ts
+  8:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\evolution.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\index.d.ts
+   1:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  22:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\index.js
+  16:23  error  'exports' is not defined                 no-undef
+  18:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  18:14  error  'require' is not defined                 no-undef
+  18:35  error  'exports' is not defined                 no-undef
+  19:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  19:14  error  'require' is not defined                 no-undef
+  19:33  error  'exports' is not defined                 no-undef
+  20:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  20:14  error  'require' is not defined                 no-undef
+  20:38  error  'exports' is not defined                 no-undef
+  21:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  21:14  error  'require' is not defined                 no-undef
+  21:32  error  'exports' is not defined                 no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\memory.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\pal.d.ts
+  5:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\pal.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\srag.d.ts
+   8:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\dist\srag.js
+  3:23  error  'exports' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\src\evolution.ts
+  10:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\src\index.ts
+   2:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\src\pal.ts
+  7:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\packages\shared\mcp-types\src\srag.ts
+  12:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  31:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\run-comprehensive-tests.js
+   9:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   9:12  error  'require' is not defined                 no-undef
+  10:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  10:14  error  'require' is not defined                 no-undef
+  11:22  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  11:22  error  'require' is not defined                 no-undef
+  13:31  error  '__dirname' is not defined               no-undef
+  62:12  error  '__dirname' is not defined               no-undef
+  66:12  error  'e' is defined but never used            @typescript-eslint/no-unused-vars
+  81:12  error  '__dirname' is not defined               no-undef
+  85:12  error  'e' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\security\scans\audit.js
+   1:22  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:22  error  'require' is not defined                 no-undef
+   2:12  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   2:12  error  'require' is not defined                 no-undef
+   3:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   3:14  error  'require' is not defined                 no-undef
+  35:25  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  35:25  error  'require' is not defined                 no-undef
+  48:34  error  '__dirname' is not defined               no-undef
+  65:5   error  'require' is not defined                 no-undef
+  65:22  error  'module' is not defined                  no-undef
+  70:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\domain\notes\InMemoryNotesAggregatorService.ts
+  219:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\domain\procurement\InMemoryProcurementIntelligenceService.ts
+  292:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  294:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\domain\security\InMemorySecurityOverwatchService.ts
+  92:11  error  Unexpected lexical declaration in case block  no-case-declarations
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\middleware\csrfProtection.js
+   1:14  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:14  error  'require' is not defined                 no-undef
+  16:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\middleware\inputValidation.js
+   1:30  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:30  error  'require' is not defined                 no-undef
+   2:22  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   2:22  error  'require' is not defined                 no-undef
+  43:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\middleware\rateLimiter.js
+   1:19  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:19  error  'require' is not defined                 no-undef
+   2:20  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   2:20  error  'require' is not defined                 no-undef
+   3:15  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   3:15  error  'require' is not defined                 no-undef
+  35:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\middleware\securityHeaders.js
+   1:16  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:16  error  'require' is not defined                 no-undef
+  28:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\platform\audit\InMemoryAuditLogService.ts
+  261:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  262:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  263:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\platform\core\PlatformContext.ts
+  134:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  140:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  141:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  142:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  154:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\platform\core\PlatformProvider.tsx
+  123:3  error  Parsing error: Declaration or statement expected
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\platform\core\logging.ts
+  15:29  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  19:52  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  20:51  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  21:51  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  22:52  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  41:75  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  46:11  error    'entry' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  63:52  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  67:51  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  71:51  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+  75:52  warning  Unexpected any. Specify a different type    @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\platform\vector\InMemoryVectorStoreAdapter.ts
+  109:9  error  Unexpected lexical declaration in case block  no-case-declarations
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\platform\widgets\registry.ts
+  13:3  error  'WidgetVersion' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\src\platform\widgets\types.ts
+  9:30  error  'ReactNode' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\test_network.js
+  1:18  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  1:18  error  'require' is not defined                 no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\e2e-comprehensive.spec.ts
+    1:24  error    'Page' is defined but never used                    @typescript-eslint/no-unused-vars
+    9:11  error    'TestContext' is defined but never used             @typescript-eslint/no-unused-vars
+   12:31  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  228:13  error    'initialActive' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  400:16  error    'e' is defined but never used                       @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\e2e\auth.spec.js
+  1:26  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  1:26  error  'require' is not defined                 no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\e2e\playwright.config.js
+  1:1  error  'module' is not defined  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\helpers\apiHelper.js
+   1:17  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:17  error  'require' is not defined                 no-undef
+  43:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\helpers\dbHelper.js
+   1:23  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:23  error  'require' is not defined                 no-undef
+  29:18  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  29:18  error  'require' is not defined                 no-undef
+  39:20  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  39:20  error  'require' is not defined                 no-undef
+  50:1   error  'module' is not defined                  no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\integration\widgetApi.test.js
+   1:28  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:28  error  'require' is not defined                 no-undef
+   2:23  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   2:23  error  'require' is not defined                 no-undef
+   9:3   error  'beforeAll' is not defined               no-undef
+  14:3   error  'afterAll' is not defined                no-undef
+  18:3   error  'beforeEach' is not defined              no-undef
+  21:35  error  'app' is not defined                     no-undef
+  25:3   error  'test' is not defined                    no-undef
+  35:3   error  'test' is not defined                    no-undef
+  50:3   error  'test' is not defined                    no-undef
+  61:3   error  'test' is not defined                    no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\persona-tests.spec.ts
+  155:9   error  'widgetsBefore' is never reassigned. Use 'const' instead  prefer-const
+  269:13  error  'textBefore' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  373:11  error  'welcomeElements' is assigned a value but never used      @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\run-full-test-suite.ts
+   18:28  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+   64:12  error    'e' is defined but never used                    @typescript-eslint/no-unused-vars
+  110:9   error    'personas' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  111:9   error    'categories' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\setup.js
+   2:1  error  'beforeAll' is not defined  no-undef
+   7:1  error  'afterAll' is not defined   no-undef
+  11:1  error  'global' is not defined     no-undef
+  12:3  error  'jest' is not defined       no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\tests\unit\userModel.test.js
+   1:28  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+   1:28  error  'require' is not defined                 no-undef
+   6:3   error  'beforeAll' is not defined               no-undef
+  11:3   error  'afterAll' is not defined                no-undef
+  15:3   error  'beforeEach' is not defined              no-undef
+  19:3   error  'test' is not defined                    no-undef
+  31:3   error  'test' is not defined                    no-undef
+  42:3   error  'test' is not defined                    no-undef
+  53:3   error  'test' is not defined                    no-undef
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\utils\env-validation.ts
+  246:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  254:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\utils\logger.ts
+   54:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  192:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  199:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  210:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  249:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  256:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  263:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  270:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  294:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\utils\mcp-client.ts
+   36:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   37:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   41:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  151:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  152:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  156:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  334:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  334:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  374:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  456:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  466:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  476:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\claus\Projects\WidgeTDC\WidgeTDC\utils\security.ts
+  167:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  172:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  338:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  338:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 719 problems (292 errors, 427 warnings)
+  4 errors and 1 warning potentially fixable with the `--fix` option.
+

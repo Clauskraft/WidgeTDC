@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Settings, Plus, AlertCircle, CheckCircle2, Clock, Move } from 'lucide-react';
 import AcrylicCard from '../../components/AcrylicCard';
+import { usePlatform } from '../platform/core/PlatformContext';
+import './AgentMonitorWidget.css';
 
 interface Agent {
     id: string;
@@ -13,43 +15,32 @@ interface Agent {
 }
 
 export const AgentMonitorWidget: React.FC = () => {
+    const { agentService } = usePlatform();
     const [agents, setAgents] = useState<Agent[]>([]);
     const [isOrchestratorRunning, setIsOrchestratorRunning] = useState(true);
 
     useEffect(() => {
         const fetchStatus = async () => {
-            try {
-                const response = await fetch('http://localhost:3001/api/mcp/resources?uri=agents://status');
-                const data = await response.json();
-
-                let agentsData = data.data;
-                if (!agentsData && data.content) {
-                    try {
-                        agentsData = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
-                    } catch (e) {
-                        console.error("Failed to parse agent status", e);
-                    }
-                }
-
-                if (Array.isArray(agentsData)) {
-                    setAgents(agentsData);
-                }
-            } catch (e) {
-                console.error("Failed to fetch agent status", e);
-            }
+            const agentsData = await agentService.getAgentStatus();
+            setAgents(agentsData);
         };
 
         fetchStatus();
-        const interval = setInterval(fetchStatus, 2000);
-        return () => clearInterval(interval);
-    }, []);
 
-    const getStatusColor = (status: Agent['status']) => {
+        // Subscribe to real-time updates via WebSocket
+        const unsubscribe = agentService.subscribeToStatus((updatedAgents) => {
+            setAgents(updatedAgents);
+        });
+
+        return () => unsubscribe();
+    }, [agentService]);
+
+    const getStatusClass = (status: Agent['status']) => {
         switch (status) {
-            case 'completed': return 'text-green-400';
-            case 'running': return 'text-blue-400';
-            case 'failed': return 'text-red-400';
-            default: return 'text-slate-500';
+            case 'completed': return 'status-completed';
+            case 'running': return 'status-running';
+            case 'failed': return 'status-failed';
+            default: return 'status-idle';
         }
     };
 
@@ -63,27 +54,13 @@ export const AgentMonitorWidget: React.FC = () => {
     };
 
     const triggerAgent = async (agentId: string) => {
-        try {
-            setAgents(prev => prev.map(a =>
-                a.id === agentId ? { ...a, status: 'running' as const } : a
-            ));
+        setAgents(prev => prev.map(a =>
+            a.id === agentId ? { ...a, status: 'running' as const } : a
+        ));
 
-            const response = await fetch('http://localhost:3001/api/mcp/route', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tool: 'trigger_agent',
-                    payload: { agentId }
-                })
-            });
+        const success = await agentService.triggerAgent(agentId);
 
-            const data = await response.json();
-
-            if (!data.success) {
-                throw new Error(data.error);
-            }
-        } catch (error) {
-            console.error('Failed to trigger agent:', error);
+        if (!success) {
             setAgents(prev => prev.map(a =>
                 a.id === agentId ? { ...a, status: 'failed' as const } : a
             ));
@@ -110,76 +87,80 @@ export const AgentMonitorWidget: React.FC = () => {
                 </div>
             }
         >
-            <div className="space-y-2 mt-2 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
-                <AnimatePresence>
-                    {agents.map((agent, index) => (
-                        <motion.div
-                            key={agent.id}
-                            layout
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            transition={{ delay: index * 0.05 }}
-                            className="group relative flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/10 transition-all cursor-grab active:cursor-grabbing"
-                        >
-                            <div className="text-slate-600 group-hover:text-slate-400 transition-colors">
-                                <Move size={14} />
-                            </div>
-
-                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-black/20 text-xs font-mono text-slate-400">
-                                {agent.block_number}
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <h4 className="text-sm font-medium text-slate-200 truncate">{agent.name}</h4>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full bg-black/20 ${getStatusColor(agent.status)}`}>
-                                        {agent.status}
-                                    </span>
+            <div className="agent-monitor-container">
+                <div className="agent-list">
+                    <AnimatePresence>
+                        {agents.map((agent, index) => (
+                            <motion.div
+                                key={agent.id}
+                                layout
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.95 }}
+                                transition={{ delay: index * 0.05 }}
+                                className="agent-item"
+                            >
+                                <div className="agent-icon">
+                                    <Move size={14} />
                                 </div>
-                                <div className="flex items-center gap-2 text-xs text-slate-500">
-                                    <span className="truncate">{agent.agent_type}</span>
-                                    <span>•</span>
-                                    <span>{agent.story_points} SP</span>
-                                </div>
-                            </div>
 
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors" title="Settings">
-                                    <Settings size={14} />
-                                </button>
-                                {agent.status === 'idle' && (
-                                    <button
-                                        onClick={() => triggerAgent(agent.id)}
-                                        className="p-1.5 rounded-lg hover:bg-green-500/20 text-slate-400 hover:text-green-400 transition-colors"
-                                        title="Trigger Agent"
-                                    >
-                                        <Play size={14} />
+                                <div className="agent-block-number">
+                                    {agent.block_number}
+                                </div>
+
+                                <div className="agent-details">
+                                    <div className="agent-header">
+                                        <h4 className="agent-name">{agent.name}</h4>
+                                        <span className={`agent-status-badge ${getStatusClass(agent.status)}`}>
+                                            {agent.status}
+                                        </span>
+                                    </div>
+                                    <div className="agent-meta">
+                                        <span className="truncate">{agent.agent_type}</span>
+                                        <span>•</span>
+                                        <span>{agent.story_points} SP</span>
+                                    </div>
+                                </div>
+
+                                <div className="agent-actions">
+                                    <button className="action-button" title="Settings">
+                                        <Settings size={14} />
                                     </button>
+                                    {agent.status === 'idle' && (
+                                        <button
+                                            onClick={() => triggerAgent(agent.id)}
+                                            className="action-button trigger-button"
+                                            title="Trigger Agent"
+                                        >
+                                            <Play size={14} />
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className={`agent-status-icon ${getStatusClass(agent.status)}`}>
+                                    {getStatusIcon(agent.status)}
+                                </div>
+
+                                {agent.status === 'running' && (
+                                    <motion.div
+                                        className="progress-bar"
+                                        initial={{ width: "0%" }}
+                                        animate={{ width: "100%" }}
+                                        transition={{ duration: 10, ease: "linear" }}
+                                    />
                                 )}
-                            </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
 
-                            <div className={`ml-1 ${getStatusColor(agent.status)}`}>
-                                {getStatusIcon(agent.status)}
-                            </div>
-
-                            {agent.status === 'running' && (
-                                <motion.div
-                                    className="absolute bottom-0 left-0 h-[2px] bg-blue-500/50"
-                                    initial={{ width: "0%" }}
-                                    animate={{ width: "100%" }}
-                                    transition={{ duration: 10, ease: "linear" }}
-                                />
-                            )}
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-            </div>
-
-            <div className="mt-4 pt-3 border-t border-white/5 flex justify-between text-xs text-slate-500">
-                <span>Total Agents: {agents.length}</span>
-                <span>Total SP: {agents.reduce((acc, curr) => acc + curr.story_points, 0)}</span>
+                <div className="footer-stats">
+                    <span>Total Agents: {agents.length}</span>
+                    <span>Total SP: {agents.reduce((acc, curr) => acc + curr.story_points, 0)}</span>
+                </div>
             </div>
         </AcrylicCard>
     );
 };
+
+export default AgentMonitorWidget;
