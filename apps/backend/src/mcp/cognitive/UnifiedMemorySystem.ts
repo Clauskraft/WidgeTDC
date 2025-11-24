@@ -2,7 +2,8 @@
 // Provides Working, Procedural, Semantic, and Episodic memory layers
 // Integrates existing repositories (CMA, SRAG, PAL, Evolution, ProjectMemory)
 
-import { CognitiveMemory } from '../memory/CognitiveMemory.js';
+import { getCognitiveMemory, initCognitiveMemory, CognitiveMemory } from '../memory/CognitiveMemory.js';
+import { getDatabase } from '../../database/index.js';
 import { MemoryRepository } from '../../services/memory/memoryRepository.js';
 import { SragRepository } from '../../services/srag/sragRepository.js';
 import { PalRepository } from '../../services/pal/palRepository.js';
@@ -39,16 +40,16 @@ export class UnifiedMemorySystem {
     private proceduralMemory: ProductionRuleEngine;
 
     constructor() {
-        // Lazy load singletons when needed
-        const { initCognitiveMemory } = require('../memory/CognitiveMemory.js');
-        const { getDatabase } = require('../../database/index.js');
-        const db = getDatabase();
-        initCognitiveMemory(db);
-        this.cognitive = require('../memory/CognitiveMemory.js').cognitiveMemory;
+        // Initialize repositories
         this.memoryRepo = new MemoryRepository();
         this.sragRepo = new SragRepository();
         this.palRepo = new PalRepository();
         this.evolutionRepo = new EvolutionRepository();
+        
+        // Initialize cognitive memory
+        const db = getDatabase();
+        initCognitiveMemory(db);
+        this.cognitive = getCognitiveMemory();
         this.proceduralMemory = new ProductionRuleEngine(this.cognitive);
     }
 

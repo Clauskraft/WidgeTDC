@@ -4,10 +4,11 @@
         "feature_name": "Advanced Intelligence Layer - Phase 2",
         "component_name": "MCP Cognitive System",
         "description": "Intelligence layer with UnifiedGraphRAG (multi-hop reasoning over CMA+SRAG), Role-Based Agent Team (specialized agents), StateGraphRouter (LangGraph-style), and PatternEvolutionEngine (creative strategy evolution)",
-        "status": "planned",
+        "status": "in_progress",
         "metadata": {
             "phase": 2,
             "estimated_duration": "4-5 weeks",
+            "start_date": "2025-11-24",
             "components": [
                 "UnifiedGraphRAG",
                 "AgentTeam",
