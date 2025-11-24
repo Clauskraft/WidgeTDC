@@ -1,3 +1,7 @@
 {
-  "setup-worktree": ["npm install"]
+  "setup-worktree": [
+    "npm install",
+    "npm run build:shared"
+  ],
+  "description": "WidgeTDC monorepo worktree setup - installs dependencies and builds shared packages (mcp-types, domain-types) required by backend and frontend apps"
 }
