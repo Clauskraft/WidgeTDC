@@ -51,8 +51,8 @@ export class SharePointAdapter implements DataSourceAdapter {
             metadata: {
                 provider: 'SharePoint',
                 raw: item,
-                timestamp: new Date(item.lastModifiedDateTime ?? Date.now()).toISOString()
-            }
+            },
+            timestamp: new Date(item.lastModifiedDateTime ?? Date.now())
         }));
     }
 

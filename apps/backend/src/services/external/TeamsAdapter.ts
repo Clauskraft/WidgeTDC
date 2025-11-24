@@ -51,8 +51,8 @@ export class TeamsAdapter implements DataSourceAdapter {
             metadata: {
                 provider: 'Teams',
                 raw: item,
-                timestamp: new Date(item.lastModifiedDateTime ?? Date.now()).toISOString()
-            }
+            },
+            timestamp: new Date(item.lastModifiedDateTime ?? Date.now())
         }));
     }
 

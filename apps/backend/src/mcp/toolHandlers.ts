@@ -9,23 +9,21 @@ import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
 import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
-import { getChromaVectorStore } from '../platform/vector/ChromaVectorStoreAdapter.js';
-// Vector types are imported from ChromaVectorStoreAdapter's types
-// Using inline types to avoid path issues
+import { getPgVectorStore } from '../platform/vector/PgVectorStoreAdapter.js';
+// Vector types for PgVectorStoreAdapter
 type VectorRecord = {
     id: string;
-    embedding: number[];
-    content?: string;
-    metadata: Record<string, any>;
+    content: string;
+    embedding?: number[];
+    metadata?: Record<string, any>;
     namespace?: string;
-    createdAt: Date;
-    updatedAt: Date;
 };
 type VectorQuery = {
-    embedding: number[];
-    topK: number;
+    vector?: number[];
+    text?: string;
+    limit?: number;
+    filter?: Record<string, any>;
     namespace?: string;
-    filters?: any[];
 };
 import { projectMemory } from '../services/project/ProjectMemory.js';
 import { getTaskRecorder } from './cognitive/TaskRecorder.js';
@@ -351,6 +349,7 @@ export async function notesCreateHandler(payload: any, ctx: McpContext): Promise
     owner: ctx.userId,
     compliance: 'clean',
     retention: '90d',
+    riskScore: 0,
     attachments: 0
   });
   return { id: noteId };
@@ -358,19 +357,23 @@ export async function notesCreateHandler(payload: any, ctx: McpContext): Promise
 
 export async function notesUpdateHandler(payload: any, ctx: McpContext): Promise<any> {
   const { id, title, content, tags } = payload;
-  notesRepo.updateNote(id, { title, content, tags });
+  notesRepo.updateNote(parseInt(id, 10), ctx.userId, ctx.orgId, { 
+    title, 
+    body: content,
+    tags: Array.isArray(tags) ? tags.join(',') : tags
+  });
   return { success: true };
 }
 
 export async function notesDeleteHandler(payload: any, ctx: McpContext): Promise<any> {
   const { id } = payload;
-  notesRepo.deleteNote(id);
+  notesRepo.deleteNote(parseInt(id, 10), ctx.userId, ctx.orgId);
   return { success: true };
 }
 
 export async function notesGetHandler(payload: any, ctx: McpContext): Promise<any> {
   const { id } = payload;
-  const note = notesRepo.getNote(id);
+  const note = notesRepo.getNoteById(parseInt(id, 10), ctx.userId, ctx.orgId);
   return { note };
 }
 
@@ -382,36 +385,40 @@ export async function autonomousGraphRAGHandler(payload: any, _ctx: McpContext):
 }
 
 export async function autonomousStateGraphHandler(payload: any, _ctx: McpContext): Promise<any> {
-  const { initialState, goal } = payload;
-  const result = await stateGraphRouter.route(initialState, goal);
+  const { taskId, input } = payload;
+  // Initialize state and route through graph
+  const state = stateGraphRouter.initState(taskId || `task-${Date.now()}`, input || 'default task');
+  const result = await stateGraphRouter.route(state);
   return result;
 }
 
 export async function autonomousEvolutionHandler(payload: any, _ctx: McpContext): Promise<any> {
-  const { strategy, context } = payload;
-  const result = await patternEvolutionEngine.evolveStrategy(strategy, context);
-  return result;
+  const { _strategy, _context } = payload;
+  // Evolve all strategies (no single-strategy evolution method)
+  await patternEvolutionEngine.evolveStrategies();
+  return { success: true, message: 'Strategies evolved' };
 }
 
 export async function autonomousAgentTeamHandler(payload: any, _ctx: McpContext): Promise<any> {
-  const { task, role } = payload;
-  const result = await agentTeam.assignTask(task, role);
+  const { task, context } = payload;
+  // Use coordinate method to handle tasks
+  const result = await agentTeam.coordinate(task, context);
   return result;
 }
 
 export async function autonomousAgentTeamCoordinateHandler(payload: any, _ctx: McpContext): Promise<any> {
-  const { task } = payload;
-  const result = await agentTeam.coordinateTask(task);
+  const { task, context } = payload;
+  const result = await agentTeam.coordinate(task, context);
   return result;
 }
 
-// Vidensarkiv (ChromaDB) tool handlers
+// Vidensarkiv (PgVector) tool handlers
 export async function vidensarkivSearchHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getChromaVectorStore();
+  const vectorStore = getPgVectorStore();
   const { query, limit = 10, namespace } = payload;
 
   const results = await vectorStore.search({
-    query,
+    text: query,
     limit,
     namespace: namespace || ctx.orgId,
   });
@@ -422,17 +429,18 @@ export async function vidensarkivSearchHandler(payload: any, ctx: McpContext): P
       id: r.id,
       content: r.content,
       metadata: r.metadata,
-      score: r.score,
+      score: r.similarity,
     })),
     count: results.length,
   };
 }
 
 export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getChromaVectorStore();
+  const vectorStore = getPgVectorStore();
   const { content, metadata = {}, namespace } = payload;
 
-  const record: VectorRecord = {
+  // Create record - PgVector will auto-generate embeddings
+  const recordToUpsert: VectorRecord = {
     id: `vid-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     content,
     metadata: {
@@ -444,7 +452,7 @@ export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Prom
     namespace: namespace || ctx.orgId,
   };
 
-  await vectorStore.upsert(record);
+  await vectorStore.upsert(recordToUpsert);
 
   // Log to ProjectMemory
   projectMemory.logLifecycleEvent({
@@ -453,14 +461,14 @@ export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Prom
     details: {
       component: 'vidensarkiv',
       action: 'add',
-      recordId: record.id,
-      namespace: record.namespace,
+      recordId: recordToUpsert.id,
+      namespace: recordToUpsert.namespace,
     },
   });
 
   return {
     success: true,
-    id: record.id,
+    id: recordToUpsert.id,
     message: 'Knowledge added to archive',
   };
 }

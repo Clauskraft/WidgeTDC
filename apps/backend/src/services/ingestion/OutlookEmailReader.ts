@@ -30,24 +30,19 @@ export class OutlookEmailReader implements DataSourceAdapter {
     }
 
     async transform(emails: any[]): Promise<IngestedEntity[]> {
-        const transformed = this.adapter.transform(emails);
+        const transformed = await this.adapter.transform(emails);
 
         // Convert to IngestedEntity format
         return transformed.map(email => ({
-            id: email.sourceId,
+            id: email.id,
             type: 'email',
             source: 'Outlook Email',
-            title: email.metadata.subject,
+            title: email.title || email.metadata?.subject || '',
             content: email.content,
             metadata: {
                 ...email.metadata,
-                sender: email.metadata.sender,
-                senderName: email.metadata.senderName,
-                receivedAt: email.metadata.receivedAt,
-                importance: email.metadata.importance,
-                isRead: email.metadata.isRead
             },
-            timestamp: new Date(email.timestamp)
+            timestamp: email.timestamp instanceof Date ? email.timestamp : new Date(email.timestamp)
         }));
     }
 }

@@ -1,4 +1,4 @@
-import { DataSourceAdapter } from '../ingestion/DataIngestionEngine.js';
+import { DataSourceAdapter, type IngestedEntity } from '../ingestion/DataIngestionEngine.js';
 import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 
@@ -82,8 +82,8 @@ export class OutlookJsonAdapter implements DataSourceAdapter {
                 importance: email.importance,
                 isRead: email.isRead,
                 source: 'outlook_json',
-                timestamp: new Date(email.receivedDateTime).toISOString()
-            }
+            },
+            timestamp: new Date(email.receivedDateTime)
         }));
     }
 
