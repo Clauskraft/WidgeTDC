@@ -94,9 +94,9 @@ export async function registerMCPToolsAsSources(): Promise<void> {
 /**
  * Register database as data source
  */
-export function registerDatabaseSource(): void {
+export async function registerDatabaseSource(): Promise<void> {
     const sourceRegistry = getSourceRegistry();
-    const { getDatabase } = require('../../database/index.js');
+    const { getDatabase } = await import('../../database/index.js');
 
     sourceRegistry.registerSource({
         name: 'database-main',
@@ -128,7 +128,7 @@ export function registerDatabaseSource(): void {
  */
 export async function initializeAutonomousSources(): Promise<void> {
     // Register database first (highest priority for most queries)
-    registerDatabaseSource();
+    await registerDatabaseSource();
 
     // Wait a bit for MCP tools to be registered
     await new Promise(resolve => setTimeout(resolve, 1000));
