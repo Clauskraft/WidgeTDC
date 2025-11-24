@@ -70,11 +70,14 @@ answer: await this.synthesizeAnswer(query, topNodes, context)
 
 ---
 
-### 4. API Endpoint Exposure ✅ ALREADY EXPOSED
+### 4. MCP Tool Exposure ✅ PRIMARY INTERFACE
 
 **Status:** Already implemented in previous work
-- REST API: `POST /api/mcp/autonomous/graphrag`
-- MCP Tool: `autonomous.graphrag`
+- ✅ **MCP Tool:** `autonomous.graphrag` - **PRIMARY INTERFACE** (following WidgeTDC architecture)
+- ✅ REST API: `POST /api/mcp/autonomous/graphrag` - Secondary/compatibility layer
+
+**Architecture:** Following WidgeTDC pattern, all cognitive services are exposed via MCP tools first.
+REST endpoints exist for compatibility but MCP is the preferred interface for widget-to-service communication.
 
 ---
 
