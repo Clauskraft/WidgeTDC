@@ -792,8 +792,8 @@ export async function autonomousAgentTeamCoordinateHandler(payload: any, ctx: Mc
 }
 
 // Vidensarkiv (Knowledge Archive) MCP Tools - Persistent vector database for continuous learning
-import { getChromaVectorStore } from '../../platform/vector/ChromaVectorStoreAdapter.js';
-import type { VectorRecord, VectorQuery } from '../../platform/vector/types.js';
+import { getChromaVectorStore } from '../platform/vector/ChromaVectorStoreAdapter.js';
+import type { VectorRecord, VectorQuery } from '../platform/vector/types.js';
 
 /**
  * Vidensarkiv Search - Widgets can search existing + new datasets

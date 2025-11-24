@@ -21,6 +21,9 @@ import { agentTeam } from './cognitive/AgentTeam.js';
 // WebSocket server for real-time events (will be injected)
 let wsServer: any = null;
 
+// Agent instance (declared before setWebSocketServer to avoid race condition)
+let agent: AutonomousAgent | null = null;
+
 export function setWebSocketServer(server: any): void {
     wsServer = server;
     // Update agent instance if it already exists
@@ -33,8 +36,6 @@ export const autonomousRouter = Router();
 
 // Re-export for convenience
 export { startAutonomousLearning };
-
-let agent: AutonomousAgent | null = null;
 
 /**
  * Initialize agent (called from main server)
@@ -195,6 +196,7 @@ autonomousRouter.get('/decisions', async (req, res) => {
             ORDER BY timestamp DESC
             LIMIT ?
         `);
+        // Use variadic parameters for consistency with sqlite3 API
         const decisions = stmt.all(limit);
         stmt.free();
 
