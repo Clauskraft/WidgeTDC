@@ -82,7 +82,7 @@ async function startServer() {
     console.log('🤖 Agent Orchestrator initialized');
 
     // Step 3.5: Initialize Autonomous Intelligence System
-    const { initCognitiveMemory, getCognitiveMemory } = await import('./mcp/memory/CognitiveMemory.js');
+    const { initCognitiveMemory } = await import('./mcp/memory/CognitiveMemory.js');
     const { getSourceRegistry } = await import('./mcp/SourceRegistry.js');
     const { initAutonomousAgent, startAutonomousLearning } = await import('./mcp/autonomousRouter.js');
     const { autonomousRouter } = await import('./mcp/autonomousRouter.js');

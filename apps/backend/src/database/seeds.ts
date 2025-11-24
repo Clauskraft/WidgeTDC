@@ -11,9 +11,6 @@ export async function seedDatabase() {
     ['org-1', 'user-1', 'CustomerPreference', 'Customer prefers minimal UI with dark mode', 4],
   ];
 
-  let completed = 0;
-  const total = memories.length;
-
   try {
     memories.forEach((mem) => {
       // sql.js run takes params as second argument
@@ -21,9 +18,8 @@ export async function seedDatabase() {
         'INSERT INTO memory_entities (org_id, user_id, entity_type, content, importance) VALUES (?, ?, ?, ?, ?)',
         mem
       );
-      completed++;
     });
-    console.log('✅ Database seeded successfully');
+    console.log(`✅ Database seeded successfully (${memories.length} entries)`);
   } catch (err) {
     console.error('Error inserting memory:', err);
     throw err;
