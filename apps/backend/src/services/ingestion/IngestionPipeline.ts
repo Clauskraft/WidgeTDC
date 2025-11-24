@@ -67,7 +67,7 @@ export class IngestionPipeline {
                     // This makes the agent "aware" that it just learned something new
                     if (processedCount % 5 === 0) { // Don't spam for every single item
                         await unifiedMemorySystem.updateWorkingMemory(
-                            { userId: 'system', orgId: 'default', timestamp: new Date() },
+                            { userId: 'system', orgId: 'default' },
                             {
                                 type: 'memory_update',
                                 action: 'learned_new_data',

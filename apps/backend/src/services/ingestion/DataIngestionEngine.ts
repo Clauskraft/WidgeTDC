@@ -24,6 +24,7 @@ export interface IngestedEntity {
     title?: string;
     content?: string;
     metadata: Record<string, any>;
+    timestamp: Date;
 }
 
 export class DataIngestionEngine {

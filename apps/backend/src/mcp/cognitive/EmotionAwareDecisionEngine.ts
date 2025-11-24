@@ -1,4 +1,4 @@
-// EmotionAwareDecisionEngine – Phase 1 Week 3
+// Enhanced EmotionAwareDecisionEngine – Phase 1 Week 3
 // Multi-modal decision making with emotional awareness
 
 import { PalRepository } from '../../services/pal/palRepository.js';
