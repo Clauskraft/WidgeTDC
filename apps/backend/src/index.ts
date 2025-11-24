@@ -134,6 +134,21 @@ async function startServer() {
     mcpRegistry.registerTool('vidensarkiv.list', vidensarkivListHandler);
     mcpRegistry.registerTool('vidensarkiv.stats', vidensarkivStatsHandler);
 
+    // TaskRecorder Tools - Observes tasks, learns patterns, suggests automation (requires approval)
+    const {
+      taskRecorderGetSuggestionsHandler,
+      taskRecorderApproveHandler,
+      taskRecorderRejectHandler,
+      taskRecorderExecuteHandler,
+      taskRecorderGetPatternsHandler
+    } = await import('./mcp/toolHandlers.js');
+
+    mcpRegistry.registerTool('taskrecorder.get_suggestions', taskRecorderGetSuggestionsHandler);
+    mcpRegistry.registerTool('taskrecorder.approve', taskRecorderApproveHandler);
+    mcpRegistry.registerTool('taskrecorder.reject', taskRecorderRejectHandler);
+    mcpRegistry.registerTool('taskrecorder.execute', taskRecorderExecuteHandler);
+    mcpRegistry.registerTool('taskrecorder.get_patterns', taskRecorderGetPatternsHandler);
+
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
     mcpRegistry.registerServer(orchestrator);
