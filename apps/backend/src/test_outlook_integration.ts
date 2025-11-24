@@ -53,4 +53,3 @@ async function testOutlookIntegration() {
 }
 
 testOutlookIntegration().catch(console.error);
-

@@ -9,8 +9,10 @@ import { getCognitiveMemory } from './memory/CognitiveMemory';
 import { AutonomousAgent, startAutonomousLearning } from './autonomous/AutonomousAgent';
 import { getSourceRegistry } from './SourceRegistry';
 import { getDatabase } from '../database/index.js';
-
 import { eventBus } from './EventBus.js';
+import { hybridSearchEngine } from './cognitive/HybridSearchEngine.js';
+import { emotionAwareDecisionEngine } from './cognitive/EmotionAwareDecisionEngine.js';
+import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
 
 // WebSocket server for real-time events (will be injected)
 let wsServer: any = null;
@@ -339,7 +341,70 @@ autonomousRouter.post('/manage_project_memory', async (req, res) => {
 });
 
 /**
- * Get system health
+ * Hybrid search endpoint
+ */
+autonomousRouter.post('/search', async (req, res) => {
+    try {
+        const { query, limit, filters } = req.body;
+        const userId = (req as any).user?.id || 'anonymous';
+        const orgId = (req as any).user?.orgId || 'default';
+
+        if (!query) {
+            return res.status(400).json({ error: 'Query is required' });
+        }
+
+        const results = await hybridSearchEngine.search(query, {
+            userId,
+            orgId,
+            timestamp: new Date(),
+            limit: limit || 20,
+            filters: filters || {}
+        });
+
+        res.json({
+            success: true,
+            results,
+            count: results.length
+        });
+    } catch (error: any) {
+        console.error('Hybrid search error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Emotion-aware decision endpoint
+ */
+autonomousRouter.post('/decision', async (req, res) => {
+    try {
+        const query = req.body;
+        const userId = (req as any).user?.id || 'anonymous';
+        const orgId = (req as any).user?.orgId || 'default';
+
+        const decision = await emotionAwareDecisionEngine.makeDecision(query, {
+            userId,
+            orgId,
+            timestamp: new Date()
+        });
+
+        res.json({
+            success: true,
+            decision
+        });
+    } catch (error: any) {
+        console.error('Emotion-aware decision error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Get system health with cognitive analysis
  */
 autonomousRouter.get('/health', async (req, res) => {
     try {
@@ -368,11 +433,20 @@ autonomousRouter.get('/health', async (req, res) => {
         const healthyCount = sourceHealth.filter(s => s.healthy).length;
         const totalCount = sourceHealth.length;
 
+        // Get cognitive system health
+        const cognitiveHealth = await unifiedMemorySystem.analyzeSystemHealth();
+
         res.json({
             status: healthyCount > 0 ? 'healthy' : 'unhealthy',
             healthySourcesCount: healthyCount,
             totalSourcesCount: totalCount,
-            sources: sourceHealth
+            sources: sourceHealth,
+            cognitive: {
+                globalHealth: cognitiveHealth.globalHealth,
+                componentHealth: cognitiveHealth.componentHealth,
+                wholePartRatio: cognitiveHealth.wholePartRatio,
+                healthVariance: cognitiveHealth.healthVariance
+            }
         });
     } catch (error: any) {
         res.status(500).json({

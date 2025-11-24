@@ -12,6 +12,12 @@
             "contentType": "text",
             "content": "Hej Claus,\n\nHer er status på projektet WidgeTDC. Vi er godt med."
         },
+        "toRecipients": [
+            {
+                "name": "Claus Kraft",
+                "address": "clak@tdc.dk"
+            }
+        ],
         "importance": "normal",
         "isRead": false
     },
@@ -28,8 +34,13 @@
             "contentType": "text",
             "content": "Server 3 er nede, venligst tjek logs."
         },
+        "toRecipients": [
+            {
+                "name": "Claus Kraft",
+                "address": "clak@tdc.dk"
+            }
+        ],
         "importance": "high",
         "isRead": false
     }
 ]
-
