@@ -9,6 +9,11 @@ import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
+
+// Swagger/OpenAPI Documentation (if using Fastify in future)
+// Note: Currently using Express, but Swagger can be added later
+// import swaggerJsdoc from 'swagger-jsdoc';
+// import swaggerUi from 'swagger-ui-express';
 import {
   cmaContextHandler,
   cmaIngestHandler,
@@ -55,6 +60,28 @@ async function startServer() {
     // Step 1: Initialize database (MUST be first!)
     await initializeDatabase();
     console.log('🗄️  Database initialized');
+
+    // Step 1.5: Initialize Neo4j Graph Database
+    try {
+      const { getNeo4jGraphAdapter } = await import('./platform/graph/Neo4jGraphAdapter.js');
+      const neo4jAdapter = getNeo4jGraphAdapter();
+      await neo4jAdapter.initialize();
+      console.log('🕸️  Neo4j Graph Database initialized');
+    } catch (error) {
+      console.warn('⚠️  Neo4j not available (optional):', error);
+      console.log('   Continuing without Neo4j - using implicit graph patterns');
+    }
+
+    // Step 1.6: Initialize Transformers.js Embeddings
+    try {
+      const { getTransformersEmbeddings } = await import('./platform/embeddings/TransformersEmbeddings.js');
+      const embeddings = getTransformersEmbeddings();
+      await embeddings.initialize();
+      console.log('🧠 Transformers.js Embeddings initialized');
+    } catch (error) {
+      console.warn('⚠️  Transformers.js not available (optional):', error);
+      console.log('   Continuing without local embeddings');
+    }
 
     // Step 2: Register MCP tools (repositories can now safely use getDatabase())
     mcpRegistry.registerTool('cma.context', cmaContextHandler);
