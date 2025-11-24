@@ -1,6 +1,7 @@
 // DataIngestionEngine – Autonomous data collection and enrichment
 import { projectMemory } from '../project/ProjectMemory.js';
 import { eventBus } from '../../mcp/EventBus.js';
+import { dataSourceConfig } from './DataSourceConfigManager.js';
 
 export interface DataSourceAdapter {
     name: string;
@@ -29,12 +30,16 @@ export interface IngestedEntity {
 export class DataIngestionEngine {
     private adapters: Map<string, DataSourceAdapter> = new Map();
     private isRunning = false;
-    private ingestedCount = 0;
+    private ingested Count = 0;
 
     /** Register a data source adapter */
-    registerAdapter(adapter: DataSourceAdapter): void {
+    async registerAdapter(adapter: DataSourceAdapter, description?: string, requiresApproval: boolean = true): Promise<void> {
         this.adapters.set(adapter.name, adapter);
-        console.log(`📥 Registered data adapter: ${adapter.name} (${adapter.type})`);
+
+        // Register in config manager
+        const canUse = await dataSourceConfig.registerSource(adapter.name, description, requiresApproval);
+
+        console.log(`📥 Registered data adapter: ${adapter.name} (${adapter.type}) - ${canUse ? 'Ready' : 'Awaiting approval'}`);
     }
 
     /** Start ingestion from all registered adapters */
@@ -43,6 +48,9 @@ export class DataIngestionEngine {
             console.warn('⚠️ Ingestion already running');
             return;
         }
+
+        // Load config
+        await dataSourceConfig.load();
 
         this.isRunning = true;
         this.ingestedCount = 0;
@@ -62,6 +70,13 @@ export class DataIngestionEngine {
 
         for (const [name, adapter] of this.adapters) {
             try {
+                // Check if source is enabled
+                if (!dataSourceConfig.isEnabled(name)) {
+                    console.log(`⏭️ ${name} is disabled, skipping`);
+                    results.push({ source: name, status: 'skipped', reason: 'disabled' });
+                    continue;
+                }
+
                 console.log(`📂 Ingesting from: ${name}...`);
 
                 // Check availability
@@ -88,6 +103,9 @@ export class DataIngestionEngine {
                     status: 'success',
                     items: entities.length
                 });
+
+                // Mark as used
+                await dataSourceConfig.markUsed(name);
 
                 // Emit event for real-time updates
                 eventBus.emit('data:ingested', {
@@ -130,6 +148,11 @@ export class DataIngestionEngine {
             throw new Error(`Unknown data source: ${sourceName}`);
         }
 
+        // Check if enabled
+        if (!dataSourceConfig.isEnabled(sourceName)) {
+            throw new Error(`Data source ${sourceName} is not enabled`);
+        }
+
         const available = await adapter.isAvailable();
         if (!available) {
             throw new Error(`Source ${sourceName} is not available`);
@@ -137,6 +160,8 @@ export class DataIngestionEngine {
 
         const rawData = await adapter.fetch();
         const entities = await adapter.transform(rawData);
+
+        await dataSourceConfig.markUsed(sourceName);
 
         eventBus.emit('data:ingested', {
             source: sourceName,
@@ -152,7 +177,9 @@ export class DataIngestionEngine {
         return {
             running: this.isRunning,
             totalIngested: this.ingestedCount,
-            adapters: Array.from(this.adapters.keys())
+            adapters: Array.from(this.adapters.keys()),
+            enabled: dataSourceConfig.getEnabledSources(),
+            pendingApprovals: dataSourceConfig.getPendingApprovals()
         };
     }
 }
