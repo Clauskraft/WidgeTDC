@@ -82,7 +82,7 @@ export class EmotionAwareDecisionEngine {
         // Determine action complexity based on emotional state
         const action = this.determineOptimalAction(queryIntent, emotionalState);
 
-        return {
+        const decision: Decision = {
             action,
             confidence: fusedScore,
             reasoning: this.generateReasoning(emotionalState, dataScore, emotionScore, contextScore),
@@ -91,6 +91,7 @@ export class EmotionAwareDecisionEngine {
             contextRelevance: contextScore,
             emotionalState
         };
+        return decision;
     }
 
     /**
@@ -104,8 +105,8 @@ export class EmotionAwareDecisionEngine {
             // Analyze events for stress indicators
             let stressLevel: 'low' | 'medium' | 'high' = 'low';
             let focusLevel: 'shallow' | 'medium' | 'deep' = 'medium';
-            let energyLevel: 'low' | 'medium' | 'high' = 'medium';
-            let mood: 'negative' | 'neutral' | 'positive' = 'neutral';
+            const energyLevel: 'low' | 'medium' | 'high' = 'medium';
+            const mood: 'negative' | 'neutral' | 'positive' = 'neutral';
 
             if (Array.isArray(recentEvents)) {
                 const stressEvents = recentEvents.filter((e: any) => 
@@ -159,7 +160,7 @@ export class EmotionAwareDecisionEngine {
     /**
      * Evaluate data quality score
      */
-    private async evaluateDataQuality(query: QueryIntent, ctx: McpContext): Promise<number> {
+    private async evaluateDataQuality(query: QueryIntent, _ctx: McpContext): Promise<number> {
         try {
             // Check system health - healthy systems provide better data
             const health = await unifiedMemorySystem.analyzeSystemHealth();
@@ -236,8 +237,8 @@ export class EmotionAwareDecisionEngine {
             
             const queryText = JSON.stringify(query).toLowerCase();
             const relevantPatterns = patterns.filter((p: any) => {
-                const patternText = JSON.stringify(p).toLowerCase();
-                return queryText.includes(p.keyword?.toLowerCase() || '');
+                const keyword = p.keyword?.toLowerCase() || '';
+                return keyword && queryText.includes(keyword);
             });
 
             // More relevant patterns = higher score
