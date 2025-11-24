@@ -66,6 +66,7 @@ export class AutonomousTaskEngine {
     private queue = new PriorityQueue<Task>();
     private active = true;
     private executionHistory: ExecutionLog[] = [];
+    private memoryOptimizationIntervalId: NodeJS.Timeout | null = null;
 
     constructor(agent?: AutonomousAgent) {
         if (agent) {
@@ -87,7 +88,7 @@ export class AutonomousTaskEngine {
         });
 
         // Schedule nightly memory optimization (Consolidation & Decay)
-        setInterval(() => {
+        this.memoryOptimizationIntervalId = setInterval(() => {
             this.queue.enqueue({
                 type: 'memory_optimization',
                 payload: { mode: 'nightly_consolidation' },
@@ -126,6 +127,11 @@ export class AutonomousTaskEngine {
 
     stop() {
         this.active = false;
+        // Clear the memory optimization interval to prevent resource leak
+        if (this.memoryOptimizationIntervalId !== null) {
+            clearInterval(this.memoryOptimizationIntervalId);
+            this.memoryOptimizationIntervalId = null;
+        }
     }
 
     private async executeTask(task: Task): Promise<TaskResult> {
