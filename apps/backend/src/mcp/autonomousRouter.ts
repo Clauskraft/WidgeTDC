@@ -14,6 +14,8 @@ import { hybridSearchEngine } from './cognitive/HybridSearchEngine.js';
 import { emotionAwareDecisionEngine } from './cognitive/EmotionAwareDecisionEngine.js';
 import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
 import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
+import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
+import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 
 // WebSocket server for real-time events (will be injected)
 let wsServer: any = null;
@@ -430,6 +432,91 @@ autonomousRouter.post('/graphrag', async (req, res) => {
         });
     } catch (error: any) {
         console.error('GraphRAG error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * StateGraphRouter endpoint - LangGraph-style state routing
+ */
+autonomousRouter.post('/stategraph', async (req, res) => {
+    try {
+        const { taskId, input } = req.body;
+
+        if (!taskId || !input) {
+            return res.status(400).json({ error: 'taskId and input are required' });
+        }
+
+        // Initialize state
+        const state = stateGraphRouter.initState(taskId, input);
+
+        // Route until completion
+        let currentState = state;
+        let iterations = 0;
+        const maxIterations = 20;
+
+        while (currentState.status === 'active' && iterations < maxIterations) {
+            currentState = await stateGraphRouter.route(currentState);
+            iterations++;
+        }
+
+        res.json({
+            success: true,
+            state: currentState,
+            iterations,
+            checkpoints: stateGraphRouter.getCheckpoints(taskId)
+        });
+    } catch (error: any) {
+        console.error('StateGraphRouter error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * PatternEvolutionEngine endpoint - Strategy evolution
+ */
+autonomousRouter.post('/evolve', async (req, res) => {
+    try {
+        await patternEvolutionEngine.evolveStrategies();
+
+        const currentStrategy = patternEvolutionEngine.getCurrentStrategy();
+        const history = patternEvolutionEngine.getEvolutionHistory();
+
+        res.json({
+            success: true,
+            currentStrategy,
+            history: history.slice(0, 10), // Last 10 evolutions
+            message: 'Evolution cycle completed'
+        });
+    } catch (error: any) {
+        console.error('PatternEvolution error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Get current evolution strategy
+ */
+autonomousRouter.get('/evolution/strategy', async (req, res) => {
+    try {
+        const strategy = patternEvolutionEngine.getCurrentStrategy();
+        const history = patternEvolutionEngine.getEvolutionHistory();
+
+        res.json({
+            success: true,
+            current: strategy,
+            history: history.slice(0, 20)
+        });
+    } catch (error: any) {
         res.status(500).json({
             success: false,
             error: error.message

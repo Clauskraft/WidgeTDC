@@ -6,6 +6,8 @@ import { PalRepository } from '../services/pal/palRepository.js';
 import { NotesRepository } from '../services/notes/notesRepository.js';
 import { getLlmService } from '../services/llm/llmService.js';
 import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
+import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
+import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 
 const memoryRepo = new MemoryRepository();
 const sragRepo = new SragRepository();
@@ -695,5 +697,55 @@ export async function autonomousGraphRAGHandler(payload: any, ctx: McpContext): 
     },
     query,
     maxHops: maxHops || 2
+  };
+}
+
+export async function autonomousStateGraphHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { taskId, input } = payload;
+
+  if (!taskId || !input) {
+    throw new Error('taskId and input are required for StateGraph');
+  }
+
+  const state = stateGraphRouter.initState(taskId, input);
+  
+  let currentState = state;
+  let iterations = 0;
+  const maxIterations = 20;
+
+  while (currentState.status === 'active' && iterations < maxIterations) {
+    currentState = await stateGraphRouter.route(currentState);
+    iterations++;
+  }
+
+  return {
+    success: true,
+    state: {
+      id: currentState.id,
+      currentNode: currentState.currentNode,
+      status: currentState.status,
+      history: currentState.history,
+      scratchpad: currentState.scratchpad
+    },
+    iterations,
+    checkpoints: stateGraphRouter.getCheckpoints(taskId).map(cp => ({
+      id: cp.id,
+      timestamp: cp.timestamp,
+      node: cp.state.currentNode
+    }))
+  };
+}
+
+export async function autonomousEvolutionHandler(payload: any, ctx: McpContext): Promise<any> {
+  await patternEvolutionEngine.evolveStrategies();
+
+  const currentStrategy = patternEvolutionEngine.getCurrentStrategy();
+  const history = patternEvolutionEngine.getEvolutionHistory();
+
+  return {
+    success: true,
+    currentStrategy,
+    history: history.slice(0, 10),
+    message: 'Evolution cycle completed'
   };
 }

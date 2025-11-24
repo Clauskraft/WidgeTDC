@@ -104,10 +104,14 @@ async function startServer() {
 
     // Autonomous Cognitive Tools
     const {
-      autonomousGraphRAGHandler
+      autonomousGraphRAGHandler,
+      autonomousStateGraphHandler,
+      autonomousEvolutionHandler
     } = await import('./mcp/toolHandlers.js');
 
     mcpRegistry.registerTool('autonomous.graphrag', autonomousGraphRAGHandler);
+    mcpRegistry.registerTool('autonomous.stategraph', autonomousStateGraphHandler);
+    mcpRegistry.registerTool('autonomous.evolve', autonomousEvolutionHandler);
 
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
