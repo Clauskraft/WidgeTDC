@@ -7,13 +7,16 @@
 
 ## 📦 INSTALLED PACKAGES
 
-### ✅ Core Packages
-1. **neo4j-driver** - Official Neo4j driver for Node.js/TypeScript
-2. **@xenova/transformers** - HuggingFace models in Node.js (no Python needed)
-3. **testcontainers** - Docker containers for testing
+### ✅ Core Packages (Installed in apps/backend)
+1. **neo4j-driver@6.0.1** ✅ - Official Neo4j driver for Node.js/TypeScript
+2. **@xenova/transformers@2.17.2** ✅ - HuggingFace models in Node.js (no Python needed)
+3. **testcontainers@11.8.1** ✅ - Docker containers for testing
+
+### ⏳ Future Packages (Not yet installed)
 4. **@fastify/swagger** - API documentation (for future Fastify migration)
 5. **@fastify/swagger-ui** - Swagger UI (for future Fastify migration)
-6. **@types/neo4j-driver** - TypeScript types for Neo4j
+
+**Note:** @types/neo4j-driver not needed - neo4j-driver includes TypeScript types
 
 ---
 
