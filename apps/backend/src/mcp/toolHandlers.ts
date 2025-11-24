@@ -8,6 +8,7 @@ import { getLlmService } from '../services/llm/llmService.js';
 import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
 import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
+import { agentTeam } from './cognitive/AgentTeam.js';
 
 const memoryRepo = new MemoryRepository();
 const sragRepo = new SragRepository();
@@ -747,5 +748,45 @@ export async function autonomousEvolutionHandler(payload: any, ctx: McpContext):
     currentStrategy,
     history: history.slice(0, 10),
     message: 'Evolution cycle completed'
+  };
+}
+
+export async function autonomousAgentTeamHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { from, to, type, content, metadata } = payload;
+
+  if (!content) {
+    throw new Error('content is required for AgentTeam');
+  }
+
+  const message = {
+    from: from || 'user',
+    to: to || 'all',
+    type: type || 'query',
+    content,
+    metadata: { ...metadata, userId: ctx.userId, orgId: ctx.orgId },
+    timestamp: new Date()
+  };
+
+  const result = await agentTeam.routeMessage(message);
+
+  return {
+    success: true,
+    result,
+    message
+  };
+}
+
+export async function autonomousAgentTeamCoordinateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { task, context } = payload;
+
+  if (!task) {
+    throw new Error('task is required for coordination');
+  }
+
+  const result = await agentTeam.coordinate(task, { ...context, userId: ctx.userId, orgId: ctx.orgId });
+
+  return {
+    success: true,
+    result
   };
 }

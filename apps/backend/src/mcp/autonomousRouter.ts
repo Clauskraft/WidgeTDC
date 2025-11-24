@@ -16,6 +16,7 @@ import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
 import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
 import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
+import { agentTeam } from './cognitive/AgentTeam.js';
 
 // WebSocket server for real-time events (will be injected)
 let wsServer: any = null;
@@ -515,6 +516,117 @@ autonomousRouter.get('/evolution/strategy', async (req, res) => {
             success: true,
             current: strategy,
             history: history.slice(0, 20)
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * AgentTeam endpoint - Route message to role-based agents
+ */
+autonomousRouter.post('/agentteam', async (req, res) => {
+    try {
+        const { from, to, type, content, metadata } = req.body;
+        const userId = (req as any).user?.id || metadata?.userId || 'anonymous';
+        const orgId = (req as any).user?.orgId || metadata?.orgId || 'default';
+
+        if (!content) {
+            return res.status(400).json({ error: 'content is required' });
+        }
+
+        const message = {
+            from: from || 'user',
+            to: to || 'all',
+            type: type || 'query',
+            content,
+            metadata: { ...metadata, userId, orgId },
+            timestamp: new Date()
+        };
+
+        const result = await agentTeam.routeMessage(message);
+
+        res.json({
+            success: true,
+            result,
+            message
+        });
+    } catch (error: any) {
+        console.error('AgentTeam error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * AgentTeam coordination endpoint - Complex multi-agent tasks
+ */
+autonomousRouter.post('/agentteam/coordinate', async (req, res) => {
+    try {
+        const { task, context } = req.body;
+
+        if (!task) {
+            return res.status(400).json({ error: 'task is required' });
+        }
+
+        const result = await agentTeam.coordinate(task, context);
+
+        res.json({
+            success: true,
+            result
+        });
+    } catch (error: any) {
+        console.error('AgentTeam coordination error:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Get AgentTeam status
+ */
+autonomousRouter.get('/agentteam/status', async (req, res) => {
+    try {
+        const statuses = await agentTeam.getAllStatuses();
+
+        res.json({
+            success: true,
+            agents: statuses,
+            totalAgents: statuses.length,
+            activeAgents: statuses.filter(s => s.active).length
+        });
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
+/**
+ * Get PAL agent conversation history
+ */
+autonomousRouter.get('/agentteam/pal/history', async (req, res) => {
+    try {
+        const palAgent = agentTeam.getAgent('pal');
+        if (!palAgent) {
+            return res.status(404).json({ error: 'PAL agent not found' });
+        }
+
+        // Access conversation history if available
+        const history = (palAgent as any).getConversationHistory?.() || [];
+
+        res.json({
+            success: true,
+            history,
+            count: history.length
         });
     } catch (error: any) {
         res.status(500).json({
