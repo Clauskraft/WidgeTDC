@@ -114,6 +114,11 @@ export class LlmService {
   private async completeGoogle(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
     if (!this.googleKey) throw new Error('Google API key not configured');
 
+    // Validate messages array is not empty
+    if (!options.messages || options.messages.length === 0) {
+      throw new Error('Messages array cannot be empty');
+    }
+
     // Dynamic import to avoid issues if package is missing
     const { GoogleGenerativeAI } = await import('@google/generative-ai');
     const genAI = new GoogleGenerativeAI(this.googleKey);
@@ -122,6 +127,10 @@ export class LlmService {
     // Convert messages to Google format
     // Note: Google's history format is slightly different, simplified here
     const lastMessage = options.messages[options.messages.length - 1];
+    if (!lastMessage || !lastMessage.content) {
+      throw new Error('Last message must have content');
+    }
+
     const history = options.messages.slice(0, -1).map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]

@@ -46,13 +46,25 @@ export class EmotionAwareDecisionEngine {
         // Get emotional state from PAL
         const emotionalState = await this.getEmotionalState(ctx.userId, ctx.orgId);
 
-        // Normalize query to string
-        const queryStr = typeof query === 'string' ? query : query.query;
+        // Normalize query: if QueryIntent, convert to string representation; if string, use as-is
+        const queryStr = typeof query === 'string' 
+            ? query 
+            : `${query.operation || query.type} ${query.domain || ''} ${JSON.stringify(query.params || {})}`.trim();
+
+        // Convert to QueryIntent for methods that need structured data
+        const queryIntent: QueryIntent = typeof query === 'string'
+            ? {
+                type: 'query',
+                domain: 'general',
+                operation: 'search',
+                params: { query: queryStr }
+            }
+            : query;
 
         // Evaluate multi-modal scores
-        const dataScore = await this.evaluateDataQuality(queryStr, ctx);
-        const emotionScore = this.evaluateEmotionalFit(this.queryToAction(queryStr), emotionalState);
-        const contextScore = await this.evaluateContextRelevance(queryStr, ctx);
+        const dataScore = await this.evaluateDataQuality(queryIntent, ctx);
+        const emotionScore = this.evaluateEmotionalFit(this.queryToAction(queryIntent), emotionalState);
+        const contextScore = await this.evaluateContextRelevance(queryIntent, ctx);
 
         // Calculate dynamic weights based on emotional state
         const weights = this.calculateDynamicWeights(emotionalState);
@@ -68,7 +80,7 @@ export class EmotionAwareDecisionEngine {
         );
 
         // Determine action complexity based on emotional state
-        const action = this.determineOptimalAction(queryStr, emotionalState);
+        const action = this.determineOptimalAction(queryIntent, emotionalState);
 
         return {
             action,

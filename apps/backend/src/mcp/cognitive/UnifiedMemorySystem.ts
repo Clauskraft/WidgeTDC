@@ -9,7 +9,8 @@ import { SragRepository } from '../../services/srag/sragRepository.js';
 import { PalRepository } from '../../services/pal/palRepository.js';
 import { EvolutionRepository } from '../../services/evolution/evolutionRepository.js';
 import { projectMemory } from '../../services/project/ProjectMemory.js';
-import { McpContext, QueryIntent } from '../autonomous/index.js';
+import { McpContext } from '@widget-tdc/mcp-types';
+import { QueryIntent } from '../autonomous/DecisionEngine.js';
 import { hybridSearchEngine } from './HybridSearchEngine.js';
 import { emotionAwareDecisionEngine } from './EmotionAwareDecisionEngine.js';
 
@@ -92,10 +93,10 @@ export class UnifiedMemorySystem {
     /** Example holographic pattern correlation across subsystems */
     async findHolographicPatterns(ctx: McpContext): Promise<any[]> {
         const [pal, cma, srag, evo] = await Promise.all([
-            this.palRepo.getRecentEvents(ctx.userId, ctx.orgId, 50).catch(() => []),
-            this.memoryRepo.searchEntities({ orgId: ctx.orgId, userId: ctx.userId, keywords: [], limit: 50 }).catch(() => []),
-            this.sragRepo.searchDocuments(ctx.orgId, '').catch(() => []),
-            this.evolutionRepo.getRecentGenerations(10).catch(() => []),
+            Promise.resolve(this.palRepo.getRecentEvents(ctx.userId, ctx.orgId, 50)).catch(() => []),
+            Promise.resolve(this.memoryRepo.searchEntities({ orgId: ctx.orgId, userId: ctx.userId, keywords: [], limit: 50 })).catch(() => []),
+            Promise.resolve(this.sragRepo.searchDocuments(ctx.orgId, '')).catch(() => []),
+            Promise.resolve([]).catch(() => []), // evolutionRepo.getRecentGenerations doesn't exist
         ]);
 
         // Cross-correlate for "holographic" patterns

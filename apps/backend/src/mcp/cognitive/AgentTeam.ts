@@ -63,8 +63,8 @@ class DataAgent implements AgentCapabilities {
         return {
             role: this.role,
             result: {
-                dataFound: searchResults.results.length,
-                sources: searchResults.results.map(r => ({
+                dataFound: searchResults.length,
+                sources: searchResults.map(r => ({
                     source: r.source,
                     relevance: r.score
                 })),
