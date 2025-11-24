@@ -189,7 +189,7 @@ eventBus.emit('data:ingested', {
 });
 
 return entities.length;
-    }
+}
 
 /** Get ingestion status */
 getStatus() {
