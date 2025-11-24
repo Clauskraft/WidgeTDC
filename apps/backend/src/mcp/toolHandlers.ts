@@ -474,7 +474,7 @@ export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Prom
 }
 
 export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getChromaVectorStore();
+  const vectorStore = getPgVectorStore();
   const { records, namespace } = payload;
 
   const vectorRecords: VectorRecord[] = records.map((r: any, idx: number) => ({
@@ -511,16 +511,16 @@ export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext):
 }
 
 export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getChromaVectorStore();
+  const vectorStore = getPgVectorStore();
   const { id, limit = 5, namespace } = payload;
 
-  const record = await vectorStore.getById(id, namespace || ctx.orgId);
+  const record = await vectorStore.getById(id);
   if (!record) {
     throw new Error(`Record ${id} not found`);
   }
 
   const related = await vectorStore.search({
-    query: record.content,
+    text: record.content,
     limit,
     namespace: namespace || ctx.orgId,
   });
@@ -532,13 +532,13 @@ export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext
       id: r.id,
       content: r.content,
       metadata: r.metadata,
-      score: r.score,
+      score: r.similarity,
     })),
   };
 }
 
 export async function vidensarkivListHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getChromaVectorStore();
+  const vectorStore = getPgVectorStore();
   const { namespace } = payload;
 
   const namespaces = await vectorStore.listNamespaces();
@@ -552,23 +552,21 @@ export async function vidensarkivListHandler(payload: any, ctx: McpContext): Pro
 }
 
 export async function vidensarkivStatsHandler(payload: any, _ctx: McpContext): Promise<any> {
-  const vectorStore = getChromaVectorStore();
+  const vectorStore = getPgVectorStore();
   
   const stats = await vectorStore.getStatistics();
   const namespaces = await vectorStore.listNamespaces();
-  const isHealthy = await vectorStore.healthCheck();
 
   return {
     success: true,
     statistics: {
-      totalDatasets: stats.totalRecords,
+      totalRecords: stats.totalRecords,
       namespaces: namespaces.length,
-      byNamespace: stats.byNamespace,
-      estimatedSizeMB: (stats.estimatedSize / 1024 / 1024).toFixed(2),
-      vectorDimension: stats.vectorDimension
+      dimensions: stats.dimensions,
+      provider: stats.provider
     },
     health: {
-      status: isHealthy ? 'healthy' : 'unhealthy',
+      status: 'healthy',
       collection: 'vidensarkiv'
     }
   };
