@@ -1,9 +1,8 @@
 // HansPedder orchestrator – central autonomous agent
-import { AutonomousAgent, startAutonomousLearning } from '../mcp/autonomous/AutonomousAgent';
-import { getCognitiveMemory } from '../mcp/memory/CognitiveMemory';
-import { getFailureMemory } from '../mcp/memory/FailureMemory';
-import { getSourceRegistry } from '../mcp/SourceRegistry';
-import { getMcpRouter } from '../mcp/mcpRouter';
+import { AutonomousAgent, startAutonomousLearning } from '../mcp/autonomous/AutonomousAgent.js';
+import { getCognitiveMemory } from '../mcp/memory/CognitiveMemory.js';
+import { getSourceRegistry } from '../mcp/SourceRegistry.js';
+import { mcpRouter } from '../mcp/mcpRouter.js';
 
 // -------------------------------------------------------------------
 // 1️⃣  System Prompt – tailor it for HansPedder
@@ -35,26 +34,24 @@ export function getHansPedderStatus() {
 // -------------------------------------------------------------------
 // 3️⃣  Initialise core components
 // -------------------------------------------------------------------
-const cognitive = getCognitiveMemory();
-const failure = getFailureMemory();
-const sourceReg = getSourceRegistry();
+// Note: These must be called AFTER database initialization
+// We wrap the agent creation in the start function or a lazy getter
 
-// -------------------------------------------------------------------
-// 4️⃣  Create the autonomous agent with the custom prompt
-// -------------------------------------------------------------------
-const hansPedder = new AutonomousAgent({
-    cognitiveMemory: cognitive,
-    failureMemory: failure,
-    sourceRegistry: sourceReg,
-    systemPrompt: HANS_PEDDER_PROMPT,
-});
+let hansPedder: AutonomousAgent | null = null;
 
 // -------------------------------------------------------------------
 // 5️⃣  Export start function for the backend server
 // -------------------------------------------------------------------
 export async function startHansPedder() {
-    // Ensure MCP router is ready (registers tools, etc.)
-    await getMcpRouter(); // side‑effect only
+    // Ensure dependencies are ready
+    const cognitive = getCognitiveMemory();
+    const sourceReg = getSourceRegistry();
+
+    // Initialize agent if not already done
+    if (!hansPedder) {
+        hansPedder = new AutonomousAgent(cognitive, sourceReg);
+        // TODO: Inject system prompt if supported in future versions
+    }
 
     console.info('🚀 Starting HansPedder autonomous loop...');
     hansPedderStatus.active = true;

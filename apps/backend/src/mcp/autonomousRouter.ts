@@ -174,11 +174,13 @@ autonomousRouter.get('/decisions', async (req, res) => {
         const db = getDatabase();
         const limit = parseInt(req.query.limit as string) || 50;
         
-        const decisions = await db.all(`
+        const stmt = db.prepare(`
             SELECT * FROM mcp_decision_log
             ORDER BY timestamp DESC
             LIMIT ?
-        `, [limit]);
+        `);
+        const decisions = stmt.all([limit]);
+        stmt.free();
 
         res.json({ decisions });
     } catch (error: any) {
@@ -200,7 +202,7 @@ autonomousRouter.get('/patterns', async (req, res) => {
         } else {
             // Get all patterns
             const db = getDatabase();
-            const patterns = await db.all(`
+            const stmt = db.prepare(`
                 SELECT DISTINCT widget_id, query_type, source_used, 
                        AVG(latency_ms) as avg_latency,
                        COUNT(*) as frequency
@@ -209,6 +211,8 @@ autonomousRouter.get('/patterns', async (req, res) => {
                 ORDER BY frequency DESC
                 LIMIT 100
             `);
+            const patterns = stmt.all();
+            stmt.free();
             res.json({ patterns });
         }
     } catch (error: any) {

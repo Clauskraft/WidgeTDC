@@ -105,7 +105,9 @@ export async function registerDatabaseSource(): Promise<void> {
         isHealthy: async () => {
             try {
                 const db = getDatabase();
-                await db.get('SELECT 1');
+                const stmt = db.prepare('SELECT 1');
+                stmt.get();
+                stmt.free();
                 return true;
             } catch {
                 return false;
