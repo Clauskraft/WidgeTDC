@@ -5,8 +5,8 @@ async function debugSchema() {
     const db = getDatabase();
 
     try {
-        const tableInfo = db.run("PRAGMA table_info(project_lifecycle_events)");
-        console.log('Table Info:', tableInfo);
+        const result = (db as any).exec("PRAGMA table_info(project_lifecycle_events)");
+        console.log('Table Info:', JSON.stringify(result, null, 2));
     } catch (e) {
         console.error(e);
     }
