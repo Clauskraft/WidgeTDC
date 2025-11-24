@@ -142,6 +142,13 @@ export class CognitiveMemory {
         return this.failureMemory.isRecurringFailure(sourceName, errorType);
     }
 
+    /**
+     * Get failure statistics for a source
+     */
+    async getFailureStats(sourceName: string) {
+        return this.failureMemory.getFailureStats(sourceName);
+    }
+
     // ========================================================================
     // Health Tracking
     // ========================================================================

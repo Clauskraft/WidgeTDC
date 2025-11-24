@@ -12,16 +12,16 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@widget-tdc/mcp-types": ["../../packages/shared/mcp-types/dist/index.d.ts"]
+      "@widget-tdc/mcp-types": [
+        "../../packages/shared/mcp-types/dist/index.d.ts"
+      ]
     }
   },
-  "include": ["src/**/*"],
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
     "node_modules",
-    "dist",
-    "src/services/network/**",
-    "src/services/sc/**",
-    "src/services/security/**",
-    "src/services/agent/**"
+    "dist"
   ]
 }

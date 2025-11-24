@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-interface DatabaseStatement {
+export interface DatabaseStatement {
   bind: (params: unknown[]) => void;
   step: () => boolean;
   getAsObject: () => any;
@@ -16,7 +16,7 @@ interface DatabaseStatement {
   all: (...params: unknown[]) => any[];
 }
 
-interface Database {
+export interface Database {
   prepare: (sql: string) => DatabaseStatement;
   run: (sql: string, params?: any[]) => void;
   close: () => void;

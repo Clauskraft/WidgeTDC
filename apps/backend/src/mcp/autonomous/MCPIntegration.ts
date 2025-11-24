@@ -45,6 +45,10 @@ export async function registerMCPToolsAsSources(): Promise<void> {
                 query: async (op: string, params: any) => {
                     // Route through MCP registry
                     return await mcpRegistry.route({
+                        id: `auton-${Date.now()}`,
+                        createdAt: new Date().toISOString(),
+                        sourceId: 'autonomous-agent',
+                        targetId: 'mcp-registry',
                         tool: toolName,
                         payload: params || {}
                     });
