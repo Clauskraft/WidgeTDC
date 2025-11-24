@@ -10,7 +10,23 @@ import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
 import { getChromaVectorStore } from '../platform/vector/ChromaVectorStoreAdapter.js';
-import type { VectorRecord, VectorQuery } from '../../../src/platform/vector/types.js';
+// Vector types are imported from ChromaVectorStoreAdapter's types
+// Using inline types to avoid path issues
+type VectorRecord = {
+    id: string;
+    embedding: number[];
+    content?: string;
+    metadata: Record<string, any>;
+    namespace?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+type VectorQuery = {
+    embedding: number[];
+    topK: number;
+    namespace?: string;
+    filters?: any[];
+};
 import { projectMemory } from '../services/project/ProjectMemory.js';
 import { getTaskRecorder } from './cognitive/TaskRecorder.js';
 import { eventBus } from './EventBus.js';
@@ -283,7 +299,7 @@ export async function palBoardActionHandler(payload: any, ctx: McpContext): Prom
     userId: ctx.userId,
     orgId: ctx.orgId,
     eventType: 'board_action',
-    metadata: { actionType, widgetId }
+    payload: { actionType, widgetId }
   });
 
   return { success: true };
