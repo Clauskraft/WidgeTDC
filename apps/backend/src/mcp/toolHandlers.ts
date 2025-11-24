@@ -739,26 +739,39 @@ export async function emailRagHandler(payload: any, ctx: McpContext): Promise<an
 
 // ---------------------------------------------------
 // Agentic Workflow Execution Handler
+// Uses MCP registry directly instead of external adapter
 // ---------------------------------------------------
-export async function agenticRunHandler(payload: any, _ctx: McpContext): Promise<any> {
+export async function agenticRunHandler(payload: any, ctx: McpContext): Promise<any> {
   // Expected payload: { workflow: { nodes: [], edges: [] } }
   if (!payload?.workflow) {
     throw new Error('Missing workflow definition');
   }
-  const { getAgentsetAdapter } = await import('../services/agentic/AgentsetAdapter.js');
-  const adapter = getAgentsetAdapter();
-  // Simple execution: run the first tool node in the workflow
+  
+  // Simple execution: run the first tool node in the workflow via MCP
   const firstTool = payload.workflow.nodes.find((n: any) => n.type === 'tool');
   if (!firstTool) {
     throw new Error('No tool node found in workflow');
   }
-  const result = await adapter.execute(firstTool.name, firstTool.payload || {});
-  // Log execution for audit (project memory)
-  const { projectMemoryLogEventHandler } = await import('../services/project/ProjectMemory.js');
-  await projectMemoryLogEventHandler({
-    type: 'agentic.run',
-    status: 'success',
-    details: { tool: firstTool.name, result },
+  
+  // Route through MCP registry
+  const { mcpRegistry } = await import('./mcpRouter.js');
+  const result = await mcpRegistry.route({
+    tool: firstTool.name,
+    payload: firstTool.payload || {},
+    context: ctx
   });
+  
+  // Log execution for audit (project memory)
+  const { projectMemory } = await import('../services/project/ProjectMemory.js');
+  projectMemory.logLifecycleEvent({
+    eventType: 'other',
+    status: 'success',
+    details: { 
+      action: 'agentic.run',
+      tool: firstTool.name, 
+      result 
+    },
+  });
+  
   return { result };
 }
