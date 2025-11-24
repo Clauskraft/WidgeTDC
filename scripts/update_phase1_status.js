@@ -1,11 +1,12 @@
 // Script to update Phase 1 status in Project Memory
 // Run this when backend is started: node scripts/update_phase1_status.js
 
-import { getDatabase } from '../apps/backend/src/database/index.ts';
+import { getDatabase, initializeDatabase } from '../apps/backend/src/database/index.ts';
 import { projectMemory } from '../apps/backend/src/services/project/ProjectMemory.ts';
 
 async function updatePhase1Status() {
     console.log('🔄 Updating Phase 1 status in Project Memory...');
+    await initializeDatabase();
 
     // Update Phase 1 feature status to completed
     projectMemory.updateFeatureStatus(
