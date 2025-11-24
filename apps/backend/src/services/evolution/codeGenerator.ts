@@ -12,7 +12,7 @@ export async function generateCode(spec: string, testPlan: string, kpiThreshold 
   KPI: Coverage >${kpiThreshold}%, no errors.`;
 
   const result = await model.generateContent(prompt);
-  let code = await result.response.text();
+  const code = await result.response.text();
 
   // Post-process: Validate syntax (simple check)
   if (!code.includes('export') || code.includes('error')) {

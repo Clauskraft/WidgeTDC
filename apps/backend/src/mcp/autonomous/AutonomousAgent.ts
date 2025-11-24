@@ -101,7 +101,6 @@ export class AutonomousAgent {
         query: DataQuery,
         executeFunction: (source: DataSource) => Promise<any>
     ): Promise<QueryResult> {
-        const queryId = query.id || uuidv4();
         const startTime = Date.now();
 
         // 1. Analyze intent
@@ -306,22 +305,9 @@ export class AutonomousAgent {
     private async logDecision(
         query: DataQuery,
         decision: DecisionResult,
-        allCandidates: DataSource[]
+        _allCandidates: DataSource[]
     ): Promise<void> {
         try {
-            const sql = `
-        INSERT INTO mcp_decision_log
-        (id, query_intent, selected_source, decision_confidence, timestamp)
-        VALUES (?, ?, ?, ?, ?)
-      `;
-
-            const id = uuidv4();
-            const intent = JSON.stringify({
-                type: query.type,
-                domain: query.domain,
-                priority: query.priority
-            });
-
             // Note: This is simplified - full implementation would use proper DB access
             // For now, logging to console
             console.log(`📊 Decision logged: ${decision.selectedSource.name}`);

@@ -367,7 +367,7 @@ Event Details: ${JSON.stringify(payload.payload, null, 2)}
 
 export async function palBoardActionHandler(payload: any, ctx: McpContext): Promise<any> {
   // Get recommendations
-  let profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
+  const profile = palRepo.getUserProfile(ctx.userId, ctx.orgId);
   if (!profile) {
     palRepo.createUserProfile(ctx.userId, ctx.orgId);
   }

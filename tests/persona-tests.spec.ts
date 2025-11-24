@@ -152,7 +152,7 @@ test.describe('Persona 1: Sarah (Superuser)', () => {
     // Perform add/remove cycle to check integrity
     const addBtn = page.locator('button').filter({ hasText: /add|plus|new/i }).first();
 
-    let widgetsBefore = await page.locator('[data-grid-item], .react-grid-item').count().catch(() => 0);
+    const widgetsBefore = await page.locator('[data-grid-item], .react-grid-item').count().catch(() => 0);
 
     if (await addBtn.isVisible().catch(() => false)) {
       await addBtn.click().catch(() => {});

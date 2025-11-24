@@ -92,7 +92,7 @@ async function startServer() {
     const yaml = (await import('js-yaml')).default;
 
     const db = getDatabase();
-    const memory = initCognitiveMemory(db);
+    initCognitiveMemory(db);
     console.log('🧠 Cognitive Memory initialized');
 
     const registry = getSourceRegistry();

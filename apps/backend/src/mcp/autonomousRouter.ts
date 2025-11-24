@@ -15,6 +15,10 @@ let wsServer: any = null;
 
 export function setWebSocketServer(server: any): void {
     wsServer = server;
+    // Update agent instance if it already exists
+    if (agent) {
+        agent.setWebSocketServer(server);
+    }
 }
 
 export const autonomousRouter = Router();

@@ -28,7 +28,7 @@ describe('useMCP hook', () => {
     if (originalCryptoDescriptor) {
       Object.defineProperty(globalThis, 'crypto', originalCryptoDescriptor);
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+       
       delete (globalThis as any).crypto;
     }
     vi.restoreAllMocks();
