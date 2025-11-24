@@ -5,7 +5,7 @@ import { existsSync } from 'fs';
 /** Simple JSON‑based SharePoint adapter (placeholder) */
 export class SharePointAdapter implements DataSourceAdapter {
     name = 'SharePoint';
-    type: 'google_drive' = 'google_drive';
+    type: 'other' = 'other';
     private filePath: string;
     private items: any[] = [];
     private lastLoaded = 0;
