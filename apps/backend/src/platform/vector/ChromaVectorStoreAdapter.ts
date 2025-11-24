@@ -332,7 +332,8 @@ export class ChromaVectorStoreAdapter implements VectorStoreAdapter {
         where.$and = where.$and || [];
         where.$and.push(namespaceFilter);
       } else {
-        Object.assign(where || {}, namespaceFilter);
+        // Create new where object with namespace filter
+        where = namespaceFilter;
       }
     }
 
@@ -510,8 +511,15 @@ export class ChromaVectorStoreAdapter implements VectorStoreAdapter {
       throw new Error('Collection not initialized');
     }
 
-    const count = await this.collection.count();
+    // Count records in the namespace before deletion
+    const namespaceRecords = await this.collection.get({
+      where: {
+        namespace: { $eq: namespace }
+      }
+    });
+    const count = namespaceRecords.ids[0]?.length || 0;
     
+    // Delete records in the namespace
     await this.collection.delete({
       where: {
         namespace: { $eq: namespace }
