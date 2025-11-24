@@ -37,10 +37,14 @@ class ProjectMemoryService {
     public logLifecycleEvent(event: LifecycleEvent): void {
         const db = getDatabase();
         try {
+            const eventType = event.eventType || 'unknown';
+            const status = event.status || 'unknown';
+            const details = JSON.stringify(event.details || {});
+
             db.prepare(`
         INSERT INTO project_lifecycle_events (event_type, status, details, created_at)
         VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-        `).run(event.eventType, event.status, JSON.stringify(event.details || {}));
+        `).run(eventType, status, details);
 
             console.log(`[ProjectMemory] Logged event: ${event.eventType} - ${event.status}`);
         } catch (error) {

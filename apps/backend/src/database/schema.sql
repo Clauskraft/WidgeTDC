@@ -261,23 +261,4 @@ CREATE TABLE IF NOT EXISTS project_features (
   updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- ============================================================================
--- PROJECT MEMORY LAYER
--- ============================================================================
 
-CREATE TABLE IF NOT EXISTS project_lifecycle_events (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  event_type    TEXT NOT NULL, -- 'build', 'test', 'deploy', 'feature'
-  status        TEXT NOT NULL, -- 'success', 'failure', 'in_progress'
-  details       TEXT,          -- JSON payload
-  created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE IF NOT EXISTS project_features (
-  id            INTEGER PRIMARY KEY AUTOINCREMENT,
-  name          TEXT NOT NULL,
-  description   TEXT,
-  status        TEXT NOT NULL, -- 'planned', 'in_progress', 'completed', 'deprecated'
-  created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
