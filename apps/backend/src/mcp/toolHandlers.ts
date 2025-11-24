@@ -10,7 +10,7 @@ import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
 import { getChromaVectorStore } from '../platform/vector/ChromaVectorStoreAdapter.js';
-import type { VectorRecord, VectorQuery } from '../../platform/vector/types.js';
+import type { VectorRecord, VectorQuery } from '../../../src/platform/vector/types.js';
 import { projectMemory } from '../services/project/ProjectMemory.js';
 import { getTaskRecorder } from './cognitive/TaskRecorder.js';
 import { eventBus } from './EventBus.js';
@@ -190,7 +190,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 
 export async function sragGovernanceCheckHandler(payload: any, ctx: McpContext): Promise<any> {
   const { docId } = payload;
-  const doc = sragRepo.getDocument(ctx.orgId, docId);
+  const doc = sragRepo.getDocumentById(parseInt(docId, 10));
   
   if (!doc) {
     return { compliant: false, reason: 'Document not found' };
@@ -238,13 +238,13 @@ Recent Run: ${JSON.stringify(payload, null, 2)}
 
 export async function evolutionGetPromptHandler(payload: any, _ctx: McpContext): Promise<any> {
   const { agentId } = payload;
-  const prompt = evolutionRepo.getCurrentPrompt(agentId);
+  const prompt = evolutionRepo.getLatestPrompt(agentId);
   return { prompt };
 }
 
 export async function evolutionAnalyzePromptsHandler(payload: any, _ctx: McpContext): Promise<any> {
   const { agentId } = payload;
-  const prompts = evolutionRepo.getPromptHistory(agentId, 10);
+  const prompts = evolutionRepo.getAllPrompts(agentId).slice(0, 10);
   
   // Generate LLM analysis
   const llmService = getLlmService();
@@ -278,25 +278,43 @@ export async function palEventHandler(payload: any, ctx: McpContext): Promise<an
 
 export async function palBoardActionHandler(payload: any, ctx: McpContext): Promise<any> {
   const { actionType, widgetId } = payload;
-  palRepo.recordBoardAction({
-    orgId: ctx.orgId,
+  // Record board action as a PAL event
+  palRepo.recordEvent({
     userId: ctx.userId,
-    actionType,
-    widgetId,
+    orgId: ctx.orgId,
+    eventType: 'board_action',
+    metadata: { actionType, widgetId }
   });
 
   return { success: true };
 }
 
 export async function palOptimizeWorkflowHandler(payload: any, ctx: McpContext): Promise<any> {
-  const recommendations = palRepo.getWorkflowRecommendations(ctx.orgId, ctx.userId);
+  // Get focus windows as workflow recommendations
+  const focusWindows = palRepo.getFocusWindows(ctx.userId, ctx.orgId);
+  const recommendations = focusWindows.map(fw => ({
+    day: fw.weekday,
+    startHour: fw.start_hour,
+    endHour: fw.end_hour,
+    type: 'focus_window'
+  }));
   return { recommendations };
 }
 
 export async function palAnalyzeSentimentHandler(payload: any, ctx: McpContext): Promise<any> {
   const { text } = payload;
-  const sentiment = palRepo.analyzeSentiment(text);
-  return { sentiment };
+  // Simple sentiment analysis - in production would use NLP library
+  const positiveWords = ['good', 'great', 'excellent', 'happy', 'love', 'amazing'];
+  const negativeWords = ['bad', 'terrible', 'hate', 'awful', 'sad', 'angry'];
+  const lowerText = text.toLowerCase();
+  const positiveCount = positiveWords.filter(w => lowerText.includes(w)).length;
+  const negativeCount = negativeWords.filter(w => lowerText.includes(w)).length;
+  
+  let sentiment = 'neutral';
+  if (positiveCount > negativeCount) sentiment = 'positive';
+  else if (negativeCount > positiveCount) sentiment = 'negative';
+  
+  return { sentiment, score: positiveCount - negativeCount };
 }
 
 // Notes tool handlers

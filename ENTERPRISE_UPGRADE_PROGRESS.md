@@ -16,23 +16,22 @@
 ## 🚧 Next Steps
 
 ### 1. Prisma Setup
-- [ ] Install Prisma: `npm install --save-dev prisma @prisma/client`
-- [ ] Initialize Prisma: `npx prisma init`
-- [ ] Define schema in `prisma/schema.prisma`
-- [ ] Run migration: `npx prisma migrate dev`
+- [x] Install Prisma: `npm install --save-dev prisma @prisma/client`
+- [x] Create comprehensive schema in `prisma/schema.prisma`
+- [x] Update `.env.example` with PostgreSQL and Redis URLs
+- [ ] Initialize database: `npx prisma migrate dev --name init`
+- [ ] Run migration script: `node dist/scripts/migrate-to-postgres.js`
 
 ### 2. Integrate RedisEventBus
-- [ ] Update `apps/backend/src/mcp/EventBus.ts` to conditionally use Redis
+- [ ] Update `apps/backend/src/mcp/EventBus.ts` to use Redis in production
 - [ ] Test event persistence across server restarts
 
 ### 3. Database Adapters
-- [ ] Create `DatabaseAdapter` interface
-- [ ] Implement `PrismaDatabaseAdapter`
-- [ ] Update `UnifiedMemorySystem` to use new adapter
+- [x] Create `PrismaDatabaseAdapter.ts`
+- [x] Create `PgVectorStoreAdapter.ts` (replaces ChromaDB)
+- [ ] Update `UnifiedMemorySystem` to use Prisma adapter
+- [ ] Update all code references from ChromaDB to PgVector
 
-### 4. PgVector Migration
-- [ ] Create `PgVectorStoreAdapter` to replace ChromaDB
-- [ ] Migrate existing vector data (if any)
 
 ## 🎯 How to Start Services
 

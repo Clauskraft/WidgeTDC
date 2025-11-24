@@ -1,0 +1,81 @@
+import { PrismaClient } from '@prisma/client';
+import { logger } from '../../utils/logger.js';
+
+/**
+ * Database Adapter Interface
+ * Generic interface for database operations
+ */
+export interface DatabaseAdapter {
+    initialize(): Promise<void>;
+    disconnect(): Promise<void>;
+
+    // Generic query methods
+    query(sql: string, params?: any[]): Promise<any>;
+    transaction<T>(fn: (tx: any) => Promise<T>): Promise<T>;
+}
+
+/**
+ * Prisma Database Adapter
+ * Production-grade database adapter using Prisma ORM
+ */
+export class PrismaDatabaseAdapter implements DatabaseAdapter {
+    private prisma: PrismaClient;
+    private isInitialized = false;
+
+    constructor() {
+        this.prisma = new PrismaClient({
+            log: process.env.NODE_ENV === 'development'
+                ? ['query', 'info', 'warn', 'error']
+                : ['error'],
+        });
+    }
+
+    async initialize(): Promise<void> {
+        if (this.isInitialized) return;
+
+        try {
+            await this.prisma.$connect();
+            logger.info('🗄️  Prisma Database connected');
+
+            // Enable pgvector extension
+            await this.prisma.$executeRaw`CREATE EXTENSION IF NOT EXISTS vector`;
+
+            this.isInitialized = true;
+        } catch (error: any) {
+            logger.error('Failed to initialize Prisma:', { error: error.message });
+            throw error;
+        }
+    }
+
+    async disconnect(): Promise<void> {
+        await this.prisma.$disconnect();
+        logger.info('🗄️  Prisma Database disconnected');
+    }
+
+    async query(sql: string, params?: any[]): Promise<any> {
+        return this.prisma.$queryRawUnsafe(sql, ...(params || []));
+    }
+
+    async transaction<T>(fn: (tx: PrismaClient) => Promise<T>): Promise<T> {
+        return this.prisma.$transaction(fn);
+    }
+
+    /**
+     * Get Prisma client for direct access
+     */
+    getClient(): PrismaClient {
+        return this.prisma;
+    }
+}
+
+// Singleton instance
+let dbInstance: PrismaDatabaseAdapter | null = null;
+
+export function getDatabaseAdapter(): PrismaDatabaseAdapter {
+    if (!dbInstance) {
+        dbInstance = new PrismaDatabaseAdapter();
+    }
+    return dbInstance;
+}
+
+export { PrismaClient };

@@ -181,7 +181,7 @@ export class UnifiedMemorySystem {
             return {
                 name: component,
                 healthScore: health?.healthScore || 0.8,
-                latency: health?.latencyP50 || 0,
+                latency: health?.latency?.p50 || 0,
                 successRate: health?.successRate || 0.9
             };
         } catch {

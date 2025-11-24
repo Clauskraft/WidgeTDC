@@ -139,15 +139,16 @@ export class UnifiedGraphRAG {
         // Strategy 1: Get patterns involving this widget/source (existing)
         const patterns = await memory.getWidgetPatterns(node.id);
         
-        // UsagePattern is an object, not an array - iterate over timePatterns
-        for (const p of patterns.timePatterns || []) {
+        // UsagePattern is an object with commonSources and timePatterns
+        // Use commonSources to expand graph connections
+        for (const source of patterns.commonSources || []) {
             expandedNodes.push({
-                id: `pattern-${p.patternId}`,
-                type: 'pattern',
-                content: `Pattern: ${p.queryType} -> ${p.sourceUsed}`,
-                score: p.confidence * node.score * 0.8, // Decay score over hops
+                id: `source-${source}`,
+                type: 'source',
+                content: `Source: ${source}`,
+                score: node.score * 0.7, // Decay score over hops
                 depth: node.depth + 1,
-                metadata: { relation: 'has_pattern', confidence: p.confidence },
+                metadata: { relation: 'uses_source', averageLatency: patterns.averageLatency },
                 connections: []
             });
         }
