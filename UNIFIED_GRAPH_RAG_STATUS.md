@@ -75,41 +75,52 @@ private async expandNode(node: GraphNode): Promise<GraphNode[]>
 
 ## ⚠️ LIMITATIONS / PLACEHOLDERS
 
-### 1. Answer Synthesis ⚠️ PLACEHOLDER
+### 1. Answer Synthesis ✅ IMPLEMENTED
 
 **Current:**
 ```typescript
-answer: "Reasoning complete. See nodes for details."
+answer: await this.synthesizeAnswer(query, topNodes, context)
+// Returns comprehensive LLM-generated answer with:
+// - Direct answer to query
+// - Key insights from graph
+// - Confidence assessment
+// - Sources referenced
 ```
 
-**Should Be:**
-- LLM-based synthesis of graph context
-- Natural language answer generation
-- Confidence scoring based on graph quality
+**Implementation:**
+- ✅ LLM-based synthesis using `LlmService.generateContextualResponse()`
+- ✅ Natural language answer generation
+- ✅ Confidence scoring based on graph quality
+- ✅ Source citations included
 
-### 2. Graph Storage ⚠️ IMPLICIT
-
-**Current:**
-- Uses CognitiveMemory patterns as proxy for graph edges
-- No explicit graph database (Neo4j)
-- No persistent graph structure
-
-**Should Have:**
-- Explicit edge storage
-- Graph database integration
-- Persistent knowledge graph
-
-### 3. Multi-hop Logic ⚠️ SIMPLIFIED
+### 2. Graph Storage ✅ ENHANCED (CMA Integration)
 
 **Current:**
-- Simple breadth-first expansion
-- Pattern-based connections only
-- No semantic similarity in expansion
+- ✅ Uses CognitiveMemory patterns as proxy for graph edges
+- ✅ Uses CMA `memory_entities` table for explicit relations
+- ✅ Uses UnifiedMemorySystem for episodic memory connections
+- ⚠️ No Neo4j yet (planned)
 
-**Could Enhance:**
-- Semantic similarity for expansion
-- Relation type filtering
-- Path scoring optimization
+**Enhanced:**
+- ✅ Explicit edge storage via CMA memory relations
+- ✅ Memory entity connections as graph edges
+- ✅ Episodic memory integration
+- ⚠️ Neo4j graph database (planned for future)
+
+### 3. Multi-hop Logic ✅ ENHANCED
+
+**Current:**
+- ✅ Breadth-first expansion with 3 strategies
+- ✅ Pattern-based connections
+- ✅ CMA memory relations
+- ✅ Episodic memory connections
+- ✅ Basic semantic similarity (keyword-based)
+
+**Enhancements:**
+- ✅ Semantic similarity for expansion (keyword-based, ready for vector upgrade)
+- ✅ Multiple expansion strategies (patterns, CMA, episodic)
+- ✅ Score decay over hops
+- ⚠️ Vector-based semantic similarity (planned - Pinecone integration)
 
 ---
 
@@ -154,14 +165,14 @@ answer: "Reasoning complete. See nodes for details."
 
 ---
 
-## ⚠️ WHAT'S MISSING
+## ⚠️ WHAT'S MISSING / ENHANCED
 
-1. ⚠️ LLM-based answer synthesis (placeholder)
-2. ❌ Explicit graph database (Neo4j)
-3. ❌ Vector DB integration (Pinecone)
-4. ❌ API endpoint exposure
-5. ❌ Direct CMA graph integration
-6. ❌ Semantic similarity in expansion
+1. ✅ LLM-based answer synthesis - **IMPLEMENTED** (using LlmService)
+2. ⚠️ Explicit graph database (Neo4j) - **PLANNED** (using CMA memory_relations as interim)
+3. ⚠️ Vector DB integration (Pinecone) - **PLANNED** (basic keyword similarity implemented)
+4. ✅ API endpoint exposure - **COMPLETE** (REST + MCP)
+5. ✅ Direct CMA graph integration - **IMPLEMENTED** (memory relations + episodic memory)
+6. ✅ Semantic similarity in expansion - **IMPLEMENTED** (basic keyword-based, ready for vector upgrade)
 
 ---
 
@@ -206,7 +217,7 @@ answer: "Reasoning complete. See nodes for details."
 - API exposure: ❌ Missing
 - Phase 2 infrastructure: ❌ Missing
 
-**Conclusion:** UnifiedGraphRAG er implementeret og fungerer, men mangler API exposure og Phase 2 infrastructure (Neo4j, Pinecone). Core algoritme er på plads.
+**Conclusion:** UnifiedGraphRAG er nu forbedret med LLM synthesis, CMA integration, og basic semantic similarity. Core algoritme er på plads, og infrastructure upgrades (Neo4j, Pinecone) er planlagt. Inspireret af CgentCore's L1 Director Agent arkitektur.
 
 ---
 
