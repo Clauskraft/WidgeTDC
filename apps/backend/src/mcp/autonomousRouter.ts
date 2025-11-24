@@ -8,6 +8,14 @@ import { Router } from 'express';
 import { getCognitiveMemory } from './memory/CognitiveMemory';
 import { AutonomousAgent, startAutonomousLearning } from './autonomous/AutonomousAgent';
 import { getSourceRegistry } from './SourceRegistry';
+import { getDatabase } from '../../database/index.js';
+
+// WebSocket server for real-time events (will be injected)
+let wsServer: any = null;
+
+export function setWebSocketServer(server: any): void {
+    wsServer = server;
+}
 
 export const autonomousRouter = Router();
 
@@ -25,7 +33,7 @@ export function initAutonomousAgent(): AutonomousAgent {
     const memory = getCognitiveMemory();
     const registry = getSourceRegistry();
 
-    agent = new AutonomousAgent(memory, registry);
+    agent = new AutonomousAgent(memory, registry, wsServer);
 
     console.log('🤖 Autonomous Agent initialized');
 
@@ -146,6 +154,78 @@ autonomousRouter.get('/sources', async (req, res) => {
         );
 
         res.json({ sources: sourcesInfo });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * Get system health
+ */
+/**
+ * Get decision history
+ */
+autonomousRouter.get('/decisions', async (req, res) => {
+    try {
+        const db = getDatabase();
+        const limit = parseInt(req.query.limit as string) || 50;
+        
+        const decisions = await db.all(`
+            SELECT * FROM mcp_decision_log
+            ORDER BY timestamp DESC
+            LIMIT ?
+        `, [limit]);
+
+        res.json({ decisions });
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * Get learned patterns
+ */
+autonomousRouter.get('/patterns', async (req, res) => {
+    try {
+        const memory = getCognitiveMemory();
+        const widgetId = req.query.widgetId as string;
+
+        if (widgetId) {
+            const patterns = await memory.getWidgetPatterns(widgetId);
+            res.json({ patterns });
+        } else {
+            // Get all patterns
+            const db = getDatabase();
+            const patterns = await db.all(`
+                SELECT DISTINCT widget_id, query_type, source_used, 
+                       AVG(latency_ms) as avg_latency,
+                       COUNT(*) as frequency
+                FROM query_patterns
+                GROUP BY widget_id, query_type, source_used
+                ORDER BY frequency DESC
+                LIMIT 100
+            `);
+            res.json({ patterns });
+        }
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * Trigger manual learning cycle
+ */
+autonomousRouter.post('/learn', async (req, res) => {
+    if (!agent) {
+        return res.status(503).json({ error: 'Agent not initialized' });
+    }
+
+    try {
+        await agent.learn();
+        res.json({
+            success: true,
+            message: 'Learning cycle completed'
+        });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
     }

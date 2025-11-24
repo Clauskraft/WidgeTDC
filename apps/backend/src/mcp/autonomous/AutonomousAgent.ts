@@ -38,16 +38,26 @@ export class AutonomousAgent {
     private decisionEngine: DecisionEngine;
     private registry: SourceRegistry;
     private predictionCache: Map<string, any> = new Map();
+    private wsServer: any = null; // WebSocket server for real-time events
 
     constructor(
         memory: CognitiveMemory,
-        registry: SourceRegistry
+        registry: SourceRegistry,
+        wsServer?: any
     ) {
         this.memory = memory;
         this.decisionEngine = new DecisionEngine(memory);
         this.registry = registry;
+        this.wsServer = wsServer || null;
 
         console.log('🤖 Autonomous Agent initialized');
+    }
+
+    /**
+     * Set WebSocket server for real-time event emission
+     */
+    setWebSocketServer(server: any): void {
+        this.wsServer = server;
     }
 
     /**
@@ -134,6 +144,18 @@ export class AutonomousAgent {
                     alternatives: rankedSources.filter(s => s.source.name !== selectedSource.name)
                 };
                 await this.logDecision(query, decision, candidates);
+
+                // Emit WebSocket event for real-time updates
+                if (this.wsServer && this.wsServer.emitAutonomousDecision) {
+                    this.wsServer.emitAutonomousDecision({
+                        queryId: query.id || 'unknown',
+                        selectedSource: selectedSource.name,
+                        confidence: candidate.score,
+                        alternatives: rankedSources.slice(1, 4).map(s => s.source.name),
+                        reasoning: candidate.reasoning,
+                        latency: latencyMs
+                    });
+                }
 
                 // Learn from successful execution
                 await this.memory.recordQuery({

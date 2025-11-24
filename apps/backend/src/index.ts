@@ -119,6 +119,11 @@ async function startServer() {
       }
     });
 
+    // Step 3.6: Initialize MCP → Autonomous Integration
+    const { initializeAutonomousSources } = await import('./mcp/autonomous/MCPIntegration.js');
+    await initializeAutonomousSources();
+    console.log('🔗 MCP tools registered as autonomous sources');
+
     const agent = initAutonomousAgent();
     console.log('🤖 Autonomous Agent initialized');
 
@@ -149,6 +154,10 @@ async function startServer() {
 
     // Step 6: Initialize WebSocket server for MCP
     const wsServer = new MCPWebSocketServer(server);
+
+    // Step 6.5: Wire WebSocket server to autonomous router for real-time events
+    const { setWebSocketServer } = await import('./mcp/autonomousRouter.js');
+    setWebSocketServer(wsServer);
 
     // Step 7: Wire up orchestrator broadcasting
     orchestrator.setBroadcaster((message) => {

@@ -95,6 +95,57 @@ export class MCPWebSocketServer {
     });
   }
 
+  /**
+   * Emit autonomous decision event to all connected clients
+   */
+  public emitAutonomousDecision(decision: {
+    queryId: string;
+    selectedSource: string;
+    confidence: number;
+    alternatives: string[];
+    reasoning: string;
+    latency: number;
+  }): void {
+    this.sendToAll({
+      type: 'autonomous:decision',
+      timestamp: new Date().toISOString(),
+      data: decision
+    });
+  }
+
+  /**
+   * Emit source health update
+   */
+  public emitSourceHealth(sourceName: string, health: {
+    healthy: boolean;
+    score: number;
+    latency?: number;
+  }): void {
+    this.sendToAll({
+      type: 'autonomous:health',
+      timestamp: new Date().toISOString(),
+      data: {
+        source: sourceName,
+        ...health
+      }
+    });
+  }
+
+  /**
+   * Emit learning progress update
+   */
+  public emitLearningProgress(progress: {
+    patternsLearned: number;
+    decisionsMade: number;
+    averageConfidence: number;
+  }): void {
+    this.sendToAll({
+      type: 'autonomous:learning',
+      timestamp: new Date().toISOString(),
+      data: progress
+    });
+  }
+
   private executeNexusCommand(commandIntent: string): string {
     console.log(`⚡ NEXUS EXECUTING: ${commandIntent}`);
 
