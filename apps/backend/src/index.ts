@@ -76,6 +76,21 @@ async function startServer() {
     mcpRegistry.registerTool('notes.delete', notesDeleteHandler);
     mcpRegistry.registerTool('notes.get', notesGetHandler);
 
+    // Project Memory tools
+    const {
+      projectMemoryLogEventHandler,
+      projectMemoryGetEventsHandler,
+      projectMemoryAddFeatureHandler,
+      projectMemoryUpdateFeatureHandler,
+      projectMemoryGetFeaturesHandler
+    } = await import('./mcp/projectMemoryHandlers.js');
+
+    mcpRegistry.registerTool('project.log_event', projectMemoryLogEventHandler);
+    mcpRegistry.registerTool('project.get_events', projectMemoryGetEventsHandler);
+    mcpRegistry.registerTool('project.add_feature', projectMemoryAddFeatureHandler);
+    mcpRegistry.registerTool('project.update_feature', projectMemoryUpdateFeatureHandler);
+    mcpRegistry.registerTool('project.get_features', projectMemoryGetFeaturesHandler);
+
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
     mcpRegistry.registerServer(orchestrator);
