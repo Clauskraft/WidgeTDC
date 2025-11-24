@@ -1,0 +1,35 @@
+[
+    {
+        "id": "msg-001",
+        "subject": "Projektstatus WidgeTDC",
+        "sender": {
+            "name": "Jens Jensen",
+            "address": "jens@example.com"
+        },
+        "receivedDateTime": "2025-11-24T09:00:00Z",
+        "bodyPreview": "Hej Claus, her er status på projektet...",
+        "body": {
+            "contentType": "text",
+            "content": "Hej Claus,\n\nHer er status på projektet WidgeTDC. Vi er godt med."
+        },
+        "importance": "normal",
+        "isRead": false
+    },
+    {
+        "id": "msg-002",
+        "subject": "Urgent: Server nedbrud",
+        "sender": {
+            "name": "Support Team",
+            "address": "support@widget-inc.com"
+        },
+        "receivedDateTime": "2025-11-24T10:30:00Z",
+        "bodyPreview": "Server 3 er nede, venligst tjek logs.",
+        "body": {
+            "contentType": "text",
+            "content": "Server 3 er nede, venligst tjek logs."
+        },
+        "importance": "high",
+        "isRead": false
+    }
+]
+
