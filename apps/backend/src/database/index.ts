@@ -6,19 +6,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export interface DatabaseStatement {
-  bind: (params: unknown[]) => void;
-  step: () => boolean;
-  getAsObject: () => any;
+export interface DatabaseStatement<P = any[], R = any> {
+  all: (...params: P extends any[] ? P : any[]) => R[];
+  get: (...params: P extends any[] ? P : any[]) => R | undefined;
+  run: (...params: P extends any[] ? P : any[]) => { changes: number; lastInsertRowid: number | bigint };
   free: () => void;
-  run: (...params: unknown[]) => { lastInsertRowid: number | bigint };
-  get: (...params: unknown[]) => any;
-  all: (...params: unknown[]) => any[];
 }
 
 export interface Database {
-  prepare: (sql: string) => DatabaseStatement;
-  run: (sql: string, params?: any[]) => void;
+  prepare: <P = any[], R = any>(sql: string) => DatabaseStatement<P, R>;
+  run: (sql: string, params?: any[]) => { changes: number; lastInsertRowid: number | bigint };
   close: () => void;
 }
 

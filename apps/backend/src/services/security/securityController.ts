@@ -33,10 +33,10 @@ securityRouter.get('/search/history', (req, res) => {
 });
 
 const searchSchema = z.object({
-  query: z.string().optional().default(''),
-  severity: z.string().optional().default('all'),
-  timeframe: z.string().optional().default('24h'),
-  sources: z.array(z.string()).optional().default([]),
+  query: z.string().default(''),
+  severity: z.string().default('all'),
+  timeframe: z.string().default('24h'),
+  sources: z.array(z.string()).default([]),
 });
 
 securityRouter.post('/search/query', async (req, res) => {
@@ -45,7 +45,7 @@ securityRouter.post('/search/query', async (req, res) => {
     return res.status(400).json({ error: 'Invalid payload', details: parsed.error.flatten() });
   }
 
-  const payload = await executeSecuritySearch(parsed.data);
+  const payload = await executeSecuritySearch(parsed.data as any);
   res.json(payload);
 });
 

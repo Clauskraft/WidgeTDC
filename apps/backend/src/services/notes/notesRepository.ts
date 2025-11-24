@@ -19,12 +19,18 @@ export interface Note {
 }
 
 export class NotesRepository {
+    private initialized = false;
+
     private get db() {
+        if (!this.initialized) {
+            this.initTables();
+            this.initialized = true;
+        }
         return getDatabase();
     }
 
     constructor() {
-        this.initTables();
+        // Lazy initialization moved to db getter
     }
 
     private initTables() {

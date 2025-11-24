@@ -169,6 +169,25 @@ export class AutonomousAgent {
                     success: true
                 });
 
+                // Log to ProjectMemory for historical tracking
+                try {
+                    const { projectMemory } = await import('../../services/project/ProjectMemory.js');
+                    projectMemory.logLifecycleEvent({
+                        eventType: 'other',
+                        status: 'success',
+                        details: {
+                            type: 'agent_decision',
+                            query: query.type,
+                            source: selectedSource.name,
+                            latency: latencyMs,
+                            confidence: candidate.score
+                        }
+                    });
+                } catch (error) {
+                    // Don't fail the query if ProjectMemory logging fails
+                    console.warn('Failed to log to ProjectMemory:', error);
+                }
+
                 return {
                     data: result,
                     source: selectedSource.name,

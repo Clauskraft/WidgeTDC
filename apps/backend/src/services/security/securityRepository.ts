@@ -102,7 +102,7 @@ export function recordSearchHistory(entry: Omit<SearchHistoryEntry, 'ranAt'> & {
 export function getSearchHistory(limit = 6): SearchHistoryEntry[] {
   const db = getDatabase();
   const rows = db
-    .prepare<[], RawHistoryRow>(`
+    .prepare<[number], RawHistoryRow>(`
       SELECT * FROM security_search_history
       ORDER BY created_at DESC
       LIMIT ?
@@ -263,29 +263,26 @@ export function setActivityAcknowledged(id: string, acknowledged: boolean): Secu
 
 export function getWidgetPermissions(widgetId: string): any[] {
   const db = getDatabase();
-  const permissions = db.all(
-    'SELECT * FROM widget_permissions WHERE widget_id = ?',
-    [widgetId]
-  );
+  const permissions = db.prepare(
+    'SELECT * FROM widget_permissions WHERE widget_id = ?'
+  ).all(widgetId);
   return permissions;
 }
 
 export function checkWidgetAccess(widgetId: string, resourceType: string, requiredLevel: 'read' | 'write'): boolean {
   const db = getDatabase();
-  const row = db.get(
-    'SELECT access_level, override FROM widget_permissions WHERE widget_id = ? AND resource_type = ?',
-    [widgetId, resourceType]
-  );
-  
+  const row = db.prepare(
+    'SELECT access_level, override FROM widget_permissions WHERE widget_id = ? AND resource_type = ?'
+  ).get(widgetId, resourceType);
+
   if (row && row.override) {
     const levels = { none: 0, read: 1, write: 2 };
     return levels[row.access_level as keyof typeof levels] >= levels[requiredLevel];
   }
-  
-  const defaultRow = db.get(
-    'SELECT access_level FROM widget_permissions WHERE widget_id IS NULL AND resource_type = ?',
-    [resourceType]
-  );
+
+  const defaultRow = db.prepare(
+    'SELECT access_level FROM widget_permissions WHERE widget_id IS NULL AND resource_type = ?'
+  ).get(resourceType);
   const defaultLevel = defaultRow ? defaultRow.access_level : 'read';
   const levels = { none: 0, read: 1, write: 2 };
   return levels[defaultLevel as keyof typeof levels] >= levels[requiredLevel];
@@ -293,19 +290,17 @@ export function checkWidgetAccess(widgetId: string, resourceType: string, requir
 
 export function setWidgetPermission(widgetId: string, resourceType: string, accessLevel: 'none' | 'read' | 'write', override: boolean = false): void {
   const db = getDatabase();
-  db.run(
+  db.prepare(
     `INSERT OR REPLACE INTO widget_permissions (widget_id, resource_type, access_level, override)
-     VALUES (?, ?, ?, ?)`,
-    [widgetId, resourceType, accessLevel, override ? 1 : 0]
-  );
+     VALUES (?, ?, ?, ?)`
+  ).run(widgetId, resourceType, accessLevel, override ? 1 : 0);
 }
 
 export function setPlatformDefault(resourceType: string, accessLevel: 'none' | 'read' | 'write'): void {
   const db = getDatabase();
-  db.run(
+  db.prepare(
     `INSERT OR REPLACE INTO widget_permissions (widget_id, resource_type, access_level, override)
-     VALUES (NULL, ?, ?, 0)`,
-    [resourceType, accessLevel]
-  );
+     VALUES (NULL, ?, ?, 0)`
+  ).run(resourceType, accessLevel);
 }
 

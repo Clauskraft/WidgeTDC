@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { getOpenSearchClient } from './openSearchClient';
+import { getOpenSearchClient } from './openSearchClient.js';
 import { getMinioClient, getMinioBucket } from './minioClient.js';
 import {
   getSecurityTemplates,
@@ -23,18 +23,19 @@ import type {
   ThreatLevel,
 } from './securityTypes.js';
 import { ingestRegistryEvent } from './activityStream.js';
-import { Client } from '@opensearch-project/opensearch';
 
 export const DEFAULT_FEEDS: SecurityFeed[] = [
   {
     id: 'openphish',
     name: 'OpenPhish',
     status: 'healthy',
-    lastUpdate: new Date().toISOString(),
-    ingestionRate: 150,
-    errorRate: 0.02,
-    pipeline: 'phishing_pipeline',
+    lastFetched: new Date().toISOString(),
     tags: ['phishing', 'url'],
+    threatLevel: 'high',
+    documentsPerHour: 150,
+    duplicatesPerHour: 5,
+    backlogMinutes: 0,
+    regions: ['Global'],
   },
   {
     id: 'feed-darkweb',
@@ -42,6 +43,7 @@ export const DEFAULT_FEEDS: SecurityFeed[] = [
     tags: ['dark-web', 'credentials', 'leak'],
     threatLevel: 'critical',
     status: 'healthy',
+    lastFetched: new Date().toISOString(),
     documentsPerHour: 420,
     duplicatesPerHour: 11,
     backlogMinutes: 2,
@@ -53,96 +55,13 @@ export const DEFAULT_FEEDS: SecurityFeed[] = [
     tags: ['gov', 'advisory'],
     threatLevel: 'high',
     status: 'healthy',
+    lastFetched: new Date().toISOString(),
     documentsPerHour: 96,
     duplicatesPerHour: 2,
     backlogMinutes: 0,
     regions: ['EU-West'],
   },
 ];
-
-export async function getSecurityFeeds(): Promise<SecurityFeed[]> {
-  const client = getOpenSearchClient();
-  if (!client) {
-    return DEFAULT_FEEDS;
-  }
-
-  try {
-    const response = await client.search({
-      index: 'feeds',
-      body: {
-        size: 0,
-        aggs: {
-          feeds: {
-            terms: { field: 'feed_id' }
-          },
-          pipeline: {
-            terms: { field: 'pipeline' }
-          },
-          status: {
-            terms: { field: 'status' }
-          }
-        }
-      }
-    });
-
-    // Process aggregations
-    const feedsAgg = response.body.aggregations?.feeds?.buckets || [];
-    const pipelineAgg = response.body.aggregations?.pipeline?.buckets || [];
-    const statusAgg = response.body.aggregations?.status?.buckets || [];
-
-    // Map to SecurityFeed format
-    const feeds: SecurityFeed[] = DEFAULT_FEEDS.map(feed => ({
-      ...feed,
-      // Add metrics from aggregations
-      documentCount: feedsAgg.find((agg: any) => agg.key === feed.id)?.doc_count || 0,
-    }));
-
-    return feeds;
-  } catch (error) {
-    console.error('Fejl ved hentning af feeds:', error);
-    return DEFAULT_FEEDS;
-  }
-}
-
-export async function runSecuritySearch(template: SecuritySearchTemplate): Promise<SecuritySearchResult[]> {
-  const client = getOpenSearchClient();
-  if (!client) {
-    return [];
-  }
-
-  try {
-    const response = await client.search({
-      index: 'threat_intel',
-      body: {
-        query: {
-          multi_match: {
-            query: template.query,
-            fields: ['title', 'description', 'content'],
-            type: 'best_fields',
-            fuzziness: 'AUTO'
-          }
-        },
-        size: 10,
-        sort: [{ ingestedAt: { order: 'desc' } }]
-      }
-    });
-
-    const hits = response.body.hits.hits || [];
-    return hits.map((hit: any) => ({
-      id: hit._id,
-      title: hit._source.title,
-      description: hit._source.description,
-      source: hit._source.source,
-      url: hit._source.url,
-      severity: hit._source.severity as ThreatLevel,
-      score: hit._score,
-      ingestedAt: hit._source.ingestedAt,
-    }));
-  } catch (error) {
-    console.error('Fejl ved søgning:', error);
-    return [];
-  }
-}
 
 const DEFAULT_PIPELINE: PipelineStage[] = [
   { id: 'ingest', name: 'Ingest', service: 'RSS Poller', status: 'healthy', latencyMs: 120 },
@@ -190,57 +109,57 @@ export async function getFeedOverview(): Promise<FeedOverviewResponse> {
 
   if (client) {
     openSearchConnected = true;
-    const index = 'feeds'; // Assuming 'feeds' index for now
+    const index = 'feeds';
     const osStart = Date.now();
-    const searchResult = await client.search({
-      index,
-      size: 5,
-      sort: [{ ingestedAt: { order: 'desc' } }],
-      query: { match_all: {} },
-      _source: [
-        'id',
-        'feedId',
-        'feedName',
-        'title',
-        'summary',
-        'severity',
-        'tags',
-        'dedupeHits',
-        'ingestedAt',
-        'threatLevel',
-        'status',
-        'region',
-        'documentsPerHour',
-        'duplicatesPerHour',
-        'backlogMinutes',
-      ],
-    });
+    try {
+      const searchResult = await client.search({
+        index,
+        size: 5,
+        body: {
+          sort: [{ ingestedAt: 'desc' }],
+          query: { match_all: {} },
+          aggs: {
+            feeds: { terms: { field: 'feedId.keyword' } }, // Use .keyword for terms agg
+            pipeline: { terms: { field: 'pipeline.keyword' } },
+            status: { terms: { field: 'status.keyword' } }
+          }
+        }
+      });
 
-    if (searchResult) {
-      normalizedDocuments.splice(
-        0,
-        normalizedDocuments.length,
-        ...searchResult.body.hits.hits.map(hit => {
-          const source = hit._source as Record<string, any>;
+      if (searchResult) {
+        const hits = searchResult.body.hits.hits;
+        normalizedDocuments.splice(0, normalizedDocuments.length, ...hits.map((hit: any) => {
+          const source = hit._source;
           return {
-            id: (source.id as string) ?? hit._id,
-            feedId: (source.feedId as string) ?? 'unknown',
-            title: (source.title as string) ?? 'Untitled',
-            summary: (source.summary as string) ?? '',
+            id: source.id ?? hit._id,
+            feedId: source.feedId ?? 'unknown',
+            title: source.title ?? 'Untitled',
+            summary: source.summary ?? '',
             severity: (source.severity as ThreatLevel) ?? 'medium',
             tags: (source.tags as string[]) ?? [],
             dedupeHits: source.dedupeHits,
             ingestedAt: source.ingestedAt ?? new Date().toISOString(),
           };
-        }),
-      );
+        }));
 
-      metrics = {
-        documentsIndexed: searchResult.body.hits.total ? Number(searchResult.body.hits.total.value) : DEFAULT_METRICS.documentsIndexed,
-        ingestionLatency: Math.round(Date.now() - osStart),
-        dedupeRate: DEFAULT_METRICS.dedupeRate,
-        backlogMinutes: DEFAULT_METRICS.backlogMinutes,
-      };
+        metrics = {
+          documentsIndexed: searchResult.body.hits.total ? Number((searchResult.body.hits.total as any).value || searchResult.body.hits.total) : DEFAULT_METRICS.documentsIndexed,
+          ingestionLatency: Math.round(Date.now() - osStart),
+          dedupeRate: DEFAULT_METRICS.dedupeRate,
+          backlogMinutes: DEFAULT_METRICS.backlogMinutes,
+        };
+
+        // Update feeds with aggregation data
+        const feedsAgg = (searchResult.body.aggregations?.feeds as any)?.buckets || [];
+        feeds.forEach(feed => {
+          const bucket = feedsAgg.find((b: any) => b.key === feed.id);
+          if (bucket) {
+            feed.documentsPerHour = Math.round(bucket.doc_count / 24); // Rough estimate
+          }
+        });
+      }
+    } catch (e) {
+      console.error('OpenSearch feed overview error:', e);
     }
   }
 
@@ -359,28 +278,34 @@ export async function executeSecuritySearch(params: SearchParams): Promise<Searc
       },
     };
 
-    const response = await client.search({
-      index: 'feeds', // Assuming 'feeds' index for now
-      size: 20,
-      query,
-      sort: [{ ingestedAt: { order: 'desc' } }],
-    });
-
-    if (response) {
-      totalDocs = response.body.hits.total ? Number(response.body.hits.total.value) : 0;
-      results = response.body.hits.hits.map(hit => {
-        const source = hit._source as Record<string, any>;
-        return {
-          id: (source.id as string) ?? hit._id,
-          title: (source.title as string) ?? 'Untitled document',
-          summary: (source.summary as string) ?? '',
-          source: (source.source as string) ?? 'Feed Ingestion',
-          severity: (source.severity as ThreatLevel) ?? 'medium',
-          timestamp: source.ingestedAt ?? new Date().toISOString(),
-          tags: (source.tags as string[]) ?? [],
-          score: hit._score ?? 0,
-        };
+    try {
+      const response = await client.search({
+        index: 'feeds',
+        size: 20,
+        body: {
+          query,
+          sort: [{ ingestedAt: 'desc' }],
+        }
       });
+
+      if (response) {
+        totalDocs = response.body.hits.total ? Number((response.body.hits.total as any).value || response.body.hits.total) : 0;
+        results = response.body.hits.hits.map((hit: any) => {
+          const source = hit._source as Record<string, any>;
+          return {
+            id: (source.id as string) ?? hit._id,
+            title: (source.title as string) ?? 'Untitled document',
+            summary: (source.summary as string) ?? '',
+            source: (source.source as string) ?? 'Feed Ingestion',
+            severity: (source.severity as ThreatLevel) ?? 'medium',
+            timestamp: source.ingestedAt ?? new Date().toISOString(),
+            tags: (source.tags as string[]) ?? [],
+            score: Number(hit._score || 0),
+          };
+        });
+      }
+    } catch (e) {
+      console.error('OpenSearch search error:', e);
     }
   }
 
@@ -428,4 +353,3 @@ export const securityActivity = {
     return ingestRegistryEvent(event);
   },
 };
-

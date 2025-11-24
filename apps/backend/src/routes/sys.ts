@@ -1,5 +1,6 @@
 import express from 'express';
 import si from 'systeminformation';
+import { eventBus } from '../mcp/EventBus.js';
 
 const router = express.Router();
 
@@ -29,11 +30,12 @@ router.get('/processes', async (req, res) => {
 // Get system information (CPU, memory, etc.)
 router.get('/system', async (req, res) => {
   try {
-    const [cpu, mem, osInfo, currentLoad] = await Promise.all([
+    const [cpu, mem, osInfo, currentLoad, cpuTemp] = await Promise.all([
       si.cpu(),
       si.mem(),
       si.osInfo(),
-      si.currentLoad()
+      si.currentLoad(),
+      si.cpuTemperature()
     ]);
 
     const systemInfo = {
@@ -43,7 +45,7 @@ router.get('/system', async (req, res) => {
         cores: cpu.cores,
         physicalCores: cpu.physicalCores,
         speed: cpu.speed,
-        temperature: currentLoad.mainTemp || null
+        temperature: cpuTemp.main || null
       },
       memory: {
         total: mem.total,
@@ -64,6 +66,16 @@ router.get('/system', async (req, res) => {
         currentLoadSystem: Number(currentLoad.currentLoadSystem.toFixed(1))
       }
     };
+
+    // Check for high load and emit event
+    if (systemInfo.load.currentLoad > 90) {
+      eventBus.emitEvent({
+        type: 'system.alert',
+        timestamp: new Date().toISOString(),
+        source: 'sys.ts',
+        payload: { message: 'High CPU Load detected', load: systemInfo.load.currentLoad }
+      });
+    }
 
     res.json(systemInfo);
   } catch (error) {
@@ -111,7 +123,7 @@ router.get('/gpu', async (req, res) => {
       vendor: gpu.vendor,
       model: gpu.model,
       vram: gpu.vram,
-      temperature: gpu.temperatureGpu || null,
+      temperature: (gpu as any).temperatureGpu || null,
       utilizationGpu: gpu.utilizationGpu || null
     }));
 

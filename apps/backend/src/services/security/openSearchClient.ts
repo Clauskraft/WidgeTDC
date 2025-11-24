@@ -17,9 +17,9 @@ export function getOpenSearchClient(): Client | null {
     node: openSearch.node,
     auth: openSearch.username && openSearch.password
       ? {
-          username: openSearch.username,
-          password: openSearch.password,
-        }
+        username: openSearch.username,
+        password: openSearch.password,
+      }
       : undefined,
     ssl: {
       rejectUnauthorized: false,
@@ -32,10 +32,10 @@ export function getFeedIndex(): string {
   return getSecurityIntegrationConfig().openSearch.index;
 }
 
-export async function safeCall<T>(promise: Promise<ApiResponse<T>>): Promise<T | null> {
+export async function safeCall<T>(promise: Promise<ApiResponse>): Promise<T | null> {
   try {
     const response = await promise;
-    return response.body;
+    return response.body as T;
   } catch (error) {
     console.warn('⚠️  OpenSearch request failed:', error);
     return null;

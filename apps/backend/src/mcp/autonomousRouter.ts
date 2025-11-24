@@ -8,7 +8,9 @@ import { Router } from 'express';
 import { getCognitiveMemory } from './memory/CognitiveMemory';
 import { AutonomousAgent, startAutonomousLearning } from './autonomous/AutonomousAgent';
 import { getSourceRegistry } from './SourceRegistry';
-import { getDatabase } from '../../database/index.js';
+import { getDatabase } from '../database/index.js';
+
+import { eventBus } from './EventBus.js';
 
 // WebSocket server for real-time events (will be injected)
 let wsServer: any = null;
@@ -38,6 +40,14 @@ export function initAutonomousAgent(): AutonomousAgent {
     const registry = getSourceRegistry();
 
     agent = new AutonomousAgent(memory, registry, wsServer);
+
+    // Listen to system events
+    eventBus.onEvent('system.alert', async (event) => {
+        if (agent) {
+            console.log('🤖 Agent received system alert:', event);
+            // TODO: Trigger autonomous response logic here
+        }
+    });
 
     console.log('🤖 Autonomous Agent initialized');
 
@@ -173,7 +183,7 @@ autonomousRouter.get('/decisions', async (req, res) => {
     try {
         const db = getDatabase();
         const limit = parseInt(req.query.limit as string) || 50;
-        
+
         const stmt = db.prepare(`
             SELECT * FROM mcp_decision_log
             ORDER BY timestamp DESC
@@ -236,6 +246,95 @@ autonomousRouter.post('/learn', async (req, res) => {
         });
     } catch (error: any) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+/**
+ * MCP Tool: Manage Project Memory
+ * Allows autonomous agent to document its own actions
+ */
+autonomousRouter.post('/manage_project_memory', async (req, res) => {
+    try {
+        // Support both flat and nested param formats
+        const action = req.body.action;
+        const params = req.body.params || req.body;
+
+        const { eventType, event_type, component_name, status, details, metadata,
+            name, description, featureStatus, limit } = params;
+
+        // Import projectMemory here to avoid circular dependency
+        const { projectMemory } = await import('../services/project/ProjectMemory.js');
+
+        switch (action) {
+            case 'log_event':
+                const finalEventType = eventType || event_type;
+                if (!finalEventType || !status) {
+                    return res.status(400).json({ error: 'event_type and status required' });
+                }
+
+                // Merge component_name and description into details if provided
+                const eventDetails = {
+                    ...(details || {}),
+                    ...(component_name && { component_name }),
+                    ...(description && { description }),
+                    ...(metadata && { metadata })
+                };
+
+                projectMemory.logLifecycleEvent({
+                    eventType: finalEventType,
+                    status,
+                    details: eventDetails
+                });
+                console.log(`✅ [ProjectMemory] Logged ${finalEventType} event: ${status}`);
+                res.json({ success: true, message: 'Event logged', eventType: finalEventType });
+                break;
+
+            case 'add_feature':
+                const featureName = name || params.feature_name;
+                const featureDesc = description;
+                const featureStat = featureStatus || params.status;
+
+                if (!featureName || !featureDesc || !featureStat) {
+                    return res.status(400).json({
+                        error: 'feature_name, description, and status required',
+                        received: { name: featureName, description: featureDesc, status: featureStat }
+                    });
+                }
+
+                projectMemory.addFeature({
+                    name: featureName,
+                    description: featureDesc,
+                    status: featureStat
+                });
+                console.log(`✅ [ProjectMemory] Added feature: ${featureName} (${featureStat})`);
+                res.json({ success: true, message: 'Feature added', featureName });
+                break;
+
+            case 'query_history':
+                const queryLimit = limit || params.limit || 50;
+                const events = projectMemory.getLifecycleEvents(queryLimit);
+                res.json({ success: true, events, count: events.length });
+                break;
+
+            case 'update_feature':
+                if (!name || !featureStatus) {
+                    return res.status(400).json({ error: 'name and featureStatus required' });
+                }
+                projectMemory.updateFeatureStatus(name, featureStatus);
+                console.log(`✅ [ProjectMemory] Updated feature: ${name} → ${featureStatus}`);
+                res.json({ success: true, message: 'Feature updated' });
+                break;
+
+            default:
+                res.status(400).json({
+                    error: 'Invalid action',
+                    validActions: ['log_event', 'add_feature', 'query_history', 'update_feature'],
+                    received: { action, params }
+                });
+        }
+    } catch (error: any) {
+        console.error('❌ [ProjectMemory] Error:', error);
+        res.status(500).json({ error: error.message, stack: error.stack });
     }
 });
 

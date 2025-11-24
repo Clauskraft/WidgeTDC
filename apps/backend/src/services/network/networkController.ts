@@ -181,7 +181,7 @@ router.get('/power-cost', async (req, res) => {
         const cpuWatts = (65 * (cpuLoad.currentLoad / 100)) + 50; // 65W TDP CPU, 50W base
 
         // Memory: ~2W per GB used
-        const memWatts = (memInfo.used / (1024**3)) * 2;
+        const memWatts = (memInfo.used / (1024 ** 3)) * 2;
 
         // GPU: Estimate based on activity (simplified)
         const gpuWatts = 150; // Base GPU consumption
@@ -512,7 +512,7 @@ router.get('/system', async (req, res) => {
             gpu: graphics.controllers.map(gpu => ({
                 model: gpu.model,
                 vendor: gpu.vendor,
-                temperature: gpu.temperature,
+                temperature: (gpu as any).temperatureGpu || (gpu as any).temperature,
                 memoryTotal: gpu.memoryTotal,
                 memoryUsed: gpu.memoryUsed,
                 utilizationGpu: gpu.utilizationGpu,
