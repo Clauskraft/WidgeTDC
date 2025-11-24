@@ -117,7 +117,7 @@ export class PgVectorStoreAdapter {
         const limit = query.limit || 10;
         const namespace = query.namespace || 'default';
 
-        const results = await prisma.$queryRawUnsafe<any[]>(`
+        const results: any[] = await prisma.$queryRawUnsafe(`
       SELECT 
         id,
         content,

@@ -10,20 +10,21 @@ import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
 import { getPgVectorStore } from '../platform/vector/PgVectorStoreAdapter.js';
+import { logger } from '../utils/logger.js';
 // Vector types for PgVectorStoreAdapter
 type VectorRecord = {
-  id: string;
-  content: string;
-  embedding?: number[];
-  metadata?: Record<string, any>;
-  namespace?: string;
+    id: string;
+    content: string;
+    embedding?: number[];
+    metadata?: Record<string, any>;
+    namespace?: string;
 };
 type VectorQuery = {
-  vector?: number[];
-  text?: string;
-  limit?: number;
-  filter?: Record<string, any>;
-  namespace?: string;
+    vector?: number[];
+    text?: string;
+    limit?: number;
+    filter?: Record<string, any>;
+    namespace?: string;
 };
 import { projectMemory } from '../services/project/ProjectMemory.js';
 import { getTaskRecorder } from './cognitive/TaskRecorder.js';
@@ -205,7 +206,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 export async function sragGovernanceCheckHandler(payload: any, ctx: McpContext): Promise<any> {
   const { docId } = payload;
   const doc = sragRepo.getDocumentById(parseInt(docId, 10));
-
+  
   if (!doc) {
     return { compliant: false, reason: 'Document not found' };
   }
@@ -259,7 +260,7 @@ export async function evolutionGetPromptHandler(payload: any, _ctx: McpContext):
 export async function evolutionAnalyzePromptsHandler(payload: any, _ctx: McpContext): Promise<any> {
   const { agentId } = payload;
   const prompts = evolutionRepo.getAllPrompts(agentId).slice(0, 10);
-
+  
   // Generate LLM analysis
   const llmService = getLlmService();
   const systemContext = `You are a prompt engineering expert. Analyze prompt evolution and suggest improvements.`;
@@ -323,11 +324,11 @@ export async function palAnalyzeSentimentHandler(payload: any, ctx: McpContext):
   const lowerText = text.toLowerCase();
   const positiveCount = positiveWords.filter(w => lowerText.includes(w)).length;
   const negativeCount = negativeWords.filter(w => lowerText.includes(w)).length;
-
+  
   let sentiment = 'neutral';
   if (positiveCount > negativeCount) sentiment = 'positive';
   else if (negativeCount > positiveCount) sentiment = 'negative';
-
+  
   return { sentiment, score: positiveCount - negativeCount };
 }
 
@@ -357,8 +358,8 @@ export async function notesCreateHandler(payload: any, ctx: McpContext): Promise
 
 export async function notesUpdateHandler(payload: any, ctx: McpContext): Promise<any> {
   const { id, title, content, tags } = payload;
-  notesRepo.updateNote(parseInt(id, 10), ctx.userId, ctx.orgId, {
-    title,
+  notesRepo.updateNote(parseInt(id, 10), ctx.userId, ctx.orgId, { 
+    title, 
     body: content,
     tags: Array.isArray(tags) ? tags.join(',') : tags
   });
@@ -512,21 +513,39 @@ export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext):
 
 export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext): Promise<any> {
   const vectorStore = getPgVectorStore();
-  const { content, limit = 5, namespace } = payload;
+  const { id, content, limit = 5, namespace } = payload;
 
-  // Search for related content using the provided content text
-  if (!content) {
-    throw new Error('Content is required for finding related records');
+  // Support both id-based and content-based search for backward compatibility
+  let searchText: string;
+  let usedFallback = false;
+  
+  // Bug 2 Fix: Track whether we actually used fallback
+  if (content) {
+    // Content provided - use it directly (convert to string for safety)
+    searchText = String(content);
+  } else if (id) {
+    // Only id provided - fallback to using id as search text
+    searchText = String(id);
+    usedFallback = true;
+    logger.warn(`vidensarkiv.get_related: Using id "${id}" as search text. For better results, provide "content" parameter.`);
+  } else {
+    throw new Error('Either "content" or "id" is required for finding related records');
   }
 
   const related = await vectorStore.search({
-    text: content,
+    text: searchText,
     limit,
     namespace: namespace || ctx.orgId,
   });
 
+  // Bug 1 Fix: Ensure searchText is string before substring
+  const searchPreview = searchText.length > 50 ? searchText.substring(0, 50) + '...' : searchText;
+
   return {
     success: true,
+    searchedFor: usedFallback 
+      ? { id, fallbackToTextSearch: true } 
+      : { content: searchPreview },
     related: related.map(r => ({
       id: r.id,
       content: r.content,
@@ -552,7 +571,7 @@ export async function vidensarkivListHandler(payload: any, _ctx: McpContext): Pr
 
 export async function vidensarkivStatsHandler(_payload: any, _ctx: McpContext): Promise<any> {
   const vectorStore = getPgVectorStore();
-
+  
   const stats = await vectorStore.getStatistics();
 
   return {
@@ -650,7 +669,7 @@ export async function taskRecorderExecuteHandler(payload: any, ctx: McpContext):
   }
 
   const recorder = getTaskRecorder();
-
+  
   // Request execution (will check approval status)
   const result = await recorder.requestTaskExecution({
     suggestionId,

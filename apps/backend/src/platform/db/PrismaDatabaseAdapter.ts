@@ -2,6 +2,9 @@
 // import { PrismaClient } from '@prisma/client';
 import { logger } from '../../utils/logger.js';
 
+// PrismaClient type placeholder - will be replaced when @prisma/client is installed
+export type PrismaClient = any;
+
 /**
  * Database Adapter Interface
  * Generic interface for database operations
@@ -91,5 +94,3 @@ export function getDatabaseAdapter(): PrismaDatabaseAdapter {
     }
     return dbInstance;
 }
-
-export { PrismaClient };
