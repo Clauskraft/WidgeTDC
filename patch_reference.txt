@@ -1,0 +1,29 @@
+import React, { useState, useEffect, Suspense } from 'react';
+import { LayoutGrid, Shield, Network, FileText, Sun, Moon, Menu, X, Search, Plus, Settings, Trash2, Zap } from 'lucide-react';
+import GridLayout from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+import WidgetSelector from './components/WidgetSelector';
+import AgentPanel from './components/AgentPanel';
+import WidgetConfigModal from './components/WidgetConfigModal';
+import { useWidgetRegistry } from './contexts/WidgetRegistryContext';
+import { useWidgetStore } from './components/widgetStore';
+import { WidgetInstance } from './types';
+import { AdminDashboard } from './src/components/AdminDashboard';
+
+TAB_ARRAY_LINE_147:
+{[{ id: 'dashboard', icon: LayoutGrid, label: 'Widgets' }, { id: 'security', icon: Shield, label: 'Defense' }, { id: 'network', icon: Network, label: 'Net' }, { id: 'compliance', icon: FileText, label: 'Docs' }, { id: 'admin', icon: Settings, label: 'Admin' }].map((item, index) => (
+
+RENDER_LOGIC_AFTER_LINE_219:
+                {/* Widget Grid Area */}
+                <div className={`flex-1 overflow-y-auto p-4 scrollbar-thin ${isDarkMode ? 'scrollbar-track-slate-900 scrollbar-thumb-slate-700' : 'scrollbar-track-slate-100 scrollbar-thumb-slate-300'}`}>
+                    {activeTab === 'admin' ? (
+                        <AdminDashboard />
+                    ) : (
+                    <div className="max-w-[1920px] mx-auto min-h-full">
+
+CLOSE_BEFORE_LINE_306:
+                        )}
+                    </div>
+                    )}
+                </div>

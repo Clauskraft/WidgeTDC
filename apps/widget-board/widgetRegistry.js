@@ -6,7 +6,7 @@ export const WIDGET_REGISTRY = {
         id: 'AgentMonitorWidget',
         name: 'Agent Mission Control',
         category: 'agents',
-        path: './src/widgets/AgentMonitorWidget',
+        path: './widgets/AgentMonitorWidget',
         icon: 'Bot',
         defaultSize: { w: 12, h: 2 },
         description: 'Monitor and manage all AI agents in the system'

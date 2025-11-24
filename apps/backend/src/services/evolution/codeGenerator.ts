@@ -1,7 +1,7 @@
 // Agent-driven code generation service
-import { genAI } from '@google/generative-ai';
-import { EvolutionPromptVersion } from '../../types';  // From shared
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || '');
 const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
 export async function generateCode(spec: string, testPlan: string, kpiThreshold = 80): Promise<string> {
