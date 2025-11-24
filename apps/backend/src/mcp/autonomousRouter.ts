@@ -179,7 +179,7 @@ autonomousRouter.get('/decisions', async (req, res) => {
             ORDER BY timestamp DESC
             LIMIT ?
         `);
-        const decisions = stmt.all([limit]);
+        const decisions = stmt.all(limit);
         stmt.free();
 
         res.json({ decisions });
