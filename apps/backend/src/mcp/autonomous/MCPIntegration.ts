@@ -113,7 +113,7 @@ export async function registerDatabaseSource(): Promise<void> {
         },
         estimatedLatency: 50,
         costPerQuery: 0,
-        query: async (operation: string, params: any) => {
+        query: async (_operation: string, _params: any) => {
             // Database queries are handled by repositories
             // This is a placeholder - actual routing happens in repositories
             throw new Error('Database query routing handled by repositories');

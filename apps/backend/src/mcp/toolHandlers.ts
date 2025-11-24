@@ -182,7 +182,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 }
 
 // Evolution tool handlers
-export async function evolutionReportHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function evolutionReportHandler(payload: any, _ctx: McpContext): Promise<any> {
   const runId = evolutionRepo.recordRun(payload);
   const avgDelta = evolutionRepo.getAverageKpiDelta(payload.agentId, 10);
 
@@ -212,7 +212,7 @@ Recent Run: ${JSON.stringify(payload, null, 2)}
   };
 }
 
-export async function evolutionGetPromptHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function evolutionGetPromptHandler(payload: any, _ctx: McpContext): Promise<any> {
   const prompt = evolutionRepo.getLatestPrompt(payload.agentId);
 
   if (!prompt) {
@@ -229,7 +229,7 @@ export async function evolutionGetPromptHandler(payload: any, ctx: McpContext): 
 }
 
 // Evolution Analyze Prompts handler
-export async function evolutionAnalyzePromptsHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function evolutionAnalyzePromptsHandler(payload: any, _ctx: McpContext): Promise<any> {
   const { agentId, limit } = payload;
 
   if (!agentId) {
