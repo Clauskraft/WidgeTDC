@@ -24,9 +24,19 @@ export interface IngestedEntity {
     title?: string;
     content?: string;
     metadata: Record<string, any>;
+}
+
+export class DataIngestionEngine {
+    private adapters: Map<string, DataSourceAdapter> = new Map();
+    private isRunning: boolean = false;
+    private ingestedCount: number = 0;
+
+    /** Register a data source adapter */
+    async registerAdapter(adapter: DataSourceAdapter, description: string, requiresApproval: boolean = false): Promise<void> {
+        this.adapters.set(adapter.name, adapter);
         const canUse = await dataSourceConfig.registerSource(adapter.name, description, requiresApproval);
 
-console.log(`📥 Registered data adapter: ${adapter.name} (${adapter.type}) - ${canUse ? 'Ready' : 'Awaiting approval'}`);
+        console.log(`📥 Registered data adapter: ${adapter.name} (${adapter.type}) - ${canUse ? 'Ready' : 'Awaiting approval'}`);
     }
 
     /** Start ingestion from all registered adapters */
@@ -160,36 +170,36 @@ console.log(`✅ Data ingestion complete! Total entities: ${this.ingestedCount}`
     }
 
     /** Ingest from a specific source */
-    async ingestFrom(sourceName: string): Promise < number > {
-    const adapter = this.adapters.get(sourceName);
+    async ingestFrom(sourceName: string): Promise<number> {
+        const adapter = this.adapters.get(sourceName);
 
-    if(!adapter) {
-        throw new Error(`Unknown data source: ${sourceName}`);
-    }
+        if (!adapter) {
+            throw new Error(`Unknown data source: ${sourceName}`);
+        }
 
         // Check if enabled
-        if(!dataSourceConfig.isEnabled(sourceName)) {
-    throw new Error(`Data source ${sourceName} is not enabled`);
-}
+        if (!dataSourceConfig.isEnabled(sourceName)) {
+            throw new Error(`Data source ${sourceName} is not enabled`);
+        }
 
-const available = await adapter.isAvailable();
-if (!available) {
-    throw new Error(`Source ${sourceName} is not available`);
-}
+        const available = await adapter.isAvailable();
+        if (!available) {
+            throw new Error(`Source ${sourceName} is not available`);
+        }
 
-const rawData = await adapter.fetch();
-const entities = await adapter.transform(rawData);
+        const rawData = await adapter.fetch();
+        const entities = await adapter.transform(rawData);
 
-await dataSourceConfig.markUsed(sourceName);
+        await dataSourceConfig.markUsed(sourceName);
 
-eventBus.emit('data:ingested', {
-    source: sourceName,
-    count: entities.length,
-    entities: entities.slice(0, 5)
-});
+        eventBus.emit('data:ingested', {
+            source: sourceName,
+            count: entities.length,
+            entities: entities.slice(0, 5)
+        });
 
-return entities.length;
-}
+        return entities.length;
+    }
 
 /** Get ingestion status */
 getStatus() {
