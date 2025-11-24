@@ -4,11 +4,12 @@
 import { MemoryRepository } from '../../services/memory/memoryRepository.js';
 import { SragRepository } from '../../services/srag/sragRepository.js';
 import { unifiedMemorySystem } from './UnifiedMemorySystem.js';
-import { McpContext } from '../autonomous/index.js';
+import { McpContext } from '@widget-tdc/mcp-types';
 
 export interface SearchContext extends McpContext {
     limit?: number;
     filters?: Record<string, any>;
+    timestamp?: Date;
 }
 
 export interface SearchResult {

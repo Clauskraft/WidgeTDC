@@ -21,7 +21,7 @@ export interface AgentMessage {
 }
 
 export interface AgentCapabilities {
-    canHandle: (message: AgentMessage) => boolean;
+    canHandle: (message: AgentMessage) => boolean | Promise<boolean>;
     execute: (message: AgentMessage) => Promise<any>;
     getStatus: () => Promise<AgentStatus>;
 }
@@ -105,28 +105,27 @@ class DataAgent implements AgentCapabilities {
 class SecurityAgent implements AgentCapabilities {
     public readonly role: AgentRole = 'security';
 
-    canHandle(message: AgentMessage): Promise<boolean> {
-        return Promise.resolve(
-            message.type === 'query' && (
-                message.content.includes('security') ||
-                message.content.includes('threat') ||
-                message.content.includes('compliance') ||
-                message.content.includes('vulnerability') ||
-                message.type === 'alert'
-            )
-        );
+    canHandle(message: AgentMessage): boolean {
+        return message.type === 'query' && (
+            message.content.includes('security') ||
+            message.content.includes('threat') ||
+            message.content.includes('compliance') ||
+            message.content.includes('vulnerability')
+        ) || message.type === 'alert';
     }
 
     async execute(message: AgentMessage): Promise<any> {
         console.log(`🔒 [SecurityAgent] Processing: ${message.content}`);
 
         // Use EmotionAwareDecisionEngine for security decisions
-        const decision = await emotionAwareDecisionEngine.makeDecision({
-            query: message.content,
-            context: message.metadata || {},
-            userId: message.metadata?.userId || 'system',
-            orgId: message.metadata?.orgId || 'default'
-        });
+        const decision = await emotionAwareDecisionEngine.makeDecision(
+            message.content,
+            {
+                orgId: message.metadata?.orgId || 'default',
+                userId: message.metadata?.userId || 'system',
+                boardId: message.metadata?.boardId
+            }
+        );
 
         return {
             role: this.role,

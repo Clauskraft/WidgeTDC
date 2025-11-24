@@ -3,7 +3,8 @@
 
 import { PalRepository } from '../../services/pal/palRepository.js';
 import { unifiedMemorySystem } from './UnifiedMemorySystem.js';
-import { McpContext, QueryIntent } from '../autonomous/index.js';
+import { McpContext } from '@widget-tdc/mcp-types';
+import { QueryIntent } from '../autonomous/DecisionEngine.js';
 
 export interface EmotionalState {
     stress: 'low' | 'medium' | 'high';
@@ -39,16 +40,19 @@ export class EmotionAwareDecisionEngine {
      * Make emotion-aware decision based on query, emotional state, and context
      */
     async makeDecision(
-        query: QueryIntent,
+        query: string | QueryIntent,
         ctx: McpContext
     ): Promise<Decision> {
         // Get emotional state from PAL
         const emotionalState = await this.getEmotionalState(ctx.userId, ctx.orgId);
 
+        // Normalize query to string
+        const queryStr = typeof query === 'string' ? query : query.query;
+
         // Evaluate multi-modal scores
-        const dataScore = await this.evaluateDataQuality(query, ctx);
-        const emotionScore = this.evaluateEmotionalFit(this.queryToAction(query), emotionalState);
-        const contextScore = await this.evaluateContextRelevance(query, ctx);
+        const dataScore = await this.evaluateDataQuality(queryStr, ctx);
+        const emotionScore = this.evaluateEmotionalFit(this.queryToAction(queryStr), emotionalState);
+        const contextScore = await this.evaluateContextRelevance(queryStr, ctx);
 
         // Calculate dynamic weights based on emotional state
         const weights = this.calculateDynamicWeights(emotionalState);
@@ -64,7 +68,7 @@ export class EmotionAwareDecisionEngine {
         );
 
         // Determine action complexity based on emotional state
-        const action = this.determineOptimalAction(query, emotionalState);
+        const action = this.determineOptimalAction(queryStr, emotionalState);
 
         return {
             action,
@@ -72,7 +76,8 @@ export class EmotionAwareDecisionEngine {
             reasoning: this.generateReasoning(emotionalState, dataScore, emotionScore, contextScore),
             emotionalFit: emotionScore,
             dataQuality: dataScore,
-            contextRelevance: contextScore
+            contextRelevance: contextScore,
+            emotionalState
         };
     }
 

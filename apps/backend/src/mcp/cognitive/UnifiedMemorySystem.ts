@@ -17,6 +17,7 @@ import { emotionAwareDecisionEngine } from './EmotionAwareDecisionEngine.js';
 export interface WorkingMemoryState {
     recentEvents: any[];
     recentFeatures: any[];
+    recentPatterns?: any[];
     // extend as needed
 }
 
