@@ -47,13 +47,17 @@ export async function registerMCPToolsAsSources(): Promise<void> {
                 costPerQuery: 0, // MCP tools are free
                 query: async (op: string, params: any) => {
                     // Route through MCP registry
+                    // Include operation in payload so handlers can distinguish different operations
                     return await mcpRegistry.route({
                         id: `auton-${Date.now()}`,
                         createdAt: new Date().toISOString(),
                         sourceId: 'autonomous-agent',
                         targetId: 'mcp-registry',
                         tool: toolName,
-                        payload: params || {}
+                        payload: {
+                            ...(params || {}),
+                            operation: op // Include operation parameter for routing
+                        }
                     });
                 }
             };
