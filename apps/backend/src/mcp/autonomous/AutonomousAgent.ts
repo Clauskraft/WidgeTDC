@@ -101,6 +101,8 @@ export class AutonomousAgent {
         query: DataQuery,
         executeFunction: (source: DataSource) => Promise<any>
     ): Promise<QueryResult> {
+        // Generate unique query ID for tracking if not provided
+        const queryId = query.id || uuidv4();
         const startTime = Date.now();
 
         // 1. Analyze intent
@@ -147,7 +149,7 @@ export class AutonomousAgent {
                 // Emit WebSocket event for real-time updates
                 if (this.wsServer && this.wsServer.emitAutonomousDecision) {
                     this.wsServer.emitAutonomousDecision({
-                        queryId: query.id || 'unknown',
+                        queryId: queryId,
                         selectedSource: selectedSource.name,
                         confidence: candidate.score,
                         alternatives: rankedSources.slice(1, 4).map(s => s.source.name),
