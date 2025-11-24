@@ -45,8 +45,16 @@ export class UnifiedMemorySystem {
         this.sragRepo = new SragRepository();
         this.palRepo = new PalRepository();
         this.evolutionRepo = new EvolutionRepository();
-        
-        // Initialize cognitive memory
+
+        // Initialize cognitive memory lazily or assume initialized
+        // We cannot call getDatabase() here because it might not be ready
+        // The cognitive memory should be passed in or retrieved lazily
+        this.cognitive = {} as any; // Placeholder, will be set in init() or getter
+        this.proceduralMemory = new ProductionRuleEngine(this.cognitive);
+    }
+
+    // New init method to be called after DB is ready
+    public init() {
         const db = getDatabase();
         initCognitiveMemory(db);
         this.cognitive = getCognitiveMemory();
@@ -88,7 +96,7 @@ export class UnifiedMemorySystem {
             this.sragRepo.searchDocuments(ctx.orgId, '').catch(() => []),
             this.evolutionRepo.getRecentGenerations(10).catch(() => []),
         ]);
-        
+
         // Cross-correlate for "holographic" patterns
         return this.correlateAcrossSystems([pal, cma, srag, evo]);
     }
@@ -96,10 +104,10 @@ export class UnifiedMemorySystem {
     /** Cross-correlate patterns across subsystems */
     private correlateAcrossSystems(systems: any[]): any[] {
         const patterns: any[] = [];
-        
+
         // Simple correlation: find common keywords/topics across systems
         const allKeywords = new Map<string, number>();
-        
+
         systems.forEach((system, idx) => {
             if (Array.isArray(system)) {
                 system.forEach((item: any) => {
@@ -111,7 +119,7 @@ export class UnifiedMemorySystem {
                 });
             }
         });
-        
+
         // Find keywords that appear in multiple systems (holographic pattern)
         Array.from(allKeywords.entries())
             .filter(([_, count]) => count >= 2)
@@ -123,7 +131,7 @@ export class UnifiedMemorySystem {
                     type: 'holographic_pattern'
                 });
             });
-        
+
         return patterns;
     }
 
@@ -134,7 +142,7 @@ export class UnifiedMemorySystem {
             emergentPatterns: await this.detectEmergentBehaviors(),
             systemRhythms: await this.detectTemporalCycles()
         };
-        
+
         const parts = await Promise.all([
             this.componentHealth('pal'),
             this.componentHealth('cma'),
@@ -142,7 +150,7 @@ export class UnifiedMemorySystem {
             this.componentHealth('evolution'),
             this.componentHealth('autonomous-agent')
         ]);
-        
+
         return this.modelWholePartRelationships(wholeSystem, parts);
     }
 
@@ -187,7 +195,7 @@ export class UnifiedMemorySystem {
     private modelWholePartRelationships(whole: any, parts: ComponentHealth[]): SystemHealthReport {
         const avgPartHealth = parts.reduce((sum, p) => sum + p.healthScore, 0) / parts.length;
         const wholeHealth = whole.globalHealth;
-        
+
         return {
             globalHealth: wholeHealth,
             componentHealth: parts,

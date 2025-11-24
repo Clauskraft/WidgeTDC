@@ -95,6 +95,11 @@ async function startServer() {
     initCognitiveMemory(db);
     console.log('🧠 Cognitive Memory initialized');
 
+    // Initialize Unified Memory System
+    const { unifiedMemorySystem } = await import('./mcp/cognitive/UnifiedMemorySystem.js');
+    unifiedMemorySystem.init();
+    console.log('🧠 Unified Memory System initialized');
+
     const registry = getSourceRegistry();
 
     // Register agents-yaml data source
