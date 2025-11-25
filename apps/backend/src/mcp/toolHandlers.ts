@@ -146,60 +146,77 @@ export async function cmaMemoryRetrieveHandler(payload: any, ctx: McpContext): P
 }
 
 // SRAG tool handlers
+// SRAG tool handlers
 export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<any> {
-  const query = payload.naturalLanguageQuery.toLowerCase();
-  const sqlKeywords = ['sum', 'count', 'average', 'total', 'group by', 'where'];
-  const isAnalytical = sqlKeywords.some(keyword => query.includes(keyword));
+  console.log('🔍 sragQueryHandler called with:', JSON.stringify(payload));
+  try {
+    const query = payload.naturalLanguageQuery.toLowerCase();
+    const sqlKeywords = ['sum', 'count', 'average', 'total', 'group by', 'where'];
+    const isAnalytical = sqlKeywords.some(keyword => query.includes(keyword));
 
-  if (isAnalytical) {
-    const facts = sragRepo.queryFacts(ctx.orgId);
+    if (isAnalytical) {
+      console.log('📊 Processing as analytical query');
+      const facts = sragRepo.queryFacts(ctx.orgId);
 
-    // Generate LLM response for analytical query
-    const llmService = getLlmService();
-    const systemContext = `You are a data analyst. Analyze the structured facts and provide insights based on the user's analytical query.`;
-    const factsContext = `Available facts:\n${JSON.stringify(facts, null, 2)}`;
-    const aiResponse = await llmService.generateContextualResponse(
-      systemContext,
-      payload.naturalLanguageQuery,
-      factsContext
-    );
+      // Generate LLM response for analytical query
+      const llmService = getLlmService();
+      const systemContext = `You are a data analyst. Analyze the structured facts and provide insights based on the user's analytical query.`;
+      const factsContext = `Available facts:\n${JSON.stringify(facts, null, 2)}`;
 
-    return {
-      type: 'analytical',
-      response: aiResponse,
-      result: facts,
-      sqlQuery: 'SELECT * FROM structured_facts WHERE org_id = ?',
-      metadata: {
-        traceId: Math.random().toString(36),
-        docIds: facts.map(f => f.doc_id).filter(Boolean),
-      },
-    };
-  } else {
-    const keywords = query.split(' ').filter((w: string) => w.length > 3);
-    const documents = keywords.length > 0
-      ? sragRepo.searchDocuments(ctx.orgId, keywords[0])
-      : [];
+      console.log('🤖 Calling LLM for analytical response...');
+      const aiResponse = await llmService.generateContextualResponse(
+        systemContext,
+        payload.naturalLanguageQuery,
+        factsContext
+      );
+      console.log('✅ LLM response received');
 
-    // Generate LLM response for semantic query
-    const llmService = getLlmService();
-    const systemContext = `You are a document search assistant. Provide a summary and insights from the retrieved documents.`;
-    const docsContext = `Retrieved documents:\n${JSON.stringify(documents, null, 2)}`;
-    const aiResponse = await llmService.generateContextualResponse(
-      systemContext,
-      payload.naturalLanguageQuery,
-      docsContext
-    );
+      return {
+        type: 'analytical',
+        response: aiResponse,
+        result: facts,
+        sqlQuery: 'SELECT * FROM structured_facts WHERE org_id = ?',
+        metadata: {
+          traceId: Math.random().toString(36),
+          docIds: facts.map(f => f.doc_id).filter(Boolean),
+        },
+      };
+    } else {
+      console.log('📚 Processing as semantic query');
+      const keywords = query.split(' ').filter((w: string) => w.length > 3);
+      const documents = keywords.length > 0
+        ? sragRepo.searchDocuments(ctx.orgId, keywords[0])
+        : [];
 
-    return {
-      type: 'semantic',
-      response: aiResponse,
-      result: documents,
-      sqlQuery: null,
-      metadata: {
-        traceId: Math.random().toString(36),
-        docIds: documents.map(d => d.id),
-      },
-    };
+      console.log(`📄 Found ${documents.length} documents`);
+
+      // Generate LLM response for semantic query
+      const llmService = getLlmService();
+      const systemContext = `You are a document search assistant. Provide a summary and insights from the retrieved documents.`;
+      const docsContext = `Retrieved documents:\n${JSON.stringify(documents, null, 2)}`;
+
+      console.log('🤖 Calling LLM for semantic response...');
+      const aiResponse = await llmService.generateContextualResponse(
+        systemContext,
+        payload.naturalLanguageQuery,
+        docsContext
+      );
+      console.log('✅ LLM response received');
+
+      return {
+        type: 'semantic',
+        response: aiResponse,
+        result: documents,
+        sqlQuery: null,
+        metadata: {
+          traceId: Math.random().toString(36),
+          docIds: documents.map(d => d.id),
+        },
+      };
+    }
+  } catch (error) {
+    console.error('❌ Error in sragQueryHandler:', error);
+    throw error;
   }
 }
 
@@ -724,6 +741,353 @@ export async function taskRecorderGetPatternsHandler(_payload: any, _ctx: McpCon
 }
 
 // ---------------------------------------------------
+// Widget Invocation Handlers - For autonomous widgets
+// ---------------------------------------------------
+
+/**
+ * widgets.invoke - Invoke a widget's autonomous action
+ */
+export async function widgetsInvokeHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { widgetId, action, params } = payload;
+
+  if (!widgetId || !action) {
+    throw new Error('widgetId and action are required');
+  }
+
+  // Emit event for widget invocation
+  eventBus.emit('widget:invoke', {
+    widgetId,
+    action,
+    params,
+    userId: ctx.userId,
+    orgId: ctx.orgId,
+    timestamp: new Date().toISOString()
+  });
+
+  // Log to ProjectMemory
+  projectMemory.logLifecycleEvent({
+    eventType: 'other',
+    status: 'success',
+    details: {
+      component: 'widgets',
+      action: 'invoke',
+      widgetId,
+      widgetAction: action
+    }
+  });
+
+  return {
+    success: true,
+    widgetId,
+    action,
+    message: `Widget ${widgetId} action ${action} invoked`,
+    eventId: `widget-${Date.now()}`
+  };
+}
+
+/**
+ * widgets.osint.investigate - Start OSINT email investigation
+ */
+export async function widgetsOsintInvestigateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { email, depth = 'full', threads = 10 } = payload;
+
+  if (!email) {
+    throw new Error('email is required for OSINT investigation');
+  }
+
+  // Initialize investigation
+  const investigationId = `osint-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Record task for TaskRecorder learning
+  const recorder = getTaskRecorder();
+  await recorder.observeTask({
+    taskType: 'osint.email.investigate',
+    taskSignature: `osint:email:${email.split('@')[1]}`,
+    params: { email, depth, threads },
+    userId: ctx.userId,
+    startedAt: new Date()
+  });
+
+  // Emit investigation start event
+  eventBus.emit('osint:investigation:start', {
+    investigationId,
+    email,
+    depth,
+    threads,
+    userId: ctx.userId
+  });
+
+  return {
+    success: true,
+    investigationId,
+    email,
+    depth,
+    threads,
+    status: 'started',
+    message: 'OSINT investigation initiated'
+  };
+}
+
+/**
+ * widgets.threat.hunt - Start threat hunting investigation
+ */
+export async function widgetsThreatHuntHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { target, category = 'all', autoRespond = false } = payload;
+
+  if (!target) {
+    throw new Error('target is required for threat hunting');
+  }
+
+  const huntId = `hunt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Record task for learning
+  const recorder = getTaskRecorder();
+  await recorder.observeTask({
+    taskType: 'threat.hunt',
+    taskSignature: `threat:hunt:${category}`,
+    params: { target, category, autoRespond },
+    userId: ctx.userId,
+    startedAt: new Date()
+  });
+
+  // Emit hunt start event
+  eventBus.emit('threat:hunt:start', {
+    huntId,
+    target,
+    category,
+    autoRespond,
+    userId: ctx.userId
+  });
+
+  return {
+    success: true,
+    huntId,
+    target,
+    category,
+    autoRespond,
+    status: 'started',
+    message: 'Threat hunt initiated'
+  };
+}
+
+/**
+ * widgets.orchestrator.coordinate - Start coordinated investigation
+ */
+export async function widgetsOrchestratorCoordinateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { target, type = 'combined', phases } = payload;
+
+  if (!target) {
+    throw new Error('target is required for orchestration');
+  }
+
+  const orchestrationId = `orch-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Use AgentTeam for coordination
+  const coordinationResult = await agentTeam.coordinate(
+    `investigate:${type}:${target}`,
+    { target, type, phases, userId: ctx.userId }
+  );
+
+  // Emit orchestration event
+  eventBus.emit('orchestrator:coordinate:start', {
+    orchestrationId,
+    target,
+    type,
+    phases,
+    userId: ctx.userId
+  });
+
+  return {
+    success: true,
+    orchestrationId,
+    target,
+    type,
+    status: 'coordinating',
+    coordinationResult,
+    message: 'Orchestration started'
+  };
+}
+
+// ---------------------------------------------------
+// Document Generator Handlers - PowerPoint, Word, Excel
+// ---------------------------------------------------
+
+/**
+ * docgen.powerpoint.create - Create PowerPoint presentation
+ */
+export async function docgenPowerpointCreateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { title, topic, audience, duration = 15, theme = 'corporate', includeImages = true } = payload;
+
+  if (!title || !topic) {
+    throw new Error('title and topic are required');
+  }
+
+  const presentationId = `pptx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Record task for learning
+  const recorder = getTaskRecorder();
+  await recorder.observeTask({
+    taskType: 'docgen.powerpoint.create',
+    taskSignature: `pptx:${theme}:${duration}min`,
+    params: { title, topic, audience, duration, theme },
+    userId: ctx.userId,
+    startedAt: new Date()
+  });
+
+  // Emit generation event
+  eventBus.emit('docgen:powerpoint:create', {
+    presentationId,
+    title,
+    topic,
+    audience,
+    duration,
+    theme,
+    includeImages,
+    userId: ctx.userId
+  });
+
+  return {
+    success: true,
+    presentationId,
+    title,
+    topic,
+    estimatedSlides: Math.ceil(duration * 1.5),
+    status: 'generating',
+    message: 'PowerPoint generation started'
+  };
+}
+
+/**
+ * docgen.word.create - Create Word document
+ */
+export async function docgenWordCreateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { 
+    title, 
+    type = 'report', 
+    topic, 
+    targetWordCount = 3000,
+    includeExecutiveSummary = true,
+    tone = 'professional'
+  } = payload;
+
+  if (!title || !topic) {
+    throw new Error('title and topic are required');
+  }
+
+  const documentId = `docx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Record task for learning
+  const recorder = getTaskRecorder();
+  await recorder.observeTask({
+    taskType: 'docgen.word.create',
+    taskSignature: `docx:${type}:${tone}`,
+    params: { title, type, topic, targetWordCount },
+    userId: ctx.userId,
+    startedAt: new Date()
+  });
+
+  // Emit generation event
+  eventBus.emit('docgen:word:create', {
+    documentId,
+    title,
+    type,
+    topic,
+    targetWordCount,
+    includeExecutiveSummary,
+    tone,
+    userId: ctx.userId
+  });
+
+  return {
+    success: true,
+    documentId,
+    title,
+    type,
+    topic,
+    estimatedSections: type === 'report' ? 8 : 6,
+    status: 'generating',
+    message: 'Word document generation started'
+  };
+}
+
+/**
+ * docgen.excel.create - Create Excel workbook
+ */
+export async function docgenExcelCreateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { 
+    title, 
+    analysisType = 'financial',
+    dataSource,
+    includeCharts = true,
+    includeFormulas = true,
+    includeDashboard = true
+  } = payload;
+
+  if (!title) {
+    throw new Error('title is required');
+  }
+
+  const workbookId = `xlsx-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Record task for learning
+  const recorder = getTaskRecorder();
+  await recorder.observeTask({
+    taskType: 'docgen.excel.create',
+    taskSignature: `xlsx:${analysisType}`,
+    params: { title, analysisType, dataSource, includeCharts },
+    userId: ctx.userId,
+    startedAt: new Date()
+  });
+
+  // Emit generation event
+  eventBus.emit('docgen:excel:create', {
+    workbookId,
+    title,
+    analysisType,
+    dataSource,
+    includeCharts,
+    includeFormulas,
+    includeDashboard,
+    userId: ctx.userId
+  });
+
+  return {
+    success: true,
+    workbookId,
+    title,
+    analysisType,
+    estimatedSheets: includeDashboard ? 5 : 4,
+    status: 'generating',
+    message: 'Excel workbook generation started'
+  };
+}
+
+/**
+ * docgen.status - Get document generation status
+ */
+export async function docgenStatusHandler(payload: any, _ctx: McpContext): Promise<any> {
+  const { documentId } = payload;
+
+  if (!documentId) {
+    throw new Error('documentId is required');
+  }
+
+  // In production, this would check actual generation status
+  // For now, return mock status
+  const type = documentId.startsWith('pptx') ? 'powerpoint' :
+               documentId.startsWith('docx') ? 'word' : 'excel';
+
+  return {
+    success: true,
+    documentId,
+    type,
+    status: 'completed',
+    progress: 100,
+    filePath: `/documents/${documentId}.${type === 'powerpoint' ? 'pptx' : type === 'word' ? 'docx' : 'xlsx'}`
+  };
+}
+
+// ---------------------------------------------------
 // Email RAG Handler – wraps autonomousGraphRAG for email content
 // ---------------------------------------------------
 export async function emailRagHandler(payload: any, ctx: McpContext): Promise<any> {
@@ -746,13 +1110,13 @@ export async function agenticRunHandler(payload: any, ctx: McpContext): Promise<
   if (!payload?.workflow) {
     throw new Error('Missing workflow definition');
   }
-  
+
   // Simple execution: run the first tool node in the workflow via MCP
   const firstTool = payload.workflow.nodes.find((n: any) => n.type === 'tool');
   if (!firstTool) {
     throw new Error('No tool node found in workflow');
   }
-  
+
   // Route through MCP registry
   const { mcpRegistry } = await import('./mcpRegistry.js');
   const result = await mcpRegistry.route({
@@ -767,18 +1131,18 @@ export async function agenticRunHandler(payload: any, ctx: McpContext): Promise<
     },
     createdAt: new Date().toISOString()
   });
-  
+
   // Log execution for audit (project memory)
   const { projectMemory } = await import('../services/project/ProjectMemory.js');
   projectMemory.logLifecycleEvent({
     eventType: 'other',
     status: 'success',
-    details: { 
+    details: {
       action: 'agentic.run',
-      tool: firstTool.name, 
-      result 
+      tool: firstTool.name,
+      result
     },
   });
-  
+
   return { result };
 }

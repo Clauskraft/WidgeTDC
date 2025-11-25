@@ -1,0 +1,23 @@
+[
+    {
+        "name": "Local File Scanner",
+        "enabled": true,
+        "requiresApproval": false,
+        "approved": true,
+        "description": "Local File Scanner"
+    },
+    {
+        "name": "Browser History Reader",
+        "enabled": true,
+        "requiresApproval": false,
+        "approved": true,
+        "description": "Browser History Reader"
+    },
+    {
+        "name": "Outlook Email Reader",
+        "enabled": true,
+        "requiresApproval": false,
+        "approved": true,
+        "description": "Outlook Email Reader"
+    }
+]

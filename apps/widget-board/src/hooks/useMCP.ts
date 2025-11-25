@@ -33,8 +33,9 @@ export const useMCP = () => {
 
       setIsLoading(true);
       try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-        const response = await fetch(options?.routePath ?? `${backendUrl}/api/mcp/route`, {
+        // Use relative path to leverage Vite proxy in dev and same-origin in prod
+        const route = options?.routePath ?? '/api/mcp/route';
+        const response = await fetch(route, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

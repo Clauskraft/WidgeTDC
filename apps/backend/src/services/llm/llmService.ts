@@ -56,16 +56,38 @@ export class LlmService {
   async complete(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
     const provider = this.getProvider(options.model);
 
-    switch (provider) {
-      case 'openai':
-        return this.completeOpenAI(options);
-      case 'deepseek':
-        return this.completeDeepSeek(options);
-      case 'google':
-        return this.completeGoogle(options);
-      default:
-        throw new Error(`Provider ${provider} not supported yet`);
+    try {
+      switch (provider) {
+        case 'openai':
+          return await this.completeOpenAI(options);
+        case 'deepseek':
+          return await this.completeDeepSeek(options);
+        case 'google':
+          return await this.completeGoogle(options);
+        default:
+          throw new Error(`Provider ${provider} not supported yet`);
+      }
+    } catch (error: any) {
+      // Fallback to mock if key is missing or API fails
+      if (error.message.includes('API key not configured') || error.message.includes('not configured')) {
+        console.warn(`⚠️ LLM Provider ${provider} not configured. Using mock response.`);
+        return this.completeMock(options);
+      }
+      throw error;
     }
+  }
+
+  private completeMock(options: ChatCompletionOptions): ChatCompletionResponse {
+    const lastMsg = options.messages[options.messages.length - 1];
+    return {
+      content: `[MOCK RESPONSE] I received your message: "${lastMsg?.content || '...'}". \n\n(No LLM API key configured. Please set OPENAI_API_KEY, DEEPSEEK_API_KEY, or GOOGLE_API_KEY in .env)`,
+      model: 'mock-model',
+      usage: {
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0
+      }
+    };
   }
 
   private async completeOpenAI(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {

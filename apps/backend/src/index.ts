@@ -180,6 +180,34 @@ async function startServer() {
     // Email RAG tool - wraps GraphRAG for email content
     mcpRegistry.registerTool('email.rag', emailRagHandler);
 
+    // Widget Invocation Tools - For autonomous OSINT and Cybersecurity widgets
+    const {
+      widgetsInvokeHandler,
+      widgetsOsintInvestigateHandler,
+      widgetsThreatHuntHandler,
+      widgetsOrchestratorCoordinateHandler
+    } = await import('./mcp/toolHandlers.js');
+
+    mcpRegistry.registerTool('widgets.invoke', widgetsInvokeHandler);
+    mcpRegistry.registerTool('widgets.osint.investigate', widgetsOsintInvestigateHandler);
+    mcpRegistry.registerTool('widgets.threat.hunt', widgetsThreatHuntHandler);
+    mcpRegistry.registerTool('widgets.orchestrator.coordinate', widgetsOrchestratorCoordinateHandler);
+    console.log('🔍 Widget OSINT/Threat tools registered');
+
+    // Document Generator Tools - PowerPoint, Word, Excel
+    const {
+      docgenPowerpointCreateHandler,
+      docgenWordCreateHandler,
+      docgenExcelCreateHandler,
+      docgenStatusHandler
+    } = await import('./mcp/toolHandlers.js');
+
+    mcpRegistry.registerTool('docgen.powerpoint.create', docgenPowerpointCreateHandler);
+    mcpRegistry.registerTool('docgen.word.create', docgenWordCreateHandler);
+    mcpRegistry.registerTool('docgen.excel.create', docgenExcelCreateHandler);
+    mcpRegistry.registerTool('docgen.status', docgenStatusHandler);
+    console.log('📄 Document Generator tools registered');
+
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
     mcpRegistry.registerServer(orchestrator);

@@ -262,3 +262,18 @@ CREATE TABLE IF NOT EXISTS project_features (
 );
 
 
+
+-- Vector Store (SQLite Fallback)
+CREATE TABLE IF NOT EXISTS vector_documents (
+  id            TEXT PRIMARY KEY,
+  content       TEXT NOT NULL,
+  embedding     TEXT, -- JSON string of number[]
+  metadata      TEXT, -- JSON string
+  namespace     TEXT DEFAULT 'default',
+  "userId"      TEXT,
+  "orgId"       TEXT,
+  "createdAt"   DATETIME DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt"   DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_vector_documents_namespace ON vector_documents(namespace);

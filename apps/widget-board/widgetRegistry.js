@@ -325,6 +325,74 @@ export const WIDGET_REGISTRY = {
         icon: 'Download',
         defaultSize: { w: 6, h: 2 },
         description: 'Import and manage external widgets'
+    },
+    // ============= AUTONOMOUS OSINT/CYBERSECURITY WIDGETS =============
+    'AutonomousOSINTEmailWidget': {
+        id: 'AutonomousOSINTEmailWidget',
+        name: 'OSINT Email Investigation',
+        category: 'investigation',
+        path: './widgets/autonomous/autonomous-osint-email-widget',
+        icon: 'Search',
+        defaultSize: { w: 12, h: 4 },
+        description: 'Multi-threaded email investigation with autonomous spor-following',
+        tags: ['osint', 'email', 'investigation', 'autonomous'],
+        permissions: ['osint.read', 'investigation.execute']
+    },
+    'AutonomousThreatHunterWidget': {
+        id: 'AutonomousThreatHunterWidget',
+        name: 'Threat Hunter',
+        category: 'investigation',
+        path: './widgets/autonomous/autonomous-threat-hunter-widget',
+        icon: 'Target',
+        defaultSize: { w: 12, h: 4 },
+        description: 'Autonomous cybersecurity threat detection and response',
+        tags: ['security', 'threat', 'hunting', 'autonomous'],
+        permissions: ['security.read', 'threat.execute']
+    },
+    'MasterOrchestratorWidget': {
+        id: 'MasterOrchestratorWidget',
+        name: 'Master Orchestrator',
+        category: 'investigation',
+        path: './widgets/autonomous/master-orchestrator-widget',
+        icon: 'Layers',
+        defaultSize: { w: 12, h: 4 },
+        description: 'Coordinates OSINT and Cybersecurity investigations simultaneously',
+        tags: ['orchestration', 'osint', 'security', 'coordination'],
+        permissions: ['osint.read', 'security.read', 'orchestration.execute']
+    },
+    // ============= DOCUMENT GENERATOR WIDGETS =============
+    'AutonomousPowerPointMasterWidget': {
+        id: 'AutonomousPowerPointMasterWidget',
+        name: 'PowerPoint Master',
+        category: 'document-generation',
+        path: './widgets/doc-generators/autonomous-powerpoint-master',
+        icon: 'Presentation',
+        defaultSize: { w: 12, h: 4 },
+        description: 'AI-powered presentation generation with MCP integration',
+        tags: ['powerpoint', 'presentation', 'document', 'ai'],
+        permissions: ['document.create', 'mcp.powerpoint']
+    },
+    'AutonomousWordArchitectWidget': {
+        id: 'AutonomousWordArchitectWidget',
+        name: 'Word Architect',
+        category: 'document-generation',
+        path: './widgets/doc-generators/autonomous-word-architect',
+        icon: 'FileText',
+        defaultSize: { w: 12, h: 4 },
+        description: 'AI-powered document and report generation',
+        tags: ['word', 'document', 'report', 'ai'],
+        permissions: ['document.create', 'mcp.word']
+    },
+    'AutonomousExcelAnalyzerWidget': {
+        id: 'AutonomousExcelAnalyzerWidget',
+        name: 'Excel Analyzer',
+        category: 'document-generation',
+        path: './widgets/doc-generators/autonomous-excel-analyzer',
+        icon: 'Table',
+        defaultSize: { w: 12, h: 4 },
+        description: 'AI-powered spreadsheet generation and data analysis',
+        tags: ['excel', 'spreadsheet', 'analysis', 'ai'],
+        permissions: ['document.create', 'mcp.excel']
     }
 };
 
@@ -342,7 +410,9 @@ export const WIDGET_CATEGORIES = {
     'integration': { name: 'Integration', icon: 'Plug', color: 'violet' },
     'compliance': { name: 'Compliance', icon: 'Scale', color: 'slate' },
     'settings': { name: 'Settings', icon: 'Settings', color: 'gray' },
-    'system': { name: 'System', icon: 'Cpu', color: 'emerald' }
+    'system': { name: 'System', icon: 'Cpu', color: 'emerald' },
+    'investigation': { name: 'Investigation', icon: 'Search', color: 'rose' },
+    'document-generation': { name: 'Document Generation', icon: 'FileText', color: 'amber' }
 };
 
 export function getAllWidgets() {

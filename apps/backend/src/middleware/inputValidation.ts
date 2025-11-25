@@ -211,7 +211,10 @@ export const csrfProtectionMiddleware = (
     const referer = req.get('referer');
     const host = req.get('host');
 
-    if (origin && !origin.includes(host || 'localhost')) {
+    // Allow localhost to localhost communication regardless of port
+    const isLocalhost = origin && (origin.includes('localhost') || origin.includes('127.0.0.1'));
+
+    if (origin && !origin.includes(host || 'localhost') && !isLocalhost) {
       return res.status(403).json({
         error: 'Forbidden',
         message: 'CSRF validation failed'

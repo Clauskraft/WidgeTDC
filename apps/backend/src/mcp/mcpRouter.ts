@@ -11,8 +11,9 @@ export const mcpRouter = Router();
 mcpRouter.post('/route', async (req, res) => {
   const startTime = Date.now();
   let success = false;
-  
+
   try {
+    console.log('📨 MCP Router received request:', JSON.stringify(req.body));
     const message: MCPMessage = req.body;
     // Context for memory enrichment
     const ctx = {
@@ -29,10 +30,10 @@ mcpRouter.post('/route', async (req, res) => {
     const result = await mcpRegistry.route(enrichedMessage);
     // Persist result in working memory for future context
     await unifiedMemorySystem.updateWorkingMemory(ctx, result);
-    
+
     success = true;
     const duration = Date.now() - startTime;
-    
+
     // Emit event for TaskRecorder observation
     eventBus.emit('mcp.tool.executed', {
       tool: enrichedMessage.tool,
@@ -43,7 +44,7 @@ mcpRouter.post('/route', async (req, res) => {
       result,
       duration
     });
-    
+
     res.json({
       success: true,
       messageId: enrichedMessage.id,
@@ -51,7 +52,7 @@ mcpRouter.post('/route', async (req, res) => {
     });
   } catch (error: any) {
     const duration = Date.now() - startTime;
-    
+
     // Emit event for TaskRecorder observation (failure)
     eventBus.emit('mcp.tool.executed', {
       tool: req.body?.tool || 'unknown',
@@ -62,7 +63,7 @@ mcpRouter.post('/route', async (req, res) => {
       error: error.message,
       duration
     });
-    
+
     console.error('MCP routing error:', error);
     res.status(500).json({ success: false, error: error.message || 'Internal server error' });
   }

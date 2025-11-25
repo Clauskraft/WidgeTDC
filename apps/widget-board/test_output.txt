@@ -1,0 +1,352 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.12 [39m[90mC:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board[39m
+
+ [31mÔØ»[39m src/hooks/__tests__/useMCP.test.ts [2m([22m[2m2 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 21[2mms[22m[39m
+[31m     [31m├ù[31m posts MCP messages to the middleware route by default[39m[32m 17[2mms[22m[39m
+     [32mÔ£ô[39m allows overriding the sourceId and returns the server response[32m 3[2mms[22m[39m
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > renders form with path and keyword inputs
+Unknown event handler property `onValueChange`. It will be ignored.
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+ [31mÔØ»[39m App.test.tsx [2m([22m[2m2 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 95[2mms[22m[39m
+[31m     [31m├ù[31m should match Microsoft design tokens[39m[32m 90[2mms[22m[39m
+[31m     [31m├ù[31m should have correct Microsoft typography[39m[32m 3[2mms[22m[39m
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > renders start scan button
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+ [32mÔ£ô[39m widgets/__tests__/FeedIngestionWidget.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 60[2mms[22m[39m
+[90mstdout[2m | src/utils/securityApi.test.ts[2m > [22m[2mSecurityApi[2m > [22m[2mingests feed with dedupe and emits event
+[22m[39mIngesting feed (mock) test-feed
+
+ [31mÔØ»[39m src/utils/securityApi.test.ts [2m([22m[2m3 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 50[2mms[22m[39m
+[31m     [31m├ù[31m fetches real feeds via MCP, falls back on error[39m[32m 46[2mms[22m[39m
+     [32mÔ£ô[39m ingests feed with dedupe and emits event[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m polls CERT-EU RSS[32m 1[2mms[22m[39m
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > renders auto-scan checkbox
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx
+Security activity fetch failed TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at fetchSecurityActivity (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/securityApi.ts:67:20)
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/ActivityStreamWidget.tsx:104:26 {
+  [cause]: AggregateError: 
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx
+Security activity fetch failed TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at fetchSecurityActivity (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/securityApi.ts:67:20)
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/ActivityStreamWidget.tsx:104:26 {
+  [cause]: AggregateError: 
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > toggles auto-scan checkbox state
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx
+Request failed: Error: HTTP error! status: 500
+    at request (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/request.ts:46:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at getWidgetPermissions (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/permissionsApi.ts:11:20)
+    at loadPermissions (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/contexts/PermissionContext.tsx:18:21)
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx
+Security activity fetch failed TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at fetchSecurityActivity (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/securityApi.ts:67:20)
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/ActivityStreamWidget.tsx:104:26 {
+  [cause]: AggregateError: 
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx
+Request failed: Error: HTTP error! status: 500
+    at request (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/request.ts:46:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at getWidgetPermissions (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/permissionsApi.ts:11:20)
+    at loadPermissions (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/contexts/PermissionContext.tsx:18:21)
+
+ [32mÔ£ô[39m widgets/__tests__/ActivityStreamWidget.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 125[2mms[22m[39m
+stderr | request (C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board\utils\request.ts:52:13)
+Request failed: Error: HTTP error! status: 500
+    at request (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/request.ts:46:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at getWidgetPermissions (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/permissionsApi.ts:11:20)
+    at loadPermissions (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/contexts/PermissionContext.tsx:18:21)
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > allows button click without errors
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > allows button click without errors
+MCP send failed: TypeError: Failed to parse URL from /api/mcp/route
+    at node:internal/deps/undici/undici:13510:13
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/src/hooks/useMCP.ts:38:26
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/LocalScanWidget.tsx:62:24 {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:825:25)
+      at new URL$1 (file:///C:/Users/claus/Projects/WidgeTDC/WidgeTDC/node_modules/vitest/dist/chunks/index.QWbK7rHY.js:556:9)
+      at new Request (node:internal/deps/undici/undici:9586:25)
+      at fetch (node:internal/deps/undici/undici:10315:25)
+      at fetch (node:internal/deps/undici/undici:13508:10)
+      at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)
+      at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/src/hooks/useMCP.ts:38:32
+      at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/LocalScanWidget.tsx:62:30
+      at executeDispatch (C:\Users\claus\Projects\WidgeTDC\WidgeTDC\node_modules\react-dom\cjs\react-dom-client.development.js:19116:9)
+      at runWithFiberInDEV (C:\Users\claus\Projects\WidgeTDC\WidgeTDC\node_modules\react-dom\cjs\react-dom-client.development.js:874:13) {
+    code: 'ERR_INVALID_URL',
+    input: '/api/mcp/route'
+  }
+}
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > allows button click without errors
+Scan error (discreet mode): TypeError: Failed to parse URL from /api/mcp/route
+    at node:internal/deps/undici/undici:13510:13
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/src/hooks/useMCP.ts:38:26
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/LocalScanWidget.tsx:62:24 {
+  [cause]: TypeError: Invalid URL
+      at new URL (node:internal/url:825:25)
+      at new URL$1 (file:///C:/Users/claus/Projects/WidgeTDC/WidgeTDC/node_modules/vitest/dist/chunks/index.QWbK7rHY.js:556:9)
+      at new Request (node:internal/deps/undici/undici:9586:25)
+      at fetch (node:internal/deps/undici/undici:10315:25)
+      at fetch (node:internal/deps/undici/undici:13508:10)
+      at fetch (node:internal/bootstrap/web/exposed-window-or-worker:75:12)
+      at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/src/hooks/useMCP.ts:38:32
+      at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/LocalScanWidget.tsx:62:30
+      at executeDispatch (C:\Users\claus\Projects\WidgeTDC\WidgeTDC\node_modules\react-dom\cjs\react-dom-client.development.js:19116:9)
+      at runWithFiberInDEV (C:\Users\claus\Projects\WidgeTDC\WidgeTDC\node_modules\react-dom\cjs\react-dom-client.development.js:874:13) {
+    code: 'ERR_INVALID_URL',
+    input: '/api/mcp/route'
+  }
+}
+
+[90mstdout[2m | src/components/Dashboard/DashboardShell.test.tsx[2m > [22m[2mDashboardShell[2m > [22m[2mshould update active nav item when clicked
+[22m[39mNavigating to: widgets
+
+stderr | widgets/__tests__/SearchInterfaceWidget.test.tsx
+Security search bootstrap failed TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at request (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/securityApi.ts:5:20)
+    at async Promise.all (index 0)
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/SearchInterfaceWidget.tsx:156:53 {
+  [cause]: AggregateError: 
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+
+stderr | widgets/__tests__/SearchInterfaceWidget.test.tsx
+Security search bootstrap failed TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at request (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/securityApi.ts:5:20)
+    at async Promise.all (index 0)
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/SearchInterfaceWidget.tsx:156:53 {
+  [cause]: AggregateError: 
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+
+stderr | widgets/__tests__/SearchInterfaceWidget.test.tsx
+Security search bootstrap failed TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at request (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/securityApi.ts:5:20)
+    at async Promise.all (index 0)
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/SearchInterfaceWidget.tsx:156:53 {
+  [cause]: AggregateError: 
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+
+stderr | widgets/__tests__/SearchInterfaceWidget.test.tsx
+Security search bootstrap failed TypeError: fetch failed
+    at node:internal/deps/undici/undici:13510:13
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at request (C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/utils/securityApi.ts:5:20)
+    at async Promise.all (index 0)
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/SearchInterfaceWidget.tsx:156:53 {
+  [cause]: AggregateError: 
+      at internalConnectMultiple (node:net:1134:18)
+      at afterConnectMultiple (node:net:1715:7) {
+    code: 'ECONNREFUSED',
+    [errors]: [ [Error], [Error] ]
+  }
+}
+
+ [32mÔ£ô[39m widgets/__tests__/SearchInterfaceWidget.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[32m 287[2mms[22m[39m
+[90mstdout[2m | src/components/Dashboard/DashboardShell.test.tsx[2m > [22m[2mDashboardShell[2m > [22m[2mshould log navigation actions to console
+[22m[39mNavigating to: widgets
+
+ [32mÔ£ô[39m widgets/__tests__/LocalScanWidget.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 318[2mms[22m[39m
+ [32mÔ£ô[39m src/components/Dashboard/DashboardShell.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 351[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 4 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  App.test.tsx > Microsoft Visual Style > should match Microsoft design tokens
+AssertionError: expected '' to be '#0078d4' // Object.is equality
+
+- Expected
++ Received
+
+- #0078d4
+
+ ÔØ» App.test.tsx:9:58
+      7|     // This test assumes the app's CSS is loaded in the test environmeÔÇª
+      8|     const style = getComputedStyle(document.documentElement);
+      9|     expect(style.getPropertyValue('--ms-accent').trim()).toBe('#0078d4ÔÇª
+       |                                                          ^
+     10|     expect(style.getPropertyValue('--ms-radius-medium').trim()).toBe('ÔÇª
+     11|   });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/4]ÔÄ»
+
+ FAIL  App.test.tsx > Microsoft Visual Style > should have correct Microsoft typography
+AssertionError: expected null not to be null
+ ÔØ» App.test.tsx:16:25
+     14|     // This test relies on the .ms-typography class being applied to aÔÇª
+     15|     const element = document.querySelector('.ms-typography');
+     16|     expect(element).not.toBeNull();
+       |                         ^
+     17|     const style = getComputedStyle(element!);
+     18|     expect(style.fontFamily).toContain('Segoe UI');
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/4]ÔÄ»
+
+ FAIL  src/utils/securityApi.test.ts > SecurityApi > fetches real feeds via MCP, falls back on error
+AssertionError: expected 98231 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 98231
+
+ ÔØ» src/utils/securityApi.test.ts:19:43
+     17|     const data = await fetchSecurityFeeds();
+     18|     expect(data).toHaveProperty('feeds');
+     19|     expect(data.metrics.documentsIndexed).toBe(0);
+       |                                           ^
+     20|   });
+     21| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/4]ÔÄ»
+
+ FAIL  src/hooks/__tests__/useMCP.test.ts > useMCP hook > posts MCP messages to the middleware route by default
+AssertionError: expected "vi.fn()" to be called with arguments: [ ÔÇª(2) ]
+
+Received: 
+
+  1st vi.fn() call:
+
+  [
+-   "http://localhost:3001/api/mcp/route",
+-   ObjectContaining {
++   "/api/mcp/route",
++   {
++     "body": "{\"id\":\"test-uuid\",\"sourceId\":\"widget\",\"targetId\":\"memory-service\",\"tool\":\"memory.get\",\"payload\":{\"orgId\":\"org-1\"},\"createdAt\":\"2025-11-25T22:59:25.488Z\"}",
++     "headers": {
++       "Content-Type": "application/json",
++     },
+      "method": "POST",
++     "signal": undefined,
+    },
+  ]
+
+
+Number of calls: 1
+
+ ÔØ» src/hooks/__tests__/useMCP.test.ts:44:30
+     42|     });
+     43| 
+     44|     expect(globalThis.fetch).toHaveBeenCalledWith(
+       |                              ^
+     45|       'http://localhost:3001/api/mcp/route',
+     46|       expect.objectContaining({
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/4]ÔÄ»
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Unhandled Errors ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+Vitest caught 3 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ» Unhandled Rejection ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+Error: HTTP error! status: 500
+ ÔØ» request utils/request.ts:46:13
+     44| 
+     45|     if (!response.ok) {
+     46|       throw new Error(`HTTP error! status: ${response.status}`);
+       |             ^
+     47|     }
+     48| 
+ ÔØ» processTicksAndRejections node:internal/process/task_queues:105:5
+ ÔØ» getWidgetPermissions utils/permissionsApi.ts:11:20
+ ÔØ» loadPermissions contexts/PermissionContext.tsx:18:21
+
+This error originated in "widgets/__tests__/ActivityStreamWidget.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ» Unhandled Rejection ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+Error: HTTP error! status: 500
+ ÔØ» request utils/request.ts:46:13
+     44| 
+     45|     if (!response.ok) {
+     46|       throw new Error(`HTTP error! status: ${response.status}`);
+       |             ^
+     47|     }
+     48| 
+ ÔØ» processTicksAndRejections node:internal/process/task_queues:105:5
+ ÔØ» getWidgetPermissions utils/permissionsApi.ts:11:20
+ ÔØ» loadPermissions contexts/PermissionContext.tsx:18:21
+
+This error originated in "widgets/__tests__/ActivityStreamWidget.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ» Unhandled Rejection ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+Error: HTTP error! status: 500
+ ÔØ» request utils/request.ts:46:13
+     44| 
+     45|     if (!response.ok) {
+     46|       throw new Error(`HTTP error! status: ${response.status}`);
+       |             ^
+     47|     }
+     48| 
+ ÔØ» processTicksAndRejections node:internal/process/task_queues:105:5
+ ÔØ» getWidgetPermissions utils/permissionsApi.ts:11:20
+ ÔØ» loadPermissions contexts/PermissionContext.tsx:18:21
+
+This error originated in "widgets/__tests__/ActivityStreamWidget.test.tsx" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m5 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m30 passed[39m[22m[90m (34)[39m
+[2m     Errors [22m [1m[31m3 errors[39m[22m
+[2m   Start at [22m 23:59:23
+[2m   Duration [22m 2.47s[2m (transform 1.03s, setup 2.65s, collect 1.18s, tests 1.31s, environment 11.64s, prepare 75ms)[22m
+
