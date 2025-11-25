@@ -113,6 +113,7 @@ export function PlatformProvider({ children, options }: PlatformProviderProps) {
             });
           }
         }
+      }
     }
 
     initializePlatform();
