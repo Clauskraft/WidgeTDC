@@ -211,8 +211,8 @@ export async function startHansPedder(): Promise<void> {
         hansPedderStatus.active = true;
         hansPedderStatus.startedAt = new Date();
 
-        // Start autonomous learning loop
-        await startAutonomousLearning(hansPedder);
+        // Start autonomous learning loop (Turbo Mode: 60s interval)
+        await startAutonomousLearning(hansPedder, 60000);
 
         // PROJECT MEMORY PROTOCOL: Log after starting
         try {
