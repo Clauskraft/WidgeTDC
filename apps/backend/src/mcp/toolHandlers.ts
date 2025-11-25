@@ -805,7 +805,9 @@ export async function widgetsOsintInvestigateHandler(payload: any, ctx: McpConte
     taskSignature: `osint:email:${email.split('@')[1]}`,
     params: { email, depth, threads },
     userId: ctx.userId,
-    startedAt: new Date()
+    orgId: ctx.orgId,
+    timestamp: new Date(),
+    success: true
   });
 
   // Emit investigation start event
@@ -845,9 +847,11 @@ export async function widgetsThreatHuntHandler(payload: any, ctx: McpContext): P
   await recorder.observeTask({
     taskType: 'threat.hunt',
     taskSignature: `threat:hunt:${category}`,
-    params: { target, category, autoRespond },
+    params: { target, type: category, duration: 0 }, // Assuming 'type' and 'duration' are placeholders or derived from 'category'
     userId: ctx.userId,
-    startedAt: new Date()
+    orgId: ctx.orgId,
+    timestamp: new Date(),
+    success: true
   });
 
   // Emit hunt start event
@@ -929,9 +933,11 @@ export async function docgenPowerpointCreateHandler(payload: any, ctx: McpContex
   await recorder.observeTask({
     taskType: 'docgen.powerpoint.create',
     taskSignature: `pptx:${theme}:${duration}min`,
-    params: { title, topic, audience, duration, theme },
+    params: { title, topic, audience },
     userId: ctx.userId,
-    startedAt: new Date()
+    orgId: ctx.orgId,
+    timestamp: new Date(),
+    success: true
   });
 
   // Emit generation event
@@ -961,10 +967,10 @@ export async function docgenPowerpointCreateHandler(payload: any, ctx: McpContex
  * docgen.word.create - Create Word document
  */
 export async function docgenWordCreateHandler(payload: any, ctx: McpContext): Promise<any> {
-  const { 
-    title, 
-    type = 'report', 
-    topic, 
+  const {
+    title,
+    type = 'report',
+    topic,
     targetWordCount = 3000,
     includeExecutiveSummary = true,
     tone = 'professional'
@@ -981,9 +987,11 @@ export async function docgenWordCreateHandler(payload: any, ctx: McpContext): Pr
   await recorder.observeTask({
     taskType: 'docgen.word.create',
     taskSignature: `docx:${type}:${tone}`,
-    params: { title, type, topic, targetWordCount },
+    params: { title, topic, type },
     userId: ctx.userId,
-    startedAt: new Date()
+    orgId: ctx.orgId,
+    timestamp: new Date(),
+    success: true
   });
 
   // Emit generation event
@@ -1014,8 +1022,8 @@ export async function docgenWordCreateHandler(payload: any, ctx: McpContext): Pr
  * docgen.excel.create - Create Excel workbook
  */
 export async function docgenExcelCreateHandler(payload: any, ctx: McpContext): Promise<any> {
-  const { 
-    title, 
+  const {
+    title,
     analysisType = 'financial',
     dataSource,
     includeCharts = true,
@@ -1036,7 +1044,9 @@ export async function docgenExcelCreateHandler(payload: any, ctx: McpContext): P
     taskSignature: `xlsx:${analysisType}`,
     params: { title, analysisType, dataSource, includeCharts },
     userId: ctx.userId,
-    startedAt: new Date()
+    orgId: ctx.orgId,
+    timestamp: new Date(),
+    success: true
   });
 
   // Emit generation event
@@ -1075,7 +1085,7 @@ export async function docgenStatusHandler(payload: any, _ctx: McpContext): Promi
   // In production, this would check actual generation status
   // For now, return mock status
   const type = documentId.startsWith('pptx') ? 'powerpoint' :
-               documentId.startsWith('docx') ? 'word' : 'excel';
+    documentId.startsWith('docx') ? 'word' : 'excel';
 
   return {
     success: true,

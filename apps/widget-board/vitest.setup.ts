@@ -21,3 +21,13 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Mock global fetch to prevent unhandled rejections
+global.fetch = vi.fn(() =>
+  Promise.resolve({
+    ok: true,
+    json: () => Promise.resolve({}),
+    status: 200,
+    text: () => Promise.resolve(''),
+  } as Response)
+);

@@ -1,0 +1,16 @@
+
+> @widget-tdc/backend@1.0.0 build
+> tsc
+
+src/mcp/toolHandlers.ts(808,5): error TS2353: Object literal may only specify known properties, and 'startedAt' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(850,5): error TS2353: Object literal may only specify known properties, and 'startedAt' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(934,5): error TS2353: Object literal may only specify known properties, and 'startedAt' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(986,5): error TS2353: Object literal may only specify known properties, and 'startedAt' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(1039,5): error TS2353: Object literal may only specify known properties, and 'startedAt' does not exist in type 'Omit<TaskObservation, "id">'.
+npm error Lifecycle script `build` failed with error:
+npm error code 2
+npm error path C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend
+npm error workspace @widget-tdc/backend@1.0.0
+npm error location C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend
+npm error command failed
+npm error command C:\Windows\system32\cmd.exe /d /s /c tsc

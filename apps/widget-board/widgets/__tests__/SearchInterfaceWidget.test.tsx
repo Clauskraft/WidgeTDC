@@ -3,6 +3,14 @@ import { describe, it, expect } from 'vitest';
 import '@testing-library/jest-dom';
 import SearchInterfaceWidget from '../SearchInterfaceWidget';
 
+// Mock the request utility
+vi.mock('../../utils/request', () => ({
+  request: vi.fn().mockResolvedValue({
+    results: [],
+    templates: []
+  })
+}));
+
 describe('SearchInterfaceWidget', () => {
   it('renders search interface components', () => {
     render(<SearchInterfaceWidget widgetId="search-test" />);

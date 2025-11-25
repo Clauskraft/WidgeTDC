@@ -1,0 +1,43 @@
+
+> @widget-tdc/backend@1.0.0 build
+> tsc
+
+src/mcp/toolHandlers.ts(758,17): error TS2345: Argument of type '"widget:invoke"' is not assignable to parameter of type 'EventType | "*"'.
+src/mcp/toolHandlers.ts(806,5): error TS2353: Object literal may only specify known properties, and 'params' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(812,17): error TS2345: Argument of type '"osint:investigation:start"' is not assignable to parameter of type 'EventType | "*"'.
+src/mcp/toolHandlers.ts(848,5): error TS2353: Object literal may only specify known properties, and 'params' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(854,17): error TS2345: Argument of type '"threat:hunt:start"' is not assignable to parameter of type 'EventType | "*"'.
+src/mcp/toolHandlers.ts(892,17): error TS2345: Argument of type '"orchestrator:coordinate:start"' is not assignable to parameter of type 'EventType | "*"'.
+src/mcp/toolHandlers.ts(932,5): error TS2353: Object literal may only specify known properties, and 'params' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(938,17): error TS2345: Argument of type '"docgen:powerpoint:create"' is not assignable to parameter of type 'EventType | "*"'.
+src/mcp/toolHandlers.ts(984,5): error TS2353: Object literal may only specify known properties, and 'params' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(990,17): error TS2345: Argument of type '"docgen:word:create"' is not assignable to parameter of type 'EventType | "*"'.
+src/mcp/toolHandlers.ts(1037,5): error TS2353: Object literal may only specify known properties, and 'params' does not exist in type 'Omit<TaskObservation, "id">'.
+src/mcp/toolHandlers.ts(1043,17): error TS2345: Argument of type '"docgen:excel:create"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/DocumentGenerationService.ts(98,7): error TS2322: Type 'PowerPointConfig' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'PowerPointConfig'.
+src/services/docgen/DocumentGenerationService.ts(110,20): error TS2352: Conversion of type 'Record<string, unknown>' to type 'PowerPointConfig' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Record<string, unknown>' is missing the following properties from type 'PowerPointConfig': title, topic
+src/services/docgen/DocumentGenerationService.ts(161,21): error TS2345: Argument of type '"docgen:powerpoint:completed"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/DocumentGenerationService.ts(171,21): error TS2345: Argument of type '"docgen:powerpoint:failed"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/DocumentGenerationService.ts(188,7): error TS2322: Type 'WordConfig' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'WordConfig'.
+src/services/docgen/DocumentGenerationService.ts(200,20): error TS2352: Conversion of type 'Record<string, unknown>' to type 'WordConfig' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Record<string, unknown>' is missing the following properties from type 'WordConfig': title, type, topic
+src/services/docgen/DocumentGenerationService.ts(222,21): error TS2345: Argument of type '"docgen:word:completed"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/DocumentGenerationService.ts(232,21): error TS2345: Argument of type '"docgen:word:failed"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/DocumentGenerationService.ts(270,7): error TS2322: Type 'ExcelConfig' is not assignable to type 'Record<string, unknown>'.
+  Index signature for type 'string' is missing in type 'ExcelConfig'.
+src/services/docgen/DocumentGenerationService.ts(282,20): error TS2352: Conversion of type 'Record<string, unknown>' to type 'ExcelConfig' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'Record<string, unknown>' is missing the following properties from type 'ExcelConfig': title, analysisType
+src/services/docgen/DocumentGenerationService.ts(305,21): error TS2345: Argument of type '"docgen:excel:completed"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/DocumentGenerationService.ts(315,21): error TS2345: Argument of type '"docgen:excel:failed"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/MCPPowerPointBackend.ts(49,23): error TS2345: Argument of type '"docgen:powerpoint:created"' is not assignable to parameter of type 'EventType | "*"'.
+src/services/docgen/MCPPowerPointBackend.ts(55,23): error TS2345: Argument of type '"docgen:powerpoint:error"' is not assignable to parameter of type 'EventType | "*"'.
+npm error Lifecycle script `build` failed with error:
+npm error code 2
+npm error path C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend
+npm error workspace @widget-tdc/backend@1.0.0
+npm error location C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend
+npm error command failed
+npm error command C:\Windows\system32\cmd.exe /d /s /c tsc

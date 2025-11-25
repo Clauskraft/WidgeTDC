@@ -1,0 +1,156 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.12 [39m[90mC:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board[39m
+
+ [32mÔ£ô[39m App.test.tsx [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32mÔ£ô[39m src/hooks/__tests__/useMCP.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > renders form with path and keyword inputs
+Unknown event handler property `onValueChange`. It will be ignored.
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > renders start scan button
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+[90mstdout[2m | src/utils/securityApi.test.ts[2m > [22m[2mSecurityApi[2m > [22m[2mingests feed with dedupe and emits event
+[22m[39mIngesting feed (mock) test-feed
+
+ [32mÔ£ô[39m src/utils/securityApi.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > renders auto-scan checkbox
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx > ActivityStreamWidget > renders live stream header
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > toggles auto-scan checkbox state
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > allows button click without errors
+You provided a `value` prop to a form field without an `onChange` handler. This will render a read-only field. If the field should be mutable use `defaultValue`. Otherwise, set either `onChange` or `readOnly`.
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx > ActivityStreamWidget > renders activity events container
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | widgets/__tests__/LocalScanWidget.test.tsx > LocalScanWidget > allows button click without errors
+Scan error (discreet mode): TypeError: Cannot read properties of undefined (reading 'files')
+    at C:/Users/claus/Projects/WidgeTDC/WidgeTDC/apps/widget-board/widgets/LocalScanWidget.tsx:68:35
+
+stderr | widgets/__tests__/ActivityStreamWidget.test.tsx > ActivityStreamWidget > has severity filter
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | widgets/__tests__/FeedIngestionWidget.test.tsx > FeedIngestionWidget > renders threat intelligence content area
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | widgets/__tests__/FeedIngestionWidget.test.tsx > FeedIngestionWidget > component renders without crashing
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PermissionProvider inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ [32mÔ£ô[39m widgets/__tests__/ActivityStreamWidget.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32mÔ£ô[39m widgets/__tests__/FeedIngestionWidget.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 104[2mms[22m[39m
+ [32mÔ£ô[39m widgets/__tests__/LocalScanWidget.test.tsx [2m([22m[2m5 tests[22m[2m)[22m[33m 408[2mms[22m[39m
+ [32mÔ£ô[39m widgets/__tests__/SearchInterfaceWidget.test.tsx [2m([22m[2m4 tests[22m[2m)[22m[33m 328[2mms[22m[39m
+[90mstdout[2m | src/components/Dashboard/DashboardShell.test.tsx[2m > [22m[2mDashboardShell[2m > [22m[2mshould update active nav item when clicked
+[22m[39mNavigating to: widgets
+
+[90mstdout[2m | src/components/Dashboard/DashboardShell.test.tsx[2m > [22m[2mDashboardShell[2m > [22m[2mshould log navigation actions to console
+[22m[39mNavigating to: widgets
+
+ [32mÔ£ô[39m src/components/Dashboard/DashboardShell.test.tsx [2m([22m[2m12 tests[22m[2m)[22m[33m 462[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m34 passed[39m[22m[90m (34)[39m
+[2m   Start at [22m 00:15:09
+[2m   Duration [22m 2.41s[2m (transform 2.67s, setup 2.52s, collect 3.02s, tests 1.44s, environment 7.32s, prepare 85ms)[22m
+

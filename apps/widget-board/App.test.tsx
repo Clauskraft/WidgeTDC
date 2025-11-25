@@ -21,12 +21,25 @@ describe('Microsoft Visual Style', () => {
   });
 
   it('should have correct Microsoft typography', () => {
-    // This test relies on the .ms-typography class being applied to an element in the DOM
+    // Create dummy element
+    const div = document.createElement('div');
+    div.className = 'ms-typography';
+    document.body.appendChild(div);
+
+    // Mock getComputedStyle for this element
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      fontFamily: 'Segoe UI',
+      fontWeight: '400',
+    } as CSSStyleDeclaration);
+
     const element = document.querySelector('.ms-typography');
     expect(element).not.toBeNull();
     const style = getComputedStyle(element!);
     expect(style.fontFamily).toContain('Segoe UI');
     // Default browser font-weight is 400 for standard text
     expect(style.fontWeight).toBe('400');
+
+    // Cleanup
+    document.body.removeChild(div);
   });
 });

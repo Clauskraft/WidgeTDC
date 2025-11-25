@@ -16,7 +16,7 @@ interface DocumentJob {
   type: 'powerpoint' | 'word' | 'excel';
   status: 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
-  config: Record<string, unknown>;
+  config: any;
   result?: {
     filePath: string;
     fileSize?: number;
@@ -202,7 +202,7 @@ class DocumentGenerationService {
     try {
       // Simulate document generation
       const sections = this.generateWordSections(config);
-      
+
       for (let i = 0; i < sections.length; i++) {
         job.progress = Math.round((i / sections.length) * 90);
         await this.delay(100); // Simulate processing time
@@ -238,7 +238,7 @@ class DocumentGenerationService {
 
   private generateWordSections(config: WordConfig): string[] {
     const baseSections = ['Introduction', 'Background', 'Methodology'];
-    
+
     const typeSections: Record<string, string[]> = {
       report: ['Findings', 'Analysis', 'Discussion', 'Conclusion', 'Recommendations'],
       manual: ['Getting Started', 'Core Features', 'Advanced Topics', 'Troubleshooting'],
@@ -284,7 +284,7 @@ class DocumentGenerationService {
     try {
       // Simulate workbook generation
       const sheets = this.generateExcelSheets(config);
-      
+
       for (let i = 0; i < sheets.length; i++) {
         job.progress = Math.round((i / sheets.length) * 90);
         await this.delay(100); // Simulate processing time
@@ -321,7 +321,7 @@ class DocumentGenerationService {
 
   private generateExcelSheets(config: ExcelConfig): string[] {
     const baseSheets = config.includeDashboard ? ['Dashboard'] : [];
-    
+
     const typeSheets: Record<string, string[]> = {
       financial: ['Income Statement', 'Balance Sheet', 'Cash Flow', 'Ratios'],
       statistical: ['Descriptive Stats', 'Correlation', 'Regression'],

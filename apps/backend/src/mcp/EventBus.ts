@@ -11,7 +11,22 @@ export type EventType =
     | 'taskrecorder.suggestion.created'
     | 'taskrecorder.suggestion.approved'
     | 'taskrecorder.execution.started'
-    | 'data:ingested';
+    | 'data:ingested'
+    | 'widget:invoke'
+    | 'osint:investigation:start'
+    | 'threat:hunt:start'
+    | 'orchestrator:coordinate:start'
+    | 'docgen:powerpoint:create'
+    | 'docgen:word:create'
+    | 'docgen:excel:create'
+    | 'docgen:powerpoint:completed'
+    | 'docgen:powerpoint:failed'
+    | 'docgen:word:completed'
+    | 'docgen:word:failed'
+    | 'docgen:excel:completed'
+    | 'docgen:excel:failed'
+    | 'docgen:powerpoint:created'
+    | 'docgen:powerpoint:error';
 
 export interface BaseEvent {
     type: EventType;

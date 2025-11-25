@@ -28,6 +28,7 @@ export interface TaskObservation {
     success: boolean;
     result?: any;
     context?: Record<string, any>;
+    params?: any;
 }
 
 export interface TaskPattern {
@@ -260,7 +261,7 @@ export class TaskRecorder {
             existing.lastSeen = observation.timestamp;
             existing.successRate = this.calculateSuccessRate(signature);
             existing.averageDuration = this.calculateAverageDuration(signature);
-            
+
             // Update context patterns
             if (observation.context) {
                 for (const [key, value] of Object.entries(observation.context)) {
@@ -301,7 +302,7 @@ export class TaskRecorder {
                 lastSeen: observation.timestamp,
                 successRate: observation.success ? 1.0 : 0.0,
                 averageDuration: observation.duration,
-                contexts: observation.context ? 
+                contexts: observation.context ?
                     Object.fromEntries(Object.entries(observation.context).map(([k, v]) => [`${k}:${v}`, 1])) :
                     {}
             };
@@ -363,7 +364,7 @@ export class TaskRecorder {
             observedCount: pattern.frequency,
             suggestedAction: `Automate "${pattern.taskType}" task (observed ${pattern.frequency} times with ${(pattern.successRate * 100).toFixed(0)}% success rate)`,
             requiresApproval: true, // ALWAYS require approval for real tasks
-            estimatedBenefit: pattern.averageDuration 
+            estimatedBenefit: pattern.averageDuration
                 ? `Saves ~${pattern.averageDuration}ms per execution`
                 : 'Reduces manual repetition',
             createdAt: new Date(),
@@ -445,7 +446,7 @@ export class TaskRecorder {
 
         // Execute task (with approval)
         const executionId = `exec-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
+
         try {
             this.db.run(`
                 INSERT INTO task_executions
@@ -617,7 +618,7 @@ export class TaskRecorder {
     private calculateSuccessRate(signature: string): number {
         const observations = this.observations.get(signature) || [];
         if (observations.length === 0) return 0;
-        
+
         const successful = observations.filter(o => o.success).length;
         return successful / observations.length;
     }
@@ -629,7 +630,7 @@ export class TaskRecorder {
         const observations = this.observations.get(signature) || [];
         const withDuration = observations.filter(o => o.duration !== undefined);
         if (withDuration.length === 0) return undefined;
-        
+
         const sum = withDuration.reduce((acc, o) => acc + (o.duration || 0), 0);
         return sum / withDuration.length;
     }

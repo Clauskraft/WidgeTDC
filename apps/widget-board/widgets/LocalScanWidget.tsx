@@ -65,7 +65,7 @@ const LocalScanWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
         keywords: config.keywords,
         orgId: 'current', // Multi-tenant
       });
-      setResults(response.payload.files || []);
+      setResults(response?.payload?.files || []);
     } catch (err) {
       setError(`Scan failed: ${err.message}. Check access rights.`);
       // Discreet: No alert, just log

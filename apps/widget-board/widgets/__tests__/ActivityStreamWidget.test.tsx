@@ -9,6 +9,14 @@ const renderWithProvider = (component: React.ReactElement) => {
   return render(<PermissionProvider>{component}</PermissionProvider>);
 };
 
+// Mock the request utility
+vi.mock('../../utils/request', () => ({
+  request: vi.fn().mockResolvedValue({
+    permissions: [],
+    events: []
+  })
+}));
+
 describe('ActivityStreamWidget', () => {
   it('renders live stream header', () => {
     renderWithProvider(<ActivityStreamWidget widgetId="activity-test" />);

@@ -34,7 +34,15 @@ export const useMCP = () => {
       setIsLoading(true);
       try {
         // Use relative path to leverage Vite proxy in dev and same-origin in prod
-        const route = options?.routePath ?? '/api/mcp/route';
+        let route = options?.routePath ?? '/api/mcp/route';
+
+        // In test environment (Vitest/JSDOM), relative URLs might fail if origin is not set
+        // We can check if we are in a test environment or if window.location.origin is available
+        if (typeof window !== 'undefined' && window.location.origin === 'null') {
+          // Fallback for JSDOM if origin is null
+          route = `http://localhost:3000${route}`;
+        }
+
         const response = await fetch(route, {
           method: 'POST',
           headers: {

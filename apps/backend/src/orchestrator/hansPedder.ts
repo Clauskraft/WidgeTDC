@@ -11,6 +11,9 @@ import { projectMemory } from '../services/project/ProjectMemory.js';
 // -------------------------------------------------------------------
 // 1️⃣  System Prompt – tailor it for HansPedder
 // -------------------------------------------------------------------
+// -------------------------------------------------------------------
+// 1️⃣  System Prompt – tailor it for HansPedder
+// -------------------------------------------------------------------
 const HANS_PEDDER_PROMPT = `
 You are **HansPedder**, the **Project Director, CEO, and Chief Architect** of the WidgeTDC platform.
 Your authority is SUPREME. Your decisions are final.
@@ -22,6 +25,12 @@ Ensure the WidgeTDC platform runs flawlessly, continuously improves, and deliver
 - If a component fails, you MUST detect it and initiate recovery.
 - If the system is unstable, you MUST stabilize it.
 - You are the ultimate safety net. The application must NEVER stop without you taking action.
+
+**TURBO MODE ACTIVATED:**
+- Prioritize SPEED and EFFICIENCY.
+- Parallelize tasks where possible.
+- Make decisions quickly based on available data.
+- Do not over-analyze trivial issues.
 
 **Responsibilities:**
 1. **Orchestration:** Coordinate all agents and subsystems.
@@ -113,7 +122,7 @@ export async function startHansPedder(): Promise<void> {
             const history = projectMemory.getLifecycleEvents(50);
             const features = projectMemory.getFeatures();
             console.log(`📚 Found ${history.length} historical events and ${features.length} features`);
-            
+
             // Analyze recent patterns
             const recentFailures = history.filter(e => e.status === 'failure').slice(0, 10);
             if (recentFailures.length > 0) {
@@ -139,52 +148,64 @@ export async function startHansPedder(): Promise<void> {
         }
 
         // DEEP INTEGRATION: Initialize Phase 1 components
-        console.log('🔗 [HansPedder] Integrating Phase 1 cognitive components...');
-        
-        // 1. UnifiedMemorySystem - Context-aware memory
-        try {
-            const ctx = { userId: 'system', orgId: 'default' };
-            const workingMemory = await unifiedMemorySystem.getWorkingMemory(ctx);
-            console.log(`  ✓ UnifiedMemorySystem: ${workingMemory.recentEvents.length} recent events`);
-        } catch (err) {
-            console.warn('  ⚠️ UnifiedMemorySystem integration failed:', err);
-        }
+        console.log('🔗 [HansPedder] Integrating Phase 1 cognitive components in PARALLEL (Turbo Mode)...');
 
-        // 2. AutonomousTaskEngine - Task management
-        try {
-            // Create task engine instance with HansPedder agent
-            const { AutonomousTaskEngine } = await import('../mcp/cognitive/AutonomousTaskEngine.js');
-            const taskEngine = new AutonomousTaskEngine(hansPedder);
-            await taskEngine.start();
-            console.log('  ✓ AutonomousTaskEngine: Started and integrated');
-        } catch (err) {
-            console.warn('  ⚠️ AutonomousTaskEngine integration failed:', err);
-        }
+        const initPromises = [
+            // 1. UnifiedMemorySystem - Context-aware memory
+            (async () => {
+                try {
+                    const ctx = { userId: 'system', orgId: 'default' };
+                    const workingMemory = await unifiedMemorySystem.getWorkingMemory(ctx);
+                    console.log(`  ✓ UnifiedMemorySystem: ${workingMemory.recentEvents.length} recent events`);
+                } catch (err) {
+                    console.warn('  ⚠️ UnifiedMemorySystem integration failed:', err);
+                }
+            })(),
 
-        // 3. HybridSearchEngine - Intelligent search
-        try {
-            // Test search capability
-            const testResults = await hybridSearchEngine.search('test', {
-                userId: 'system',
-                orgId: 'default',
-                limit: 1
-            });
-            console.log(`  ✓ HybridSearchEngine: Ready (test search returned ${testResults.length} results)`);
-        } catch (err) {
-            console.warn('  ⚠️ HybridSearchEngine integration failed:', err);
-        }
+            // 2. AutonomousTaskEngine - Task management
+            (async () => {
+                try {
+                    // Create task engine instance with HansPedder agent
+                    const { AutonomousTaskEngine } = await import('../mcp/cognitive/AutonomousTaskEngine.js');
+                    const taskEngine = new AutonomousTaskEngine(hansPedder!);
+                    await taskEngine.start();
+                    console.log('  ✓ AutonomousTaskEngine: Started and integrated');
+                } catch (err) {
+                    console.warn('  ⚠️ AutonomousTaskEngine integration failed:', err);
+                }
+            })(),
 
-        // 4. EmotionAwareDecisionEngine - Context-aware decisions
-        try {
-            // Test decision capability
-            const testDecision = await emotionAwareDecisionEngine.makeDecision('test', {
-                userId: 'system',
-                orgId: 'default'
-            });
-            console.log(`  ✓ EmotionAwareDecisionEngine: Ready (confidence: ${testDecision.confidence})`);
-        } catch (err) {
-            console.warn('  ⚠️ EmotionAwareDecisionEngine integration failed:', err);
-        }
+            // 3. HybridSearchEngine - Intelligent search
+            (async () => {
+                try {
+                    // Test search capability
+                    const testResults = await hybridSearchEngine.search('test', {
+                        userId: 'system',
+                        orgId: 'default',
+                        limit: 1
+                    });
+                    console.log(`  ✓ HybridSearchEngine: Ready (test search returned ${testResults.length} results)`);
+                } catch (err) {
+                    console.warn('  ⚠️ HybridSearchEngine integration failed:', err);
+                }
+            })(),
+
+            // 4. EmotionAwareDecisionEngine - Context-aware decisions
+            (async () => {
+                try {
+                    // Test decision capability
+                    const testDecision = await emotionAwareDecisionEngine.makeDecision('test', {
+                        userId: 'system',
+                        orgId: 'default'
+                    });
+                    console.log(`  ✓ EmotionAwareDecisionEngine: Ready (confidence: ${testDecision.confidence})`);
+                } catch (err) {
+                    console.warn('  ⚠️ EmotionAwareDecisionEngine integration failed:', err);
+                }
+            })()
+        ];
+
+        await Promise.allSettled(initPromises);
 
         console.info('🚀 [HansPedder] Starting autonomous loop...');
         hansPedderStatus.active = true;
@@ -221,7 +242,7 @@ export async function startHansPedder(): Promise<void> {
     } catch (error) {
         console.error('❌ [HansPedder] Failed to start:', error);
         hansPedderStatus.active = false;
-        
+
         // Log failure to ProjectMemory
         try {
             projectMemory.logLifecycleEvent({
@@ -237,7 +258,7 @@ export async function startHansPedder(): Promise<void> {
         } catch (err) {
             // Ignore logging errors
         }
-        
+
         throw error;
     }
 }
