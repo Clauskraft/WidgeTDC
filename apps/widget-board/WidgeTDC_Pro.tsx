@@ -138,12 +138,14 @@ export default function WidgeTDCPro() {
             <WidgetSelector isOpen={isWidgetSelectorOpen} onClose={() => setIsWidgetSelectorOpen(false)} onAddWidget={handleToggleWidget} activeWidgets={widgets.map(w => w.widgetType)} />
 
             {isAgentPanelOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-                    <div className="bg-[#2d2d2d] border border-white/10 rounded-2xl p-6 w-[800px] max-h-[80vh] overflow-y-auto shadow-2xl">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-semibold">Autonomous Agents</h2>
-                            <button onClick={() => setIsAgentPanelOpen(false)} className="p-2 hover:bg-white/10 rounded-lg"><X size={20} /></button>
-                        </div>
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="relative w-full max-w-5xl mx-4">
+                        <button
+                            onClick={() => setIsAgentPanelOpen(false)}
+                            className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                        >
+                            <X size={24} />
+                        </button>
                         <AgentPanel onAgentSelect={(a) => setSelectedAgent(a.id)} selectedAgentId={selectedAgent || undefined} />
                     </div>
                 </div>

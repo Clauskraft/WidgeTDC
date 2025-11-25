@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User } from 'lucide-react';
 import { ClausLogo } from './ClausLogo';
 import { WordView } from './apps/WordView';
 import { OutlookView } from './apps/OutlookView';
 import { CalendarView } from './apps/CalendarView';
+import { useMCP } from '../hooks/useMCP';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -11,11 +12,22 @@ interface MainLayoutProps {
     headerActions?: React.ReactNode;
 }
 
+interface ChatMessage {
+    id: string;
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: Date;
+}
+
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "WidgeTDC Workspace", headerActions }) => {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('chat');
     const [chatInput, setChatInput] = useState('');
     const [conversationStyle, setConversationStyle] = useState('balanced');
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { send } = useMCP();
 
     const sidebarItems = [
         { id: 'chat', icon: MessageSquare, label: 'DOT Chat' },
@@ -25,6 +37,64 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         { id: 'outlook', icon: Mail, label: 'Outlook' },
         { id: 'calendar', icon: Calendar, label: 'Kalender' },
     ];
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
+
+    const handleSendMessage = async () => {
+        if (!chatInput.trim()) return;
+
+        const userMsg: ChatMessage = {
+            id: crypto.randomUUID(),
+            role: 'user',
+            content: chatInput,
+            timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, userMsg]);
+        setChatInput('');
+        setIsProcessing(true);
+
+        try {
+            // Use srag.query for RAG-enhanced chat
+            const response = await send('agent-orchestrator', 'srag.query', {
+                query: chatInput,
+                style: conversationStyle
+            });
+
+            const botMsg: ChatMessage = {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: response.result?.answer || response.result || "Jeg kunne ikke finde et svar lige nu.",
+                timestamp: new Date()
+            };
+
+            setMessages(prev => [...prev, botMsg]);
+        } catch (error) {
+            console.error("Chat error:", error);
+            const errorMsg: ChatMessage = {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: "Beklager, der opstod en fejl i forbindelsen til DOT AI.",
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, errorMsg]);
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
 
     return (
         <div className="h-screen w-full overflow-hidden flex font-segoe bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
@@ -110,87 +180,126 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                 {/* Content Container */}
                 <div className="flex-1 overflow-hidden relative flex flex-col">
                     {activeTab === 'chat' && (
-                        <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-5xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500">
-                            <div className="flex-1 w-full flex flex-col items-center justify-center mb-12 text-center space-y-10">
-                                <div className="relative">
-                                    <div className="absolute -inset-4 bg-[#00B5CB]/20 rounded-full blur-xl animate-pulse" />
-                                    <ClausLogo size={64} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
-                                </div>
-                                <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E0F7FA] to-[#00B5CB] tracking-tight drop-shadow-sm">
-                                    Hej Claus, hvad skal vi løse?
-                                </h2>
+                        <div className="flex-1 flex flex-col h-full relative">
+                            {/* Chat History */}
+                            <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                {messages.length === 0 ? (
+                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-10 animate-in fade-in zoom-in-95 duration-500">
+                                        <div className="relative">
+                                            <div className="absolute -inset-4 bg-[#00B5CB]/20 rounded-full blur-xl animate-pulse" />
+                                            <ClausLogo size={64} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
+                                        </div>
+                                        <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E0F7FA] to-[#00B5CB] tracking-tight drop-shadow-sm">
+                                            Hej Claus, hvad skal vi løse?
+                                        </h2>
 
-                                {/* Suggestion Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-4xl">
-                                    {[
-                                        { title: 'Møde Opsummering', sub: 'Generer referat fra Teams', icon: FileText, color: 'text-blue-400' },
-                                        { title: 'Data Analyse', sub: 'Analyser Q1 salgstal', icon: LayoutGrid, color: 'text-teal-400' },
-                                        { title: 'Kunde Email', sub: 'Udkast til opfølgning', icon: Mail, color: 'text-purple-400' }
-                                    ].map((card, i) => (
-                                        <button key={i} className="text-left p-5 rounded-2xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <card.icon size={24} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
-                                                <ArrowRight size={16} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                                        {/* Suggestion Cards */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-4xl">
+                                            {[
+                                                { title: 'Møde Opsummering', sub: 'Generer referat fra Teams', icon: FileText, color: 'text-blue-400' },
+                                                { title: 'Data Analyse', sub: 'Analyser Q1 salgstal', icon: LayoutGrid, color: 'text-teal-400' },
+                                                { title: 'Kunde Email', sub: 'Udkast til opfølgning', icon: Mail, color: 'text-purple-400' }
+                                            ].map((card, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => setChatInput(card.title + " ")}
+                                                    className="text-left p-5 rounded-2xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10"
+                                                >
+                                                    <div className="flex justify-between items-start mb-3">
+                                                        <card.icon size={24} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
+                                                        <ArrowRight size={16} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                                                    </div>
+                                                    <div className="font-semibold text-base text-gray-100 mb-1">{card.title}</div>
+                                                    <div className="text-xs text-gray-400 font-medium">{card.sub}</div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="max-w-4xl mx-auto space-y-6 pb-32">
+                                        {messages.map((msg) => (
+                                            <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'} animate-in fade-in slide-in-from-bottom-2`}>
+                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-white/10' : 'bg-[#00B5CB]/20'}`}>
+                                                    {msg.role === 'user' ? <User size={20} className="text-gray-300" /> : <Bot size={20} className="text-[#00B5CB]" />}
+                                                </div>
+                                                <div className={`p-4 rounded-2xl max-w-[80%] ${msg.role === 'user' ? 'bg-[#0B3E6F]/60 text-white rounded-tr-none' : 'bg-white/5 text-gray-200 rounded-tl-none border border-white/5'}`}>
+                                                    <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                                </div>
                                             </div>
-                                            <div className="font-semibold text-base text-gray-100 mb-1">{card.title}</div>
-                                            <div className="text-xs text-gray-400 font-medium">{card.sub}</div>
-                                        </button>
-                                    ))}
-                                </div>
+                                        ))}
+                                        {isProcessing && (
+                                            <div className="flex gap-4 animate-in fade-in">
+                                                <div className="w-10 h-10 rounded-full bg-[#00B5CB]/20 flex items-center justify-center shrink-0">
+                                                    <Bot size={20} className="text-[#00B5CB]" />
+                                                </div>
+                                                <div className="p-4 rounded-2xl bg-white/5 rounded-tl-none border border-white/5 flex items-center gap-2">
+                                                    <div className="w-2 h-2 bg-[#00B5CB] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                                                    <div className="w-2 h-2 bg-[#00B5CB] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                                                    <div className="w-2 h-2 bg-[#00B5CB] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                                                </div>
+                                            </div>
+                                        )}
+                                        <div ref={messagesEndRef} />
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Floating Input Bar */}
-                            <div className="w-full max-w-3xl relative mb-8">
-                                <div className="absolute -top-14 left-0 right-0 flex justify-center gap-2 pointer-events-none">
-                                    {/* Conversation Style Toggle */}
-                                    <div className="bg-[#051e3c]/80 backdrop-blur-xl rounded-full p-1.5 border border-white/10 flex pointer-events-auto shadow-2xl ring-1 ring-white/5">
-                                        {['creative', 'balanced', 'precise'].map((style) => (
-                                            <button
-                                                key={style}
-                                                onClick={() => setConversationStyle(style)}
-                                                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 capitalize ${conversationStyle === style ? 'bg-[#00B5CB] text-[#051e3c] shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
-                                            >
-                                                {style === 'creative' ? 'Kreativ' : style === 'balanced' ? 'Balanceret' : 'Præcis'}
-                                            </button>
-                                        ))}
+                            {/* Input Area */}
+                            <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#051e3c] via-[#051e3c]/90 to-transparent z-20">
+                                <div className="max-w-3xl mx-auto relative">
+                                    {/* Conversation Style Toggle - Only show when empty or hovering */}
+                                    <div className={`absolute -top-14 left-0 right-0 flex justify-center gap-2 transition-opacity duration-300 ${messages.length > 0 ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}>
+                                        <div className="bg-[#051e3c]/80 backdrop-blur-xl rounded-full p-1.5 border border-white/10 flex shadow-2xl ring-1 ring-white/5">
+                                            {['creative', 'balanced', 'precise'].map((style) => (
+                                                <button
+                                                    key={style}
+                                                    onClick={() => setConversationStyle(style)}
+                                                    className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 capitalize ${conversationStyle === style ? 'bg-[#00B5CB] text-[#051e3c] shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                                >
+                                                    {style === 'creative' ? 'Kreativ' : style === 'balanced' ? 'Balanceret' : 'Præcis'}
+                                                </button>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
-                                    <textarea
-                                        value={chatInput}
-                                        onChange={(e) => setChatInput(e.target.value)}
-                                        placeholder="Spørg DOT om hvad som helst..."
-                                        className="w-full bg-transparent border-none text-lg text-white placeholder-gray-400/60 p-6 pr-14 min-h-[70px] max-h-[200px] resize-none focus:ring-0 outline-none font-light"
-                                        rows={1}
-                                    />
-                                    <div className="flex items-center justify-between px-5 pb-5">
-                                        <div className="flex gap-2">
-                                            <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Vedhæft">
-                                                <Plus size={20} />
-                                            </button>
-                                            <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Billeder">
-                                                <LayoutGrid size={20} />
-                                            </button>
-                                        </div>
-                                        <div className="flex gap-3">
-                                            <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95" title="Tale">
-                                                <Mic size={22} />
-                                            </button>
-                                            <button
-                                                className={`p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center ${chatInput ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
-                                                disabled={!chatInput}
-                                            >
-                                                <Send size={20} className={chatInput ? 'ml-0.5' : ''} />
-                                            </button>
+                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
+                                        <textarea
+                                            value={chatInput}
+                                            onChange={(e) => setChatInput(e.target.value)}
+                                            onKeyDown={handleKeyDown}
+                                            placeholder="Spørg DOT om hvad som helst..."
+                                            className="w-full bg-transparent border-none text-lg text-white placeholder-gray-400/60 p-6 pr-14 min-h-[70px] max-h-[200px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
+                                            rows={1}
+                                        />
+                                        <div className="flex items-center justify-between px-5 pb-5">
+                                            <div className="flex gap-2">
+                                                <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Vedhæft">
+                                                    <Plus size={20} />
+                                                </button>
+                                                <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Billeder">
+                                                    <LayoutGrid size={20} />
+                                                </button>
+                                            </div>
+                                            <div className="flex gap-3">
+                                                <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95" title="Tale">
+                                                    <Mic size={22} />
+                                                </button>
+                                                <button
+                                                    onClick={handleSendMessage}
+                                                    disabled={!chatInput.trim() || isProcessing}
+                                                    className={`p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center ${chatInput.trim() ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
+                                                >
+                                                    <Send size={20} className={chatInput.trim() ? 'ml-0.5' : ''} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="flex justify-center mt-4 gap-2 items-center">
-                                    <Sparkles size={12} className="text-[#00B5CB]" />
-                                    <p className="text-center text-[10px] text-gray-500 font-medium tracking-wide uppercase">
-                                        DOT AI kan lave fejl. Kontroller vigtige oplysninger.
-                                    </p>
+                                    <div className="flex justify-center mt-4 gap-2 items-center">
+                                        <Sparkles size={12} className="text-[#00B5CB]" />
+                                        <p className="text-center text-[10px] text-gray-500 font-medium tracking-wide uppercase">
+                                            DOT AI kan lave fejl. Kontroller vigtige oplysninger.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
