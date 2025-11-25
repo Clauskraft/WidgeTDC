@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, ImageIcon, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar } from 'lucide-react';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import { ClausLogo } from './ClausLogo';
 
 interface MainLayoutProps {
@@ -12,74 +12,75 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const [activeTab, setActiveTab] = useState('chat');
     const [chatInput, setChatInput] = useState('');
+    const [conversationStyle, setConversationStyle] = useState('balanced');
 
     const sidebarItems = [
-        { id: 'chat', icon: MessageSquare, label: 'Chat' },
+        { id: 'chat', icon: MessageSquare, label: 'DOT Chat' },
+        { id: 'apps', icon: LayoutGrid, label: 'Mine Apps' },
         { id: 'create', icon: Plus, label: 'Opret' },
-        { id: 'apps', icon: LayoutGrid, label: 'Apps' },
         { id: 'word', icon: FileText, label: 'Word' },
         { id: 'outlook', icon: Mail, label: 'Outlook' },
-        { id: 'calendar', icon: Calendar, label: 'Calendar' },
+        { id: 'calendar', icon: Calendar, label: 'Kalender' },
     ];
 
     return (
-        <div className="h-screen w-full overflow-hidden flex font-segoe bg-[#0B3E6F] text-white selection:bg-teal-400/30 relative">
-            {/* Background Ambient Glow & Gloss */}
+        <div className="h-screen w-full overflow-hidden flex font-segoe bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
+            {/* Advanced Background Mesh Gradient */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] bg-[#00677F]/40 rounded-full blur-[120px] opacity-60 mix-blend-screen" />
-                <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-[#002b3d]/60 rounded-full blur-[150px] opacity-70 mix-blend-multiply" />
-                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-20" /> {/* Gloss overlay */}
+                <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] bg-[#0B3E6F]/40 rounded-full blur-[120px] opacity-50 mix-blend-screen animate-pulse-slow" />
+                <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-[#00677F]/30 rounded-full blur-[150px] opacity-40 mix-blend-screen" />
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay" />
             </div>
 
-            {/* Glassmorphic Sidebar */}
-            <aside className={`relative z-50 flex flex-col border-r border-white/10 bg-[#0B3E6F]/30 backdrop-blur-2xl transition-all duration-300 ${isSidebarOpen ? 'w-[320px]' : 'w-[60px]'} shadow-[4px_0_24px_rgba(0,0,0,0.2)]`}>
+            {/* Ultra-Glassmorphic Sidebar */}
+            <aside className={`relative z-50 flex flex-col border-r border-white/5 bg-[#0B3E6F]/20 backdrop-blur-3xl transition-all duration-500 ease-spring ${isSidebarOpen ? 'w-[280px]' : 'w-[70px]'} shadow-[4px_0_30px_rgba(0,0,0,0.3)]`}>
 
                 {/* Header / Logo */}
-                <div className="h-16 flex items-center justify-between px-4 py-4">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                        <div className="shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-blue-600 flex items-center justify-center shadow-lg shadow-teal-500/20 ring-1 ring-white/20">
-                            <ClausLogo size={20} />
+                <div className="h-20 flex items-center justify-between px-5">
+                    <div className="flex items-center gap-4 overflow-hidden">
+                        <div className="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
+                            <ClausLogo size={24} />
                         </div>
-                        <span className={`font-semibold text-lg tracking-tight text-white whitespace-nowrap transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
-                            DOT
-                        </span>
+                        <div className={`flex flex-col transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
+                            <span className="font-bold text-lg tracking-tight text-white leading-none">DOT</span>
+                            <span className="text-[10px] font-medium text-[#00B5CB] tracking-wider uppercase">TDC Erhverv</span>
+                        </div>
                     </div>
-                    {isSidebarOpen && (
-                        <button className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white">
-                            <MoreHorizontal size={20} />
-                        </button>
-                    )}
                 </div>
 
                 {/* Navigation Items */}
-                <div className="flex-1 overflow-y-auto py-4 px-2 space-y-1">
+                <div className="flex-1 overflow-y-auto py-6 px-3 space-y-2">
                     {sidebarItems.map((item) => (
                         <button
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
-                            className={`w-full flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 group ${activeTab === item.id ? 'bg-white/10 text-white shadow-inner ring-1 ring-white/5' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}
+                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${activeTab === item.id ? 'bg-white/10 text-white shadow-inner ring-1 ring-white/5' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
                         >
-                            <item.icon size={20} className={`shrink-0 transition-transform duration-200 ${activeTab === item.id ? 'scale-110 text-teal-400' : 'group-hover:scale-110'}`} />
-                            <span className={`text-sm font-medium whitespace-nowrap transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}`}>
+                            {activeTab === item.id && (
+                                <div className="absolute inset-0 bg-gradient-to-r from-[#00B5CB]/10 to-transparent opacity-50" />
+                            )}
+                            <item.icon size={22} className={`shrink-0 transition-all duration-300 z-10 ${activeTab === item.id ? 'text-[#00B5CB] scale-110 drop-shadow-[0_0_8px_rgba(0,181,203,0.5)]' : 'group-hover:text-gray-200 group-hover:scale-105'}`} />
+                            <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 z-10 ${isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 overflow-hidden'}`}>
                                 {item.label}
                             </span>
                             {activeTab === item.id && isSidebarOpen && (
-                                <div className="ml-auto w-1 h-4 bg-teal-400 rounded-full shadow-[0_0_8px_rgba(45,212,191,0.5)]" />
+                                <div className="ml-auto w-1.5 h-1.5 bg-[#00B5CB] rounded-full shadow-[0_0_8px_#00B5CB]" />
                             )}
                         </button>
                     ))}
                 </div>
 
-                {/* User Profile / Bottom Actions */}
-                <div className="p-4 border-t border-white/5">
+                {/* User Profile */}
+                <div className="p-4 border-t border-white/5 bg-black/10 backdrop-blur-md">
                     <button className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center text-xs font-bold shadow-md group-hover:border-white/30 transition-all">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center text-xs font-bold shadow-md group-hover:ring-2 ring-[#00B5CB]/50 transition-all">
                             CK
                         </div>
                         <div className={`flex flex-col items-start overflow-hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
                             <span className="text-sm font-medium text-white truncate">Claus Kraft</span>
-                            <span className="text-xs text-gray-400 truncate">Pro Account</span>
+                            <span className="text-xs text-[#00B5CB] truncate">Pro Account</span>
                         </div>
+                        {isSidebarOpen && <Settings size={16} className="ml-auto text-gray-500 group-hover:text-white transition-colors" />}
                     </button>
                 </div>
             </aside>
@@ -87,108 +88,131 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
             {/* Main Content Area */}
             <main className="flex-1 flex flex-col relative z-10 overflow-hidden">
                 {/* Top Bar */}
-                <header className="h-16 flex items-center justify-between px-6 bg-transparent">
+                <header className="h-20 flex items-center justify-between px-8 bg-transparent">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setSidebarOpen(!isSidebarOpen)}
-                            className="p-2 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-all active:scale-95"
+                            className="p-2.5 hover:bg-white/10 rounded-xl text-gray-300 hover:text-white transition-all active:scale-95 ring-1 ring-transparent hover:ring-white/10"
                         >
                             {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
                         </button>
-                        <h1 className="text-sm font-medium text-gray-300/80">{title}</h1>
+                        <h1 className="text-sm font-medium text-gray-400 tracking-wide uppercase">{title}</h1>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                         {headerActions}
-                        <button
-                            className="p-2 hover:bg-white/10 rounded-lg text-gray-300 hover:text-white transition-all active:scale-95"
-                            title="Settings"
-                        >
-                            <Settings size={20} />
-                        </button>
                     </div>
                 </header>
 
                 {/* Content Container */}
                 <div className="flex-1 overflow-hidden relative flex flex-col">
                     {activeTab === 'chat' && (
-                        <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-4xl mx-auto w-full animate-fade-in">
-                            <div className="flex-1 w-full flex flex-col items-center justify-center mb-8 text-center space-y-8">
-                                <h2 className="text-4xl font-semibold text-white tracking-tight drop-shadow-2xl">
-                                    Hej Claus, hvordan kan jeg hjælpe dig i dag?
+                        <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-5xl mx-auto w-full animate-in fade-in zoom-in-95 duration-500">
+                            <div className="flex-1 w-full flex flex-col items-center justify-center mb-12 text-center space-y-10">
+                                <div className="relative">
+                                    <div className="absolute -inset-4 bg-[#00B5CB]/20 rounded-full blur-xl animate-pulse" />
+                                    <ClausLogo size={64} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
+                                </div>
+                                <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E0F7FA] to-[#00B5CB] tracking-tight drop-shadow-sm">
+                                    Hej Claus, hvad skal vi løse?
                                 </h2>
 
                                 {/* Suggestion Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-4xl">
                                     {[
-                                        { title: 'Opsummering', sub: 'Lav et referat af seneste møde', icon: FileText },
-                                        { title: 'Analyse', sub: 'Analyser salgstallene for Q1', icon: LayoutGrid },
-                                        { title: 'Email', sub: 'Kladde til kundemøde', icon: Mail }
+                                        { title: 'Møde Opsummering', sub: 'Generer referat fra Teams', icon: FileText, color: 'text-blue-400' },
+                                        { title: 'Data Analyse', sub: 'Analyser Q1 salgstal', icon: LayoutGrid, color: 'text-teal-400' },
+                                        { title: 'Kunde Email', sub: 'Udkast til opfølgning', icon: Mail, color: 'text-purple-400' }
                                     ].map((card, i) => (
-                                        <button key={i} className="text-left p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all duration-200 group active:scale-95 backdrop-blur-sm shadow-lg">
-                                            <card.icon size={20} className="text-teal-400 mb-3 group-hover:scale-110 transition-transform" />
-                                            <div className="font-medium text-sm text-gray-200 mb-1">{card.title}</div>
-                                            <div className="text-xs text-gray-400 line-clamp-2">{card.sub}</div>
+                                        <button key={i} className="text-left p-5 rounded-2xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <card.icon size={24} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
+                                                <ArrowRight size={16} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                                            </div>
+                                            <div className="font-semibold text-base text-gray-100 mb-1">{card.title}</div>
+                                            <div className="text-xs text-gray-400 font-medium">{card.sub}</div>
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
                             {/* Floating Input Bar */}
-                            <div className="w-full max-w-3xl relative">
-                                <div className="absolute -top-12 left-0 right-0 flex justify-center gap-2 pointer-events-none">
+                            <div className="w-full max-w-3xl relative mb-8">
+                                <div className="absolute -top-14 left-0 right-0 flex justify-center gap-2 pointer-events-none">
                                     {/* Conversation Style Toggle */}
-                                    <div className="bg-[#0B3E6F]/60 backdrop-blur-md rounded-full p-1 border border-white/10 flex pointer-events-auto shadow-xl">
-                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-purple-300 hover:bg-white/5 transition-colors">Kreativ</button>
-                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-blue-300 bg-white/10 shadow-sm transition-colors">Balanceret</button>
-                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-teal-300 hover:bg-white/5 transition-colors">Præcis</button>
+                                    <div className="bg-[#051e3c]/80 backdrop-blur-xl rounded-full p-1.5 border border-white/10 flex pointer-events-auto shadow-2xl ring-1 ring-white/5">
+                                        {['creative', 'balanced', 'precise'].map((style) => (
+                                            <button
+                                                key={style}
+                                                onClick={() => setConversationStyle(style)}
+                                                className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 capitalize ${conversationStyle === style ? 'bg-[#00B5CB] text-[#051e3c] shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                            >
+                                                {style === 'creative' ? 'Kreativ' : style === 'balanced' ? 'Balanceret' : 'Præcis'}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
 
-                                <div className="bg-[#0B3E6F]/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl focus-within:border-teal-500/50 focus-within:ring-1 focus-within:ring-teal-500/50 transition-all overflow-hidden group">
+                                <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
                                     <textarea
                                         value={chatInput}
                                         onChange={(e) => setChatInput(e.target.value)}
                                         placeholder="Spørg DOT om hvad som helst..."
-                                        className="w-full bg-transparent border-none text-base text-white placeholder-gray-400 p-5 pr-12 min-h-[60px] max-h-[200px] resize-none focus:ring-0 outline-none"
+                                        className="w-full bg-transparent border-none text-lg text-white placeholder-gray-400/60 p-6 pr-14 min-h-[70px] max-h-[200px] resize-none focus:ring-0 outline-none font-light"
                                         rows={1}
                                     />
-                                    <div className="flex items-center justify-between px-4 pb-4">
-                                        <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95">
-                                            <Plus size={20} />
-                                        </button>
+                                    <div className="flex items-center justify-between px-5 pb-5">
                                         <div className="flex gap-2">
-                                            <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95">
-                                                <Mic size={20} />
+                                            <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Vedhæft">
+                                                <Plus size={20} />
                                             </button>
-                                            <button className={`p-2 rounded-full transition-all active:scale-95 ${chatInput ? 'bg-teal-600 text-white shadow-lg shadow-teal-600/20' : 'bg-white/5 text-gray-500'}`}>
-                                                <Send size={18} />
+                                            <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Billeder">
+                                                <LayoutGrid size={20} />
+                                            </button>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95" title="Tale">
+                                                <Mic size={22} />
+                                            </button>
+                                            <button
+                                                className={`p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center ${chatInput ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
+                                                disabled={!chatInput}
+                                            >
+                                                <Send size={20} className={chatInput ? 'ml-0.5' : ''} />
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                                <p className="text-center text-[11px] text-gray-400 mt-4">
-                                    DOT kan lave fejl. Kontroller vigtige oplysninger.
-                                </p>
+                                <div className="flex justify-center mt-4 gap-2 items-center">
+                                    <Sparkles size={12} className="text-[#00B5CB]" />
+                                    <p className="text-center text-[10px] text-gray-500 font-medium tracking-wide uppercase">
+                                        DOT AI kan lave fejl. Kontroller vigtige oplysninger.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'apps' && (
-                        <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
+                        <div className="flex-1 overflow-y-auto p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {children}
                         </div>
                     )}
 
                     {['create', 'word', 'outlook', 'calendar'].includes(activeTab) && (
-                        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 animate-fade-in">
-                            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
-                                {sidebarItems.find(i => i.id === activeTab)?.icon({ size: 32, className: "opacity-50" }) as React.ReactNode}
+                        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 animate-in fade-in zoom-in-95 duration-500">
+                            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#00B5CB]/20 to-[#0B3E6F]/20 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
+                                {sidebarItems.find(i => i.id === activeTab)?.icon({ size: 40, className: "text-[#00B5CB] opacity-80" }) as React.ReactNode}
                             </div>
-                            <h3 className="text-lg font-medium text-gray-300">
+                            <h3 className="text-2xl font-light text-white mb-2">
                                 {sidebarItems.find(i => i.id === activeTab)?.label}
                             </h3>
-                            <p className="text-sm opacity-60 mt-2">Dette modul er under udvikling</p>
+                            <p className="text-sm text-gray-500 max-w-xs text-center leading-relaxed">
+                                Dette modul er under udvikling og vil snart være tilgængeligt i din DOT workspace.
+                            </p>
+                            <button className="mt-8 px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 text-sm transition-colors">
+                                Få besked når klar
+                            </button>
                         </div>
                     )}
                 </div>
