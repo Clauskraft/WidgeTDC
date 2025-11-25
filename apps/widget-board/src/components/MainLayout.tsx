@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles } from 'lucide-react';
 import { ClausLogo } from './ClausLogo';
+import { WordView } from './apps/WordView';
+import { OutlookView } from './apps/OutlookView';
+import { CalendarView } from './apps/CalendarView';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -274,20 +277,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         </div>
                     )}
 
-                    {['word', 'outlook', 'calendar'].includes(activeTab) && (
-                        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 animate-in fade-in zoom-in-95 duration-500">
-                            <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#00B5CB]/20 to-[#0B3E6F]/20 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
-                                {sidebarItems.find(i => i.id === activeTab)?.icon({ size: 40, className: "text-[#00B5CB] opacity-80" }) as React.ReactNode}
-                            </div>
-                            <h3 className="text-2xl font-light text-white mb-2">
-                                {sidebarItems.find(i => i.id === activeTab)?.label}
-                            </h3>
-                            <p className="text-sm text-gray-500 max-w-xs text-center leading-relaxed">
-                                Dette modul er under udvikling og vil snart være tilgængeligt i din DOT workspace.
-                            </p>
-                            <button className="mt-8 px-6 py-2 rounded-full border border-white/10 hover:bg-white/5 text-sm transition-colors">
-                                Få besked når klar
-                            </button>
+                    {activeTab === 'word' && (
+                        <div className="flex-1 overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-500">
+                            <WordView />
+                        </div>
+                    )}
+
+                    {activeTab === 'outlook' && (
+                        <div className="flex-1 overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-500">
+                            <OutlookView />
+                        </div>
+                    )}
+
+                    {activeTab === 'calendar' && (
+                        <div className="flex-1 overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-500">
+                            <CalendarView />
                         </div>
                     )}
                 </div>
