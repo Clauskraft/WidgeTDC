@@ -111,20 +111,19 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
 
                 {/* Content Container */}
                 <div className="flex-1 overflow-hidden relative flex flex-col">
-                    {/* If we are in 'chat' mode, show the chat interface, otherwise show children (widgets) */}
-                    {activeTab === 'chat' ? (
-                        <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-4xl mx-auto w-full">
+                    {activeTab === 'chat' && (
+                        <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-4xl mx-auto w-full animate-fade-in">
                             <div className="flex-1 w-full flex flex-col items-center justify-center mb-8 text-center space-y-8">
                                 <h2 className="text-4xl font-semibold text-white tracking-tight drop-shadow-2xl">
-                                    Hej der, prøv at spørge: "hvad kan du gøre?"
+                                    Hej Claus, hvordan kan jeg hjælpe dig i dag?
                                 </h2>
 
                                 {/* Suggestion Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
                                     {[
-                                        { title: 'Beskriv tidsstyring', sub: 'Hvordan kan jeg mere præcist...', icon: MessageSquare },
-                                        { title: 'Grammatik hjælp', sub: 'Hvordan er denne grammatik?', icon: FileText },
-                                        { title: 'Minimer forstyrrelser', sub: 'Del strategier for at hjælpe...', icon: Settings }
+                                        { title: 'Opsummering', sub: 'Lav et referat af seneste møde', icon: FileText },
+                                        { title: 'Analyse', sub: 'Analyser salgstallene for Q1', icon: LayoutGrid },
+                                        { title: 'Email', sub: 'Kladde til kundemøde', icon: Mail }
                                     ].map((card, i) => (
                                         <button key={i} className="text-left p-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all duration-200 group active:scale-95 backdrop-blur-sm shadow-lg">
                                             <card.icon size={20} className="text-teal-400 mb-3 group-hover:scale-110 transition-transform" />
@@ -140,9 +139,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                 <div className="absolute -top-12 left-0 right-0 flex justify-center gap-2 pointer-events-none">
                                     {/* Conversation Style Toggle */}
                                     <div className="bg-[#0B3E6F]/60 backdrop-blur-md rounded-full p-1 border border-white/10 flex pointer-events-auto shadow-xl">
-                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-purple-300 hover:bg-white/5 transition-colors">Creative</button>
-                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-blue-300 bg-white/10 shadow-sm transition-colors">Balanced</button>
-                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-teal-300 hover:bg-white/5 transition-colors">Precise</button>
+                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-purple-300 hover:bg-white/5 transition-colors">Kreativ</button>
+                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-blue-300 bg-white/10 shadow-sm transition-colors">Balanceret</button>
+                                        <button className="px-4 py-1.5 rounded-full text-xs font-medium text-teal-300 hover:bg-white/5 transition-colors">Præcis</button>
                                     </div>
                                 </div>
 
@@ -150,7 +149,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                     <textarea
                                         value={chatInput}
                                         onChange={(e) => setChatInput(e.target.value)}
-                                        placeholder="Send meddelelse til DOT"
+                                        placeholder="Spørg DOT om hvad som helst..."
                                         className="w-full bg-transparent border-none text-base text-white placeholder-gray-400 p-5 pr-12 min-h-[60px] max-h-[200px] resize-none focus:ring-0 outline-none"
                                         rows={1}
                                     />
@@ -169,13 +168,27 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                     </div>
                                 </div>
                                 <p className="text-center text-[11px] text-gray-400 mt-4">
-                                    DOT bruger AI, så tjek for fejl.
+                                    DOT kan lave fejl. Kontroller vigtige oplysninger.
                                 </p>
                             </div>
                         </div>
-                    ) : (
-                        <div className="flex-1 overflow-y-auto p-6">
+                    )}
+
+                    {activeTab === 'apps' && (
+                        <div className="flex-1 overflow-y-auto p-6 animate-fade-in">
                             {children}
+                        </div>
+                    )}
+
+                    {['create', 'word', 'outlook', 'calendar'].includes(activeTab) && (
+                        <div className="flex-1 flex flex-col items-center justify-center text-gray-400 animate-fade-in">
+                            <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4">
+                                {sidebarItems.find(i => i.id === activeTab)?.icon({ size: 32, className: "opacity-50" }) as React.ReactNode}
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-300">
+                                {sidebarItems.find(i => i.id === activeTab)?.label}
+                            </h3>
+                            <p className="text-sm opacity-60 mt-2">Dette modul er under udvikling</p>
                         </div>
                     )}
                 </div>
