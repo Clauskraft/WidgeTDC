@@ -199,7 +199,82 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         </div>
                     )}
 
-                    {['create', 'word', 'outlook', 'calendar'].includes(activeTab) && (
+                    {activeTab === 'create' && (
+                        <div className="flex-1 overflow-y-auto p-8 animate-in fade-in zoom-in-95 duration-500">
+                            <div className="max-w-6xl mx-auto">
+                                <h2 className="text-3xl font-light text-white mb-2">Opret nyt indhold</h2>
+                                <p className="text-gray-400 mb-10 font-light">Vælg en skabelon eller start fra bunden med DOT AI.</p>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {/* Document Creation */}
+                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition-transform duration-300">
+                                            <FileText size={24} />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-white mb-1">Dokument</h3>
+                                        <p className="text-sm text-gray-400">Rapporter, notater og artikler</p>
+                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                    </button>
+
+                                    {/* Presentation Creation */}
+                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-4 text-orange-400 group-hover:scale-110 transition-transform duration-300">
+                                            <LayoutGrid size={24} />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-white mb-1">Præsentation</h3>
+                                        <p className="text-sm text-gray-400">Slides og visuelle overblik</p>
+                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                    </button>
+
+                                    {/* Email Creation */}
+                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition-transform duration-300">
+                                            <Mail size={24} />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-white mb-1">Email</h3>
+                                        <p className="text-sm text-gray-400">Nyhedsbreve og kampagner</p>
+                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                    </button>
+
+                                    {/* Calendar Event */}
+                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <div className="w-12 h-12 rounded-2xl bg-teal-500/20 flex items-center justify-center mb-4 text-teal-400 group-hover:scale-110 transition-transform duration-300">
+                                            <Calendar size={24} />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-white mb-1">Begivenhed</h3>
+                                        <p className="text-sm text-gray-400">Møder og workshops</p>
+                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                    </button>
+                                </div>
+
+                                <div className="mt-12">
+                                    <h3 className="text-lg font-medium text-white mb-6">Nylige kladder</h3>
+                                    <div className="space-y-3">
+                                        {[1, 2, 3].map((i) => (
+                                            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+                                                <div className="w-10 h-10 rounded-xl bg-[#0B3E6F]/40 flex items-center justify-center text-gray-400">
+                                                    <FileText size={18} />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">Udkast til Q2 Strategi</h4>
+                                                    <p className="text-xs text-gray-500">Redigeret for 2 timer siden</p>
+                                                </div>
+                                                <button className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
+                                                    <MoreHorizontal size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {['word', 'outlook', 'calendar'].includes(activeTab) && (
                         <div className="flex-1 flex flex-col items-center justify-center text-gray-400 animate-in fade-in zoom-in-95 duration-500">
                             <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-[#00B5CB]/20 to-[#0B3E6F]/20 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
                                 {sidebarItems.find(i => i.id === activeTab)?.icon({ size: 40, className: "text-[#00B5CB] opacity-80" }) as React.ReactNode}

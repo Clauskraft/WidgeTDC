@@ -115,15 +115,15 @@ export default function WidgeTDCPro() {
                     draggableHandle=".widget-drag-handle"
                 >
                     {widgets.map(w => (
-                        <div key={w.id} className="bg-[#2d2d2d] border border-white/5 rounded-xl overflow-hidden shadow-lg flex flex-col group">
-                            <div className="h-8 bg-[#323232] border-b border-white/5 flex items-center justify-between px-3 widget-drag-handle cursor-grab active:cursor-grabbing">
+                        <div key={w.id} className="bg-[#0B3E6F]/30 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col group hover:border-[#00B5CB]/30 transition-colors duration-300">
+                            <div className="h-9 bg-white/5 border-b border-white/5 flex items-center justify-between px-3 widget-drag-handle cursor-grab active:cursor-grabbing">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-blue-500" />
-                                    <span className="text-xs font-medium text-gray-400">{availableWidgets.find(aw => aw.id === w.widgetType)?.name}</span>
+                                    <div className="w-2 h-2 rounded-full bg-[#00B5CB] shadow-[0_0_5px_#00B5CB]" />
+                                    <span className="text-xs font-medium text-gray-200 tracking-wide">{availableWidgets.find(aw => aw.id === w.widgetType)?.name}</span>
                                 </div>
-                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button onClick={() => setSettingsWidgetId(w.id)} className="p-1 hover:bg-white/10 rounded"><Settings size={12} className="text-gray-400" /></button>
-                                    <button onClick={() => removeWidget(w.id)} className="p-1 hover:bg-red-500/20 rounded"><Trash2 size={12} className="text-gray-400 hover:text-red-400" /></button>
+                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    <button onClick={() => setSettingsWidgetId(w.id)} className="p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"><Settings size={12} /></button>
+                                    <button onClick={() => removeWidget(w.id)} className="p-1.5 hover:bg-red-500/20 rounded-lg text-gray-400 hover:text-red-400 transition-colors"><Trash2 size={12} /></button>
                                 </div>
                             </div>
                             <div className="flex-1 overflow-hidden relative">
