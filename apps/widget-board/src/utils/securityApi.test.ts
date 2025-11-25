@@ -11,6 +11,17 @@ vi.mock('../mcpClient', () => ({ mcpClient }));
 vi.mock('axios');
 
 
+vi.mock('../../utils/request', () => ({
+  request: vi.fn().mockResolvedValue({
+    feeds: [],
+    pipelineStages: [],
+    normalizedDocuments: [],
+    metrics: { documentsIndexed: 0, ingestionLatency: 0, dedupeRate: 0, backlogMinutes: 0 },
+    archive: { sizeBytes: 0, retentionDays: 0, objectCount: 0 },
+    environment: { openSearchConnected: false, minioConnected: false }
+  })
+}));
+
 describe('SecurityApi', () => {
   it('fetches real feeds via MCP, falls back on error', async () => {
     // Current implementation is mocked to return DEFAULT_FEED_PAYLOAD
