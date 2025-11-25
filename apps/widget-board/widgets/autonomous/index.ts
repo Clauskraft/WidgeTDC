@@ -1,51 +1,42 @@
 /**
- * Autonome OSINT & Cybersecurity Widgets
- * 
- * Multi-threaded investigation widgets med sporopfølgning.
- * Se README.md for komplet dokumentation.
+ * Autonomous Investigation Widgets
+ * Multi-threaded OSINT and Cybersecurity investigations
  */
 
-// TODO: Import og eksporter widgets når de er implementeret
-// export { AutonomousOSINTEmailWidget } from './autonomous-osint-email-widget';
-// export { AutonomousThreatHunterWidget } from './autonomous-threat-hunter-widget';
-// export { MasterOrchestratorWidget } from './master-orchestrator-widget';
+export { default as AutonomousOSINTEmailWidget } from './autonomous-osint-email-widget';
+export { default as AutonomousThreatHunterWidget } from './autonomous-threat-hunter-widget';
+export { default as MasterOrchestratorWidget } from './master-orchestrator-widget';
 
-// Placeholder exports til type definitions
-export interface InvestigationThread {
-  id: string;
-  name: string;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-  progress: number;
-  findings: Finding[];
-  dependencies: string[];
-  priority: number;
-  requiredTools?: string[];
-}
-
-export interface Finding {
-  id: string;
-  threadId: string;
-  source: string;
-  type: 'email' | 'phone' | 'breach' | 'social' | 'darkweb' | 'domain' | 'ip' | 'threat';
-  data: Record<string, unknown>;
-  confidence: number;
-  relatedFindings: string[];
-  timestamp: number;
-  severity?: 'critical' | 'high' | 'medium' | 'low' | 'info';
-}
-
-export interface WidgetConfig {
-  id: string;
-  type: 'osint-email' | 'threat-hunter' | 'master-orchestrator';
-  version: string;
-  category: 'osint' | 'cybersecurity';
-  gdprCompliant: boolean;
-  dataRetentionDays: number;
-}
-
-export interface InvestigationTarget {
-  email?: string;
-  domain?: string;
-  ip?: string;
-  additionalIdentifiers?: string[];
-}
+// Widget Registry Entries
+export const autonomousWidgets = [
+  {
+    id: 'autonomous-osint-email',
+    name: 'OSINT Email Investigation',
+    description: 'Multi-threaded email investigation with autonomous spor-following',
+    category: 'investigation',
+    component: 'AutonomousOSINTEmailWidget',
+    icon: '🔍',
+    tags: ['osint', 'email', 'investigation', 'autonomous'],
+    permissions: ['osint.read', 'investigation.execute']
+  },
+  {
+    id: 'autonomous-threat-hunter',
+    name: 'Threat Hunter',
+    description: 'Autonomous cybersecurity threat detection and response',
+    category: 'security',
+    component: 'AutonomousThreatHunterWidget',
+    icon: '🎯',
+    tags: ['security', 'threat', 'hunting', 'autonomous'],
+    permissions: ['security.read', 'threat.execute']
+  },
+  {
+    id: 'master-orchestrator',
+    name: 'Master Orchestrator',
+    description: 'Coordinates OSINT and Cybersecurity investigations',
+    category: 'investigation',
+    component: 'MasterOrchestratorWidget',
+    icon: '🎛️',
+    tags: ['orchestration', 'osint', 'security', 'coordination'],
+    permissions: ['osint.read', 'security.read', 'orchestration.execute']
+  }
+];
