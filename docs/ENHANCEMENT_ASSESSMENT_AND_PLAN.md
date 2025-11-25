@@ -1,32 +1,73 @@
 # WidgetTDC Enhancement Assessment & Implementation Plan
 
 **Dato**: 25. november 2025  
-**Status**: VURDERING KOMPLET  
-**Kritisk Begrænsning**: INGEN VÆSENTLIGE ÆNDRINGER TIL EKSISTERENDE KODE
+**Status**: VURDERING KOMPLET - INTEGRERET MED TIDLIGERE ANALYSE  
+**Kritisk Begrænsning**: INGEN VÆSENTLIGE ÆNDRINGER TIL EKSISTERENDE KODE  
+**Version**: 2.0 - Omfatter tidligere chat-analyse af autonome widgets og dokumentgeneratorer
 
 ---
 
 ## 📊 EXECUTIVE SUMMARY
 
-Efter grundig analyse af den eksisterende WidgetTDC kodebase og det foreslåede "500% Enhancement Architecture" dokument, præsenterer dette dokument en **realistisk vurdering** og **prioriteret implementeringsplan** der:
+Efter grundig analyse af:
+- Den eksisterende WidgetTDC kodebase (38 widgets, 30+ MCP tools)
+- "500% Enhancement Architecture" dokumentet
+- **Tidligere chat-analyse af autonome OSINT/Cybersecurity widgets**
+- **Dokumentgenerator-widgets (PowerPoint, Word, Excel)**
+- **MCP PowerPoint Server integrations (PPTAgent, MultiAgentPPT, ChatPPT-MCP)**
+
+Denne plan præsenterer en **realistisk, additiv** implementeringsstrategi der:
 
 1. **Bevarer 100%** af eksisterende funktionalitet
-2. **Udnytter eksisterende infrastruktur** (MCP router, cognitive systems, repositories)
-3. **Tilføjer additive forbedringer** uden breaking changes
-4. **Prioriterer quick wins** over store omstruktureringer
+2. **Tilføjer 3 kategorier af nye widgets**: OSINT, Cybersecurity, Document Generation
+3. **Integrerer eksisterende MCP PowerPoint server** fra Clauskraft/powerpoint
+4. **Implementerer autonomt "spor following"** via eksisterende TaskRecorder + EventBus
+5. **Udnytter PPTAgent + MultiAgentPPT** arkitekturen for dokumentgenerering
 
-### Vurdering af "500% Enhancement" Forslaget
+### Vurdering af Samlede Forbedringer
 
 | Aspekt | Vurdering | Risiko | Anbefaling |
 |--------|-----------|--------|------------|
 | 7 OSINT Widgets | ✅ REALISTISK | LAV | Implementér gradvist |
+| Autonomous Threat Hunter | ✅ REALISTISK | LAV | Følger eksisterende patterns |
+| "Spor Following" Engine | ✅ MULIGT | MEDIUM | Via TaskRecorder + EventBus |
+| Dokumentgeneratorer (PPT/Word/Excel) | ✅ REALISTISK | LAV | Integrér eksisterende MCP server |
+| PPTAgent Integration | ✅ ADDITIVT | MEDIUM | Docker-baseret, selvstændig |
+| MultiAgentPPT Arkitektur | ⚠️ KOMPLEKST | MEDIUM | POC først |
 | HuggingFace Integration | ⚠️ KOMPLEKST | MEDIUM | Start med 2-3 modeller |
-| Widget Orchestration Layer | ✅ ADDITIVT | LAV | Bygger på eksisterende MCP |
-| Data Correlation Pipeline | ⚠️ KOMPLEKST | MEDIUM | Simplificer først |
-| "Spor Following" Engine | ❌ OVERKILL | HØJ | Udskyd til Phase 3+ |
-| Klavis Integration | ⚠️ EXTERNAL DEPENDENCY | MEDIUM | POC først |
+| Klavis Integration | ⚠️ EXTERNAL | MEDIUM | POC først |
 
-**Samlet Vurdering**: 60% af forslaget kan implementeres sikkert inden for 4-6 uger uden at ændre eksisterende arkitektur.
+**Samlet Vurdering**: 75% af forslagene kan implementeres sikkert inden for 8 uger uden at ændre eksisterende arkitektur.
+
+---
+
+## 🆕 NYT FRA TIDLIGERE CHAT-ANALYSE
+
+### Identificerede Ressourcer til Integration
+
+| Ressource | Type | Key Features | Integration Værdi |
+|-----------|------|--------------|-------------------|
+| **Clauskraft/powerpoint** | MCP Server | python-pptx, FLUX images, 7 tools | ⭐⭐⭐⭐⭐ EKSISTERER |
+| **PPTAgent (icip-cas)** | Python Framework | 2-stage generation, PPTEval, Zenodo10K | ⭐⭐⭐⭐⭐ GAME CHANGER |
+| **MultiAgentPPT** | Multi-Agent System | A2A + MCP + ADK, parallel agents | ⭐⭐⭐⭐⭐ PERFEKT TIL WIDGETDC |
+| **ChatPPT-MCP** | Commercial MCP | 18 APIs, HTTP streaming | ⭐⭐⭐⭐ Enterprise-ready |
+| **Zenodo10K Dataset** | Training Data | 10,000+ .pptx files | ⭐⭐⭐⭐⭐ CRITICAL |
+
+### Nye Widget-Kategorier fra Analyse
+
+```
+NYE WIDGETS (fra tidligere chat):
+├─ AUTONOME OSINT (3 stk)
+│  ├─ AutonomousOSINTEmailWidget      (31 KB, 954 linjer)
+│  ├─ AutonomousThreatHunterWidget    (34 KB, 1000+ linjer)
+│  └─ MasterOrchestratorWidget        (25 KB, 800+ linjer)
+│
+├─ DOKUMENTGENERATORER (3 stk)
+│  ├─ AutonomousPowerPointMaster      (35 KB, 1113 linjer)
+│  ├─ AutonomousWordArchitect         (47 KB, 1202 linjer)
+│  └─ AutonomousExcelAnalyzer         (38 KB, 1230 linjer)
+│
+└─ TOTAL: 6 nye enterprise-grade widgets (210 KB, 5300+ linjer)
 
 ---
 
@@ -918,21 +959,442 @@ export const klavisAdapter = new KlavisAdapter();
 
 ---
 
+## 🔄 NYT: AUTONOM "SPOR FOLLOWING" ARKITEKTUR
+
+### Hvordan Det Virker (fra tidligere chat)
+
+Den autonome sporopfølgning bruger **eksisterende infrastruktur** med ny orkestrering:
+
+```
+                    USER INPUT (email/domain/IP)
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │ INVESTIGATION ENGINE │
+                    │ (Multi-threaded)     │
+                    └─────────┬───────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        ▼                     ▼                     ▼
+┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+│   TIER 1      │   │   TIER 2      │   │   TIER 3      │
+│ (No deps)     │   │ (Depends T1)  │   │ (Depends T2)  │
+├───────────────┤   ├───────────────┤   ├───────────────┤
+│• Email Valid  │   │• LinkedIn     │   │• Employment   │
+│• Breach Check │   │• Twitter/X    │   │• Pattern      │
+│• WHOIS        │   │• Dark Web     │   │• Deep Scan    │
+│• DNS Enum     │   │• Social Media │   │• CVE Check    │
+└───────────────┘   └───────────────┘   └───────────────┘
+        │                     │                     │
+        └─────────────────────┴─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │  DATA CORRELATION   │
+                    │ (UnifiedMemorySystem)│
+                    └─────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────────┐
+                    │  UNIFIED FINDINGS   │
+                    │  Export: JSON/PDF   │
+                    └─────────────────────┘
+```
+
+### Integration med Eksisterende Systemer
+
+| Eksisterende System | Rolle i Autonomt Investigation |
+|---------------------|-------------------------------|
+| `TaskRecorder` | Observerer alle threads, lærer patterns |
+| `EventBus` | Thread-to-thread kommunikation |
+| `UnifiedMemorySystem` | Korrelation via `findHolographicPatterns()` |
+| `StateGraphRouter` | State-machine for investigation flow |
+| `AgentTeam.coordinate()` | Multi-agent orchestration |
+
+### Nøgle Interfaces (fra Widget Spec)
+
+```typescript
+// Investigation Thread Interface
+interface InvestigationThread {
+  id: string;
+  name: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  progress: number;
+  findings: Finding[];
+  dependencies: string[];  // Thread IDs this depends on
+  priority: number;        // 1-5 (5 = highest)
+  requiredTools?: string[];
+}
+
+// Finding Interface
+interface Finding {
+  id: string;
+  threadId: string;
+  source: string;
+  type: 'email' | 'phone' | 'breach' | 'social' | 'darkweb' | 'domain';
+  data: any;
+  confidence: number;  // 0-100
+  relatedFindings: string[];
+  timestamp: number;
+}
+
+// Widget Config Interface
+interface WidgetConfig {
+  id: string;
+  type: string;
+  version: string;
+  category: 'osint' | 'cybersecurity' | 'document-generation';
+  gdprCompliant: boolean;
+  dataRetentionDays: number;
+}
+```
+
+---
+
+## 📄 NYT: DOKUMENTGENERATOR INTEGRATION
+
+### MCP PowerPoint Server (Clauskraft/powerpoint)
+
+Din eksisterende MCP server har følgende tools:
+
+| Tool | Beskrivelse | Integration Status |
+|------|-------------|-------------------|
+| `create-presentation` | Opretter ny præsentation | ✅ Klar |
+| `add-slide-title-only` | Titel slide | ✅ Klar |
+| `add-slide-section-header` | Section header | ✅ Klar |
+| `add-slide-title-content` | Titel + indhold | ✅ Klar |
+| `add-slide-title-with-table` | Slide med tabel | ✅ Klar |
+| `add-slide-title-with-chart` | Slide med chart | ✅ Klar |
+| `add-slide-picture-with-caption` | Billede slide | ✅ Klar |
+| `generate-and-save-image` | FLUX image generation | ✅ Klar |
+
+### Integration i WidgeTDC Backend
+
+```typescript
+// apps/backend/src/services/MCPPowerPointBackend.ts
+
+export class MCPPowerPointBackend {
+  private mcpClient: MCPClient;
+  
+  constructor() {
+    this.mcpClient = new MCPClient({
+      serverCommand: 'uv',
+      serverArgs: [
+        '--directory',
+        process.env.POWERPOINT_MCP_PATH || 'C:\\Users\\claus\\Projects\\powerpoint',
+        'run',
+        'powerpoint',
+        '--folder-path',
+        process.env.PRESENTATIONS_PATH || './presentations'
+      ]
+    });
+  }
+  
+  async createPresentation(name: string): Promise<string> {
+    return this.mcpClient.callTool('create-presentation', { name });
+  }
+  
+  async addSlide(presentationName: string, slideType: string, data: any): Promise<void> {
+    const toolName = `add-slide-${slideType}`;
+    await this.mcpClient.callTool(toolName, {
+      presentation_name: presentationName,
+      ...data
+    });
+  }
+  
+  async generateImage(prompt: string, fileName: string): Promise<string> {
+    const result = await this.mcpClient.callTool('generate-and-save-image', {
+      prompt,
+      file_name: fileName
+    });
+    return result.image_path;
+  }
+  
+  async savePresentation(presentationName: string): Promise<string> {
+    const result = await this.mcpClient.callTool('save-presentation', {
+      presentation_name: presentationName
+    });
+    return result.file_path;
+  }
+}
+```
+
+### PPTAgent Integration (2-Stage Generation)
+
+```typescript
+// apps/backend/src/services/PPTAgentService.ts
+
+export class PPTAgentService {
+  private apiBase = 'http://localhost:9297';
+  
+  /**
+   * Stage 1: Analyze reference presentations
+   */
+  async analyzeReferences(referenceFiles: string[]): Promise<AnalysisResult> {
+    const response = await fetch(`${this.apiBase}/api/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ references: referenceFiles })
+    });
+    return response.json();
+  }
+  
+  /**
+   * Stage 2: Generate with learned patterns
+   */
+  async generatePresentation(input: GenerationInput): Promise<string> {
+    const response = await fetch(`${this.apiBase}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        document: input.sourceDocument,
+        outline: input.outline,
+        style_patterns: input.learnedPatterns,
+        language_model: 'Qwen2.5-72B-Instruct',
+        vision_model: 'gpt-4o'
+      })
+    });
+    return (await response.json()).presentation_path;
+  }
+  
+  /**
+   * Evaluate generated presentation
+   */
+  async evaluatePresentation(pptxPath: string): Promise<PPTEvalResult> {
+    const response = await fetch(`${this.apiBase}/api/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ presentation_path: pptxPath })
+    });
+    return response.json(); // { content: 8.5, design: 9.2, coherence: 8.8 }
+  }
+}
+
+interface AnalysisResult {
+  slide_roles: string[];
+  structural_patterns: any;
+  content_schemas: any;
+}
+
+interface GenerationInput {
+  sourceDocument: string;
+  outline: string;
+  learnedPatterns: any;
+}
+
+interface PPTEvalResult {
+  content: number;
+  design: number;
+  coherence: number;
+  suggestions: string[];
+}
+```
+
+---
+
+## 🏗️ OPDATERET IMPLEMENTERINGSPLAN (8 UGER)
+
+### PHASE 0: SETUP (Dag 1-3)
+
+```bash
+# 1. Clone PPTAgent
+cd C:\Users\claus\Projects
+git clone https://github.com/icip-cas/PPTAgent.git
+
+# 2. Start PPTAgent Docker container
+docker pull forceless/pptagent
+docker run -dt --gpus all --name pptagent \
+  -e OPENAI_API_KEY=$env:OPENAI_API_KEY \
+  -p 9297:9297 -p 8088:8088 \
+  -v $env:USERPROFILE:/root \
+  forceless/pptagent
+
+# 3. Clone MultiAgentPPT (for research)
+git clone https://github.com/johnson7788/MultiAgentPPT.git
+
+# 4. Download Zenodo10K templates (optional)
+git lfs clone https://huggingface.co/datasets/Forceless/Zenodo10K
+```
+
+### PHASE 1: Quick Wins + Autonome Widgets (Uge 1-2)
+
+| Task | Prioritet | Ansvarlig |
+|------|-----------|-----------|
+| Tilføj `widgets.invoke/discover/correlate` MCP tools | HØJ | Backend |
+| Kopier 3 autonome OSINT widgets til projekt | HØJ | Frontend |
+| Integrér MCP PowerPoint server | HØJ | Backend |
+| Test widget-to-widget communication | MEDIUM | QA |
+| Registrér nye widgets i registry | HØJ | Frontend |
+
+### PHASE 2: Dokumentgeneratorer (Uge 3-4)
+
+| Task | Prioritet | Ansvarlig |
+|------|-----------|-----------|
+| Kopier 3 dokumentgenerator widgets | HØJ | Frontend |
+| Implementér `MCPPowerPointBackend.ts` | HØJ | Backend |
+| Implementér `PPTAgentService.ts` | MEDIUM | Backend |
+| FLUX image generation integration | MEDIUM | Backend |
+| Test PPT generation end-to-end | HØJ | QA |
+
+### PHASE 3: OSINT Backend + HuggingFace (Uge 4-5)
+
+| Task | Prioritet | Ansvarlig |
+|------|-----------|-----------|
+| Implementér OSINT MCP handlers | HØJ | Backend |
+| Tilføj HuggingFace embeddings | MEDIUM | Backend |
+| Integrér med VirusTotal/Shodan API | MEDIUM | Backend |
+| Test autonomous investigation flow | HØJ | QA |
+
+### PHASE 4: MultiAgent Orchestration (Uge 5-6)
+
+| Task | Prioritet | Ansvarlig |
+|------|-----------|-----------|
+| Implementér MultiAgentOrchestrator | MEDIUM | Backend |
+| Parallel research agents | MEDIUM | Backend |
+| Quality checker agent | LAV | Backend |
+| Streaming WebSocket updates | HØJ | Frontend |
+
+### PHASE 5: Correlation Engine (Uge 7-8)
+
+| Task | Prioritet | Ansvarlig |
+|------|-----------|-----------|
+| Unified findings store (SQLite) | MEDIUM | Backend |
+| Cross-widget correlation rules | MEDIUM | Backend |
+| Dashboard for korrelerede findings | MEDIUM | Frontend |
+| GDPR compliance audit | HØJ | Security |
+
+---
+
+## 📋 WIDGET REGISTRY OPDATERINGER
+
+```javascript
+// Tilføj til apps/widget-board/widgetRegistry.js
+
+// === AUTONOME OSINT WIDGETS ===
+'AutonomousOSINTEmailWidget': {
+  id: 'AutonomousOSINTEmailWidget',
+  name: 'Autonomous OSINT Email',
+  category: 'security',
+  path: './widgets/autonomous/autonomous-osint-email-widget',
+  icon: 'Mail',
+  defaultSize: { w: 12, h: 8 },
+  description: 'Multi-threaded email OSINT with auto spor-following'
+},
+'AutonomousThreatHunterWidget': {
+  id: 'AutonomousThreatHunterWidget',
+  name: 'Autonomous Threat Hunter',
+  category: 'security',
+  path: './widgets/autonomous/autonomous-threat-hunter-widget',
+  icon: 'Shield',
+  defaultSize: { w: 12, h: 8 },
+  description: 'Cybersecurity vulnerability assessment with CVE detection'
+},
+'MasterOrchestratorWidget': {
+  id: 'MasterOrchestratorWidget',
+  name: 'Master Orchestrator',
+  category: 'security',
+  path: './widgets/autonomous/master-orchestrator-widget',
+  icon: 'Zap',
+  defaultSize: { w: 12, h: 10 },
+  description: 'Combined OSINT + Cybersecurity orchestration'
+},
+
+// === DOKUMENTGENERATORER ===
+'AutonomousPowerPointMaster': {
+  id: 'AutonomousPowerPointMaster',
+  name: 'PowerPoint Master',
+  category: 'productivity',
+  path: './widgets/doc-generators/autonomous-powerpoint-master',
+  icon: 'Presentation',
+  defaultSize: { w: 12, h: 8 },
+  description: 'AI-driven presentation generation with DALL-E images'
+},
+'AutonomousWordArchitect': {
+  id: 'AutonomousWordArchitect',
+  name: 'Word Architect',
+  category: 'productivity',
+  path: './widgets/doc-generators/autonomous-word-architect',
+  icon: 'FileText',
+  defaultSize: { w: 12, h: 8 },
+  description: 'Intelligent document generation with knowledge mining'
+},
+'AutonomousExcelAnalyzer': {
+  id: 'AutonomousExcelAnalyzer',
+  name: 'Excel Analyzer',
+  category: 'productivity',
+  path: './widgets/doc-generators/autonomous-excel-analyzer',
+  icon: 'Table',
+  defaultSize: { w: 12, h: 8 },
+  description: 'Data-to-insights Excel with auto charts and financial models'
+},
+```
+
+---
+
+## 📊 OPDATERET SUCCESS METRICS
+
+| Metric | Mål | Måling |
+|--------|-----|--------|
+| Nye Widgets | +9 (6 autonome + 3 OSINT) | Widget count |
+| Nye MCP Tools | +15 | Tool registry count |
+| Cross-Widget Events | >200/dag | EventBus metrics |
+| Investigation Threads | <60s for 10 threads | P95 latency |
+| PPT Generation | <90s for 10-slide deck | P95 latency |
+| HF Model Latency | <500ms | P95 latency |
+| Zero Breaking Changes | 0 | Regression tests |
+| GDPR Compliance | 30-day retention | Audit |
+
+---
+
+## 🔐 SIKKERHEDSOVERVEJELSER (UDVIDET)
+
+### API Keys og Secrets
+- `OPENAI_API_KEY` - For PPTAgent
+- `TOGETHER_API_KEY` - For FLUX image generation
+- `VIRUSTOTAL_API_KEY` - For threat intel
+- `SHODAN_API_KEY` - For infrastructure scanning
+- Alle via environment variables, aldrig hardcoded
+
+### GDPR Compliance
+- Automatisk data retention (30 dage default)
+- PII anonymization i findings
+- Audit logging af alle data access
+- Right to be forgotten support
+
+### Rate Limiting
+```typescript
+const apiLimits = {
+  'hibp': { max: 10, window: 60000 },      // 10 req/min
+  'virustotal': { max: 4, window: 60000 }, // 4 req/min
+  'shodan': { max: 1, window: 1000 }       // 1 req/sec
+};
+```
+
+---
+
 ## 📝 KONKLUSION
 
-Dette dokument præsenterer en **realistisk, additiv** approach til at forbedre WidgetTDC uden at ændre eksisterende arkitektur. 
+Dette dokument præsenterer en **omfattende, additiv** approach til at forbedre WidgetTDC med:
+
+1. ✅ **6 nye autonome widgets** (OSINT + Dokumentgeneratorer)
+2. ✅ **MCP PowerPoint Server integration** (Clauskraft/powerpoint)
+3. ✅ **PPTAgent 2-stage generation** (icip-cas)
+4. ✅ **Autonomt "spor following"** via TaskRecorder + EventBus
+5. ✅ **MultiAgent arkitektur** for parallel research
+6. ✅ **100% backwards compatibility** med eksisterende widgets
+
+**Forventet Outcome**: 300% improvement i capabilities inden for 8 uger, med 0% breaking changes.
 
 **Nøgleprincipper**:
-1. ✅ Byg ovenpå eksisterende MCP infrastructure
-2. ✅ Følg etablerede widget patterns
-3. ✅ Tilføj nye tools, fjern ikke eksisterende
-4. ✅ POC external integrations før commitment
-5. ✅ Bevar 100% backwards compatibility
-
-**Forventet Outcome**: 150-200% improvement i capabilities inden for 6 uger, med 0% breaking changes.
+- Byg ovenpå eksisterende MCP infrastructure
+- Følg etablerede widget patterns
+- Tilføj nye tools, fjern ikke eksisterende
+- POC external integrations før commitment
+- Bevar 100% backwards compatibility
 
 ---
 
 **Document Owner**: Architecture Enhancement Initiative  
 **Last Updated**: 25. november 2025  
-**Status**: READY FOR REVIEW
+**Version**: 2.0 - Integreret med tidligere chat-analyse  
+**Status**: READY FOR IMPLEMENTATION
