@@ -8,11 +8,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "cd apps/widget-board && vite",
-    "build": "cd apps/widget-board && vite build",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd apps/widget-board && vite",
+    "dev:backend": "cd apps/backend && npm run dev",
+    "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
+    "build:frontend": "cd apps/widget-board && vite build",
+    "build:backend": "cd apps/backend && npm run build",
     "build:shared": "npm run build:domain-types && npm run build:mcp-types",
-    "build:domain-types": "cd packages/shared/domain-types && npm install && npm run build",
-    "build:mcp-types": "cd packages/shared/mcp-types && npm install && npm run build",
+    "build:domain-types": "cd packages/domain-types && npm install && npm run build",
+    "build:mcp-types": "cd packages/mcp-types && npm install && npm run build",
     "preview": "vite preview",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -24,26 +28,10 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
   },
   "dependencies": {
-    "@headlessui/react": "^2.1.2",
-    "@google/genai": "^1.29.1",
-    "adaptivecards": "^3.0.0",
-    "adaptivecards-react": "^1.1.1",
-    "deepseek-sdk": "^1.0.0",
-    "dotenv": "^17.2.3",
-    "openai": "^6.9.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "react-grid-layout": "^1.5.2",
-    "lucide-react": "^0.554.0",
-    "react-is": "^19.2.0"
-  },
-  "overrides": {
-    "adaptivecards-react": {
-      "react": "^19.2.0",
-      "react-dom": "^19.2.0"
-    }
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "@playwright/test": "^1.56.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
