@@ -16,7 +16,7 @@ interface DocumentJob {
   type: 'powerpoint' | 'word' | 'excel';
   status: 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
-  config: Record<string, unknown>;
+  config: any;
   result?: {
     filePath: string;
     fileSize?: number;

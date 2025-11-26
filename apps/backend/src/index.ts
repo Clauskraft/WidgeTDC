@@ -176,7 +176,7 @@ async function startServer() {
     mcpRegistry.registerTool('taskrecorder.reject', taskRecorderRejectHandler);
     mcpRegistry.registerTool('taskrecorder.execute', taskRecorderExecuteHandler);
     mcpRegistry.registerTool('taskrecorder.get_patterns', taskRecorderGetPatternsHandler);
-    
+
     // Email RAG tool - wraps GraphRAG for email content
     mcpRegistry.registerTool('email.rag', emailRagHandler);
 
@@ -207,6 +207,13 @@ async function startServer() {
     mcpRegistry.registerTool('docgen.excel.create', docgenExcelCreateHandler);
     mcpRegistry.registerTool('docgen.status', docgenStatusHandler);
     console.log('📄 Document Generator tools registered');
+
+    // DevTools Guardian Tools
+    const { handleDevToolsRequest } = await import('./mcp/devToolsHandlers.js');
+    mcpRegistry.registerTool('devtools-status', handleDevToolsRequest);
+    mcpRegistry.registerTool('devtools-scan', handleDevToolsRequest);
+    mcpRegistry.registerTool('devtools-validate', handleDevToolsRequest);
+    console.log('🛡️ DevTools Guardian tools registered');
 
     // Step 3: Initialize Agent Orchestrator
     const orchestrator = new AgentOrchestratorServer();
@@ -270,12 +277,12 @@ async function startServer() {
 
     // Step 3.7: Start HansPedder orchestrator
     try {
-        const { startHansPedder } = await import('./orchestrator/hansPedder.js');
-        await startHansPedder();
-        console.log('👔 HansPedder orchestrator started');
+      const { startHansPedder } = await import('./orchestrator/hansPedder.js');
+      await startHansPedder();
+      console.log('👔 HansPedder orchestrator started');
     } catch (err) {
-        console.error('⚠️ Failed to start HansPedder:', err);
-        // Non-critical, continue server startup
+      console.error('⚠️ Failed to start HansPedder:', err);
+      // Non-critical, continue server startup
     }
 
     // Step 4: Setup routes

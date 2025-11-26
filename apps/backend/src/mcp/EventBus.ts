@@ -26,7 +26,10 @@ export type EventType =
     | 'docgen:excel:completed'
     | 'docgen:excel:failed'
     | 'docgen:powerpoint:created'
-    | 'docgen:powerpoint:error';
+    | 'docgen:powerpoint:error'
+    | 'devtools:scan:started'
+    | 'devtools:scan:completed'
+    | 'devtools:scan:failed';
 
 export interface BaseEvent {
     type: EventType;

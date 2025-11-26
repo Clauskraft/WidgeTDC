@@ -326,6 +326,15 @@ export const WIDGET_REGISTRY = {
         defaultSize: { w: 6, h: 2 },
         description: 'Import and manage external widgets'
     },
+    'DevToolsWidget': {
+        id: 'DevToolsWidget',
+        name: 'DevTools Guardian',
+        category: 'system',
+        path: './widgets/DevToolsWidget/DevToolsWidget',
+        icon: 'Shield',
+        defaultSize: { w: 6, h: 3 },
+        description: 'Global repository guardian and scanner'
+    },
     // ============= AUTONOMOUS OSINT/CYBERSECURITY WIDGETS =============
     'AutonomousOSINTEmailWidget': {
         id: 'AutonomousOSINTEmailWidget',
