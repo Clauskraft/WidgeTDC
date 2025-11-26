@@ -42,7 +42,7 @@ describe('useMCP hook', () => {
     });
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      'http://localhost:3001/api/mcp/route',
+      '/api/mcp/route',
       expect.objectContaining({
         method: 'POST',
       }),
