@@ -40,7 +40,7 @@ export const useMCP = () => {
         // We can check if we are in a test environment or if window.location.origin is available
         if (typeof window !== 'undefined' && window.location.origin === 'null') {
           // Fallback for JSDOM if origin is null
-          route = `http://localhost:3000${route}`;
+          route = `http://localhost:3001${route}`;
         }
 
         const response = await fetch(route, {

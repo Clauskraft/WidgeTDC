@@ -6,44 +6,44 @@
 interface EnvConfig {
   // API Configuration
   GEMINI_API_KEY: string;
-  
+
   // MCP Configuration
   MCP_SERVER_URL: string;
   MCP_AUTH_ENABLED: boolean;
   MCP_CLIENT_ID?: string;
   MCP_CLIENT_SECRET?: string;
-  
+
   // Microsoft Configuration
   MS_CLIENT_ID?: string;
   MS_TENANT_ID?: string;
   MS_REDIRECT_URI?: string;
   MS_SCOPES?: string;
-  
+
   // Security Configuration
   ENABLE_CSP: boolean;
   ENABLE_HSTS: boolean;
   JWT_SECRET?: string;
   JWT_EXPIRY: number;
-  
+
   // Rate Limiting
   RATE_LIMIT_MAX_REQUESTS: number;
   RATE_LIMIT_WINDOW_MS: number;
-  
+
   // Feature Flags
   ENABLE_ANALYTICS: boolean;
   ENABLE_ERROR_REPORTING: boolean;
   ENABLE_DEBUG_MODE: boolean;
-  
+
   // Performance & Monitoring
   ENABLE_PERFORMANCE_MONITORING: boolean;
   PERFORMANCE_SAMPLE_RATE: number;
   LOG_LEVEL: 'error' | 'warn' | 'info' | 'debug';
-  
+
   // Data & Compliance
   DATA_RETENTION_DAYS: number;
   GDPR_ENABLED: boolean;
   ENABLE_DATA_ENCRYPTION: boolean;
-  
+
   // Development
   NODE_ENV: 'development' | 'staging' | 'production';
   API_BASE_URL: string;
@@ -100,7 +100,7 @@ class ValidationError extends Error {
  */
 function validateRequired(errors: string[]): void {
   const requiredVars = ['GEMINI_API_KEY'];
-  
+
   for (const varName of requiredVars) {
     const value = getEnv(varName);
     if (!value || value.trim() === '') {
@@ -118,16 +118,16 @@ function validateSecurity(config: Partial<EnvConfig>, errors: string[]): void {
     if (config.MCP_AUTH_ENABLED && !config.JWT_SECRET) {
       errors.push('JWT_SECRET is required when MCP_AUTH_ENABLED is true in production');
     }
-    
+
     if (config.JWT_SECRET && config.JWT_SECRET.length < 32) {
       errors.push('JWT_SECRET must be at least 32 characters in production');
     }
-    
+
     // CSP should be enabled in production
     if (!config.ENABLE_CSP) {
       console.warn('Content Security Policy is disabled in production');
     }
-    
+
     // Debug mode should be disabled in production
     if (config.ENABLE_DEBUG_MODE) {
       errors.push('ENABLE_DEBUG_MODE must be false in production');
@@ -147,7 +147,7 @@ function validateMCP(config: Partial<EnvConfig>, errors: string[]): void {
       errors.push('MCP_CLIENT_SECRET is required when MCP_AUTH_ENABLED is true');
     }
   }
-  
+
   // Validate MCP URL format
   if (config.MCP_SERVER_URL) {
     try {
@@ -169,7 +169,7 @@ function validateMCP(config: Partial<EnvConfig>, errors: string[]): void {
  */
 function validateMicrosoft(config: Partial<EnvConfig>, errors: string[]): void {
   const hasAnyMSConfig = config.MS_CLIENT_ID || config.MS_TENANT_ID || config.MS_REDIRECT_URI;
-  
+
   if (hasAnyMSConfig) {
     if (!config.MS_CLIENT_ID) {
       errors.push('MS_CLIENT_ID is required for Microsoft integration');
@@ -192,11 +192,11 @@ function validatePerformance(config: Partial<EnvConfig>, errors: string[]): void
       errors.push('PERFORMANCE_SAMPLE_RATE must be between 0 and 1');
     }
   }
-  
+
   if (config.RATE_LIMIT_MAX_REQUESTS !== undefined && config.RATE_LIMIT_MAX_REQUESTS < 1) {
     errors.push('RATE_LIMIT_MAX_REQUESTS must be at least 1');
   }
-  
+
   if (config.RATE_LIMIT_WINDOW_MS < 1000) {
     errors.push('RATE_LIMIT_WINDOW_MS must be at least 1000ms');
   }
@@ -207,62 +207,62 @@ function validatePerformance(config: Partial<EnvConfig>, errors: string[]): void
  */
 export function loadEnvConfig(): EnvConfig {
   const errors: string[] = [];
-  
+
   // Build configuration object
   const config: EnvConfig = {
     // API Configuration
     GEMINI_API_KEY: getEnv('GEMINI_API_KEY') || '',
-    
+
     // MCP Configuration
     MCP_SERVER_URL: getEnv('MCP_SERVER_URL', 'wss://localhost:3001/mcp'),
     MCP_AUTH_ENABLED: parseBoolean(getEnv('MCP_AUTH_ENABLED'), true),
     MCP_CLIENT_ID: getEnv('MCP_CLIENT_ID'),
     MCP_CLIENT_SECRET: getEnv('MCP_CLIENT_SECRET'),
-    
+
     // Microsoft Configuration
     MS_CLIENT_ID: getEnv('MS_CLIENT_ID'),
     MS_TENANT_ID: getEnv('MS_TENANT_ID'),
     MS_REDIRECT_URI: getEnv('MS_REDIRECT_URI'),
     MS_SCOPES: getEnv('MS_SCOPES', 'Mail.Read,Mail.ReadWrite,Mail.Send'),
-    
+
     // Security Configuration
     ENABLE_CSP: parseBoolean(getEnv('ENABLE_CSP'), true),
     ENABLE_HSTS: parseBoolean(getEnv('ENABLE_HSTS'), true),
     JWT_SECRET: getEnv('JWT_SECRET'),
     JWT_EXPIRY: parseNumber(getEnv('JWT_EXPIRY'), 3600),
-    
+
     // Rate Limiting
     RATE_LIMIT_MAX_REQUESTS: parseNumber(getEnv('RATE_LIMIT_MAX_REQUESTS'), 100),
     RATE_LIMIT_WINDOW_MS: parseNumber(getEnv('RATE_LIMIT_WINDOW_MS'), 60000),
-    
+
     // Feature Flags
     ENABLE_ANALYTICS: parseBoolean(getEnv('ENABLE_ANALYTICS'), false),
     ENABLE_ERROR_REPORTING: parseBoolean(getEnv('ENABLE_ERROR_REPORTING'), false),
     ENABLE_DEBUG_MODE: parseBoolean(getEnv('ENABLE_DEBUG_MODE'), false),
-    
+
     // Performance & Monitoring
     ENABLE_PERFORMANCE_MONITORING: parseBoolean(getEnv('ENABLE_PERFORMANCE_MONITORING'), true),
     PERFORMANCE_SAMPLE_RATE: parseFloat(getEnv('PERFORMANCE_SAMPLE_RATE'), 0.1),
     LOG_LEVEL: (getEnv('LOG_LEVEL') as any) || 'info',
-    
+
     // Data & Compliance
     DATA_RETENTION_DAYS: parseNumber(getEnv('DATA_RETENTION_DAYS'), 90),
     GDPR_ENABLED: parseBoolean(getEnv('GDPR_ENABLED'), true),
     ENABLE_DATA_ENCRYPTION: parseBoolean(getEnv('ENABLE_DATA_ENCRYPTION'), true),
-    
+
     // Development
     NODE_ENV: (import.meta.env.MODE as any) || 'development',
-    API_BASE_URL: getEnv('API_BASE_URL', 'http://localhost:3000/api'),
+    API_BASE_URL: getEnv('API_BASE_URL', 'http://localhost:3001/api'),
     USE_MOCK_DATA: parseBoolean(getEnv('USE_MOCK_DATA'), false),
   };
-  
+
   // Run validations
   validateRequired(errors);
   validateSecurity(config, errors);
   validateMCP(config, errors);
   validateMicrosoft(config, errors);
   validatePerformance(config, errors);
-  
+
   // Throw if there are validation errors
   if (errors.length > 0) {
     if (config.NODE_ENV === 'production') {
@@ -273,7 +273,7 @@ export function loadEnvConfig(): EnvConfig {
       errors.forEach(error => console.warn(`   - ${error}`));
     }
   }
-  
+
   return config;
 }
 
