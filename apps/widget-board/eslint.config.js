@@ -59,7 +59,6 @@ export default [
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/no-require-imports': 'warn',
       '@typescript-eslint/prefer-as-const': 'warn',
-      '@typescript-eslint/ban-types': 'warn',
       'no-case-declarations': 'warn',
       'no-irregular-whitespace': 'warn',
       'no-empty': 'warn',
