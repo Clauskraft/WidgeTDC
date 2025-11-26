@@ -23,21 +23,38 @@ WidgeTDC is an **Enterprise-grade Autonomous Intelligence Platform** that combin
 
 ## ✨ Key Features
 
-### Semantic Search
+### 🔍 Semantic Search & RAG
 - **Natural language queries** - Ask questions, get semantically similar results
 - **Auto-embedding generation** - Just provide text, embeddings are created automatically
 - **Multi-provider support** - OpenAI (best quality), HuggingFace (good), or Transformers.js (free, local)
+- **Hybrid search** - Combines keyword and semantic search with re-ranking
+- **Query expansion** - Automatically expands queries with synonyms and related terms
 
-### Autonomous Intelligence
+### 🧠 Autonomous Intelligence
 - **Learning loops** - Nightly consolidation, pattern extraction, memory optimization
 - **Multi-hop reasoning** - UnifiedGraphRAG for complex queries
 - **Self-improvement** - Learns from patterns and optimizes workflows
+- **Meta-learning** - Learns how to learn across different domains
+- **RLHF alignment** - Human feedback integration for safe AI behavior
 
-### Enterprise Ready
-- **Scalable infrastructure** - PostgreSQL, Redis, optional Neo4j
-- **Production monitoring** - PM2 process management, Winston logging
+### 🤖 Advanced Agent System
+- **Dynamic agent spawning** - Automatically creates agents based on workload
+- **Agent specialization** - Agents learn and specialize in specific tasks
+- **Inter-agent communication** - Negotiation, delegation, and knowledge sharing
+- **Collaborative execution** - Multiple agents work together on complex tasks
+
+### 🎨 Multi-Modal Support
+- **Image processing** - CLIP-style embeddings for visual search
+- **Audio analysis** - Audio embeddings and transcription
+- **Video understanding** - Combined visual and audio processing
+- **Cross-modal search** - Search images with text, or vice versa
+
+### 🏢 Enterprise Ready
+- **Scalable infrastructure** - PostgreSQL + pgvector, Neo4j graph database, Redis
+- **Production monitoring** - Distributed tracing, metrics, health checks
 - **Zero-downtime upgrades** - Backward compatible architecture
 - **Multi-tenant ready** - Namespace isolation, user/org tracking
+- **External integrations** - Slack, GitHub, Jira webhooks and notifications
 
 ---
 

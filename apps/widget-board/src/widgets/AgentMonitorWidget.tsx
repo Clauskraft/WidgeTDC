@@ -94,6 +94,7 @@ export const AgentMonitorWidget: React.FC = () => {
                     </button>
                 </div>
             }
+            isDarkMode={false}
         >
             <div className="agent-monitor-container">
                 <div className="agent-list">

@@ -5,7 +5,7 @@
  */
 
 import React, { createContext, useContext, PropsWithChildren } from 'react';
-import { UnifiedDataService, getDataService } from './src/services/UnifiedDataService';
+import { UnifiedDataService, getDataService } from '../services/UnifiedDataService';
 
 const DataContext = createContext<UnifiedDataService | null>(null);
 

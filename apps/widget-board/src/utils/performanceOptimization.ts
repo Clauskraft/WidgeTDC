@@ -13,53 +13,48 @@
 export const createChunkLoader = () => {
   const loadedChunks = new Map<string, any>();
 
-  return {
-    /**
-     * Load a widget chunk only when needed
-     */
-    loadWidget: async (widgetName: string, importPath: string) => {
-      if (loadedChunks.has(widgetName)) {
-        return loadedChunks.get(widgetName);
-      }
+  const loadWidget = async (widgetName: string, importPath: string) => {
+    if (loadedChunks.has(widgetName)) {
+      return loadedChunks.get(widgetName);
+    }
 
-      try {
-        // Dynamic import with error boundary
-        const module = await import(/* @vite-ignore */ importPath);
-        const component = module.default || module;
-        loadedChunks.set(widgetName, component);
-        return component;
-      } catch (error) {
-        console.error(`Failed to load widget: ${widgetName}`, error);
-        throw new Error(`Widget "${widgetName}" failed to load`);
-      }
-    },
+    try {
+      // Dynamic import with error boundary
+      const module = await import(/* @vite-ignore */ importPath);
+      const component = module.default || module;
+      loadedChunks.set(widgetName, component);
+      return component;
+    } catch (error) {
+      console.error(`Failed to load widget: ${widgetName}`, error);
+      throw new Error(`Widget "${widgetName}" failed to load`);
+    }
+  };
 
-    /**
-     * Preload common widgets on idle
-     */
-    preloadCommonWidgets: (widgetPaths: Record<string, string>) => {
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(() => {
-          Object.entries(widgetPaths).forEach(([name, path]) => {
-            this.loadWidget(name, path).catch(() => {
-              // Silently fail preload attempts
-            });
+  const preloadCommonWidgets = (widgetPaths: Record<string, string>) => {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        Object.entries(widgetPaths).forEach(([name, path]) => {
+          loadWidget(name, path).catch(() => {
+            // Silently fail preload attempts
           });
         });
-      }
-    },
+      });
+    }
+  };
 
-    /**
-     * Clear unused chunks from memory
-     */
-    clearUnused: (activeWidgetIds: string[]) => {
-      const activeSet = new Set(activeWidgetIds);
-      for (const [key] of loadedChunks) {
-        if (!activeSet.has(key)) {
-          loadedChunks.delete(key);
-        }
+  const clearUnused = (activeWidgetIds: string[]) => {
+    const activeSet = new Set(activeWidgetIds);
+    for (const [key] of loadedChunks) {
+      if (!activeSet.has(key)) {
+        loadedChunks.delete(key);
       }
     }
+  };
+
+  return {
+    loadWidget,
+    preloadCommonWidgets,
+    clearUnused
   };
 };
 

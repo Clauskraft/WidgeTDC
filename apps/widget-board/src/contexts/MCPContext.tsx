@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { mcpEventBus } from '../../mcp/MCPEventBus';
-import { MCPMessage, MCPResponse, MCPEvent, MCPConnection, MCPTool } from '../../mcp/MCPTypes';
+import { mcpEventBus } from '../mcp/MCPEventBus';
+import { MCPMessage, MCPResponse, MCPEvent, MCPConnection, MCPTool } from '../mcp/MCPTypes';
 
 interface MCPContextValue {
   connection: MCPConnection | null;
@@ -55,6 +55,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
           setIsConnected(true);
           setWs(websocket);
           
+          // Emit connected event
           mcpEventBus.emit({
             type: 'connected',
             data: newConnection,
@@ -139,6 +140,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
         timestamp: Date.now(),
       };
 
+      // Set up response listener
       const unsubscribe = mcpEventBus.on('response', (event: MCPEvent) => {
         const response = event.data as MCPResponse;
         if (response.id === fullMessage.id) {
@@ -147,14 +149,17 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
         }
       });
 
+      // Send message
       ws.send(JSON.stringify(fullMessage));
 
+      // Emit message event
       mcpEventBus.emit({
         type: 'message',
         data: fullMessage,
         timestamp: Date.now(),
       });
 
+      // Timeout after 30 seconds
       setTimeout(() => {
         unsubscribe();
         reject(new Error('Request timeout'));
@@ -174,6 +179,7 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
     }
   };
 
+  // Auto-connect on mount
   useEffect(() => {
     if (defaultUrl) {
       connect(defaultUrl).catch(console.error);

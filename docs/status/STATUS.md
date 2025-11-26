@@ -383,6 +383,13 @@ npm run migrate:graph
 - [ ] Performance testing
 - [ ] Advanced enhancements
 
+### 🔵 ARCHITECTURE ENHANCEMENTS (From Analysis)
+- [ ] **Type-Safe Widget Registry:** Migrate `widgetRegistry.js` to TypeScript class with generics.
+- [ ] **Standardized Widget Lifecycle:** Implement `BaseWidget` pattern with `onInit`, `onMount`, `onDestroy`.
+- [ ] **Audit Logging:** Implement `audit_logs` schema and service for compliance.
+- [ ] **Data Aggregation Service:** Create service to merge data from OpenSearch, Postgres, and MinIO.
+- [ ] **MCP Router Pattern:** Formalize `MCPRouter` class and message types in backend.
+
 ---
 
 **Status:** ✅ **Phase 1 Complete**, ⚠️ **Phase 2 ~85%**, ❌ **Phase 3 Not Started**  

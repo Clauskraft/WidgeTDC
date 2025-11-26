@@ -72,7 +72,7 @@ export async function streamingChat(
   });
 
   // Process stream
-  for await (const chunk of response) {
+  for await (const chunk of (response as any)) {
     const content = chunk.choices[0]?.delta?.content;
     if (content) {
       onChunk(content);

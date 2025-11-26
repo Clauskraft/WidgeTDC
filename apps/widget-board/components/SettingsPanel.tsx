@@ -80,7 +80,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ widgetId, onClose 
           )}
         </div>
         <div className="flex justify-end space-x-2 mt-6">
-          <Button onClick={onClose} variant="default">
+          <Button onClick={onClose} variant="subtle">
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={loading}>

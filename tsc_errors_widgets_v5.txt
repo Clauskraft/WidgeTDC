@@ -1,0 +1,12 @@
+apps/widget-board/components/SettingsPanel.tsx(83,37): error TS2322: Type '"default"' is not assignable to type 'ButtonVariant'.
+apps/widget-board/components/WidgetManagementPanel.tsx(14,7): error TS2741: Property 'testing' is missing in type '{ cybersecurity: string; 'ai-agents': string; 'media-analysis': string; productivity: string; development: string; business: string; communication: string; system: string; 'project-management': string; }' but required in type 'Record<WidgetCategory, string>'.
+apps/widget-board/src/platform/PlatformDataContext.tsx(8,52): error TS2307: Cannot find module './src/services/UnifiedDataService' or its corresponding type declarations.
+apps/widget-board/src/utils/deepseek-integration.tsx(75,29): error TS2504: Type '{ choices: { message: { content: string; }; }[]; usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number; }; }' must have a '[Symbol.asyncIterator]()' method that returns an async iterator.
+apps/widget-board/src/utils/performanceOptimization.ts(44,13): error TS2532: Object is possibly 'undefined'.
+apps/widget-board/src/widgets/AgentMonitorWidget.tsx(79,10): error TS2741: Property 'isDarkMode' is missing in type '{ children: Element; title: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; className: string; headerAction: Element; }' but required in type 'AcrylicCardProps'.
+apps/widget-board/widgets/__tests__/ActivityStreamWidget.test.tsx(9,18): error TS2741: Property 'widgetId' is missing in type '{ children: ReactElement<unknown, string | JSXElementConstructor<any>>; }' but required in type '{ children: ReactNode; widgetId: string; }'.
+apps/widget-board/widgets/__tests__/FeedIngestionWidget.test.tsx(9,18): error TS2741: Property 'widgetId' is missing in type '{ children: ReactElement<unknown, string | JSXElementConstructor<any>>; }' but required in type '{ children: ReactNode; widgetId: string; }'.
+apps/widget-board/widgets/NexusTerminalWidget.tsx(302,13): error TS2322: Type '(e: React.KeyboardEvent<HTMLTextAreaElement>) => void' is not assignable to type 'KeyboardEventHandler<HTMLInputElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'KeyboardEvent<HTMLInputElement>' is not assignable to type 'KeyboardEvent<HTMLTextAreaElement>'.
+      Type 'HTMLInputElement' is missing the following properties from type 'HTMLTextAreaElement': cols, rows, textLength, wrap

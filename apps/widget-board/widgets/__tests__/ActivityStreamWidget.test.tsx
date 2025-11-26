@@ -6,7 +6,7 @@ import { PermissionProvider } from '../../contexts/PermissionContext';
 import ActivityStreamWidget from '../ActivityStreamWidget';
 
 const renderWithProvider = (component: React.ReactElement) => {
-  return render(<PermissionProvider>{component}</PermissionProvider>);
+  return render(<PermissionProvider widgetId="test-widget">{component}</PermissionProvider>);
 };
 
 // Mock the request utility

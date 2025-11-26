@@ -21,6 +21,7 @@ const categoryDisplayNames: Record<WidgetCategory, string> = {
   'communication': '💬 Communication',
   'system': '⚙️ System',
   'project-management': '📊 Project Management',
+  'testing': '🧪 Testing',
 };
 
 const WidgetManagementPanel: React.FC<WidgetManagementPanelProps> = ({ isOpen, onClose }) => {
