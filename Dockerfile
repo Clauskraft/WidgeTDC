@@ -10,8 +10,8 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/widget-board/package.json ./apps/widget-board/
 COPY apps/backend/package.json ./apps/backend/
-COPY packages/shared/mcp-types/package.json ./packages/shared/mcp-types/
-COPY packages/shared/domain-types/package.json ./packages/shared/domain-types/
+COPY packages/mcp-types/package.json ./packages/mcp-types/
+COPY packages/domain-types/package.json ./packages/domain-types/
 
 # Install ALL dependencies including workspace dependencies
 # Use --legacy-peer-deps to handle React 19 peer dep issues
