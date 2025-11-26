@@ -39,6 +39,8 @@ export interface AgentStatus {
  */
 class DataAgent implements AgentCapabilities {
     public readonly role: AgentRole = 'data';
+    private tasksCompleted = 0;
+    private lastActivity = new Date();
 
     canHandle(message: AgentMessage): boolean {
         return message.type === 'query' && (
@@ -51,6 +53,8 @@ class DataAgent implements AgentCapabilities {
 
     async execute(message: AgentMessage): Promise<any> {
         console.log(`📊 [DataAgent] Processing: ${message.content}`);
+        this.lastActivity = new Date();
+        this.tasksCompleted++;
 
         // Use HybridSearchEngine to find relevant data
         const searchResults = await hybridSearchEngine.search(message.content, {
@@ -92,8 +96,8 @@ class DataAgent implements AgentCapabilities {
         return {
             role: this.role,
             active: true,
-            tasksCompleted: 0, // TODO: Track in memory
-            lastActivity: new Date(),
+            tasksCompleted: this.tasksCompleted,
+            lastActivity: this.lastActivity,
             capabilities: ['data_ingestion', 'data_quality', 'data_transformation']
         };
     }
@@ -104,6 +108,8 @@ class DataAgent implements AgentCapabilities {
  */
 class SecurityAgent implements AgentCapabilities {
     public readonly role: AgentRole = 'security';
+    private tasksCompleted = 0;
+    private lastActivity = new Date();
 
     canHandle(message: AgentMessage): boolean {
         return message.type === 'query' && (
@@ -116,6 +122,8 @@ class SecurityAgent implements AgentCapabilities {
 
     async execute(message: AgentMessage): Promise<any> {
         console.log(`🔒 [SecurityAgent] Processing: ${message.content}`);
+        this.lastActivity = new Date();
+        this.tasksCompleted++;
 
         // Use EmotionAwareDecisionEngine for security decisions
         const decision = await emotionAwareDecisionEngine.makeDecision(
@@ -166,8 +174,8 @@ class SecurityAgent implements AgentCapabilities {
         return {
             role: this.role,
             active: true,
-            tasksCompleted: 0,
-            lastActivity: new Date(),
+            tasksCompleted: this.tasksCompleted,
+            lastActivity: this.lastActivity,
             capabilities: ['threat_detection', 'compliance_check', 'security_scan']
         };
     }
@@ -178,6 +186,8 @@ class SecurityAgent implements AgentCapabilities {
  */
 class MemoryAgent implements AgentCapabilities {
     public readonly role: AgentRole = 'memory';
+    private tasksCompleted = 0;
+    private lastActivity = new Date();
 
     canHandle(message: AgentMessage): boolean {
         return message.type === 'query' && (
@@ -190,6 +200,8 @@ class MemoryAgent implements AgentCapabilities {
 
     async execute(message: AgentMessage): Promise<any> {
         console.log(`🧠 [MemoryAgent] Processing: ${message.content}`);
+        this.lastActivity = new Date();
+        this.tasksCompleted++;
 
         // Use UnifiedMemorySystem for memory operations
         const memory = await unifiedMemorySystem.getWorkingMemory({
@@ -229,8 +241,8 @@ class MemoryAgent implements AgentCapabilities {
         return {
             role: this.role,
             active: true,
-            tasksCompleted: 0,
-            lastActivity: new Date(),
+            tasksCompleted: this.tasksCompleted,
+            lastActivity: this.lastActivity,
             capabilities: ['memory_retrieval', 'memory_consolidation', 'pattern_detection']
         };
     }

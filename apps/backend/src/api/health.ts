@@ -45,16 +45,13 @@ router.get('/health', async (req, res) => {
         health.status = 'degraded';
     }
 
-    // Check Redis (if configured)
-    try {
-        if (process.env.REDIS_URL) {
-            // TODO: Add Redis health check when Redis client is available
-            health.services.redis = 'not_configured';
-        } else {
-            health.services.redis = 'not_configured';
-        }
-    } catch (error) {
-        health.services.redis = 'unhealthy';
+    // Check Redis
+    if (process.env.REDIS_URL) {
+        // Redis URL is configured but ioredis client is not yet installed
+        // Once ioredis is installed, this can be updated to perform actual health check
+        health.services.redis = 'configured_but_client_unavailable';
+    } else {
+        health.services.redis = 'not_configured';
     }
 
     const statusCode = health.status === 'healthy' ? 200 : 503;
