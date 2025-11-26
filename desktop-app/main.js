@@ -10,6 +10,10 @@ const DEFAULT_BACKEND_URL = process.env.BACKEND_URL || 'https://your-railway-app
 let mainWindow;
 
 function createWindow() {
+    const fs = require('fs');
+    const iconPath = path.join(__dirname, 'assets', 'icon.png');
+    const iconConfig = fs.existsSync(iconPath) ? { icon: iconPath } : {};
+
     mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
@@ -20,22 +24,20 @@ function createWindow() {
             contextIsolation: true,
             nodeIntegration: false,
         },
-        icon: path.join(__dirname, 'assets', 'icon.png'),
+        ...iconConfig,
         title: 'WidgeTDC - Enterprise AI Dashboard',
-        backgroundColor: '#1a1a1a',
+        backgroundColor: '#0a0a0a',
     });
 
     // Get backend URL from settings or use default
     const backendUrl = store.get('backendUrl', DEFAULT_BACKEND_URL);
 
-    // Load the app
+    // Always load from renderer folder
+    mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+
+    // Open DevTools in development
     if (process.env.NODE_ENV === 'development') {
-        // In development, load from Vite dev server
-        mainWindow.loadURL('http://localhost:5173');
         mainWindow.webContents.openDevTools();
-    } else {
-        // In production, load built files
-        mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
     }
 
     // Set backend URL in renderer
