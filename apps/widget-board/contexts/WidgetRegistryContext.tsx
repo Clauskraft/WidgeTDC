@@ -1,10 +1,9 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useRef, useEffect } from 'react';
 import type { WidgetDefinition } from '../types';
 import { GenericDataWidget } from '../components/GenericDataWidget';
-import { WIDGET_REGISTRY } from '../widgetRegistry';
 
 // ============================================================================
-// WIDGET REGISTRY 2.0 - Enhanced with Version Management & Performance
+// WIDGET REGISTRY 2.0 - Simplified with Direct Imports
 // ============================================================================
 
 interface WidgetVersion {
@@ -14,9 +13,9 @@ interface WidgetVersion {
 }
 
 interface WidgetPerformanceMetrics {
-  renderTime: number; // milliseconds
-  memoryUsage: number; // bytes
-  loadTime: number; // milliseconds
+  renderTime: number;
+  memoryUsage: number;
+  loadTime: number;
   lastUpdated: Date;
 }
 
@@ -36,26 +35,17 @@ interface WidgetRegistryQuery {
 }
 
 interface WidgetRegistryContextType {
-  // Core Registry Operations
   availableWidgets: WidgetRegistryEntry[];
   registerWidget: (widget: WidgetDefinition, version?: WidgetVersion, source?: string) => void;
   unregisterWidget: (widgetId: string) => void;
   updateWidget: (widgetId: string, widget: Partial<WidgetDefinition>) => void;
-
-  // Query & Discovery
   getWidget: (widgetId: string) => WidgetRegistryEntry | undefined;
   queryWidgets: (query: WidgetRegistryQuery) => WidgetRegistryEntry[];
   findByCapability: (capability: string) => WidgetRegistryEntry[];
-
-  // Version Management
   getWidgetVersions: (widgetId: string) => WidgetVersion[];
   rollbackToVersion: (widgetId: string, version: WidgetVersion) => void;
-
-  // Performance Monitoring
   updateMetrics: (widgetId: string, metrics: Partial<WidgetPerformanceMetrics>) => void;
   getMetrics: (widgetId: string) => WidgetPerformanceMetrics | undefined;
-
-  // State Management
   setEnabled: (widgetId: string, enabled: boolean) => void;
   count: () => number;
   clear: () => void;
@@ -74,106 +64,135 @@ const parseVersion = (versionString?: string): WidgetVersion => {
   };
 };
 
-const versionToString = (version: WidgetVersion): string =>
-  `${version.major}.${version.minor}.${version.patch}`;
+// Direct lazy imports for all existing widgets
+const WIDGET_COMPONENTS: Record<string, React.LazyExoticComponent<any>> = {
+  'ActivityStreamWidget': React.lazy(() => import('../widgets/ActivityStreamWidget')),
+  'AgentBuilderWidget': React.lazy(() => import('../widgets/AgentBuilderWidget')),
+  'AgentChatWidget': React.lazy(() => import('../widgets/AgentChatWidget')),
+  'AgentStatusDashboardWidget': React.lazy(() => import('../widgets/AgentStatusDashboardWidget')),
+  'AiPalWidget': React.lazy(() => import('../widgets/AiPalWidget')),
+  'AudioTranscriberWidget': React.lazy(() => import('../widgets/AudioTranscriberWidget')),
+  'CmaDecisionWidget': React.lazy(() => import('../widgets/CmaDecisionWidget')),
+  'CodeAnalysisWidget': React.lazy(() => import('../widgets/CodeAnalysisWidget')),
+  'CybersecurityOverwatchWidget': React.lazy(() => import('../widgets/CybersecurityOverwatchWidget')),
+  'DarkWebMonitorWidget': React.lazy(() => import('../widgets/DarkWebMonitorWidget')),
+  'EvolutionAgentWidget': React.lazy(() => import('../widgets/EvolutionAgentWidget')),
+  'FeedIngestionWidget': React.lazy(() => import('../widgets/FeedIngestionWidget')),
+  'ImageAnalyzerWidget': React.lazy(() => import('../widgets/ImageAnalyzerWidget')),
+  'IntelligentNotesWidget': React.lazy(() => import('../widgets/IntelligentNotesWidget')),
+  'KanbanWidget': React.lazy(() => import('../widgets/KanbanWidget')),
+  'LiveConversationWidget': React.lazy(() => import('../widgets/LiveConversationWidget')),
+  'LocalScanWidget': React.lazy(() => import('../widgets/LocalScanWidget')),
+  'MCPConnectorWidget': React.lazy(() => import('../widgets/MCPConnectorWidget')),
+  'MCPEmailRAGWidget': React.lazy(() => import('../widgets/MCPEmailRAGWidget')),
+  'McpRouterWidget': React.lazy(() => import('../widgets/McpRouterWidget')),
+  'NetworkSpyWidget': React.lazy(() => import('../widgets/NetworkSpyWidget')),
+  'NexusTerminalWidget': React.lazy(() => import('../widgets/NexusTerminalWidget')),
+  'PerformanceMonitorWidget': React.lazy(() => import('../widgets/PerformanceMonitorWidget')),
+  'PersonaCoordinatorWidget': React.lazy(() => import('../widgets/PersonaCoordinatorWidget')),
+  'PersonalAgentWidget': React.lazy(() => import('../widgets/PersonalAgentWidget')),
+  'Phase1CFastTrackKanbanWidget': React.lazy(() => import('../widgets/Phase1CFastTrackKanbanWidget')),
+  'ProcurementIntelligenceWidget': React.lazy(() => import('../widgets/ProcurementIntelligenceWidget')),
+  'PromptLibraryWidget': React.lazy(() => import('../widgets/PromptLibraryWidget')),
+  'SearchInterfaceWidget': React.lazy(() => import('../widgets/SearchInterfaceWidget')),
+  'SragGovernanceWidget': React.lazy(() => import('../widgets/SragGovernanceWidget')),
+  'StatusWidget': React.lazy(() => import('../widgets/StatusWidget')),
+  'SystemMonitorWidget': React.lazy(() => import('../widgets/SystemMonitorWidget')),
+  'SystemSettingsWidget': React.lazy(() => import('../widgets/SystemSettingsWidget')),
+  'VideoAnalyzerWidget': React.lazy(() => import('../widgets/VideoAnalyzerWidget')),
+  'WidgetImporterWidget': React.lazy(() => import('../widgets/WidgetImporterWidget')),
+};
+
+// Widget metadata (name, description, category, defaultLayout)
+const WIDGET_METADATA: Record<string, { name: string; description: string; category: string; defaultLayout: { w: number; h: number } }> = {
+  'ActivityStreamWidget': { name: 'Activity Stream', description: 'Real-time activity feed', category: 'monitoring', defaultLayout: { w: 6, h: 2 } },
+  'AgentBuilderWidget': { name: 'Agent Builder', description: 'Build custom AI agents', category: 'agents', defaultLayout: { w: 6, h: 3 } },
+  'AgentChatWidget': { name: 'Agent Chat', description: 'Chat with AI agents', category: 'communication', defaultLayout: { w: 4, h: 3 } },
+  'AgentStatusDashboardWidget': { name: 'Agent Status', description: 'Agent status overview', category: 'agents', defaultLayout: { w: 8, h: 2 } },
+  'AiPalWidget': { name: 'AI Pal', description: 'Personal AI assistant', category: 'ai', defaultLayout: { w: 4, h: 3 } },
+  'AudioTranscriberWidget': { name: 'Audio Transcriber', description: 'Transcribe audio to text', category: 'media', defaultLayout: { w: 6, h: 2 } },
+  'CmaDecisionWidget': { name: 'CMA Decision', description: 'Decision analysis', category: 'analytics', defaultLayout: { w: 6, h: 2 } },
+  'CodeAnalysisWidget': { name: 'Code Analysis', description: 'Analyze code quality', category: 'development', defaultLayout: { w: 8, h: 3 } },
+  'CybersecurityOverwatchWidget': { name: 'Cybersecurity Overwatch', description: 'Security monitoring', category: 'security', defaultLayout: { w: 8, h: 3 } },
+  'DarkWebMonitorWidget': { name: 'Dark Web Monitor', description: 'Monitor dark web threats', category: 'security', defaultLayout: { w: 6, h: 3 } },
+  'EvolutionAgentWidget': { name: 'Evolution Agent', description: 'Self-evolving AI', category: 'agents', defaultLayout: { w: 6, h: 2 } },
+  'FeedIngestionWidget': { name: 'Feed Ingestion', description: 'Process data feeds', category: 'data', defaultLayout: { w: 6, h: 2 } },
+  'ImageAnalyzerWidget': { name: 'Image Analyzer', description: 'AI image analysis', category: 'media', defaultLayout: { w: 6, h: 3 } },
+  'IntelligentNotesWidget': { name: 'Intelligent Notes', description: 'Smart note-taking', category: 'productivity', defaultLayout: { w: 4, h: 3 } },
+  'KanbanWidget': { name: 'Kanban Board', description: 'Task management', category: 'productivity', defaultLayout: { w: 12, h: 3 } },
+  'LiveConversationWidget': { name: 'Live Conversation', description: 'Real-time chat', category: 'communication', defaultLayout: { w: 6, h: 3 } },
+  'LocalScanWidget': { name: 'Local Scan', description: 'Scan local system', category: 'security', defaultLayout: { w: 6, h: 2 } },
+  'MCPConnectorWidget': { name: 'MCP Connector', description: 'Connect to MCP', category: 'integration', defaultLayout: { w: 4, h: 2 } },
+  'MCPEmailRAGWidget': { name: 'MCP Email RAG', description: 'Email RAG processing', category: 'integration', defaultLayout: { w: 6, h: 3 } },
+  'McpRouterWidget': { name: 'MCP Router', description: 'Route MCP messages', category: 'integration', defaultLayout: { w: 6, h: 2 } },
+  'NetworkSpyWidget': { name: 'Network Spy', description: 'Monitor network', category: 'security', defaultLayout: { w: 6, h: 2 } },
+  'NexusTerminalWidget': { name: 'Nexus Terminal', description: 'AI-powered terminal', category: 'development', defaultLayout: { w: 12, h: 3 } },
+  'PerformanceMonitorWidget': { name: 'Performance Monitor', description: 'System metrics', category: 'monitoring', defaultLayout: { w: 6, h: 2 } },
+  'PersonaCoordinatorWidget': { name: 'Persona Coordinator', description: 'Manage AI personas', category: 'agents', defaultLayout: { w: 6, h: 2 } },
+  'PersonalAgentWidget': { name: 'Personal Agent', description: 'Your personal AI', category: 'agents', defaultLayout: { w: 4, h: 2 } },
+  'Phase1CFastTrackKanbanWidget': { name: 'Fast Track Kanban', description: 'Project management', category: 'productivity', defaultLayout: { w: 12, h: 3 } },
+  'ProcurementIntelligenceWidget': { name: 'Procurement Intelligence', description: 'Procurement insights', category: 'analytics', defaultLayout: { w: 6, h: 2 } },
+  'PromptLibraryWidget': { name: 'Prompt Library', description: 'Manage AI prompts', category: 'ai', defaultLayout: { w: 6, h: 3 } },
+  'SearchInterfaceWidget': { name: 'Search Interface', description: 'Advanced search', category: 'productivity', defaultLayout: { w: 8, h: 2 } },
+  'SragGovernanceWidget': { name: 'SRAG Governance', description: 'Compliance monitoring', category: 'compliance', defaultLayout: { w: 6, h: 2 } },
+  'StatusWidget': { name: 'Status', description: 'System status', category: 'monitoring', defaultLayout: { w: 4, h: 1 } },
+  'SystemMonitorWidget': { name: 'System Monitor', description: 'System monitoring', category: 'monitoring', defaultLayout: { w: 6, h: 2 } },
+  'SystemSettingsWidget': { name: 'System Settings', description: 'Configure settings', category: 'settings', defaultLayout: { w: 6, h: 3 } },
+  'VideoAnalyzerWidget': { name: 'Video Analyzer', description: 'AI video analysis', category: 'media', defaultLayout: { w: 8, h: 3 } },
+  'WidgetImporterWidget': { name: 'Widget Importer', description: 'Import widgets', category: 'system', defaultLayout: { w: 6, h: 2 } },
+};
 
 export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [entries, setEntries] = useState<Map<string, WidgetRegistryEntry>>(new Map());
   const versionHistoryRef = useRef<Map<string, WidgetVersion[]>>(new Map());
 
-  // Auto-discover widget modules from widgets folder (relative to this file in contexts/)
-  const widgetModules = import.meta.glob('/widgets/**/*.tsx');
-  const widgetModulesAlt = import.meta.glob('../widgets/**/*.tsx');
-  const widgetModulesRoot = import.meta.glob('./widgets/**/*.tsx');
-
   useEffect(() => {
-    // Debug: Log all glob results
-    console.log('[WidgetRegistry] Glob /widgets/**/*.tsx:', Object.keys(widgetModules));
-    console.log('[WidgetRegistry] Glob ../widgets/**/*.tsx:', Object.keys(widgetModulesAlt));
-    console.log('[WidgetRegistry] Glob ./widgets/**/*.tsx:', Object.keys(widgetModulesRoot));
+    // Register all widgets with direct imports
+    const now = new Date();
+    const initialEntries = new Map<string, WidgetRegistryEntry>();
 
-    // Combine all found modules
-    const allModules = { ...widgetModules, ...widgetModulesAlt, ...widgetModulesRoot };
-    console.log('[WidgetRegistry] All modules:', Object.keys(allModules));
+    Object.entries(WIDGET_COMPONENTS).forEach(([id, LazyComponent]) => {
+      const meta = WIDGET_METADATA[id] || {
+        name: id,
+        description: '',
+        category: 'misc',
+        defaultLayout: { w: 6, h: 2 }
+      };
 
-    // 1. Register Built-in Widgets from WIDGET_REGISTRY
-    Object.values(WIDGET_REGISTRY).forEach((def: any) => {
-      // Try multiple path formats
-      const pathVariants = [
-        def.path.replace('./', '../') + '.tsx',           // ../widgets/Name.tsx
-        def.path.replace('./', '/') + '.tsx',             // /widgets/Name.tsx
-        def.path + '.tsx',                                 // ./widgets/Name.tsx
-      ];
-
-      let importer = null;
-      let matchedPath = '';
-      for (const path of pathVariants) {
-        if (allModules[path]) {
-          importer = allModules[path];
-          matchedPath = path;
-          break;
-        }
-      }
-
-      // Debug: Log path matching
-      if (!importer) {
-        console.log(`[WidgetRegistry] No match for ${def.id}: tried`, pathVariants);
-      } else {
-        console.log(`[WidgetRegistry] Matched ${def.id} at ${matchedPath}`);
-      }
-
-      if (importer) {
-        const LazyComponent = React.lazy(importer as any);
-        // Register without triggering a re-render loop (using the internal setEntries directly would be better but registerWidget is wrapped in useCallback)
-        // We'll use a direct map update pattern in a separate effect or just call registerWidget
-
-        // Construct the full definition
-        const fullDef: WidgetDefinition = {
-          id: def.id,
-          name: def.name,
-          description: def.description,
-          category: def.category,
-          component: LazyComponent,
-          defaultLayout: def.defaultSize,
-          source: 'builtin',
-          // Add other props if needed
-        };
-
-        // We can't call registerWidget here easily because it might depend on state. 
-        // But registerWidget updates state. 
-        // Let's just update the initial state or do it once.
-
-        setEntries(prev => {
-          const updated = new Map(prev);
-          if (!updated.has(def.id)) {
-            const now = new Date();
-            updated.set(def.id, {
-              ...fullDef,
-              version: parseVersion('1.0.0'),
-              enabled: true,
-              registeredAt: now,
-              updatedAt: now,
-              source: 'builtin'
-            });
-          }
-          return updated;
-        });
-      } else {
-        console.warn(`Widget module not found for ${def.id} at ${modulePath}`);
-      }
+      initialEntries.set(id, {
+        id,
+        name: meta.name,
+        description: meta.description,
+        category: meta.category,
+        component: LazyComponent,
+        defaultLayout: meta.defaultLayout,
+        source: 'builtin',
+        version: parseVersion('1.0.0'),
+        enabled: true,
+        registeredAt: now,
+        updatedAt: now,
+      });
     });
 
-    // 2. Load custom widgets from localStorage
+    console.log(`[WidgetRegistry] Registered ${initialEntries.size} widgets`);
+    setEntries(initialEntries);
+
+    // Load custom widgets from localStorage
     try {
       const savedWidgetsJSON = localStorage.getItem(CUSTOM_WIDGETS_STORAGE_KEY);
       if (savedWidgetsJSON) {
         const customWidgets: WidgetDefinition[] = JSON.parse(savedWidgetsJSON);
-
         setEntries(prev => {
           const updated = new Map<string, WidgetRegistryEntry>(prev);
           customWidgets.forEach(widgetDef => {
-            // Re-hydrate the widget with its component and register it
-            const entry: WidgetRegistryEntry = { ...widgetDef, component: GenericDataWidget, enabled: true, registeredAt: new Date(), updatedAt: new Date(), version: parseVersion('1.0.0') };
+            const entry: WidgetRegistryEntry = {
+              ...widgetDef,
+              component: GenericDataWidget,
+              enabled: true,
+              registeredAt: new Date(),
+              updatedAt: new Date(),
+              version: parseVersion('1.0.0')
+            };
             updated.set(widgetDef.id, entry);
           });
           return updated;
@@ -206,7 +225,6 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
       const existing = updated.get(widget.id);
 
       if (existing) {
-        // Track version history
         const history = versionHistoryRef.current.get(widget.id) || [];
         history.push(existing.version);
         versionHistoryRef.current.set(widget.id, history);
@@ -216,12 +234,11 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
       return updated;
     });
 
-    // Persist dynamic widgets to localStorage
     if (source === 'dynamic') {
       setEntries(currentEntries => {
         const dynamicWidgets = Array.from(currentEntries.values())
           .filter(w => w.source === 'dynamic')
-          .map(({ component, ...rest }) => rest); // Strip non-serializable component
+          .map(({ component, ...rest }) => rest);
 
         localStorage.setItem(CUSTOM_WIDGETS_STORAGE_KEY, JSON.stringify(dynamicWidgets));
         return currentEntries;
@@ -276,7 +293,6 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
     const results: WidgetRegistryEntry[] = [];
 
     for (const entry of entries.values()) {
-      // Check if widget supports this capability through metadata
       if (entry.id.toLowerCase().includes(capability.toLowerCase())) {
         results.push(entry);
       }
@@ -295,7 +311,6 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
     const current = entries.get(widgetId);
     if (!current) return;
 
-    // For now, just update the version - full rollback would need version snapshots
     setEntries(prev => {
       const updated = new Map(prev);
       updated.set(widgetId, { ...current, version, updatedAt: new Date() });
@@ -308,7 +323,7 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
       const updated = new Map<string, WidgetRegistryEntry>(prev);
       const entry = updated.get(widgetId);
       if (entry) {
-        entry.metrics = { ...entry.metrics, ...metrics, lastUpdated: new Date() };
+        entry.metrics = { ...entry.metrics, ...metrics, lastUpdated: new Date() } as WidgetPerformanceMetrics;
       }
       return updated;
     });
