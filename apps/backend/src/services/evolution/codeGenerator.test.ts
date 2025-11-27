@@ -1,27 +1,29 @@
-// TODO: Fix mocking of GoogleGenerativeAI
-/*
-import { describe, it, expect, vi } from 'vitest';
-import { generateCode, refineCode } from './codeGenerator';
-// import { genAI } from '@google/generative-ai';  // Mock
+/**
+ * Code Generator Tests
+ * Tests for AI-powered code generation
+ * Note: Requires mocking of GoogleGenerativeAI for full tests
+ */
 
-// vi.mock('@google/generative-ai');
+import { describe, test, expect } from 'vitest';
 
 describe('CodeGenerator', () => {
-  it('generates valid TS code', async () => {
-    // vi.mocked(genAI.getGenerativeModel).mockReturnValue({
-    //   generateContent: vi.fn().mockResolvedValue({
-    //     response: { text: () => 'export function aulaPoller() { /* code * / }' }
-    //   })
-    // });
-    // const code = await generateCode('test spec', 'test plan');
-    // expect(code).toContain('export');
-    // expect(code).not.toContain('error');
-  });
+    test('module should be importable', async () => {
+        // Test that the module can be imported without errors
+        const module = await import('./codeGenerator');
+        expect(module).toBeDefined();
+        expect(typeof module.generateCode).toBe('function');
+    });
 
-  it('refines code on error', async () => {
-    // Test refineCode
-    // const refined = await refineCode('bad code', 'Syntax error');
-    // expect(refined).toContain('export');  // Placeholder assert
-  });
+    test('placeholder for generateCode tests', () => {
+        // TODO: Add proper mocking of GoogleGenerativeAI
+        // For now, just verify the test setup works
+        expect(true).toBe(true);
+    });
+
+    test('placeholder for refineCode tests', () => {
+        // TODO: Add proper mocking of GoogleGenerativeAI
+        expect(true).toBe(true);
+    });
 });
-*/
+
+export { };
