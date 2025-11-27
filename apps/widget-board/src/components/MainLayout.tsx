@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft } from 'lucide-react';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap } from 'lucide-react';
 import { ClausLogo } from './ClausLogo';
 import { WordView } from './apps/WordView';
 import { OutlookView } from './apps/OutlookView';
 import { CalendarView } from './apps/CalendarView';
-import { useMCP } from '../hooks/useMCP';
+import { LLM_MODELS, type LLMModel } from '../utils/llm-models';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -55,8 +55,27 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const [conversationStyle, setConversationStyle] = useState('balanced');
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+    const [selectedModel, setSelectedModel] = useState<string>(() => {
+        return localStorage.getItem('selected_model') || 'deepseek-chat';
+    });
+    const [enabledProviders, setEnabledProviders] = useState<string[]>(() => {
+        const saved = localStorage.getItem('enabled_providers');
+        return saved ? JSON.parse(saved) : ['openai', 'anthropic', 'google', 'deepseek'];
+    });
+    const [attachments, setAttachments] = useState<File[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const { send } = useMCP();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const imageInputRef = useRef<HTMLInputElement>(null);
+
+    // Save settings to localStorage
+    useEffect(() => {
+        localStorage.setItem('selected_model', selectedModel);
+    }, [selectedModel]);
+
+    useEffect(() => {
+        localStorage.setItem('enabled_providers', JSON.stringify(enabledProviders));
+    }, [enabledProviders]);
 
     // Auto-collapse sidebar on mobile
     useEffect(() => {
@@ -92,39 +111,60 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     }, [messages]);
 
     const handleSendMessage = async () => {
-        if (!chatInput.trim()) return;
+        if (!chatInput.trim() && attachments.length === 0) return;
 
         const userMsg: ChatMessage = {
             id: crypto.randomUUID(),
             role: 'user',
-            content: chatInput,
+            content: chatInput + (attachments.length > 0 ? `\n\n📎 ${attachments.map(f => f.name).join(', ')}` : ''),
             timestamp: new Date()
         };
 
         setMessages(prev => [...prev, userMsg]);
         setChatInput('');
+        setAttachments([]);
         setIsProcessing(true);
 
         try {
-            const response = await send('agent-orchestrator', 'srag.query', {
-                query: chatInput,
-                style: conversationStyle
+            const model = LLM_MODELS.find(m => m.id === selectedModel);
+            
+            const response = await fetch('/api/mcp/route', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: crypto.randomUUID(),
+                    sourceId: 'widget-chat',
+                    targetId: 'agent-orchestrator',
+                    tool: 'srag.query',
+                    payload: { query: chatInput, style: conversationStyle, model: selectedModel, provider: model?.provider },
+                    createdAt: new Date().toISOString()
+                })
             });
 
-            const botMsg: ChatMessage = {
-                id: crypto.randomUUID(),
-                role: 'assistant',
-                content: response.result?.answer || response.result || "Jeg kunne ikke finde et svar lige nu.",
-                timestamp: new Date()
-            };
-
-            setMessages(prev => [...prev, botMsg]);
+            if (response.ok) {
+                const data = await response.json();
+                const botMsg: ChatMessage = {
+                    id: crypto.randomUUID(),
+                    role: 'assistant',
+                    content: data.result?.answer || data.result || JSON.stringify(data),
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, botMsg]);
+            } else {
+                const botMsg: ChatMessage = {
+                    id: crypto.randomUUID(),
+                    role: 'assistant',
+                    content: `🤖 **DOT AI (${model?.name || selectedModel})**\n\nJeg modtog din besked: "${chatInput}"\n\nBackend forbindelse fejlede. Tjek at MCP serveren kører på port 3001.`,
+                    timestamp: new Date()
+                };
+                setMessages(prev => [...prev, botMsg]);
+            }
         } catch (error) {
             console.error("Chat error:", error);
             const errorMsg: ChatMessage = {
                 id: crypto.randomUUID(),
                 role: 'assistant',
-                content: "Beklager, der opstod en fejl i forbindelsen til DOT AI.",
+                content: "⚠️ Forbindelse til backend fejlede. Tjek at serveren kører:\n\n```bash\nnpm run dev\n```",
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMsg]);
@@ -147,6 +187,24 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         }
     };
 
+    const handleFileAttach = () => fileInputRef.current?.click();
+    const handleImageAttach = () => imageInputRef.current?.click();
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || []);
+        setAttachments(prev => [...prev, ...files]);
+    };
+    const toggleProvider = (provider: string) => {
+        setEnabledProviders(prev => prev.includes(provider) ? prev.filter(p => p !== provider) : [...prev, provider]);
+    };
+    const modelsByProvider = LLM_MODELS.reduce((acc, model) => {
+        if (!acc[model.provider]) acc[model.provider] = [];
+        acc[model.provider].push(model);
+        return acc;
+    }, {} as Record<string, LLMModel[]>);
+    const getProviderIcon = (provider: string) => {
+        switch (provider) { case 'openai': return '🟢'; case 'anthropic': return '🟠'; case 'google': return '🔵'; case 'deepseek': return '🟣'; default: return '⚪'; }
+    };
+
     // Determine sidebar width based on state and device
     const getSidebarWidth = () => {
         if (isMobile) return '280px';
@@ -158,6 +216,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
 
     return (
         <div className="h-screen h-[100dvh] w-full overflow-hidden flex font-sans bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
+            {/* Hidden file inputs */}
+            <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} multiple />
+            <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} multiple />
+
             {/* Advanced Background Mesh Gradient */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] bg-[#0B3E6F]/40 rounded-full blur-[120px] opacity-50 mix-blend-screen animate-pulse-slow" />
@@ -252,7 +314,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
 
                 {/* User Profile */}
                 <div className="p-3 md:p-4 border-t border-white/5 bg-black/10 backdrop-blur-md shrink-0">
-                    <button className="w-full flex items-center gap-2 md:gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group touch-target">
+                    <button onClick={() => setShowSettings(true)} className="w-full flex items-center gap-2 md:gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group touch-target">
                         <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center text-xs font-bold shadow-md group-hover:ring-2 ring-[#00B5CB]/50 transition-all shrink-0">
                             CK
                         </div>
@@ -281,7 +343,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-3">
-                        {headerActions}
+                        {activeTab === 'apps' && headerActions}
+                        <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Indstillinger">
+                            <Settings size={20} />
+                        </button>
                     </div>
                 </header>
 
@@ -289,6 +354,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                 <div className="flex-1 overflow-hidden relative flex flex-col">
                     {activeTab === 'chat' && (
                         <div className="flex-1 flex flex-col h-full relative">
+                            {/* Model indicator */}
+                            <div className="absolute top-2 right-4 z-10">
+                                <button onClick={() => setShowSettings(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
+                                    <span>{getProviderIcon(LLM_MODELS.find(m => m.id === selectedModel)?.provider || 'openai')}</span>
+                                    <span>{LLM_MODELS.find(m => m.id === selectedModel)?.name || selectedModel}</span>
+                                </button>
+                            </div>
+
                             {/* Chat History */}
                             <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 md:space-y-6 scrollbar-hide">
                                 {messages.length === 0 ? (
@@ -370,6 +443,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         </div>
                                     </div>
 
+                                    {/* Attachments Preview */}
+                                    {attachments.length > 0 && (
+                                        <div className="mb-2 flex flex-wrap gap-2">
+                                            {attachments.map((file, i) => (
+                                                <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-xs">
+                                                    <Paperclip size={12} />
+                                                    <span className="truncate max-w-[150px]">{file.name}</span>
+                                                    <button onClick={() => setAttachments(prev => prev.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-400">
+                                                        <X size={12} />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
                                     <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
                                         <textarea
                                             value={chatInput}
@@ -381,11 +469,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         />
                                         <div className="flex items-center justify-between px-3 md:px-5 pb-3 md:pb-5">
                                             <div className="flex gap-1 md:gap-2">
-                                                <button className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft">
-                                                    <Plus size={isMobile ? 18 : 20} />
+                                                <button onClick={handleFileAttach} className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
+                                                    <Paperclip size={isMobile ? 18 : 20} />
                                                 </button>
-                                                <button className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target hidden sm:flex" title="Billeder">
-                                                    <LayoutGrid size={isMobile ? 18 : 20} />
+                                                <button onClick={handleImageAttach} className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target hidden sm:flex" title="Vedhæft billede">
+                                                    <Image size={isMobile ? 18 : 20} />
                                                 </button>
                                             </div>
                                             <div className="flex gap-2 md:gap-3">
@@ -394,10 +482,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                                 </button>
                                                 <button
                                                     onClick={handleSendMessage}
-                                                    disabled={!chatInput.trim() || isProcessing}
-                                                    className={`p-2 md:p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${chatInput.trim() ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
+                                                    disabled={(!chatInput.trim() && attachments.length === 0) || isProcessing}
+                                                    className={`p-2 md:p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${(chatInput.trim() || attachments.length > 0) ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
                                                 >
-                                                    <Send size={isMobile ? 18 : 20} className={chatInput.trim() ? 'ml-0.5' : ''} />
+                                                    <Send size={isMobile ? 18 : 20} className={(chatInput.trim() || attachments.length > 0) ? 'ml-0.5' : ''} />
                                                 </button>
                                             </div>
                                         </div>
@@ -466,6 +554,99 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                     )}
                 </div>
             </main>
+
+            {/* Settings Modal */}
+            {showSettings && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowSettings(false)}>
+                    <div className="bg-[#0B3E6F] border border-white/20 rounded-2xl w-[500px] max-w-[95vw] max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between p-5 border-b border-white/10">
+                            <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                                <Settings size={20} className="text-[#00B5CB]" />
+                                Indstillinger
+                            </h3>
+                            <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <div className="p-5 overflow-y-auto max-h-[calc(85vh-120px)]">
+                            <div className="mb-6">
+                                <h4 className="text-sm font-medium text-white mb-3">AI Model</h4>
+                                <p className="text-xs text-gray-400 mb-4">Vælg hvilken AI model der skal bruges til chat.</p>
+                                
+                                <div className="space-y-3">
+                                    {Object.entries(modelsByProvider).map(([provider, models]) => (
+                                        <div key={provider} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                                            <div className="flex items-center justify-between px-4 py-2 bg-white/5">
+                                                <div className="flex items-center gap-2">
+                                                    <span>{getProviderIcon(provider)}</span>
+                                                    <span className="text-sm font-medium text-white capitalize">{provider}</span>
+                                                </div>
+                                                <button
+                                                    onClick={() => toggleProvider(provider)}
+                                                    className={`w-10 h-5 rounded-full transition-colors ${enabledProviders.includes(provider) ? 'bg-[#00B5CB]' : 'bg-gray-600'}`}
+                                                >
+                                                    <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${enabledProviders.includes(provider) ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                                                </button>
+                                            </div>
+                                            
+                                            {enabledProviders.includes(provider) && (
+                                                <div className="p-2 space-y-1">
+                                                    {models.map(model => (
+                                                        <button
+                                                            key={model.id}
+                                                            onClick={() => setSelectedModel(model.id)}
+                                                            className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${selectedModel === model.id ? 'bg-[#00B5CB]/20 border border-[#00B5CB]/50' : 'hover:bg-white/5 border border-transparent'}`}
+                                                        >
+                                                            <div className="text-left">
+                                                                <p className="text-sm font-medium text-white">{model.name}</p>
+                                                                <p className="text-[10px] text-gray-400">{model.description}</p>
+                                                                <div className="flex gap-2 mt-1">
+                                                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">{(model.contextWindow / 1000).toFixed(0)}K context</span>
+                                                                    {model.pricing && (
+                                                                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">
+                                                                            ${model.pricing.input}/${model.pricing.output} per 1M
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            {selectedModel === model.id && <Check size={18} className="text-[#00B5CB]" />}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                                <div className="flex items-start gap-3">
+                                    <Zap size={18} className="text-yellow-400 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-sm font-medium text-yellow-200">API Nøgler</p>
+                                        <p className="text-xs text-yellow-200/70 mt-1">
+                                            Konfigurer API nøgler i <code className="px-1 py-0.5 bg-black/20 rounded">.env</code>:
+                                        </p>
+                                        <pre className="text-[10px] mt-2 p-2 bg-black/20 rounded text-gray-300 overflow-x-auto">
+{`OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_API_KEY=AIza...
+DEEPSEEK_API_KEY=sk-...`}
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-white/10 flex justify-end">
+                            <button onClick={() => setShowSettings(false)} className="px-4 py-2 bg-[#00B5CB] hover:bg-[#009eb3] rounded-lg text-sm font-medium text-[#051e3c]">
+                                Gem & Luk
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
