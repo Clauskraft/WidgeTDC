@@ -52,11 +52,7 @@ export default defineConfig(({ mode }) => {
         '@styles': path.resolve(__dirname, './src/styles'),
       },
     },
-    css: {
-      postcss: {
-        plugins: [],
-      },
-    },
+    // Let postcss.config.js handle PostCSS plugins (including Tailwind)
     optimizeDeps: {
       include: ['react', 'react-dom', 'react-grid-layout', 'framer-motion'],
     },
