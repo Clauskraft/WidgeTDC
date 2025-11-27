@@ -57,10 +57,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState<string>(() => {
-        return localStorage.getItem('selected_provider') || 'ollama';
+        return localStorage.getItem('selected_provider') || 'deepseek';
     });
     const [selectedModel, setSelectedModel] = useState<string>(() => {
-        return localStorage.getItem('selected_model') || 'llama3.2';
+        return localStorage.getItem('selected_model') || 'deepseek-chat';
     });
     const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
         const saved = localStorage.getItem('api_keys');

@@ -13,7 +13,7 @@ export interface ChatMessage {
 export interface ChatProvider {
     id: string;
     name: string;
-    type: 'ollama' | 'openai-compatible' | 'anthropic' | 'deepseek';
+    type: 'ollama' | 'openai-compatible' | 'anthropic' | 'deepseek' | 'google' | 'groq';
     baseUrl: string;
     requiresApiKey: boolean;
     models: ChatModel[];
@@ -27,6 +27,7 @@ export interface ChatModel {
     contextWindow: number;
     isLocal: boolean;
     isOpenSource: boolean;
+    isReasoning?: boolean;
 }
 
 export interface ChatRequest {
@@ -49,66 +50,59 @@ export interface ChatResponse {
 
 export const CHAT_PROVIDERS: ChatProvider[] = [
     {
-        id: 'ollama',
-        name: 'Ollama (Lokal)',
-        type: 'ollama',
-        baseUrl: 'http://localhost:11434',
-        requiresApiKey: false,
-        models: [
-            { id: 'llama3.2', name: 'Llama 3.2 (8B)', providerId: 'ollama', description: 'Metas nyeste open source model', contextWindow: 128000, isLocal: true, isOpenSource: true },
-            { id: 'llama3.1', name: 'Llama 3.1 (8B)', providerId: 'ollama', description: 'Kraftfuld open source model', contextWindow: 128000, isLocal: true, isOpenSource: true },
-            { id: 'mistral', name: 'Mistral 7B', providerId: 'ollama', description: 'Effektiv fransk open source model', contextWindow: 32000, isLocal: true, isOpenSource: true },
-            { id: 'mixtral', name: 'Mixtral 8x7B', providerId: 'ollama', description: 'Mixture of Experts model', contextWindow: 32000, isLocal: true, isOpenSource: true },
-            { id: 'codellama', name: 'Code Llama', providerId: 'ollama', description: 'Specialiseret til kode', contextWindow: 16000, isLocal: true, isOpenSource: true },
-            { id: 'deepseek-coder-v2', name: 'DeepSeek Coder V2', providerId: 'ollama', description: 'Kinesisk open source coder', contextWindow: 128000, isLocal: true, isOpenSource: true },
-            { id: 'qwen2.5', name: 'Qwen 2.5 (7B)', providerId: 'ollama', description: 'Alibabas open source model', contextWindow: 128000, isLocal: true, isOpenSource: true },
-            { id: 'gemma2', name: 'Gemma 2 (9B)', providerId: 'ollama', description: 'Googles open source model', contextWindow: 8000, isLocal: true, isOpenSource: true },
-            { id: 'phi3', name: 'Phi-3 (3.8B)', providerId: 'ollama', description: 'Microsofts lille men kraftfulde model', contextWindow: 128000, isLocal: true, isOpenSource: true },
-        ]
-    },
-    {
-        id: 'lmstudio',
-        name: 'LM Studio (Lokal)',
-        type: 'openai-compatible',
-        baseUrl: 'http://localhost:1234/v1',
-        requiresApiKey: false,
-        models: [
-            { id: 'local-model', name: 'Lokal Model', providerId: 'lmstudio', description: 'Model fra LM Studio', contextWindow: 4096, isLocal: true, isOpenSource: true },
-        ]
-    },
-    {
-        id: 'localai',
-        name: 'LocalAI',
-        type: 'openai-compatible',
-        baseUrl: 'http://localhost:8080/v1',
-        requiresApiKey: false,
-        models: [
-            { id: 'gpt4all-j', name: 'GPT4All-J', providerId: 'localai', description: 'Open source GPT4All', contextWindow: 2048, isLocal: true, isOpenSource: true },
-        ]
-    },
-    {
         id: 'deepseek',
-        name: 'DeepSeek',
+        name: 'DeepSeek (Primær)',
         type: 'deepseek',
         baseUrl: 'https://api.deepseek.com',
         requiresApiKey: true,
         models: [
-            { id: 'deepseek-chat', name: 'DeepSeek Chat', providerId: 'deepseek', description: 'Kinesisk LLM, meget billig', contextWindow: 64000, isLocal: false, isOpenSource: false },
-            { id: 'deepseek-coder', name: 'DeepSeek Coder', providerId: 'deepseek', description: 'Specialiseret til kode', contextWindow: 64000, isLocal: false, isOpenSource: false },
+            { id: 'deepseek-chat', name: 'DeepSeek Chat (V3)', providerId: 'deepseek', description: '🏆 Kodning, debugging, teknisk', contextWindow: 64000, isLocal: false, isOpenSource: false },
+            { id: 'deepseek-reasoner', name: 'DeepSeek Reasoner (R1)', providerId: 'deepseek', description: 'Kompleks analyse, arkitektur', contextWindow: 64000, isLocal: false, isOpenSource: false, isReasoning: true },
         ]
     },
     {
-        id: 'openrouter',
-        name: 'OpenRouter (Multi-model)',
-        type: 'openai-compatible',
-        baseUrl: 'https://openrouter.ai/api/v1',
+        id: 'groq',
+        name: 'Groq (Hurtig)',
+        type: 'groq',
+        baseUrl: 'https://api.groq.com/openai/v1',
         requiresApiKey: true,
         models: [
-            { id: 'meta-llama/llama-3.2-3b-instruct:free', name: 'Llama 3.2 3B (Gratis)', providerId: 'openrouter', description: 'Gratis open source model', contextWindow: 128000, isLocal: false, isOpenSource: true },
-            { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B (Gratis)', providerId: 'openrouter', description: 'Gratis Mistral model', contextWindow: 32000, isLocal: false, isOpenSource: true },
-            { id: 'google/gemma-2-9b-it:free', name: 'Gemma 2 9B (Gratis)', providerId: 'openrouter', description: 'Gratis Google model', contextWindow: 8000, isLocal: false, isOpenSource: true },
+            { id: 'llama-3.3-70b-versatile', name: 'Llama 3.3 70B', providerId: 'groq', description: 'Quick spørgsmål, hurtig feedback', contextWindow: 128000, isLocal: false, isOpenSource: true },
         ]
     },
+    {
+        id: 'google',
+        name: 'Google Gemini',
+        type: 'google',
+        baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
+        requiresApiKey: true,
+        models: [
+            { id: 'gemini-3-pro', name: 'Gemini 3 Pro', providerId: 'google', description: 'Google integration, multimodal', contextWindow: 1000000, isLocal: false, isOpenSource: false },
+        ]
+    },
+    {
+        id: 'ollama',
+        name: 'Ollama (Backup/Offline)',
+        type: 'ollama',
+        baseUrl: 'http://localhost:11434',
+        requiresApiKey: false,
+        models: [
+            { id: 'qwen2.5:3b', name: 'Qwen 2.5 (3B)', providerId: 'ollama', description: 'Nødsituation, fly/tog', contextWindow: 32000, isLocal: true, isOpenSource: true },
+            // Beholder andre almindelige modeller som fallback hvis brugeren har dem
+            { id: 'llama3.2', name: 'Llama 3.2 (8B)', providerId: 'ollama', description: 'Alternativ lokal model', contextWindow: 128000, isLocal: true, isOpenSource: true },
+            { id: 'mistral', name: 'Mistral 7B', providerId: 'ollama', description: 'Alternativ lokal model', contextWindow: 32000, isLocal: true, isOpenSource: true },
+        ]
+    },
+    {
+        id: 'nexa',
+        name: 'Nexa NPU (Eksperimentelt)',
+        type: 'openai-compatible',
+        baseUrl: 'http://localhost:8080/v1', // Placeholder for local NPU server
+        requiresApiKey: false,
+        models: [
+            { id: 'nexa-npu', name: 'NPU Accelerated', providerId: 'nexa', description: '⏳ Afventer NPU-modenhed (6-12 mdr)', contextWindow: 4096, isLocal: true, isOpenSource: true },
+        ]
+    }
 ];
 
 // ============================================
@@ -147,7 +141,7 @@ async function chatWithOllama(
 }
 
 /**
- * Send chat til OpenAI-kompatibel endpoint (LM Studio, LocalAI, OpenRouter, etc.)
+ * Send chat til OpenAI-kompatibel endpoint (Groq, LM Studio, etc.)
  */
 async function chatWithOpenAICompatible(
     baseUrl: string,
@@ -221,45 +215,42 @@ async function chatWithDeepSeek(
 }
 
 /**
- * Send chat til Anthropic (Claude)
+ * Send chat til Google Gemini (via REST API)
  */
-async function chatWithAnthropic(
+async function chatWithGoogle(
     model: string,
     messages: ChatMessage[],
     apiKey: string
 ): Promise<ChatResponse> {
-    // Konverter messages til Anthropic format
-    const anthropicMessages = messages
-        .filter(m => m.role !== 'system')
-        .map(m => ({ role: m.role, content: m.content }));
-    
-    const systemMessage = messages.find(m => m.role === 'system')?.content;
+    // Konverter messages til Gemini format
+    const contents = messages.map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }]
+    }));
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-api-key': apiKey,
-            'anthropic-version': '2023-06-01',
         },
         body: JSON.stringify({
-            model,
-            max_tokens: 4096,
-            messages: anthropicMessages,
-            ...(systemMessage && { system: systemMessage }),
+            contents,
+            generationConfig: {
+                maxOutputTokens: 4096,
+            }
         }),
     });
 
     if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Anthropic fejl: ${response.status} - ${errorText}`);
+        throw new Error(`Google fejl: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
     return {
-        content: data.content?.[0]?.text || '',
-        model: data.model,
-        finishReason: data.stop_reason,
+        content: data.candidates?.[0]?.content?.parts?.[0]?.text || '',
+        model: model,
+        finishReason: data.candidates?.[0]?.finishReason,
     };
 }
 
@@ -286,6 +277,7 @@ export async function sendChat(
         throw new Error(`Ukendt provider: ${config.providerId}`);
     }
 
+    // Check API key for non-local providers
     if (provider.requiresApiKey && !config.apiKey) {
         throw new Error(`${provider.name} kræver en API nøgle`);
     }
@@ -295,13 +287,14 @@ export async function sendChat(
             return chatWithOllama(provider.baseUrl, config.modelId, messages);
         
         case 'openai-compatible':
+        case 'groq':
             return chatWithOpenAICompatible(provider.baseUrl, config.modelId, messages, config.apiKey);
         
         case 'deepseek':
             return chatWithDeepSeek(config.modelId, messages, config.apiKey!);
         
-        case 'anthropic':
-            return chatWithAnthropic(config.modelId, messages, config.apiKey!);
+        case 'google':
+            return chatWithGoogle(config.modelId, messages, config.apiKey!);
         
         default:
             throw new Error(`Ukendt provider type: ${provider.type}`);
@@ -348,4 +341,3 @@ export function getModelInfo(modelId: string): { provider: ChatProvider; model: 
     }
     return null;
 }
-
