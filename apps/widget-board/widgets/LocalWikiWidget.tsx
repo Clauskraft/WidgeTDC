@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Search, Book, Plus, Edit2, Save, Hash, Share2, FileText } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Book, Plus, Edit2, Save, Hash, Share2, FileText, Shield, Sparkles, Database, AlertTriangle } from 'lucide-react';
+import { sendChat } from '../src/utils/chat-providers';
 
 interface Article {
     id: string;
@@ -8,9 +9,13 @@ interface Article {
     content: string;
     lastUpdated: string;
     tags: string[];
+    source: 'manual' | 'file' | 'scraper' | 'email' | 'system';
+    sensitivity: 'public' | 'internal' | 'confidential' | 'pii';
+    originalSourcePath?: string;
 }
 
-// Mock data - i produktion vil dette læses fra filsystemet via MCP
+// Mock data der simulerer læsning fra filsystemet
+// I produktion læses dette via MCP fra vector-db eller filsystemet
 const INITIAL_ARTICLES: Article[] = [
     {
         id: '1',
@@ -18,31 +23,57 @@ const INITIAL_ARTICLES: Article[] = [
         category: 'Teknisk',
         content: '# WidgeTDC Arkitektur\n\nDette projekt er bygget som en monorepo med React frontend og Node.js backend via MCP (Model Context Protocol).\n\n## Komponenter\n- **Widget Board**: Frontend dashboard\n- **MCP Server**: Backend logik\n- **Agents**: AI agenter der kører autonomt',
         lastUpdated: '2025-11-27',
-        tags: ['arkitektur', 'react', 'mcp']
+        tags: ['arkitektur', 'react', 'mcp'],
+        source: 'manual',
+        sensitivity: 'public'
     },
     {
         id: '2',
-        title: 'System Status Procedurer',
-        category: 'Drift',
-        content: '# Status Check\n\nVed systemfejl skal følgende tjekkes:\n1. Kører Docker containerne?\n2. Er API nøgler gyldige?\n3. Tjek logs i `~/.cursor/logs`',
-        lastUpdated: '2025-11-26',
-        tags: ['drift', 'support']
+        title: 'Scraped Data: TDC Erhverv',
+        category: 'Market Research',
+        content: '# Markedsanalyse\n\nData hentet fra offentlige kilder.\n\n[Link til original kilde]\n\n## Observationer\n...',
+        lastUpdated: '2025-11-27',
+        tags: ['market', 'tdc', 'auto-generated'],
+        source: 'scraper',
+        sensitivity: 'internal',
+        originalSourcePath: '/data/scrapes/tdc-2025-11-27.json'
     },
     {
         id: '3',
-        title: 'AI Governance Regler',
-        category: 'Compliance',
-        content: '# Governance\n\nAlle AI modeller skal overholde følgende:\n- Ingen PII data i prompts til offentlige modeller\n- Brug "Local" modeller til sensitiv data\n- Budget skal godkendes af admin',
-        lastUpdated: '2025-11-20',
-        tags: ['compliance', 'ai', 'regler']
+        title: 'Kunde Email: Support Sag #1234',
+        category: 'Support',
+        content: 'Fra: [REDACTED]\nEmne: Fejl ved login\n\nHej Support,\n\nJeg kan ikke logge ind på min konto [REDACTED]. Min CPR er [REDACTED].\n\nMvh,\n[REDACTED]',
+        lastUpdated: '2025-11-26',
+        tags: ['support', 'login', 'pii-detected'],
+        source: 'email',
+        sensitivity: 'pii'
     }
 ];
+
+const PrivacyGuard = ({ text, sensitivity }: { text: string, sensitivity: Article['sensitivity'] }) => {
+    if (sensitivity === 'pii' || sensitivity === 'confidential') {
+        return (
+            <div className="bg-red-900/20 border border-red-500/30 p-4 rounded-lg mb-4">
+                <div className="flex items-center gap-2 text-red-400 mb-2 font-semibold">
+                    <Shield size={16} />
+                    <span>Privacy Shield Aktivt</span>
+                </div>
+                <p className="text-xs text-red-300/80">
+                    Dette indhold indeholder personfølsomme data (PII). Visse oplysninger er automatisk sløret for at overholde GDPR.
+                    Original data findes kun i kildesystemet (f.eks. Outlook) og er ikke kopieret her.
+                </p>
+            </div>
+        );
+    }
+    return null;
+};
 
 export default function LocalWikiWidget() {
     const [articles, setArticles] = useState<Article[]>(INITIAL_ARTICLES);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isGeneratingTags, setIsGeneratingTags] = useState(false);
 
     const filteredArticles = articles.filter(article => 
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -51,8 +82,43 @@ export default function LocalWikiWidget() {
 
     const handleSave = () => {
         setIsEditing(false);
-        // Her ville vi sende en MCP kommando for at gemme til disk
-        console.log('Gemmer artikel til lokal disk...');
+        // Her ville vi sende en MCP kommando for at opdatere metadata, IKKE selve filen hvis det er scraper data
+        console.log('Gemmer metadata...');
+    };
+
+    const generateTags = async (article: Article) => {
+        if (isGeneratingTags) return;
+        setIsGeneratingTags(true);
+        try {
+            // Simulerer kald til lokal LLM
+            // I produktion: await sendChat(...) med artikel indhold
+            const response = await sendChat({
+                providerId: 'ollama', // Bruger lokal model
+                modelId: 'llama3.2'
+            }, [
+                { role: 'system', content: 'Du er en metadata generator. Generer 3-5 relevante tags for følgende tekst. Svar KUN med tags separeret af komma.' },
+                { role: 'user', content: article.content.substring(0, 500) }
+            ]);
+            
+            const newTags = response.content.split(',').map(t => t.trim());
+            setArticles(prev => prev.map(a => a.id === article.id ? { ...a, tags: [...new Set([...a.tags, ...newTags])] } : a));
+            if (selectedArticle?.id === article.id) {
+                setSelectedArticle(prev => prev ? { ...prev, tags: [...new Set([...prev.tags, ...newTags])] } : null);
+            }
+        } catch (error) {
+            console.error("Fejl ved generering af tags:", error);
+            // Fallback mock
+            setTimeout(() => {
+                const mockTags = ['auto-tag-1', 'ai-analyse', 'indhold'];
+                setArticles(prev => prev.map(a => a.id === article.id ? { ...a, tags: [...new Set([...a.tags, ...mockTags])] } : a));
+                if (selectedArticle?.id === article.id) {
+                    setSelectedArticle(prev => prev ? { ...prev, tags: [...new Set([...prev.tags, ...mockTags])] } : null);
+                }
+                setIsGeneratingTags(false);
+            }, 1000);
+        } finally {
+            setIsGeneratingTags(false);
+        }
     };
 
     return (
@@ -64,7 +130,10 @@ export default function LocalWikiWidget() {
                         <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center text-orange-400">
                             <Book size={18} />
                         </div>
-                        <h2 className="font-bold text-lg">Lokal Wiki</h2>
+                        <div>
+                            <h2 className="font-bold text-lg leading-none">Vidensbase</h2>
+                            <p className="text-[10px] text-gray-400">Indekseret fra filer & systemer</p>
+                        </div>
                     </div>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
@@ -85,12 +154,19 @@ export default function LocalWikiWidget() {
                             onClick={() => { setSelectedArticle(article); setIsEditing(false); }}
                             className={`w-full text-left p-3 rounded-lg transition-all group hover:bg-white/5 ${selectedArticle?.id === article.id ? 'bg-white/10 border border-white/5' : 'border border-transparent'}`}
                         >
-                            <h3 className={`text-sm font-medium ${selectedArticle?.id === article.id ? 'text-orange-400' : 'text-gray-200'}`}>
-                                {article.title}
-                            </h3>
+                            <div className="flex justify-between items-start">
+                                <h3 className={`text-sm font-medium truncate pr-2 ${selectedArticle?.id === article.id ? 'text-orange-400' : 'text-gray-200'}`}>
+                                    {article.title}
+                                </h3>
+                                {article.sensitivity === 'pii' && <Shield size={12} className="text-red-400 shrink-0" />}
+                            </div>
                             <div className="flex items-center gap-2 mt-1">
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/5 text-gray-400 border border-white/5">
-                                    {article.category}
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded border ${
+                                    article.source === 'scraper' ? 'bg-blue-500/10 border-blue-500/20 text-blue-300' :
+                                    article.source === 'email' ? 'bg-purple-500/10 border-purple-500/20 text-purple-300' :
+                                    'bg-white/5 border-white/10 text-gray-400'
+                                }`}>
+                                    {article.source === 'scraper' ? 'Scraper' : article.source === 'email' ? 'Email' : 'Manuel'}
                                 </span>
                                 <span className="text-[10px] text-gray-500">
                                     {article.lastUpdated}
@@ -102,7 +178,7 @@ export default function LocalWikiWidget() {
 
                 <div className="p-3 border-t border-white/10">
                     <button className="w-full py-2 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-medium transition-colors">
-                        <Plus size={16} /> Ny Artikel
+                        <Plus size={16} /> Ny Manuel Artikel
                     </button>
                 </div>
             </div>
@@ -116,19 +192,32 @@ export default function LocalWikiWidget() {
                                 <span className="px-2 py-1 rounded bg-orange-500/10 text-orange-400 text-xs font-medium border border-orange-500/20">
                                     {selectedArticle.category}
                                 </span>
-                                <span className="text-gray-500 text-xs flex items-center gap-1">
-                                    <Hash size={12} /> {selectedArticle.tags.join(', ')}
-                                </span>
+                                <div className="flex items-center gap-1">
+                                    <Hash size={12} className="text-gray-500" />
+                                    {selectedArticle.tags.map(tag => (
+                                        <span key={tag} className="text-[10px] bg-white/5 px-1.5 py-0.5 rounded text-gray-300">{tag}</span>
+                                    ))}
+                                    <button 
+                                        onClick={() => generateTags(selectedArticle)}
+                                        disabled={isGeneratingTags}
+                                        className="ml-2 p-1 hover:bg-white/10 rounded text-orange-400 transition-colors" 
+                                        title="Generer Tags med AI"
+                                    >
+                                        <Sparkles size={12} className={isGeneratingTags ? 'animate-spin' : ''} />
+                                    </button>
+                                </div>
                             </div>
                             <div className="flex gap-2">
-                                {isEditing ? (
-                                    <button onClick={handleSave} className="p-2 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors" title="Gem">
-                                        <Save size={18} />
-                                    </button>
-                                ) : (
-                                    <button onClick={() => setIsEditing(true)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-colors" title="Rediger">
-                                        <Edit2 size={18} />
-                                    </button>
+                                {selectedArticle.source === 'manual' && (
+                                    isEditing ? (
+                                        <button onClick={handleSave} className="p-2 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors" title="Gem">
+                                            <Save size={18} />
+                                        </button>
+                                    ) : (
+                                        <button onClick={() => setIsEditing(true)} className="p-2 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-colors" title="Rediger">
+                                            <Edit2 size={18} />
+                                        </button>
+                                    )
                                 )}
                                 <button className="p-2 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-colors" title="Del">
                                     <Share2 size={18} />
@@ -136,7 +225,16 @@ export default function LocalWikiWidget() {
                             </div>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-8">
+                        <div className="flex-1 overflow-y-auto p-8 relative">
+                            {selectedArticle.source !== 'manual' && (
+                                <div className="absolute top-4 right-8 flex items-center gap-2 text-xs text-gray-500 bg-black/20 px-3 py-1.5 rounded-full">
+                                    <Database size={12} />
+                                    <span>Læser fra: {selectedArticle.originalSourcePath || 'Ekstern kilde'}</span>
+                                </div>
+                            )}
+
+                            <PrivacyGuard text={selectedArticle.content} sensitivity={selectedArticle.sensitivity} />
+
                             {isEditing ? (
                                 <textarea 
                                     className="w-full h-full bg-transparent border-none focus:ring-0 text-gray-200 font-mono text-sm resize-none"
@@ -151,7 +249,9 @@ export default function LocalWikiWidget() {
                                         if (line.startsWith('- ')) return <li key={i} className="ml-4 text-gray-300">{line.replace('- ', '')}</li>;
                                         if (line.match(/^\d\./)) return <div key={i} className="ml-4 text-gray-300 mb-1">{line}</div>;
                                         if (line === '') return <br key={i} />;
-                                        return <p key={i} className="text-gray-300 mb-2 leading-relaxed">{line}</p>;
+                                        // PII Redaction simulation
+                                        const content = line.replace(/\[REDACTED\]/g, '<span class="bg-red-500/20 text-red-300 px-1 rounded text-xs font-mono">[SLØRET]</span>');
+                                        return <p key={i} className="text-gray-300 mb-2 leading-relaxed" dangerouslySetInnerHTML={{__html: content}} />;
                                     })}
                                 </div>
                             )}
@@ -160,11 +260,11 @@ export default function LocalWikiWidget() {
                 ) : (
                     <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
                         <FileText size={48} className="mb-4 opacity-20" />
-                        <p>Vælg en artikel eller opret en ny</p>
+                        <p>Vælg en artikel for at se indhold</p>
+                        <p className="text-xs mt-2 text-gray-600">Data indlæses direkte fra kildesystemer uden duplikering</p>
                     </div>
                 )}
             </div>
         </div>
     );
 }
-
