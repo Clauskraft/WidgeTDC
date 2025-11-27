@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { LayoutGrid, Settings, Trash2, Zap, Plus, X } from 'lucide-react';
-import { Responsive, WidthProvider } from 'react-grid-layout';
+import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout';
 import WidgetSelector from './components/WidgetSelector';
 import AgentPanel from './components/AgentPanel';
 import WidgetConfigModal from './components/WidgetConfigModal';
@@ -41,7 +41,7 @@ export default function WidgeTDCPro() {
     }, []);
 
     // Load widget layout from localStorage
-    const [layouts, setLayouts] = useState<ReactGridLayout.Layouts>(() => {
+    const [layouts, setLayouts] = useState<Layouts>(() => {
         const saved = localStorage.getItem('widgetLayouts');
         if (saved) {
             try {
@@ -81,7 +81,7 @@ export default function WidgeTDCPro() {
         const currentWidgetIds = new Set(widgets.map(w => w.id));
 
         setLayouts(prevLayouts => {
-            const newLayouts: ReactGridLayout.Layouts = {};
+            const newLayouts: Layouts = {};
 
             // For each breakpoint, update the layout
             Object.keys(BREAKPOINTS).forEach(breakpoint => {
@@ -120,7 +120,7 @@ export default function WidgeTDCPro() {
         });
     }, [widgets, availableWidgets]);
 
-    const onLayoutChange = (_currentLayout: ReactGridLayout.Layout[], allLayouts: ReactGridLayout.Layouts) => {
+    const onLayoutChange = (_currentLayout: Layout[], allLayouts: Layouts) => {
         setLayouts(allLayouts);
         localStorage.setItem('widgetLayouts', JSON.stringify(allLayouts));
     };
