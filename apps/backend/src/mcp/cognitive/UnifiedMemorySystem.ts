@@ -19,7 +19,17 @@ export interface WorkingMemoryState {
     recentEvents: any[];
     recentFeatures: any[];
     recentPatterns?: any[];
-    // extend as needed
+    widgetStates: Record<string, any>; // Live data fra widgets
+    userMood: {
+        sentiment: 'positive' | 'neutral' | 'negative' | 'stressed';
+        arousal: number; // 0-1 (Hvor aktiv er brugeren?)
+        lastUpdated: number;
+    };
+    suggestedLayout?: {
+        mode: 'focus' | 'discovery' | 'alert';
+        activeWidgets: string[]; // ID på widgets der bør være fremme
+        theme?: string;
+    };
 }
 
 /** ProductionRuleEngine – simple procedural memory placeholder */
@@ -69,9 +79,26 @@ export class UnifiedMemorySystem {
         if (!this.workingMemory.has(key)) {
             const events = projectMemory.getLifecycleEvents(20);
             const features = projectMemory.getFeatures();
-            this.workingMemory.set(key, { recentEvents: events, recentFeatures: features });
+            this.workingMemory.set(key, { 
+                recentEvents: events, 
+                recentFeatures: features,
+                widgetStates: {},
+                userMood: { sentiment: 'neutral', arousal: 0.5, lastUpdated: Date.now() }
+            });
         }
         return this.workingMemory.get(key)!;
+    }
+
+    /** Opdater widget state og kør adaptiv analyse */
+    async updateWidgetState(ctx: McpContext, widgetId: string, state: any): Promise<void> {
+        const wm = await this.getWorkingMemory(ctx);
+        wm.widgetStates[widgetId] = { ...state, lastUpdated: Date.now() };
+        
+        // Trigger holographic analysis when state changes
+        const patterns = await this.findHolographicPatterns(ctx);
+        
+        // Opdater adaptivt layout baseret på mønstre
+        this.updateAdaptiveLayout(wm, patterns);
     }
 
     /** Persist result (e.g., tool output) into working memory for future context */
@@ -80,6 +107,17 @@ export class UnifiedMemorySystem {
         const state = this.workingMemory.get(key);
         if (state) {
             state.recentEvents = [...(state.recentEvents || []), result];
+            
+            // Simuleret humør-analyse baseret på interaktion
+            // Hvis resultatet er en fejl -> stress op
+            if (result?.error) {
+                state.userMood.sentiment = 'stressed';
+                state.userMood.arousal = Math.min(1, state.userMood.arousal + 0.2);
+            } else {
+                // Reset langsomt mod neutral
+                state.userMood.arousal = Math.max(0.2, state.userMood.arousal - 0.05);
+            }
+            
             this.workingMemory.set(key, state);
         }
     }
@@ -87,20 +125,66 @@ export class UnifiedMemorySystem {
     /** Enrich an incoming MCPMessage with memory context */
     async enrichMCPRequest(message: any, ctx: McpContext): Promise<any> {
         const wm = await this.getWorkingMemory(ctx);
-        return { ...message, memoryContext: { recentEvents: wm.recentEvents, recentFeatures: wm.recentFeatures } };
+        return { 
+            ...message, 
+            memoryContext: { 
+                recentEvents: wm.recentEvents, 
+                recentFeatures: wm.recentFeatures,
+                activeWidgets: wm.widgetStates,
+                systemSuggestion: wm.suggestedLayout
+            } 
+        };
     }
 
     /** Example holographic pattern correlation across subsystems */
     async findHolographicPatterns(ctx: McpContext): Promise<any[]> {
-        const [pal, cma, srag, evo] = await Promise.all([
+        const wm = await this.getWorkingMemory(ctx);
+        const widgetData = Object.values(wm.widgetStates);
+
+        const [pal, cma, srag] = await Promise.all([
             Promise.resolve(this.palRepo.getRecentEvents(ctx.userId, ctx.orgId, 50)).catch(() => []),
             Promise.resolve(this.memoryRepo.searchEntities({ orgId: ctx.orgId, userId: ctx.userId, keywords: [], limit: 50 })).catch(() => []),
             Promise.resolve(this.sragRepo.searchDocuments(ctx.orgId, '')).catch(() => []),
-            Promise.resolve([]).catch(() => []), // evolutionRepo.getRecentGenerations doesn't exist
         ]);
 
-        // Cross-correlate for "holographic" patterns
-        return this.correlateAcrossSystems([pal, cma, srag, evo]);
+        // Inkluder widget data i korrelationen
+        return this.correlateAcrossSystems([pal, cma, srag, widgetData]);
+    }
+
+    /** Opdater layout forslag baseret på mønstre og humør */
+    private updateAdaptiveLayout(wm: WorkingMemoryState, patterns: any[]) {
+        // 1. Tjek for kritiske mønstre (Sikkerhed)
+        const securityPattern = patterns.find(p => 
+            ['threat', 'attack', 'breach', 'password', 'alert'].includes(p.keyword) && p.frequency > 2
+        );
+
+        if (securityPattern) {
+            wm.suggestedLayout = {
+                mode: 'alert',
+                activeWidgets: ['DarkWebMonitorWidget', 'NetworkSpyWidget', 'CybersecurityOverwatchWidget'],
+                theme: 'red-alert'
+            };
+            return;
+        }
+
+        // 2. Tjek brugerens humør (Emotion Aware)
+        if (wm.userMood.sentiment === 'stressed' || wm.userMood.arousal > 0.8) {
+            wm.suggestedLayout = {
+                mode: 'focus',
+                activeWidgets: ['StatusWidget', 'IntelligentNotesWidget'], // Kun det mest nødvendige
+                theme: 'calm-blue'
+            };
+            return;
+        }
+
+        // 3. Default: Discovery mode hvis mange data-kilder er aktive
+        if (patterns.length > 5) {
+            wm.suggestedLayout = {
+                mode: 'discovery',
+                activeWidgets: ['VisualizerWidget', 'SearchInterfaceWidget', 'KnowledgeGraphWidget'],
+                theme: 'default'
+            };
+        }
     }
 
     /** Cross-correlate patterns across subsystems */

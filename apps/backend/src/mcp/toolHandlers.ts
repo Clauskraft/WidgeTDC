@@ -9,6 +9,7 @@ import { unifiedGraphRAG } from './cognitive/UnifiedGraphRAG.js';
 import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
+import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
 import { getPgVectorStore } from '../platform/vector/PgVectorStoreAdapter.js';
 import { logger } from '../utils/logger.js';
 // Vector types for PgVectorStoreAdapter
@@ -466,6 +467,7 @@ export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Prom
       orgId: ctx.orgId,
       userId: ctx.userId,
       createdAt: new Date().toISOString(),
+      namespace: namespace || ctx.orgId, // Include namespace in metadata
     },
     namespace: namespace || ctx.orgId,
   };
@@ -503,6 +505,7 @@ export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext):
       orgId: ctx.orgId,
       userId: ctx.userId,
       createdAt: new Date().toISOString(),
+      namespace: namespace || ctx.orgId, // Include namespace in metadata
     },
     namespace: namespace || ctx.orgId,
   }));
@@ -1155,4 +1158,20 @@ export async function agenticRunHandler(payload: any, ctx: McpContext): Promise<
   });
 
   return { result };
+}
+
+// ---------------------------------------------------
+// Widget State Update Handler (Nervebanen til hjernen)
+// ---------------------------------------------------
+export async function widgetsUpdateStateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { widgetId, state } = payload;
+  
+  if (!widgetId) {
+    throw new Error('widgetId required');
+  }
+
+  // Send data direkte til UnifiedMemory
+  await unifiedMemorySystem.updateWidgetState(ctx, widgetId, state);
+
+  return { success: true };
 }

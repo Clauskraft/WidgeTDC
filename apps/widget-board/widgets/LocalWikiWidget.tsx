@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Book, Plus, Edit2, Save, Hash, Share2, FileText, Shield, Sparkles, Database, AlertTriangle, Paperclip, Eye, EyeOff, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { sendChat } from '../src/utils/chat-providers';
+import { useWidgetSync } from '../src/hooks/useWidgetSync';
 
 interface Article {
     id: string;
@@ -157,6 +158,14 @@ export default function LocalWikiWidget() {
     const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+
+    // Synkroniser tilstand til systemets hjerne
+    useWidgetSync('local-wiki', {
+        activeArticle: selectedArticle?.title,
+        articleCount: articles.length,
+        searchQuery,
+        recentTags: selectedArticle?.tags
+    });
 
     // Simuleret bruger ID
     const currentUserId = 'current-user';

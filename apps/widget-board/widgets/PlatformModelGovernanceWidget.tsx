@@ -1,20 +1,7 @@
-/**
- * PlatformModelGovernanceWidget.tsx
- * 
- * Central styring af AI modeller for hele platformen:
- * - Definér hvilke modeller der er tilgængelige
- * - Sæt platform-wide defaults der nedarves
- * - Tillad override på projekt/capability niveau
- * - Cost budgetter og usage tracking
- * - Compliance og audit logging
- * 
- * @version 1.0.0
- * @author WidgeTDC Team
- */
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import { Button } from '../components/ui/Button';
+import { useWidgetSync } from '../src/hooks/useWidgetSync';
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -235,6 +222,16 @@ const PlatformModelGovernanceWidget: React.FC<{ widgetId: string }> = ({ widgetI
   const defaultModel = allModels.find(m => governanceRules.find(r => r.modelId === m.id && r.isDefault));
   const totalMonthlyBudget = governanceRules.reduce((sum, r) => sum + (r.maxBudgetPerMonth || 0), 0);
   const totalMonthlySpend = usageStats.reduce((sum, s) => sum + s.totalCost, 0);
+
+  // Synkroniser governance state til hjernen
+  useWidgetSync(widgetId, {
+    defaultModel: defaultModel?.displayName,
+    monthlySpend: totalMonthlySpend,
+    monthlyBudget: totalMonthlyBudget,
+    spendPercentage: totalMonthlyBudget > 0 ? (totalMonthlySpend / totalMonthlyBudget) * 100 : 0,
+    activeProviders: providers.filter(p => p.status === 'active').map(p => p.name),
+    approvedModelsCount: approvedModels.length
+  });
   
   // Handlers
   const handleToggleProvider = (providerId: string) => {

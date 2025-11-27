@@ -185,14 +185,16 @@ async function startServer() {
       widgetsInvokeHandler,
       widgetsOsintInvestigateHandler,
       widgetsThreatHuntHandler,
-      widgetsOrchestratorCoordinateHandler
+      widgetsOrchestratorCoordinateHandler,
+      widgetsUpdateStateHandler
     } = await import('./mcp/toolHandlers.js');
 
     mcpRegistry.registerTool('widgets.invoke', widgetsInvokeHandler);
     mcpRegistry.registerTool('widgets.osint.investigate', widgetsOsintInvestigateHandler);
     mcpRegistry.registerTool('widgets.threat.hunt', widgetsThreatHuntHandler);
     mcpRegistry.registerTool('widgets.orchestrator.coordinate', widgetsOrchestratorCoordinateHandler);
-    console.log('🔍 Widget OSINT/Threat tools registered');
+    mcpRegistry.registerTool('widgets.update_state', widgetsUpdateStateHandler);
+    console.log('🔍 Widget OSINT/Threat & State tools registered');
 
     // Document Generator Tools - PowerPoint, Word, Excel
     const {

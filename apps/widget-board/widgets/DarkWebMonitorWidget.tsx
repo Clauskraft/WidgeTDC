@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '../components/ui/Button';
-// import { usePermissions } from '../contexts/PermissionContext';
+import { useWidgetBridge } from '../contexts/WidgetBridgeContext';
 
 type ThreatLevel = 'low' | 'medium' | 'high' | 'critical';
 type AlertStatus = 'active' | 'resolved' | 'emerging';
@@ -82,8 +82,8 @@ const formatPrice = (value?: number) => {
   return `$${value.toLocaleString()}`;
 };
 
-const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
-  // const { hasAccess, loading } = usePermissions();
+const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
+  const { reportStatus } = useWidgetBridge();
   const hasAccess = true;
   const loading = false;
 
@@ -97,6 +97,17 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
   const [payload, setPayload] = useState<DarkWebPayload>(EMPTY_PAYLOAD);
   const [scanStage, setScanStage] = useState<ScanStage>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Report status to bridge whenever payload changes
+  useEffect(() => {
+    const summary = `Fundet ${payload.metrics.totalThreats} trusler. ${payload.threats.length > 0 ? `Top trussel: ${payload.threats[0].title}` : ''}`;
+    reportStatus(
+      widgetId,
+      'Dark Web Monitor',
+      summary,
+      payload
+    );
+  }, [payload, widgetId, reportStatus]);
 
   // Simulated "Robin" Methodology:
   // 1. Query Tor Search Engines (Ahmia, Torch, etc.)
@@ -204,17 +215,13 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
     return () => clearInterval(intervalId);
   }, [autoPolling, refreshData]);
 
-  const feeds = payload.feeds;
-  const threats = payload.threats;
-  const metrics = payload.metrics;
-
   const filteredFeeds = useMemo(() => {
     // const term = searchTerm.trim().toLowerCase(); // Removed local search for now, focusing on "Keywords" config
-    return feeds.filter(feed => {
+    return payload.feeds.filter(feed => {
       const matchesLevel = levelFilter === 'all' ? true : feed.threatLevel === levelFilter;
       return matchesLevel;
     });
-  }, [levelFilter, feeds]);
+  }, [levelFilter, payload.feeds]);
 
   useEffect(() => {
     if (filteredFeeds.length === 0) return;
@@ -223,8 +230,8 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
     }
   }, [filteredFeeds, selectedFeedId]);
 
-  const selectedFeed = feeds.find(feed => feed.id === selectedFeedId);
-  const selectedThreats = threats.filter(item => item.feedId === (selectedFeed ? selectedFeed.id : '')).slice(0, 5);
+  const selectedFeed = payload.feeds.find(feed => feed.id === selectedFeedId);
+  const selectedThreats = payload.threats.filter(item => item.feedId === (selectedFeed ? selectedFeed.id : '')).slice(0, 5);
 
   const handleAddKeyword = (e: React.FormEvent) => {
     e.preventDefault();
@@ -376,9 +383,9 @@ const DarkWebMonitorWidget: React.FC<{ widgetId: string }> = () => {
         {/* Right Panel: Analysis & Details */}
         <section className="col-span-12 lg:col-span-8 h-full flex flex-col gap-4 overflow-hidden">
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            <MetricCard label="Total Threats" value={metrics.totalThreats.toLocaleString()} helper="AI Verified" />
-            <MetricCard label="Avg Price" value={formatPrice(metrics.avgPriceUSD)} helper="Market Value" />
-            <MetricCard label="Leak Velocity" value={`${metrics.leakVelocity}/hr`} helper="New listings" />
+            <MetricCard label="Total Threats" value={payload.metrics.totalThreats.toLocaleString()} helper="AI Verified" />
+            <MetricCard label="Avg Price" value={formatPrice(payload.metrics.avgPriceUSD)} helper="Market Value" />
+            <MetricCard label="Leak Velocity" value={`${payload.metrics.leakVelocity}/hr`} helper="New listings" />
           </div>
 
           <div className="grid grid-cols-1 gap-4 flex-1 overflow-hidden">
