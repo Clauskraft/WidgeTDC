@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap } from 'lucide-react';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu } from 'lucide-react';
 import { ClausLogo } from './ClausLogo';
 import { WordView } from './apps/WordView';
 import { OutlookView } from './apps/OutlookView';
 import { CalendarView } from './apps/CalendarView';
-import { LLM_MODELS, type LLMModel } from '../utils/llm-models';
+import { CHAT_PROVIDERS, sendChat, checkOllamaStatus, type ChatMessage as ProviderChatMessage, type ChatProvider, type ChatModel } from '../utils/chat-providers';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -56,26 +56,38 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [selectedProvider, setSelectedProvider] = useState<string>(() => {
+        return localStorage.getItem('selected_provider') || 'ollama';
+    });
     const [selectedModel, setSelectedModel] = useState<string>(() => {
-        return localStorage.getItem('selected_model') || 'deepseek-chat';
+        return localStorage.getItem('selected_model') || 'llama3.2';
     });
-    const [enabledProviders, setEnabledProviders] = useState<string[]>(() => {
-        const saved = localStorage.getItem('enabled_providers');
-        return saved ? JSON.parse(saved) : ['openai', 'anthropic', 'google', 'deepseek'];
+    const [apiKeys, setApiKeys] = useState<Record<string, string>>(() => {
+        const saved = localStorage.getItem('api_keys');
+        return saved ? JSON.parse(saved) : {};
     });
+    const [ollamaStatus, setOllamaStatus] = useState<{ running: boolean; models: string[] }>({ running: false, models: [] });
     const [attachments, setAttachments] = useState<File[]>([]);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const imageInputRef = useRef<HTMLInputElement>(null);
 
+    // Check Ollama status on mount
+    useEffect(() => {
+        checkOllamaStatus().then(setOllamaStatus);
+        const interval = setInterval(() => checkOllamaStatus().then(setOllamaStatus), 30000);
+        return () => clearInterval(interval);
+    }, []);
+
     // Save settings to localStorage
     useEffect(() => {
+        localStorage.setItem('selected_provider', selectedProvider);
         localStorage.setItem('selected_model', selectedModel);
-    }, [selectedModel]);
+    }, [selectedProvider, selectedModel]);
 
     useEffect(() => {
-        localStorage.setItem('enabled_providers', JSON.stringify(enabledProviders));
-    }, [enabledProviders]);
+        localStorage.setItem('api_keys', JSON.stringify(apiKeys));
+    }, [apiKeys]);
 
     // Auto-collapse sidebar on mobile
     useEffect(() => {
@@ -113,10 +125,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const handleSendMessage = async () => {
         if (!chatInput.trim() && attachments.length === 0) return;
 
+        const userContent = chatInput + (attachments.length > 0 ? `\n\n📎 ${attachments.map(f => f.name).join(', ')}` : '');
+        
         const userMsg: ChatMessage = {
             id: crypto.randomUUID(),
             role: 'user',
-            content: chatInput + (attachments.length > 0 ? `\n\n📎 ${attachments.map(f => f.name).join(', ')}` : ''),
+            content: userContent,
             timestamp: new Date()
         };
 
@@ -125,46 +139,44 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         setAttachments([]);
         setIsProcessing(true);
 
-        try {
-            const model = LLM_MODELS.find(m => m.id === selectedModel);
-            
-            const response = await fetch('/api/mcp/route', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: crypto.randomUUID(),
-                    sourceId: 'widget-chat',
-                    targetId: 'agent-orchestrator',
-                    tool: 'srag.query',
-                    payload: { query: chatInput, style: conversationStyle, model: selectedModel, provider: model?.provider },
-                    createdAt: new Date().toISOString()
-                })
-            });
+        const provider = CHAT_PROVIDERS.find(p => p.id === selectedProvider);
+        const model = provider?.models.find(m => m.id === selectedModel);
 
-            if (response.ok) {
-                const data = await response.json();
-                const botMsg: ChatMessage = {
-                    id: crypto.randomUUID(),
-                    role: 'assistant',
-                    content: data.result?.answer || data.result || JSON.stringify(data),
-                    timestamp: new Date()
-                };
-                setMessages(prev => [...prev, botMsg]);
-            } else {
-                const botMsg: ChatMessage = {
-                    id: crypto.randomUUID(),
-                    role: 'assistant',
-                    content: `🤖 **DOT AI (${model?.name || selectedModel})**\n\nJeg modtog din besked: "${chatInput}"\n\nBackend forbindelse fejlede. Tjek at MCP serveren kører på port 3001.`,
-                    timestamp: new Date()
-                };
-                setMessages(prev => [...prev, botMsg]);
-            }
+        try {
+            // Byg chat historik til provider
+            const chatHistory: ProviderChatMessage[] = [
+                { role: 'system', content: `Du er DOT AI, en hjælpsom dansk AI assistent. Svar altid på dansk. Samtalestil: ${conversationStyle === 'creative' ? 'kreativ og udforskende' : conversationStyle === 'precise' ? 'præcis og faktuel' : 'balanceret'}.` },
+                ...messages.map(m => ({ role: m.role as 'user' | 'assistant', content: m.content })),
+                { role: 'user' as const, content: userContent }
+            ];
+
+            const response = await sendChat(
+                { providerId: selectedProvider, modelId: selectedModel, apiKey: apiKeys[selectedProvider] },
+                chatHistory
+            );
+
+            const botMsg: ChatMessage = {
+                id: crypto.randomUUID(),
+                role: 'assistant',
+                content: response.content,
+                timestamp: new Date()
+            };
+            setMessages(prev => [...prev, botMsg]);
         } catch (error) {
             console.error("Chat error:", error);
+            const errorMessage = error instanceof Error ? error.message : 'Ukendt fejl';
+            
+            let helpText = '';
+            if (selectedProvider === 'ollama' && !ollamaStatus.running) {
+                helpText = '\n\n**For at bruge Ollama:**\n1. Installer Ollama: https://ollama.com\n2. Kør: `ollama pull llama3.2`\n3. Start Ollama appen';
+            } else if (provider?.requiresApiKey && !apiKeys[selectedProvider]) {
+                helpText = `\n\n**${provider.name} kræver API nøgle.**\nKlik på ⚙️ Indstillinger for at tilføje den.`;
+            }
+            
             const errorMsg: ChatMessage = {
                 id: crypto.randomUUID(),
                 role: 'assistant',
-                content: "⚠️ Forbindelse til backend fejlede. Tjek at serveren kører:\n\n```bash\nnpm run dev\n```",
+                content: `⚠️ **Fejl ved ${model?.name || selectedModel}**\n\n${errorMessage}${helpText}`,
                 timestamp: new Date()
             };
             setMessages(prev => [...prev, errorMsg]);
@@ -193,17 +205,20 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         const files = Array.from(e.target.files || []);
         setAttachments(prev => [...prev, ...files]);
     };
-    const toggleProvider = (provider: string) => {
-        setEnabledProviders(prev => prev.includes(provider) ? prev.filter(p => p !== provider) : [...prev, provider]);
+    const handleSelectModel = (providerId: string, modelId: string) => {
+        setSelectedProvider(providerId);
+        setSelectedModel(modelId);
     };
-    const modelsByProvider = LLM_MODELS.reduce((acc, model) => {
-        if (!acc[model.provider]) acc[model.provider] = [];
-        acc[model.provider].push(model);
-        return acc;
-    }, {} as Record<string, LLMModel[]>);
-    const getProviderIcon = (provider: string) => {
-        switch (provider) { case 'openai': return '🟢'; case 'anthropic': return '🟠'; case 'google': return '🔵'; case 'deepseek': return '🟣'; default: return '⚪'; }
+    const updateApiKey = (providerId: string, key: string) => {
+        setApiKeys(prev => ({ ...prev, [providerId]: key }));
     };
+    const getProviderIcon = (provider: ChatProvider) => {
+        if (provider.type === 'ollama') return <Cpu size={14} className="text-green-400" />;
+        if (provider.id === 'lmstudio' || provider.id === 'localai') return <Server size={14} className="text-blue-400" />;
+        return <Cloud size={14} className="text-purple-400" />;
+    };
+    const currentProvider = CHAT_PROVIDERS.find(p => p.id === selectedProvider);
+    const currentModel = currentProvider?.models.find(m => m.id === selectedModel);
 
     // Determine sidebar width based on state and device
     const getSidebarWidth = () => {
@@ -357,8 +372,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                             {/* Model indicator */}
                             <div className="absolute top-2 right-4 z-10">
                                 <button onClick={() => setShowSettings(true)} className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 hover:bg-white/10 hover:text-white transition-colors">
-                                    <span>{getProviderIcon(LLM_MODELS.find(m => m.id === selectedModel)?.provider || 'openai')}</span>
-                                    <span>{LLM_MODELS.find(m => m.id === selectedModel)?.name || selectedModel}</span>
+                                    {currentProvider && getProviderIcon(currentProvider)}
+                                    <span>{currentModel?.name || selectedModel}</span>
+                                    {currentModel?.isLocal && <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400">LOKAL</span>}
+                                    {currentModel?.isOpenSource && !currentModel?.isLocal && <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400">OPEN</span>}
                                 </button>
                             </div>
 
@@ -558,11 +575,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
             {/* Settings Modal */}
             {showSettings && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowSettings(false)}>
-                    <div className="bg-[#0B3E6F] border border-white/20 rounded-2xl w-[500px] max-w-[95vw] max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <div className="bg-[#0B3E6F] border border-white/20 rounded-2xl w-[550px] max-w-[95vw] max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between p-5 border-b border-white/10">
                             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                                 <Settings size={20} className="text-[#00B5CB]" />
-                                Indstillinger
+                                AI Model Indstillinger
                             </h3>
                             <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white">
                                 <X size={20} />
@@ -570,69 +587,91 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         </div>
 
                         <div className="p-5 overflow-y-auto max-h-[calc(85vh-120px)]">
-                            <div className="mb-6">
-                                <h4 className="text-sm font-medium text-white mb-3">AI Model</h4>
-                                <p className="text-xs text-gray-400 mb-4">Vælg hvilken AI model der skal bruges til chat.</p>
-                                
-                                <div className="space-y-3">
-                                    {Object.entries(modelsByProvider).map(([provider, models]) => (
-                                        <div key={provider} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
-                                            <div className="flex items-center justify-between px-4 py-2 bg-white/5">
-                                                <div className="flex items-center gap-2">
-                                                    <span>{getProviderIcon(provider)}</span>
-                                                    <span className="text-sm font-medium text-white capitalize">{provider}</span>
-                                                </div>
-                                                <button
-                                                    onClick={() => toggleProvider(provider)}
-                                                    className={`w-10 h-5 rounded-full transition-colors ${enabledProviders.includes(provider) ? 'bg-[#00B5CB]' : 'bg-gray-600'}`}
-                                                >
-                                                    <div className={`w-4 h-4 rounded-full bg-white shadow transition-transform ${enabledProviders.includes(provider) ? 'translate-x-5' : 'translate-x-0.5'}`} />
-                                                </button>
-                                            </div>
-                                            
-                                            {enabledProviders.includes(provider) && (
-                                                <div className="p-2 space-y-1">
-                                                    {models.map(model => (
-                                                        <button
-                                                            key={model.id}
-                                                            onClick={() => setSelectedModel(model.id)}
-                                                            className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${selectedModel === model.id ? 'bg-[#00B5CB]/20 border border-[#00B5CB]/50' : 'hover:bg-white/5 border border-transparent'}`}
-                                                        >
-                                                            <div className="text-left">
-                                                                <p className="text-sm font-medium text-white">{model.name}</p>
-                                                                <p className="text-[10px] text-gray-400">{model.description}</p>
-                                                                <div className="flex gap-2 mt-1">
-                                                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">{(model.contextWindow / 1000).toFixed(0)}K context</span>
-                                                                    {model.pricing && (
-                                                                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300">
-                                                                            ${model.pricing.input}/${model.pricing.output} per 1M
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            {selectedModel === model.id && <Check size={18} className="text-[#00B5CB]" />}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
+                            {/* Ollama Status */}
+                            <div className={`mb-4 p-3 rounded-xl border ${ollamaStatus.running ? 'bg-green-500/10 border-green-500/30' : 'bg-orange-500/10 border-orange-500/30'}`}>
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${ollamaStatus.running ? 'bg-green-400 animate-pulse' : 'bg-orange-400'}`} />
+                                    <span className={`text-sm font-medium ${ollamaStatus.running ? 'text-green-300' : 'text-orange-300'}`}>
+                                        Ollama: {ollamaStatus.running ? `Kører (${ollamaStatus.models.length} modeller)` : 'Ikke kørende'}
+                                    </span>
                                 </div>
+                                {!ollamaStatus.running && (
+                                    <p className="text-xs text-orange-200/70 mt-1">
+                                        Installer Ollama fra <a href="https://ollama.com" target="_blank" className="underline">ollama.com</a> for lokale modeller
+                                    </p>
+                                )}
                             </div>
 
-                            <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                            {/* Providers & Models */}
+                            <div className="space-y-3">
+                                {CHAT_PROVIDERS.map(provider => (
+                                    <div key={provider.id} className="rounded-xl bg-white/5 border border-white/10 overflow-hidden">
+                                        <div className="flex items-center justify-between px-4 py-3 bg-white/5">
+                                            <div className="flex items-center gap-2">
+                                                {getProviderIcon(provider)}
+                                                <span className="text-sm font-medium text-white">{provider.name}</span>
+                                                {provider.type === 'ollama' && ollamaStatus.running && (
+                                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-green-500/20 text-green-400">AKTIV</span>
+                                                )}
+                                            </div>
+                                            {provider.requiresApiKey && (
+                                                <input
+                                                    type="password"
+                                                    placeholder="API nøgle..."
+                                                    value={apiKeys[provider.id] || ''}
+                                                    onChange={(e) => updateApiKey(provider.id, e.target.value)}
+                                                    className="w-40 px-2 py-1 text-xs bg-black/20 border border-white/10 rounded text-white placeholder-gray-500 focus:outline-none focus:border-[#00B5CB]/50"
+                                                />
+                                            )}
+                                        </div>
+                                        
+                                        <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
+                                            {provider.models.map(model => {
+                                                const isSelected = selectedProvider === provider.id && selectedModel === model.id;
+                                                const isDisabled = provider.type === 'ollama' && !ollamaStatus.running;
+                                                
+                                                return (
+                                                    <button
+                                                        key={model.id}
+                                                        onClick={() => !isDisabled && handleSelectModel(provider.id, model.id)}
+                                                        disabled={isDisabled}
+                                                        className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                                                            isSelected ? 'bg-[#00B5CB]/20 border border-[#00B5CB]/50' : 
+                                                            isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/5 border border-transparent'
+                                                        }`}
+                                                    >
+                                                        <div className="text-left">
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="text-sm font-medium text-white">{model.name}</p>
+                                                                {model.isOpenSource && <span className="text-[8px] px-1 py-0.5 rounded bg-blue-500/20 text-blue-300">OPEN SOURCE</span>}
+                                                                {model.isLocal && <span className="text-[8px] px-1 py-0.5 rounded bg-green-500/20 text-green-300">LOKAL</span>}
+                                                            </div>
+                                                            <p className="text-[10px] text-gray-400 mt-0.5">{model.description}</p>
+                                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-gray-300 mt-1 inline-block">{(model.contextWindow / 1000).toFixed(0)}K context</span>
+                                                        </div>
+                                                        {isSelected && <Check size={18} className="text-[#00B5CB]" />}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Quick setup guide */}
+                            <div className="mt-4 p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
                                 <div className="flex items-start gap-3">
-                                    <Zap size={18} className="text-yellow-400 shrink-0 mt-0.5" />
+                                    <Cpu size={18} className="text-blue-400 shrink-0 mt-0.5" />
                                     <div>
-                                        <p className="text-sm font-medium text-yellow-200">API Nøgler</p>
-                                        <p className="text-xs text-yellow-200/70 mt-1">
-                                            Konfigurer API nøgler i <code className="px-1 py-0.5 bg-black/20 rounded">.env</code>:
-                                        </p>
+                                        <p className="text-sm font-medium text-blue-200">Hurtig start med Ollama</p>
                                         <pre className="text-[10px] mt-2 p-2 bg-black/20 rounded text-gray-300 overflow-x-auto">
-{`OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-GOOGLE_API_KEY=AIza...
-DEEPSEEK_API_KEY=sk-...`}
+{`# Installer Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Download en model (vælg én)
+ollama pull llama3.2    # Llama 3.2 8B
+ollama pull mistral     # Mistral 7B
+ollama pull qwen2.5     # Qwen 2.5 7B`}
                                         </pre>
                                     </div>
                                 </div>
