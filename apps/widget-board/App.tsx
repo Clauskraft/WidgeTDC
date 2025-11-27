@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import WidgeTDCPro from './WidgeTDC_Pro.tsx';
 import { WidgetRegistryProvider } from './contexts/WidgetRegistryContext';
+import { GlobalStateProvider } from './contexts/GlobalStateContext';
 import './App.css';
 import { PlatformProvider } from './src/platform/core/PlatformProvider';
 
@@ -22,11 +23,13 @@ const AppLoader = () => (
 export default function App() {
   return (
     <PlatformProvider>
-      <Suspense fallback={<AppLoader />}>
-        <WidgetRegistryProvider>
-          <WidgeTDCPro />
-        </WidgetRegistryProvider>
-      </Suspense>
+      <GlobalStateProvider>
+        <Suspense fallback={<AppLoader />}>
+          <WidgetRegistryProvider>
+            <WidgeTDCPro />
+          </WidgetRegistryProvider>
+        </Suspense>
+      </GlobalStateProvider>
     </PlatformProvider>
   );
 }
