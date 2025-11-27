@@ -79,7 +79,7 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#051e3c]/95 backdrop-blur-xl animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-100 flex flex-col items-center justify-center bg-[#051e3c]/95 backdrop-blur-xl animate-in fade-in duration-200">
             
             {/* Main Container */}
             <div className="w-full max-w-7xl h-[90vh] flex flex-col bg-[#0B3E6F]/30 border border-white/10 rounded-3xl shadow-2xl overflow-hidden relative">
@@ -87,7 +87,7 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                 {/* Header */}
                 <div className="shrink-0 h-20 flex items-center justify-between px-8 border-b border-white/10 bg-[#0B3E6F]/40 backdrop-blur-md">
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20">
+                        <div className="w-10 h-10 rounded-xl bg-linear-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20">
                             <LayoutGrid size={20} className="text-white" />
                         </div>
                         <div>
@@ -169,7 +169,7 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                     </div>
 
                     {/* Grid */}
-                    <div className="flex-1 overflow-y-auto p-8 bg-gradient-to-b from-transparent to-[#051e3c]/30">
+                    <div className="flex-1 overflow-y-auto p-8 bg-linear-to-b from-transparent to-[#051e3c]/30">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                             {filteredWidgets.map(widget => {
                                 const isActive = activeWidgets.includes(widget.id);

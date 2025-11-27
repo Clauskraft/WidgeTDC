@@ -230,7 +230,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const showLabels = isMobile || (isSidebarOpen && !isMobile);
 
     return (
-        <div className="h-screen h-[100dvh] w-full overflow-hidden flex font-sans bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
+        <div className="h-dvh w-full overflow-hidden flex font-sans bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
             {/* Hidden file inputs */}
             <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} multiple />
             <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} multiple />
@@ -266,7 +266,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                 {/* Header / Logo */}
                 <div className="h-16 md:h-20 flex items-center justify-between px-4 md:px-5 shrink-0">
                     <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
-                        <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
+                        <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-linear-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
                             <ClausLogo size={isMobile ? 20 : 24} />
                         </div>
                         <div className={`flex flex-col transition-all duration-300 ${showLabels ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
@@ -303,7 +303,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                             aria-current={activeTab === item.id ? 'page' : undefined}
                         >
                             {activeTab === item.id && (
-                                <div className="absolute inset-0 bg-gradient-to-r from-[#00B5CB]/10 to-transparent opacity-50" />
+                                <div className="absolute inset-0 bg-linear-to-r from-[#00B5CB]/10 to-transparent opacity-50" />
                             )}
                             <item.icon
                                 size={isMobile ? 20 : 22}
@@ -330,7 +330,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                 {/* User Profile */}
                 <div className="p-3 md:p-4 border-t border-white/5 bg-black/10 backdrop-blur-md shrink-0">
                     <button onClick={() => setShowSettings(true)} className="w-full flex items-center gap-2 md:gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group touch-target">
-                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center text-xs font-bold shadow-md group-hover:ring-2 ring-[#00B5CB]/50 transition-all shrink-0">
+                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-linear-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center text-xs font-bold shadow-md group-hover:ring-2 ring-[#00B5CB]/50 transition-all shrink-0">
                             CK
                         </div>
                         <div className={`flex flex-col items-start overflow-hidden transition-all duration-300 ${showLabels ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
@@ -443,7 +443,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                             </div>
 
                             {/* Input Area */}
-                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 bg-gradient-to-t from-[#051e3c] via-[#051e3c]/90 to-transparent z-20">
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 bg-linear-to-t from-[#051e3c] via-[#051e3c]/90 to-transparent z-20">
                                 <div className="max-w-3xl mx-auto relative">
                                     {/* Conversation Style Toggle */}
                                     <div className={`absolute -top-12 md:-top-14 left-0 right-0 flex justify-center gap-2 transition-opacity duration-300 ${messages.length > 0 ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}>
@@ -475,7 +475,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         </div>
                                     )}
 
-                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
+                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-4xl border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
                                         <textarea
                                             value={chatInput}
                                             onChange={(e) => setChatInput(e.target.value)}
@@ -548,7 +548,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         { title: 'Begivenhed', sub: 'Møder og workshops', icon: Calendar, color: 'bg-teal-500/20 text-teal-400' }
                                     ].map((card, i) => (
                                         <button key={i} className="group relative p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden touch-target">
-                                            <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className="absolute inset-0 bg-linear-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                                             <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl ${card.color} flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300`}>
                                                 <card.icon size={isMobile ? 20 : 24} />
                                             </div>
@@ -584,7 +584,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
 
             {/* Settings Modal */}
             {showSettings && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowSettings(false)}>
+                <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowSettings(false)}>
                     <div className="bg-[#0B3E6F] border border-white/20 rounded-2xl w-[550px] max-w-[95vw] max-h-[85vh] overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
                         <div className="flex items-center justify-between p-5 border-b border-white/10">
                             <h3 className="text-lg font-semibold text-white flex items-center gap-2">
