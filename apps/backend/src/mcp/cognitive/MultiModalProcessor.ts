@@ -5,6 +5,7 @@
  */
 
 import { getPgVectorStore } from '../../platform/vector/PgVectorStoreAdapter';
+import { getEmbeddingService } from '../../services/embeddings/EmbeddingService';
 
 export interface MultiModalEmbedding {
     id: string;
@@ -97,18 +98,18 @@ export class MultiModalProcessor {
 
         // Search in vector database
         const vectorStore = getPgVectorStore();
-        const results = await vectorStore.search(
-            `multimodal_${targetModality}`,
-            queryEmbedding,
+        const results = await vectorStore.search({
+            vector: queryEmbedding,
+            namespace: `multimodal_${targetModality}`,
             limit
-        );
+        });
 
         return results.map(result => ({
             id: result.id,
             type: targetModality,
-            embedding: result.embedding,
-            metadata: result.metadata,
-            timestamp: new Date(result.metadata.timestamp || Date.now()),
+            embedding: [], // Embedding not returned from search, would need separate lookup
+            metadata: result.metadata || {},
+            timestamp: new Date(result.metadata?.timestamp || Date.now()),
         }));
     }
 
@@ -116,8 +117,8 @@ export class MultiModalProcessor {
      * Generate text embedding for cross-modal comparison
      */
     private async generateTextEmbedding(text: string): Promise<number[]> {
-        const vectorStore = getPgVectorStore();
-        const embedding = await vectorStore.generateEmbedding(text);
+        const embeddingService = getEmbeddingService();
+        const embedding = await embeddingService.generateEmbedding(text);
         return embedding;
     }
 

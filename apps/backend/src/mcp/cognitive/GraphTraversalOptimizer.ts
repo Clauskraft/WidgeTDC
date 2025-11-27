@@ -200,22 +200,35 @@ export class GraphTraversalOptimizer {
             const scores = new Map<string, number>();
             result.forEach(r => {
                 scores.set(r.nodeId.toString(), r.score);
-    private async simpleDegreeCentrality(): Promise < Map < string, number >> {
-                const result = await neo4jService.runQuery(
-                    `MATCH (n)-[r]-(m)
+            });
+
+            return scores;
+        } catch (error) {
+            await neo4jService.disconnect();
+            // Fallback to simple degree centrality
+            return this.simpleDegreeCentrality();
+        }
+    }
+
+    /**
+     * Fallback: Simple degree centrality without GDS
+     */
+    private async simpleDegreeCentrality(): Promise<Map<string, number>> {
+        const result = await neo4jService.runQuery(
+            `MATCH (n)-[r]-(m)
        WITH n, count(r) as degree
        RETURN id(n) as nodeId, degree
        ORDER BY degree DESC
        LIMIT 100`
-                );
+        );
 
-                const scores = new Map<string, number>();
-                result.forEach(r => {
-                    scores.set(r.nodeId.toString(), r.degree);
-                });
+        const scores = new Map<string, number>();
+        result.forEach(r => {
+            scores.set(r.nodeId.toString(), r.degree);
+        });
 
-                return scores;
-            }
+        return scores;
+    }
 }
 
 export const graphTraversalOptimizer = new GraphTraversalOptimizer();

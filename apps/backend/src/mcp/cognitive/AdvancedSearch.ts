@@ -206,10 +206,12 @@ export class HybridSearch {
         for (const q of queries) {
             const results = await graphMemoryService.searchEntities(q, limit * 2);
 
-            results.forEach(result => {
+            results.forEach((result, index) => {
                 const existing = allResults.get(result.id);
-                if (!existing || result.score > existing.score) {
-                    allResults.set(result.id, result);
+                // Use position as pseudo-score (lower index = higher relevance)
+                const resultWithScore = { ...result, content: result.name, score: 1 / (index + 1) };
+                if (!existing || resultWithScore.score > existing.score) {
+                    allResults.set(result.id, resultWithScore);
                 }
             });
         }
