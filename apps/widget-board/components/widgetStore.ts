@@ -1,8 +1,23 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { WidgetInstance, WidgetConfig } from '../types';
+import { staticWidgetRegistry } from '../src/staticWidgetRegistry';
 
 const WIDGETS_STORAGE_KEY = 'widgetboard_widgets';
+
+// Valid widget types from the static registry
+const validWidgetTypes = new Set(Object.keys(staticWidgetRegistry));
+
+// Filter function to remove widgets that no longer exist in the registry
+const filterValidWidgets = (widgets: WidgetInstance[]): WidgetInstance[] => {
+    return widgets.filter(w => {
+        const isValid = validWidgetTypes.has(w.widgetType);
+        if (!isValid) {
+            console.warn(`[WidgetStore] Removing invalid widget type from storage: ${w.widgetType}`);
+        }
+        return isValid;
+    });
+};
 
 const defaultWidgets: WidgetInstance[] = [
     { id: 'chat-1', widgetType: 'AgentChatWidget' },
@@ -61,8 +76,20 @@ export const useWidgetStore = create<WidgetState>()(
             },
         }),
         {
-            name: WIDGETS_STORAGE_KEY, // Navn på item i localStorage
+            name: WIDGETS_STORAGE_KEY,
             storage: createJSONStorage(() => localStorage),
+            // Filter out invalid widgets when loading from storage
+            merge: (persistedState: unknown, currentState: WidgetState) => {
+                const persisted = persistedState as Partial<WidgetState> | undefined;
+                if (persisted?.widgets) {
+                    return {
+                        ...currentState,
+                        ...persisted,
+                        widgets: filterValidWidgets(persisted.widgets),
+                    };
+                }
+                return currentState;
+            },
         }
     )
 );
