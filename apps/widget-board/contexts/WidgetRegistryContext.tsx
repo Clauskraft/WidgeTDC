@@ -81,8 +81,8 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
   const [entries, setEntries] = useState<Map<string, WidgetRegistryEntry>>(new Map());
   const versionHistoryRef = useRef<Map<string, WidgetVersion[]>>(new Map());
 
-  // Auto-discover widget modules
-  const widgetModules = import.meta.glob('../src/widgets/*.tsx');
+  // Auto-discover widget modules - widgets are in /widgets/ not /src/widgets/
+  const widgetModules = import.meta.glob('../widgets/**/*.tsx');
 
   useEffect(() => {
     // 1. Register Built-in Widgets from WIDGET_REGISTRY
