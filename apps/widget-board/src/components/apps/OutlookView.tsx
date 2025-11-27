@@ -1,120 +1,245 @@
-import React from 'react';
-import { Mail, Search, Edit3, Star, Inbox, Send, Archive, Trash2, Paperclip, MoreVertical } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Mail, Send, Sparkles, RefreshCw, Check, Clock, AlertCircle } from 'lucide-react';
+
+interface EmailSuggestion {
+    id: string;
+    from: string;
+    subject: string;
+    preview: string;
+    receivedAt: string;
+    importance: 'high' | 'normal' | 'low';
+    suggestedReplies: string[];
+    isProcessing?: boolean;
+}
 
 export const OutlookView: React.FC = () => {
+    const [emails, setEmails] = useState<EmailSuggestion[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedReply, setSelectedReply] = useState<{ emailId: string; reply: string } | null>(null);
+
+    // Fetch emails from backend
+    useEffect(() => {
+        const fetchEmails = async () => {
+            try {
+                // Try to fetch from backend MCP
+                const response = await fetch('/api/mcp/route', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tool: 'email.rag',
+                        payload: { action: 'list', limit: 5 }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.emails && Array.isArray(data.emails)) {
+                        // Transform backend data to our format with AI suggestions
+                        const emailsWithSuggestions = data.emails.map((email: any) => ({
+                            id: email.id,
+                            from: email.sender?.name || email.from || 'Ukendt',
+                            subject: email.subject || 'Ingen emne',
+                            preview: email.bodyPreview || email.preview || '',
+                            receivedAt: formatDate(email.receivedDateTime || email.date),
+                            importance: email.importance || 'normal',
+                            suggestedReplies: generateSuggestions(email)
+                        }));
+                        setEmails(emailsWithSuggestions);
+                        setLoading(false);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.log('[OutlookView] Backend not available, using demo data');
+            }
+
+            // Fallback to demo data if backend fails
+            setEmails([
+                {
+                    id: '1',
+                    from: 'Lars Jensen',
+                    subject: 'Projektstatus Q2 - Kræver svar',
+                    preview: 'Hej Claus, kan du bekræfte at vi er klar til launch næste uge?',
+                    receivedAt: 'I dag, 10:30',
+                    importance: 'high',
+                    suggestedReplies: [
+                        'Ja, vi er klar til launch som planlagt.',
+                        'Jeg har brug for lidt mere tid - kan vi tage et møde?',
+                        'Lad mig vende tilbage inden kl. 15 med en status.'
+                    ]
+                },
+                {
+                    id: '2',
+                    from: 'Mette Hansen',
+                    subject: 'Frokostmøde i morgen?',
+                    preview: 'Har du tid til at spise frokost i morgen kl. 12?',
+                    receivedAt: 'I dag, 09:15',
+                    importance: 'normal',
+                    suggestedReplies: [
+                        'Ja, det lyder godt! Ses kl. 12.',
+                        'Desværre, jeg har møde. Hvad med torsdag?',
+                        'Måske - jeg vender tilbage senere i dag.'
+                    ]
+                },
+                {
+                    id: '3',
+                    from: 'Support Team',
+                    subject: 'URGENT: Server nedbrud',
+                    preview: 'Server 3 er nede. Kan du tjekke logs hurtigst muligt?',
+                    receivedAt: 'I dag, 08:45',
+                    importance: 'high',
+                    suggestedReplies: [
+                        'Jeg kigger på det med det samme.',
+                        'Har eskaleret til DevOps teamet.',
+                        'Kan du sende mig log-filerne?'
+                    ]
+                }
+            ]);
+            setLoading(false);
+        };
+
+        fetchEmails();
+    }, []);
+
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return 'Ukendt';
+        const date = new Date(dateStr);
+        const now = new Date();
+        const isToday = date.toDateString() === now.toDateString();
+        if (isToday) {
+            return `I dag, ${date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+        return date.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' });
+    };
+
+    const generateSuggestions = (email: any): string[] => {
+        // Simple rule-based suggestions - in production, use AI
+        const subject = (email.subject || '').toLowerCase();
+        const body = (email.bodyPreview || email.body?.content || '').toLowerCase();
+
+        if (subject.includes('møde') || body.includes('møde')) {
+            return ['Ja, jeg deltager.', 'Desværre, jeg kan ikke den dag.', 'Kan vi flytte det?'];
+        }
+        if (subject.includes('urgent') || email.importance === 'high') {
+            return ['Jeg kigger på det nu.', 'Tak for heads up - er på det.', 'Kan du give flere detaljer?'];
+        }
+        if (body.includes('?')) {
+            return ['Ja, det er korrekt.', 'Nej, lad mig forklare...', 'Godt spørgsmål - jeg vender tilbage.'];
+        }
+        return ['Tak for beskeden.', 'Modtaget - jeg vender tilbage.', 'Noteret.'];
+    };
+
+    const handleSendReply = async (emailId: string, reply: string) => {
+        setSelectedReply({ emailId, reply });
+        
+        // Mark as processing
+        setEmails(prev => prev.map(e => 
+            e.id === emailId ? { ...e, isProcessing: true } : e
+        ));
+
+        // Simulate sending (in production, call backend)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Remove the email from list after "sending"
+        setEmails(prev => prev.filter(e => e.id !== emailId));
+        setSelectedReply(null);
+    };
+
+    const getImportanceIcon = (importance: string) => {
+        if (importance === 'high') return <AlertCircle size={14} className="text-red-400" />;
+        return null;
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-full">
+                <RefreshCw className="animate-spin text-[#00B5CB]" size={24} />
+            </div>
+        );
+    }
+
     return (
-        <div className="flex h-full bg-[#0B3E6F]/20 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-500">
-            {/* Sidebar */}
-            <div className="w-64 bg-white/5 border-r border-white/10 flex flex-col">
-                <div className="p-4">
-                    <button className="w-full bg-[#00B5CB] hover:bg-[#009eb3] text-[#051e3c] font-semibold py-2.5 rounded-xl flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#00B5CB]/20">
-                        <Edit3 size={18} />
-                        Ny Email
-                    </button>
-                </div>
-                <div className="flex-1 overflow-y-auto px-2 space-y-1">
-                    <button className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-white/10 text-white">
-                        <div className="flex items-center gap-3">
-                            <Inbox size={18} />
-                            <span className="text-sm font-medium">Indbakke</span>
-                        </div>
-                        <span className="text-xs bg-[#00B5CB] text-[#051e3c] px-1.5 py-0.5 rounded-full font-bold">4</span>
-                    </button>
-                    <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
-                        <Send size={18} />
-                        <span className="text-sm font-medium">Sendt</span>
-                    </button>
-                    <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
-                        <Archive size={18} />
-                        <span className="text-sm font-medium">Arkiv</span>
-                    </button>
-                    <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
-                        <Trash2 size={18} />
-                        <span className="text-sm font-medium">Slettet</span>
-                    </button>
-                </div>
-            </div>
-
-            {/* Email List */}
-            <div className="w-80 bg-white/5 border-r border-white/10 flex flex-col">
-                <div className="p-4 border-b border-white/10">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
-                        <input
-                            type="text"
-                            placeholder="Søg"
-                            className="w-full bg-black/20 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00B5CB]/50"
-                        />
-                    </div>
-                </div>
-                <div className="flex-1 overflow-y-auto">
-                    {[
-                        { sender: 'Lars Jensen', subject: 'Projektstatus Q2', time: '10:30', preview: 'Hej Claus, her er opdateringen på...', active: true },
-                        { sender: 'Mette Hansen', subject: 'Frokostmøde?', time: '09:15', preview: 'Har du tid til at spise frokost i dag...', active: false },
-                        { sender: 'Microsoft', subject: 'Din faktura er klar', time: 'Igår', preview: 'Se din seneste faktura for Azure...', active: false },
-                        { sender: 'HR Afdelingen', subject: 'Sommerfest 2025', time: 'Igår', preview: 'Husk at tilmelde dig årets fest...', active: false },
-                    ].map((email, i) => (
-                        <div key={i} className={`p-4 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors ${email.active ? 'bg-white/10 border-l-2 border-l-[#00B5CB]' : ''}`}>
-                            <div className="flex justify-between items-start mb-1">
-                                <span className={`text-sm font-semibold ${email.active ? 'text-white' : 'text-gray-300'}`}>{email.sender}</span>
-                                <span className="text-xs text-gray-500">{email.time}</span>
-                            </div>
-                            <div className={`text-sm mb-1 ${email.active ? 'text-white font-medium' : 'text-gray-400'}`}>{email.subject}</div>
-                            <div className="text-xs text-gray-500 line-clamp-1">{email.preview}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Email Content */}
-            <div className="flex-1 flex flex-col bg-[#051e3c]/30">
-                <div className="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-white/5">
+        <div className="h-full bg-[#0B3E6F]/20 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="px-5 py-4 border-b border-white/10 bg-white/5">
+                <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"><Archive size={20} /></button>
-                        <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"><Trash2 size={20} /></button>
-                        <div className="h-6 w-px bg-white/10 mx-1" />
-                        <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"><Star size={20} /></button>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"><MoreVertical size={20} /></button>
-                    </div>
-                </div>
-                <div className="flex-1 overflow-y-auto p-8">
-                    <h2 className="text-2xl font-semibold text-white mb-6">Projektstatus Q2</h2>
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white font-bold">LJ</div>
+                        <div className="p-2 bg-[#00B5CB]/20 rounded-lg">
+                            <Sparkles size={20} className="text-[#00B5CB]" />
+                        </div>
                         <div>
-                            <div className="text-sm font-medium text-white">Lars Jensen &lt;lars@tdc.dk&gt;</div>
-                            <div className="text-xs text-gray-400">Til: Claus Kraft</div>
+                            <h3 className="font-semibold text-white">Email Svarforslag</h3>
+                            <p className="text-xs text-gray-400">{emails.length} emails kræver svar</p>
                         </div>
-                        <div className="ml-auto text-xs text-gray-500">I dag, 10:30</div>
                     </div>
-                    <div className="prose prose-invert max-w-none text-gray-300">
-                        <p>Hej Claus,</p>
-                        <p>Her er en kort opdatering på Q2 projektet. Vi er godt med på tidsplanen, og de første tests ser lovende ud.</p>
-                        <p>Nøglepunkter:</p>
-                        <ul>
-                            <li>Backend integration er 90% færdig.</li>
-                            <li>Frontend design er godkendt.</li>
-                            <li>Brugeraccepttest starter i næste uge.</li>
-                        </ul>
-                        <p>Har du mulighed for at kigge på de vedhæftede dokumenter inden vores møde på torsdag?</p>
-                        <p>Mvh,<br />Lars</p>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors"
+                    >
+                        <RefreshCw size={18} />
+                    </button>
+                </div>
+            </div>
+
+            {/* Email List with Suggestions */}
+            <div className="overflow-y-auto max-h-[calc(100%-80px)]">
+                {emails.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                        <Check size={48} className="mb-4 text-green-400" />
+                        <p className="font-medium">Alle emails besvaret!</p>
+                        <p className="text-sm text-gray-500">Ingen ventende svar</p>
                     </div>
-                    <div className="mt-8 pt-6 border-t border-white/10">
-                        <div className="flex items-center gap-3 p-3 rounded-lg border border-white/10 bg-white/5 w-fit hover:bg-white/10 cursor-pointer transition-colors">
-                            <div className="bg-blue-600/20 p-2 rounded text-blue-400"><Paperclip size={20} /></div>
-                            <div>
-                                <div className="text-sm font-medium text-white">Q2_Status_Report.pdf</div>
-                                <div className="text-xs text-gray-500">2.4 MB</div>
+                ) : (
+                    emails.map((email) => (
+                        <div 
+                            key={email.id} 
+                            className={`p-4 border-b border-white/5 ${email.isProcessing ? 'opacity-50' : ''}`}
+                        >
+                            {/* Email Header */}
+                            <div className="flex items-start justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-teal-500 flex items-center justify-center text-white text-xs font-bold">
+                                        {email.from.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                                    </div>
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-white">{email.from}</span>
+                                            {getImportanceIcon(email.importance)}
+                                        </div>
+                                        <span className="text-xs text-gray-500">{email.receivedAt}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Subject & Preview */}
+                            <div className="mb-3 pl-10">
+                                <p className="text-sm font-medium text-gray-200 mb-1">{email.subject}</p>
+                                <p className="text-xs text-gray-400 line-clamp-2">{email.preview}</p>
+                            </div>
+
+                            {/* AI Suggested Replies */}
+                            <div className="pl-10 space-y-2">
+                                <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+                                    <Sparkles size={12} className="text-[#00B5CB]" />
+                                    <span>Foreslåede svar:</span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {email.suggestedReplies.map((reply, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => handleSendReply(email.id, reply)}
+                                            disabled={email.isProcessing}
+                                            className="px-3 py-1.5 text-xs bg-white/5 hover:bg-[#00B5CB]/20 border border-white/10 hover:border-[#00B5CB]/30 rounded-full text-gray-300 hover:text-white transition-all flex items-center gap-1.5 group"
+                                        >
+                                            <span>{reply}</span>
+                                            <Send size={10} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="mt-8 flex gap-3">
-                        <button className="px-4 py-2 bg-[#00B5CB] text-[#051e3c] font-medium rounded-lg hover:bg-[#009eb3] transition-colors">Svar</button>
-                        <button className="px-4 py-2 bg-white/10 text-white font-medium rounded-lg hover:bg-white/20 transition-colors">Videresend</button>
-                    </div>
-                </div>
+                    ))
+                )}
             </div>
         </div>
     );

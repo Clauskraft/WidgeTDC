@@ -1,0 +1,48 @@
+[
+    {
+        "id": "evt-001",
+        "title": "Standup Meeting",
+        "start": "2025-11-27T09:00:00",
+        "end": "2025-11-27T09:30:00",
+        "location": "Teams",
+        "attendees": ["Team"],
+        "color": "blue"
+    },
+    {
+        "id": "evt-002",
+        "title": "Projektstatus med Lars",
+        "start": "2025-11-27T10:00:00",
+        "end": "2025-11-27T11:00:00",
+        "location": "Mødelokale 1",
+        "attendees": ["Lars Jensen", "Claus Kraft"],
+        "color": "teal"
+    },
+    {
+        "id": "evt-003",
+        "title": "Frokost",
+        "start": "2025-11-27T12:00:00",
+        "end": "2025-11-27T13:00:00",
+        "location": "Kantinen",
+        "attendees": [],
+        "color": "green"
+    },
+    {
+        "id": "evt-004",
+        "title": "AI Workshop",
+        "start": "2025-11-27T14:00:00",
+        "end": "2025-11-27T16:00:00",
+        "location": "Konferencelokale A",
+        "attendees": ["Hele teamet"],
+        "color": "purple"
+    },
+    {
+        "id": "evt-005",
+        "title": "Kundeopkald - TDC",
+        "start": "2025-11-28T09:00:00",
+        "end": "2025-11-28T10:00:00",
+        "location": "Teams",
+        "attendees": ["Kunde"],
+        "color": "orange"
+    }
+]
+
