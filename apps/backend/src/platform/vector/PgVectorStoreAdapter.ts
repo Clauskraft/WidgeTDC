@@ -213,6 +213,47 @@ export class PgVectorStoreAdapter {
     }
 
     /**
+     * Get a vector document by ID
+     */
+    async getById(id: string): Promise<VectorRecord | null> {
+        if (!this.isInitialized) await this.initialize();
+
+        if (this.useSQLite) {
+            const db = getDatabase() as any;
+            const stmt = db.prepare('SELECT id, content, embedding, metadata, namespace FROM vector_documents WHERE id = ?');
+            stmt.bind([id]);
+
+            if (stmt.step()) {
+                const row = stmt.getAsObject();
+                stmt.free();
+                return {
+                    id: row.id,
+                    content: row.content,
+                    embedding: JSON.parse(row.embedding || '[]'),
+                    metadata: JSON.parse(row.metadata || '{}'),
+                    namespace: row.namespace
+                };
+            }
+            stmt.free();
+            return null;
+        } else {
+            const prisma = this.dbAdapter.getClient();
+            const doc = await prisma.vectorDocument.findUnique({
+                where: { id }
+            });
+
+            if (!doc) return null;
+
+            return {
+                id: doc.id,
+                content: doc.content,
+                metadata: doc.metadata as Record<string, any> || {},
+                namespace: doc.namespace
+            };
+        }
+    }
+
+    /**
      * Delete a vector document
      */
     async delete(id: string): Promise<void> {
@@ -246,10 +287,19 @@ export class PgVectorStoreAdapter {
     }
 
     /**
-     * Get statistics
+     * Get statistics (with per-namespace counts)
      */
-    async getStatistics(): Promise<{ totalRecords: number; namespaces: string[] }> {
+    async getStatistics(): Promise<{
+        totalRecords: number;
+        namespaces: string[];
+        perNamespace: Record<string, number>;
+        initialized: boolean;
+        backend: 'sqlite' | 'postgres';
+    }> {
         if (!this.isInitialized) await this.initialize();
+
+        const perNamespace: Record<string, number> = {};
+
         if (this.useSQLite) {
             const db = getDatabase() as any;
 
@@ -260,28 +310,74 @@ export class PgVectorStoreAdapter {
             }
             countStmt.free();
 
-            const nsStmt = db.prepare('SELECT DISTINCT namespace FROM vector_documents');
+            const nsStmt = db.prepare('SELECT namespace, COUNT(*) as count FROM vector_documents GROUP BY namespace');
             const nsResult: any[] = [];
             while (nsStmt.step()) {
-                nsResult.push(nsStmt.getAsObject());
+                const row = nsStmt.getAsObject();
+                nsResult.push(row);
+                perNamespace[row.namespace] = row.count;
             }
             nsStmt.free();
 
             return {
                 totalRecords: countResult.count,
                 namespaces: nsResult.map(r => r.namespace),
+                perNamespace,
+                initialized: this.isInitialized,
+                backend: 'sqlite'
             };
         } else {
             const prisma = this.dbAdapter.getClient();
             const totalRecords = await prisma.vectorDocument.count();
-            const namespaces = await prisma.vectorDocument.findMany({
-                select: { namespace: true },
-                distinct: ['namespace'],
-            });
+
+            const namespaceCounts = await prisma.$queryRaw<{ namespace: string; count: bigint }[]>`
+                SELECT namespace, COUNT(*) as count
+                FROM vector_documents
+                GROUP BY namespace
+            `;
+
+            for (const ns of namespaceCounts) {
+                perNamespace[ns.namespace] = Number(ns.count);
+            }
 
             return {
                 totalRecords,
-                namespaces: namespaces.map(n => n.namespace),
+                namespaces: Object.keys(perNamespace),
+                perNamespace,
+                initialized: this.isInitialized,
+                backend: 'postgres'
+            };
+        }
+    }
+
+    /**
+     * Health check
+     */
+    async healthCheck(): Promise<{
+        healthy: boolean;
+        backend: 'sqlite' | 'postgres';
+        embeddingProvider: string;
+        embeddingDimensions: number;
+    }> {
+        try {
+            if (!this.isInitialized) await this.initialize();
+
+            // Test a simple query
+            const stats = await this.getStatistics();
+
+            return {
+                healthy: true,
+                backend: this.useSQLite ? 'sqlite' : 'postgres',
+                embeddingProvider: this.embeddings.getProviderName(),
+                embeddingDimensions: this.embeddings.getDimensions()
+            };
+        } catch (error) {
+            logger.error('Vector store health check failed', error);
+            return {
+                healthy: false,
+                backend: this.useSQLite ? 'sqlite' : 'postgres',
+                embeddingProvider: 'unknown',
+                embeddingDimensions: 0
             };
         }
     }

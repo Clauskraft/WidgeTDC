@@ -96,7 +96,7 @@ export class PluginManager {
             const hook = plugin.hooks[hookName];
             if (hook && typeof hook === 'function') {
                 try {
-                    const result = await hook(...args);
+                    const result = await (hook as (...args: any[]) => Promise<any>)(...args);
                     results.push(result);
                 } catch (error) {
                     console.error(`Error in plugin ${plugin.metadata.name} hook ${hookName}:`, error);

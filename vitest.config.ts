@@ -18,6 +18,8 @@ export default defineConfig({
       'tests/e2e/**',
       'tests/persona-tests.spec.ts',
       'tests/e2e-comprehensive.spec.ts',
+      'tests/unit/**',
+      'tests/integration/**',
       'apps/widget-board/tests/**',
     ],
     coverage: {

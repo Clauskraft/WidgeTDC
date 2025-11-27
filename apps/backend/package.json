@@ -34,7 +34,6 @@
     "neo4j-driver": "^6.0.1",
     "node-cron": "^3.0.3",
     "openai": "^4.73.0",
-    "puppeteer": "^21.6.0",
     "sql.js": "^1.8.0",
     "systeminformation": "^5.27.11",
     "testcontainers": "^11.8.1",

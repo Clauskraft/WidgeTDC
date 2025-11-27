@@ -1,4 +1,4 @@
-const DatabaseTestHelper = require('../helpers/dbHelper');
+const DatabaseTestHelper = require('../helpers/dbHelper.cjs');
 
 describe('User Model', () => {
   let dbHelper;

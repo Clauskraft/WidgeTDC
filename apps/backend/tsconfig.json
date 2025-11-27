@@ -13,7 +13,10 @@
     "baseUrl": ".",
     "paths": {
       "@widget-tdc/mcp-types": [
-        "../../packages/shared/mcp-types/dist/index.d.ts"
+        "../../packages/mcp-types/dist/index.d.ts"
+      ],
+      "@widget-tdc/domain-types": [
+        "../../packages/domain-types/dist/index.d.ts"
       ]
     }
   },
@@ -22,6 +25,9 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "src/tests/**/*",
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
   ]
 }

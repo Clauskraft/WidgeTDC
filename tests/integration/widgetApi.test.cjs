@@ -1,5 +1,5 @@
-const DatabaseTestHelper = require('../helpers/dbHelper');
-const APITestHelper = require('../helpers/apiHelper');
+const DatabaseTestHelper = require('../helpers/dbHelper.cjs');
+const APITestHelper = require('../helpers/apiHelper.cjs');
 
 describe('Widget API Integration', () => {
   let dbHelper;

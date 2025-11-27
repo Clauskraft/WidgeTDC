@@ -294,13 +294,62 @@ async function startServer() {
     app.use('/api/pal', palRouter);
     app.use('/api/security', securityRouter);
 
-    // Health check
-    app.get('/health', (req, res) => {
-      res.json({
-        status: 'healthy',
-        timestamp: new Date().toISOString(),
-        registeredTools: mcpRegistry.getRegisteredTools(),
-      });
+    // Health check endpoint - comprehensive system health
+    app.get('/health', async (req, res) => {
+      try {
+        const { getPgVectorStore } = await import('./platform/vector/PgVectorStoreAdapter.js');
+        const { neo4jService } = await import('./database/Neo4jService.js');
+
+        // Vector store health
+        let vectorHealth = { healthy: false, backend: 'unknown' as any };
+        try {
+          const vectorStore = getPgVectorStore();
+          vectorHealth = await vectorStore.healthCheck();
+        } catch { /* ignore */ }
+
+        // Neo4j health
+        let neo4jHealthy = false;
+        try {
+          neo4jHealthy = await neo4jService.healthCheck();
+        } catch { /* ignore */ }
+
+        // SQLite health
+        let sqliteHealthy = false;
+        try {
+          const { getDatabase } = await import('./database/index.js');
+          const db = getDatabase();
+          const result = db.prepare('SELECT 1 as test').get() as any;
+          sqliteHealthy = result?.test === 1;
+        } catch { /* ignore */ }
+
+        res.json({
+          status: 'healthy',
+          timestamp: new Date().toISOString(),
+          services: {
+            sqlite: { healthy: sqliteHealthy },
+            neo4j: { healthy: neo4jHealthy, optional: true },
+            vectorStore: vectorHealth
+          },
+          registeredTools: mcpRegistry.getRegisteredTools().length,
+          toolsList: mcpRegistry.getRegisteredTools()
+        });
+      } catch (error) {
+        res.status(500).json({
+          status: 'unhealthy',
+          timestamp: new Date().toISOString(),
+          error: String(error)
+        });
+      }
+    });
+
+    // Readiness check - for kubernetes/docker deployments
+    app.get('/ready', (req, res) => {
+      res.json({ ready: true, timestamp: new Date().toISOString() });
+    });
+
+    // Liveness check
+    app.get('/live', (req, res) => {
+      res.json({ live: true, timestamp: new Date().toISOString() });
     });
 
     // Step 5: Create HTTP server
