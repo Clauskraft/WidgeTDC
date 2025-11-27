@@ -20,8 +20,8 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
-        minWidth: 1024,
-        minHeight: 768,
+        minWidth: 768,  // Support tablet-sized screens (responsive)
+        minHeight: 600, // Reduced for better flexibility
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             contextIsolation: true,
@@ -30,7 +30,15 @@ function createWindow() {
         },
         ...iconConfig,
         title: 'WidgeTDC - Enterprise AI Dashboard',
-        backgroundColor: '#050505',
+        backgroundColor: '#051e3c', // Match the app's background color
+        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+        frame: true,
+        show: false, // Don't show until ready to prevent flash
+    });
+
+    // Show window when ready to prevent white flash
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
     });
 
     // Get backend URL from settings or use default

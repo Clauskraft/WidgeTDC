@@ -1,5 +1,182 @@
 @import "tailwindcss";
 
+/* ===================================================================
+   WidgeTDC Pro - Copilot-Style Responsive CSS
+   =================================================================== */
+
+/* ===================================================================
+   React Grid Layout Styles (Required)
+   =================================================================== */
+
+.react-grid-layout {
+  position: relative;
+  transition: height 200ms ease;
+}
+
+.react-grid-item {
+  transition: all 200ms ease;
+  transition-property: left, top, width, height;
+}
+
+.react-grid-item.cssTransforms {
+  transition-property: transform, width, height;
+}
+
+.react-grid-item.resizing {
+  z-index: 1;
+  will-change: width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 3;
+  will-change: transform;
+  opacity: 0.9;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: #00B5CB;
+  opacity: 0.15;
+  transition-duration: 100ms;
+  z-index: 2;
+  border-radius: 1rem;
+  border: 2px dashed #00B5CB;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0 0 2px 0;
+}
+
+.react-grid-item:hover > .react-resizable-handle::after {
+  border-color: #00B5CB;
+}
+
+/* ===================================================================
+   Custom Scrollbar
+   =================================================================== */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ===================================================================
+   Responsive Breakpoint Utilities
+   =================================================================== */
+
+/* Mobile sidebar overlay */
+@media (max-width: 767px) {
+  .sidebar-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 49;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+
+  .sidebar-mobile-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-responsive {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 300ms ease;
+  }
+
+  .sidebar-responsive.open {
+    transform: translateX(0);
+  }
+
+  .main-content-responsive {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .sidebar-responsive {
+    width: 70px;
+  }
+
+  .sidebar-responsive.expanded {
+    width: 280px;
+  }
+}
+
+/* Touch-friendly targets */
+@media (pointer: coarse) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ===================================================================
+   SR Only (Accessibility)
+   =================================================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===================================================================
+   Design Tokens Layer
+   =================================================================== */
+
 @layer base {
   :root {
     --background: 0 0% 100%;

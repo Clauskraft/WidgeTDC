@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft } from 'lucide-react';
 import { ClausLogo } from './ClausLogo';
 import { WordView } from './apps/WordView';
 import { OutlookView } from './apps/OutlookView';
@@ -19,8 +19,37 @@ interface ChatMessage {
     timestamp: Date;
 }
 
+// Custom hook for responsive breakpoints
+const useResponsive = () => {
+    const [windowSize, setWindowSize] = useState({
+        width: typeof window !== 'undefined' ? window.innerWidth : 1200,
+        height: typeof window !== 'undefined' ? window.innerHeight : 800,
+    });
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowSize({
+                width: window.innerWidth,
+                height: window.innerHeight,
+            });
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
+    return {
+        isMobile: windowSize.width < 768,
+        isTablet: windowSize.width >= 768 && windowSize.width < 1024,
+        isDesktop: windowSize.width >= 1024,
+        width: windowSize.width,
+        height: windowSize.height,
+    };
+};
+
 export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "WidgeTDC Workspace", headerActions }) => {
-    const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const { isMobile, isTablet, isDesktop } = useResponsive();
+    const [isSidebarOpen, setSidebarOpen] = useState(!isMobile);
     const [activeTab, setActiveTab] = useState('chat');
     const [chatInput, setChatInput] = useState('');
     const [conversationStyle, setConversationStyle] = useState('balanced');
@@ -28,6 +57,22 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const [isProcessing, setIsProcessing] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { send } = useMCP();
+
+    // Auto-collapse sidebar on mobile
+    useEffect(() => {
+        if (isMobile) {
+            setSidebarOpen(false);
+        } else if (isDesktop) {
+            setSidebarOpen(true);
+        }
+    }, [isMobile, isDesktop]);
+
+    // Close sidebar when clicking outside on mobile
+    const handleBackdropClick = useCallback(() => {
+        if (isMobile) {
+            setSidebarOpen(false);
+        }
+    }, [isMobile]);
 
     const sidebarItems = [
         { id: 'chat', icon: MessageSquare, label: 'DOT Chat' },
@@ -61,7 +106,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         setIsProcessing(true);
 
         try {
-            // Use srag.query for RAG-enhanced chat
             const response = await send('agent-orchestrator', 'srag.query', {
                 query: chatInput,
                 style: conversationStyle
@@ -96,83 +140,147 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         }
     };
 
+    const handleNavClick = (id: string) => {
+        setActiveTab(id);
+        if (isMobile) {
+            setSidebarOpen(false);
+        }
+    };
+
+    // Determine sidebar width based on state and device
+    const getSidebarWidth = () => {
+        if (isMobile) return '280px';
+        if (isTablet) return isSidebarOpen ? '280px' : '70px';
+        return isSidebarOpen ? '280px' : '70px';
+    };
+
+    const showLabels = isMobile || (isSidebarOpen && !isMobile);
+
     return (
-        <div className="h-screen w-full overflow-hidden flex font-segoe bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
+        <div className="h-screen h-[100dvh] w-full overflow-hidden flex font-sans bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
             {/* Advanced Background Mesh Gradient */}
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <div className="absolute top-[-20%] left-[-10%] w-[80vw] h-[80vw] bg-[#0B3E6F]/40 rounded-full blur-[120px] opacity-50 mix-blend-screen animate-pulse-slow" />
                 <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-[#00677F]/30 rounded-full blur-[150px] opacity-40 mix-blend-screen" />
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay" />
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-30" />
             </div>
 
-            {/* Ultra-Glassmorphic Sidebar */}
-            <aside className={`relative z-50 flex flex-col border-r border-white/5 bg-[#0B3E6F]/20 backdrop-blur-3xl transition-all duration-500 ease-spring ${isSidebarOpen ? 'w-[280px]' : 'w-[70px]'} shadow-[4px_0_30px_rgba(0,0,0,0.3)]`}>
+            {/* Mobile Backdrop */}
+            {isMobile && (
+                <div
+                    className={`sidebar-mobile-overlay ${isSidebarOpen ? 'visible' : ''}`}
+                    onClick={handleBackdropClick}
+                    aria-hidden="true"
+                />
+            )}
 
+            {/* Ultra-Glassmorphic Sidebar */}
+            <aside
+                className={`
+                    sidebar-responsive
+                    relative z-50 flex flex-col border-r border-white/5
+                    bg-[#0B3E6F]/20 backdrop-blur-xl
+                    transition-all duration-300 ease-out
+                    shadow-[4px_0_30px_rgba(0,0,0,0.3)]
+                    ${isMobile ? (isSidebarOpen ? 'open' : '') : ''}
+                `}
+                style={{ width: getSidebarWidth() }}
+            >
                 {/* Header / Logo */}
-                <div className="h-20 flex items-center justify-between px-5">
-                    <div className="flex items-center gap-4 overflow-hidden">
-                        <div className="shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
-                            <ClausLogo size={24} />
+                <div className="h-16 md:h-20 flex items-center justify-between px-4 md:px-5 shrink-0">
+                    <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
+                        <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
+                            <ClausLogo size={isMobile ? 20 : 24} />
                         </div>
-                        <div className={`flex flex-col transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0'}`}>
-                            <span className="font-bold text-lg tracking-tight text-white leading-none">DOT</span>
-                            <span className="text-[10px] font-medium text-[#00B5CB] tracking-wider uppercase">TDC Erhverv</span>
+                        <div className={`flex flex-col transition-all duration-300 ${showLabels ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
+                            <span className="font-bold text-base md:text-lg tracking-tight text-white leading-none">DOT</span>
+                            <span className="text-[9px] md:text-[10px] font-medium text-[#00B5CB] tracking-wider uppercase">TDC Erhverv</span>
                         </div>
                     </div>
+
+                    {/* Close button for mobile */}
+                    {isMobile && isSidebarOpen && (
+                        <button
+                            onClick={() => setSidebarOpen(false)}
+                            className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors touch-target"
+                            aria-label="Luk menu"
+                        >
+                            <X size={20} />
+                        </button>
+                    )}
                 </div>
 
                 {/* Navigation Items */}
-                <div className="flex-1 overflow-y-auto py-6 px-3 space-y-2">
+                <nav className="flex-1 overflow-y-auto py-4 md:py-6 px-2 md:px-3 space-y-1 md:space-y-2">
                     {sidebarItems.map((item) => (
                         <button
                             key={item.id}
-                            onClick={() => setActiveTab(item.id)}
-                            className={`w-full flex items-center gap-4 px-3 py-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${activeTab === item.id ? 'bg-white/10 text-white shadow-inner ring-1 ring-white/5' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                            onClick={() => handleNavClick(item.id)}
+                            className={`
+                                w-full flex items-center gap-3 md:gap-4 px-3 py-2.5 md:py-3 rounded-xl
+                                transition-all duration-300 group relative overflow-hidden touch-target
+                                ${activeTab === item.id
+                                    ? 'bg-white/10 text-white shadow-inner ring-1 ring-white/5'
+                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'}
+                            `}
+                            aria-current={activeTab === item.id ? 'page' : undefined}
                         >
                             {activeTab === item.id && (
                                 <div className="absolute inset-0 bg-gradient-to-r from-[#00B5CB]/10 to-transparent opacity-50" />
                             )}
-                            <item.icon size={22} className={`shrink-0 transition-all duration-300 z-10 ${activeTab === item.id ? 'text-[#00B5CB] scale-110 drop-shadow-[0_0_8px_rgba(0,181,203,0.5)]' : 'group-hover:text-gray-200 group-hover:scale-105'}`} />
-                            <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 z-10 ${isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 overflow-hidden'}`}>
+                            <item.icon
+                                size={isMobile ? 20 : 22}
+                                className={`
+                                    shrink-0 transition-all duration-300 z-10
+                                    ${activeTab === item.id
+                                        ? 'text-[#00B5CB] scale-110 drop-shadow-[0_0_8px_rgba(0,181,203,0.5)]'
+                                        : 'group-hover:text-gray-200 group-hover:scale-105'}
+                                `}
+                            />
+                            <span className={`
+                                text-sm font-medium whitespace-nowrap transition-all duration-300 z-10
+                                ${showLabels ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 w-0 overflow-hidden'}
+                            `}>
                                 {item.label}
                             </span>
-                            {activeTab === item.id && isSidebarOpen && (
+                            {activeTab === item.id && showLabels && (
                                 <div className="ml-auto w-1.5 h-1.5 bg-[#00B5CB] rounded-full shadow-[0_0_8px_#00B5CB]" />
                             )}
                         </button>
                     ))}
-                </div>
+                </nav>
 
                 {/* User Profile */}
-                <div className="p-4 border-t border-white/5 bg-black/10 backdrop-blur-md">
-                    <button className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center text-xs font-bold shadow-md group-hover:ring-2 ring-[#00B5CB]/50 transition-all">
+                <div className="p-3 md:p-4 border-t border-white/5 bg-black/10 backdrop-blur-md shrink-0">
+                    <button className="w-full flex items-center gap-2 md:gap-3 p-2 rounded-xl hover:bg-white/5 transition-colors group touch-target">
+                        <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-tr from-gray-700 to-gray-600 border border-white/10 flex items-center justify-center text-xs font-bold shadow-md group-hover:ring-2 ring-[#00B5CB]/50 transition-all shrink-0">
                             CK
                         </div>
-                        <div className={`flex flex-col items-start overflow-hidden transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100' : 'opacity-0 w-0'}`}>
+                        <div className={`flex flex-col items-start overflow-hidden transition-all duration-300 ${showLabels ? 'opacity-100 w-auto' : 'opacity-0 w-0'}`}>
                             <span className="text-sm font-medium text-white truncate">Claus Kraft</span>
                             <span className="text-xs text-[#00B5CB] truncate">Pro Account</span>
                         </div>
-                        {isSidebarOpen && <Settings size={16} className="ml-auto text-gray-500 group-hover:text-white transition-colors" />}
+                        {showLabels && <Settings size={16} className="ml-auto text-gray-500 group-hover:text-white transition-colors shrink-0" />}
                     </button>
                 </div>
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 flex flex-col relative z-10 overflow-hidden">
+            <main className="flex-1 flex flex-col relative z-10 overflow-hidden main-content-responsive">
                 {/* Top Bar */}
-                <header className="h-20 flex items-center justify-between px-8 bg-transparent">
-                    <div className="flex items-center gap-4">
+                <header className="h-14 md:h-20 flex items-center justify-between px-4 md:px-8 bg-transparent shrink-0">
+                    <div className="flex items-center gap-3 md:gap-4">
                         <button
                             onClick={() => setSidebarOpen(!isSidebarOpen)}
-                            className="p-2.5 hover:bg-white/10 rounded-xl text-gray-300 hover:text-white transition-all active:scale-95 ring-1 ring-transparent hover:ring-white/10"
+                            className="p-2 md:p-2.5 hover:bg-white/10 rounded-xl text-gray-300 hover:text-white transition-all active:scale-95 ring-1 ring-transparent hover:ring-white/10 touch-target"
+                            aria-label={isSidebarOpen ? 'Skjul sidebar' : 'Vis sidebar'}
                         >
-                            {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+                            {isSidebarOpen && !isMobile ? <ChevronLeft size={20} /> : <Menu size={20} />}
                         </button>
-                        <h1 className="text-sm font-medium text-gray-400 tracking-wide uppercase">{title}</h1>
+                        <h1 className="text-xs md:text-sm font-medium text-gray-400 tracking-wide uppercase truncate">{title}</h1>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 md:gap-3">
                         {headerActions}
                     </div>
                 </header>
@@ -182,19 +290,19 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                     {activeTab === 'chat' && (
                         <div className="flex-1 flex flex-col h-full relative">
                             {/* Chat History */}
-                            <div className="flex-1 overflow-y-auto p-8 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                            <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 md:space-y-6 scrollbar-hide">
                                 {messages.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-10 animate-in fade-in zoom-in-95 duration-500">
+                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-6 md:space-y-10 animate-fade-in px-4">
                                         <div className="relative">
                                             <div className="absolute -inset-4 bg-[#00B5CB]/20 rounded-full blur-xl animate-pulse" />
-                                            <ClausLogo size={64} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
+                                            <ClausLogo size={isMobile ? 48 : 64} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
                                         </div>
-                                        <h2 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E0F7FA] to-[#00B5CB] tracking-tight drop-shadow-sm">
+                                        <h2 className="text-2xl md:text-5xl font-bold text-gradient tracking-tight drop-shadow-sm px-4">
                                             Hej Claus, hvad skal vi løse?
                                         </h2>
 
-                                        {/* Suggestion Cards */}
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-4xl">
+                                        {/* Suggestion Cards - Responsive Grid */}
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 w-full max-w-4xl px-2">
                                             {[
                                                 { title: 'Møde Opsummering', sub: 'Generer referat fra Teams', icon: FileText, color: 'text-blue-400' },
                                                 { title: 'Data Analyse', sub: 'Analyser Q1 salgstal', icon: LayoutGrid, color: 'text-teal-400' },
@@ -203,36 +311,36 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                                 <button
                                                     key={i}
                                                     onClick={() => setChatInput(card.title + " ")}
-                                                    className="text-left p-5 rounded-2xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10"
+                                                    className="text-left p-4 md:p-5 rounded-2xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10 touch-target"
                                                 >
-                                                    <div className="flex justify-between items-start mb-3">
-                                                        <card.icon size={24} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
+                                                    <div className="flex justify-between items-start mb-2 md:mb-3">
+                                                        <card.icon size={isMobile ? 20 : 24} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
                                                         <ArrowRight size={16} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                                                     </div>
-                                                    <div className="font-semibold text-base text-gray-100 mb-1">{card.title}</div>
+                                                    <div className="font-semibold text-sm md:text-base text-gray-100 mb-1">{card.title}</div>
                                                     <div className="text-xs text-gray-400 font-medium">{card.sub}</div>
                                                 </button>
                                             ))}
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="max-w-4xl mx-auto space-y-6 pb-32">
+                                    <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 pb-32">
                                         {messages.map((msg) => (
-                                            <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'} animate-in fade-in slide-in-from-bottom-2`}>
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-white/10' : 'bg-[#00B5CB]/20'}`}>
-                                                    {msg.role === 'user' ? <User size={20} className="text-gray-300" /> : <Bot size={20} className="text-[#00B5CB]" />}
+                                            <div key={msg.id} className={`flex gap-3 md:gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'} animate-slide-up`}>
+                                                <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 ${msg.role === 'user' ? 'bg-white/10' : 'bg-[#00B5CB]/20'}`}>
+                                                    {msg.role === 'user' ? <User size={isMobile ? 16 : 20} className="text-gray-300" /> : <Bot size={isMobile ? 16 : 20} className="text-[#00B5CB]" />}
                                                 </div>
-                                                <div className={`p-4 rounded-2xl max-w-[80%] ${msg.role === 'user' ? 'bg-[#0B3E6F]/60 text-white rounded-tr-none' : 'bg-white/5 text-gray-200 rounded-tl-none border border-white/5'}`}>
-                                                    <p className="whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                                                <div className={`p-3 md:p-4 rounded-2xl max-w-[85%] md:max-w-[80%] ${msg.role === 'user' ? 'bg-[#0B3E6F]/60 text-white rounded-tr-none' : 'bg-white/5 text-gray-200 rounded-tl-none border border-white/5'}`}>
+                                                    <p className="whitespace-pre-wrap leading-relaxed text-sm md:text-base">{msg.content}</p>
                                                 </div>
                                             </div>
                                         ))}
                                         {isProcessing && (
-                                            <div className="flex gap-4 animate-in fade-in">
-                                                <div className="w-10 h-10 rounded-full bg-[#00B5CB]/20 flex items-center justify-center shrink-0">
-                                                    <Bot size={20} className="text-[#00B5CB]" />
+                                            <div className="flex gap-3 md:gap-4 animate-fade-in">
+                                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#00B5CB]/20 flex items-center justify-center shrink-0">
+                                                    <Bot size={isMobile ? 16 : 20} className="text-[#00B5CB]" />
                                                 </div>
-                                                <div className="p-4 rounded-2xl bg-white/5 rounded-tl-none border border-white/5 flex items-center gap-2">
+                                                <div className="p-3 md:p-4 rounded-2xl bg-white/5 rounded-tl-none border border-white/5 flex items-center gap-2">
                                                     <div className="w-2 h-2 bg-[#00B5CB] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                                                     <div className="w-2 h-2 bg-[#00B5CB] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                                                     <div className="w-2 h-2 bg-[#00B5CB] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -245,16 +353,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                             </div>
 
                             {/* Input Area */}
-                            <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-[#051e3c] via-[#051e3c]/90 to-transparent z-20">
+                            <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8 bg-gradient-to-t from-[#051e3c] via-[#051e3c]/90 to-transparent z-20">
                                 <div className="max-w-3xl mx-auto relative">
-                                    {/* Conversation Style Toggle - Only show when empty or hovering */}
-                                    <div className={`absolute -top-14 left-0 right-0 flex justify-center gap-2 transition-opacity duration-300 ${messages.length > 0 ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}>
-                                        <div className="bg-[#051e3c]/80 backdrop-blur-xl rounded-full p-1.5 border border-white/10 flex shadow-2xl ring-1 ring-white/5">
+                                    {/* Conversation Style Toggle */}
+                                    <div className={`absolute -top-12 md:-top-14 left-0 right-0 flex justify-center gap-2 transition-opacity duration-300 ${messages.length > 0 ? 'opacity-0 hover:opacity-100' : 'opacity-100'}`}>
+                                        <div className="bg-[#051e3c]/80 backdrop-blur-xl rounded-full p-1 md:p-1.5 border border-white/10 flex shadow-2xl ring-1 ring-white/5">
                                             {['creative', 'balanced', 'precise'].map((style) => (
                                                 <button
                                                     key={style}
                                                     onClick={() => setConversationStyle(style)}
-                                                    className={`px-5 py-2 rounded-full text-xs font-semibold transition-all duration-300 capitalize ${conversationStyle === style ? 'bg-[#00B5CB] text-[#051e3c] shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                                                    className={`px-3 md:px-5 py-1.5 md:py-2 rounded-full text-xs font-semibold transition-all duration-300 capitalize touch-target ${conversationStyle === style ? 'bg-[#00B5CB] text-[#051e3c] shadow-lg' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                                                 >
                                                     {style === 'creative' ? 'Kreativ' : style === 'balanced' ? 'Balanceret' : 'Præcis'}
                                                 </button>
@@ -262,41 +370,41 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         </div>
                                     </div>
 
-                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
+                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
                                         <textarea
                                             value={chatInput}
                                             onChange={(e) => setChatInput(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Spørg DOT om hvad som helst..."
-                                            className="w-full bg-transparent border-none text-lg text-white placeholder-gray-400/60 p-6 pr-14 min-h-[70px] max-h-[200px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
+                                            className="w-full bg-transparent border-none text-base md:text-lg text-white placeholder-gray-400/60 p-4 md:p-6 pr-14 min-h-[60px] md:min-h-[70px] max-h-[150px] md:max-h-[200px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
                                             rows={1}
                                         />
-                                        <div className="flex items-center justify-between px-5 pb-5">
-                                            <div className="flex gap-2">
-                                                <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Vedhæft">
-                                                    <Plus size={20} />
+                                        <div className="flex items-center justify-between px-3 md:px-5 pb-3 md:pb-5">
+                                            <div className="flex gap-1 md:gap-2">
+                                                <button className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft">
+                                                    <Plus size={isMobile ? 18 : 20} />
                                                 </button>
-                                                <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95" title="Billeder">
-                                                    <LayoutGrid size={20} />
+                                                <button className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target hidden sm:flex" title="Billeder">
+                                                    <LayoutGrid size={isMobile ? 18 : 20} />
                                                 </button>
                                             </div>
-                                            <div className="flex gap-3">
-                                                <button className="p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95" title="Tale">
-                                                    <Mic size={22} />
+                                            <div className="flex gap-2 md:gap-3">
+                                                <button className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95 touch-target" title="Tale">
+                                                    <Mic size={isMobile ? 18 : 22} />
                                                 </button>
                                                 <button
                                                     onClick={handleSendMessage}
                                                     disabled={!chatInput.trim() || isProcessing}
-                                                    className={`p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center ${chatInput.trim() ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
+                                                    className={`p-2 md:p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${chatInput.trim() ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
                                                 >
-                                                    <Send size={20} className={chatInput.trim() ? 'ml-0.5' : ''} />
+                                                    <Send size={isMobile ? 18 : 20} className={chatInput.trim() ? 'ml-0.5' : ''} />
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex justify-center mt-4 gap-2 items-center">
+                                    <div className="flex justify-center mt-3 md:mt-4 gap-2 items-center">
                                         <Sparkles size={12} className="text-[#00B5CB]" />
-                                        <p className="text-center text-[10px] text-gray-500 font-medium tracking-wide uppercase">
+                                        <p className="text-center text-[9px] md:text-[10px] text-gray-500 font-medium tracking-wide uppercase">
                                             DOT AI kan lave fejl. Kontroller vigtige oplysninger.
                                         </p>
                                     </div>
@@ -306,100 +414,53 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                     )}
 
                     {activeTab === 'apps' && (
-                        <div className="flex-1 overflow-y-auto p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
                             {children}
                         </div>
                     )}
 
                     {activeTab === 'create' && (
-                        <div className="flex-1 overflow-y-auto p-8 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
                             <div className="max-w-6xl mx-auto">
-                                <h2 className="text-3xl font-light text-white mb-2">Opret nyt indhold</h2>
-                                <p className="text-gray-400 mb-10 font-light">Vælg en skabelon eller start fra bunden med DOT AI.</p>
+                                <h2 className="text-2xl md:text-3xl font-light text-white mb-2">Opret nyt indhold</h2>
+                                <p className="text-gray-400 mb-6 md:mb-10 font-light text-sm md:text-base">Vælg en skabelon eller start fra bunden med DOT AI.</p>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {/* Document Creation */}
-                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="w-12 h-12 rounded-2xl bg-blue-500/20 flex items-center justify-center mb-4 text-blue-400 group-hover:scale-110 transition-transform duration-300">
-                                            <FileText size={24} />
-                                        </div>
-                                        <h3 className="text-lg font-medium text-white mb-1">Dokument</h3>
-                                        <p className="text-sm text-gray-400">Rapporter, notater og artikler</p>
-                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                                    </button>
-
-                                    {/* Presentation Creation */}
-                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center mb-4 text-orange-400 group-hover:scale-110 transition-transform duration-300">
-                                            <LayoutGrid size={24} />
-                                        </div>
-                                        <h3 className="text-lg font-medium text-white mb-1">Præsentation</h3>
-                                        <p className="text-sm text-gray-400">Slides og visuelle overblik</p>
-                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                                    </button>
-
-                                    {/* Email Creation */}
-                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="w-12 h-12 rounded-2xl bg-purple-500/20 flex items-center justify-center mb-4 text-purple-400 group-hover:scale-110 transition-transform duration-300">
-                                            <Mail size={24} />
-                                        </div>
-                                        <h3 className="text-lg font-medium text-white mb-1">Email</h3>
-                                        <p className="text-sm text-gray-400">Nyhedsbreve og kampagner</p>
-                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                                    </button>
-
-                                    {/* Calendar Event */}
-                                    <button className="group relative p-6 rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <div className="w-12 h-12 rounded-2xl bg-teal-500/20 flex items-center justify-center mb-4 text-teal-400 group-hover:scale-110 transition-transform duration-300">
-                                            <Calendar size={24} />
-                                        </div>
-                                        <h3 className="text-lg font-medium text-white mb-1">Begivenhed</h3>
-                                        <p className="text-sm text-gray-400">Møder og workshops</p>
-                                        <ArrowRight size={16} className="absolute bottom-6 right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                                    </button>
-                                </div>
-
-                                <div className="mt-12">
-                                    <h3 className="text-lg font-medium text-white mb-6">Nylige kladder</h3>
-                                    <div className="space-y-3">
-                                        {[1, 2, 3].map((i) => (
-                                            <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
-                                                <div className="w-10 h-10 rounded-xl bg-[#0B3E6F]/40 flex items-center justify-center text-gray-400">
-                                                    <FileText size={18} />
-                                                </div>
-                                                <div className="flex-1">
-                                                    <h4 className="text-sm font-medium text-gray-200 group-hover:text-white transition-colors">Udkast til Q2 Strategi</h4>
-                                                    <p className="text-xs text-gray-500">Redigeret for 2 timer siden</p>
-                                                </div>
-                                                <button className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors">
-                                                    <MoreHorizontal size={16} />
-                                                </button>
+                                <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+                                    {[
+                                        { title: 'Dokument', sub: 'Rapporter, notater og artikler', icon: FileText, color: 'bg-blue-500/20 text-blue-400' },
+                                        { title: 'Præsentation', sub: 'Slides og visuelle overblik', icon: LayoutGrid, color: 'bg-orange-500/20 text-orange-400' },
+                                        { title: 'Email', sub: 'Nyhedsbreve og kampagner', icon: Mail, color: 'bg-purple-500/20 text-purple-400' },
+                                        { title: 'Begivenhed', sub: 'Møder og workshops', icon: Calendar, color: 'bg-teal-500/20 text-teal-400' }
+                                    ].map((card, i) => (
+                                        <button key={i} className="group relative p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden touch-target">
+                                            <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl ${card.color} flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                                                <card.icon size={isMobile ? 20 : 24} />
                                             </div>
-                                        ))}
-                                    </div>
+                                            <h3 className="text-base md:text-lg font-medium text-white mb-1">{card.title}</h3>
+                                            <p className="text-xs md:text-sm text-gray-400 hidden sm:block">{card.sub}</p>
+                                            <ArrowRight size={16} className="absolute bottom-4 md:bottom-6 right-4 md:right-6 text-[#00B5CB] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         </div>
                     )}
 
                     {activeTab === 'word' && (
-                        <div className="flex-1 overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
                             <WordView />
                         </div>
                     )}
 
                     {activeTab === 'outlook' && (
-                        <div className="flex-1 overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
                             <OutlookView />
                         </div>
                     )}
 
                     {activeTab === 'calendar' && (
-                        <div className="flex-1 overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-500">
+                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
                             <CalendarView />
                         </div>
                     )}

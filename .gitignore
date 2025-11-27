@@ -57,5 +57,22 @@ temp/
 # Build artifacts
 *.tsbuildinfo
 
+# Build/test output files (prevent clutter)
+tsc_errors*.txt
+tsc_output*.txt
+tsc_current_errors.txt
+test_output*.txt
+build_output*.txt
+build_error*.txt
+final_errors.txt
+install_output.txt
+*_imports.txt
+admin_snippet.txt
+*.bak
+
+# Backup files
+*.orig
+*.backup
+
 .env
 
