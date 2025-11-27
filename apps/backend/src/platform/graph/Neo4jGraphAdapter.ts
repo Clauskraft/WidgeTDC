@@ -5,7 +5,7 @@
  * Replaces implicit graph patterns with explicit nodes and relationships.
  */
 
-import neo4j, { Driver, Session } from 'neo4j-driver';
+import neo4j, { Driver, Session, Record as Neo4jRecord, isNode, isRelationship, isPath } from 'neo4j-driver';
 
 export interface GraphNode {
     id: string;
@@ -25,6 +25,7 @@ export interface GraphQueryResult {
     nodes: GraphNode[];
     relationships: GraphRelationship[];
     paths: any[];
+    records: Record<string, any>[]; // Added raw records support
 }
 
 export interface GraphQueryOptions {
@@ -179,26 +180,30 @@ export class Neo4jGraphAdapter {
             const nodes: GraphNode[] = [];
             const relationships: GraphRelationship[] = [];
             const paths: any[] = [];
+            const records: Record<string, any>[] = [];
 
-            (result.records || []).forEach((record: any) => {
-                record.keys.forEach(key => {
+            (result.records || []).forEach((record: Neo4jRecord) => {
+                const recordObj: Record<string, any> = {};
+                
+                record.keys.forEach((key: string) => {
                     const value = record.get(key);
+                    recordObj[key] = value;
                     
-                    if (neo4j.isNode(value)) {
+                    if (isNode(value)) {
                         nodes.push({
-                            id: value.properties.id || value.identity.toString(),
+                            id: (value.properties.id as string) || value.identity.toString(),
                             labels: value.labels,
                             properties: value.properties
                         });
-                    } else if (neo4j.isRelationship(value)) {
+                    } else if (isRelationship(value)) {
                         relationships.push({
-                            id: value.properties.id || value.identity.toString(),
+                            id: (value.properties.id as string) || value.identity.toString(),
                             type: value.type,
                             startNodeId: value.start.toString(),
                             endNodeId: value.end.toString(),
                             properties: value.properties
                         });
-                    } else if (neo4j.isPath(value)) {
+                    } else if (isPath(value)) {
                         paths.push({
                             start: value.start.properties,
                             end: value.end.properties,
@@ -211,9 +216,10 @@ export class Neo4jGraphAdapter {
                         });
                     }
                 });
+                records.push(recordObj);
             });
 
-            return { nodes, relationships, paths };
+            return { nodes, relationships, paths, records };
         } finally {
             await session.close();
         }
@@ -424,4 +430,3 @@ export function getNeo4jGraphAdapter(): Neo4jGraphAdapter {
     }
     return neo4jAdapterInstance;
 }
-

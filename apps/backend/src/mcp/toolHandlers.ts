@@ -10,9 +10,9 @@ import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
 import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
-import { getPgVectorStore } from '../platform/vector/PgVectorStoreAdapter.js';
+import { getNeo4jVectorStore } from '../platform/vector/Neo4jVectorStoreAdapter.js';
 import { logger } from '../utils/logger.js';
-// Vector types for PgVectorStoreAdapter
+// Vector types for Neo4jVectorStoreAdapter
 type VectorRecord = {
   id: string;
   content: string;
@@ -431,9 +431,9 @@ export async function autonomousAgentTeamCoordinateHandler(payload: any, _ctx: M
   return result;
 }
 
-// Vidensarkiv (PgVector) tool handlers
+// Vidensarkiv (Neo4j Vector) tool handlers
 export async function vidensarkivSearchHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getPgVectorStore();
+  const vectorStore = getNeo4jVectorStore();
   const { query, limit = 10, namespace } = payload;
 
   const results = await vectorStore.search({
@@ -455,7 +455,7 @@ export async function vidensarkivSearchHandler(payload: any, ctx: McpContext): P
 }
 
 export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getPgVectorStore();
+  const vectorStore = getNeo4jVectorStore();
   const { content, metadata = {}, namespace } = payload;
 
   // Create record - PgVector will auto-generate embeddings
@@ -494,7 +494,7 @@ export async function vidensarkivAddHandler(payload: any, ctx: McpContext): Prom
 }
 
 export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getPgVectorStore();
+  const vectorStore = getNeo4jVectorStore();
   const { records, namespace } = payload;
 
   const vectorRecords: VectorRecord[] = records.map((r: any, idx: number) => ({
@@ -532,7 +532,7 @@ export async function vidensarkivBatchAddHandler(payload: any, ctx: McpContext):
 }
 
 export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext): Promise<any> {
-  const vectorStore = getPgVectorStore();
+  const vectorStore = getNeo4jVectorStore();
   const { id, content, limit = 5, namespace } = payload;
 
   // Support both id-based and content-based search for backward compatibility
@@ -576,7 +576,7 @@ export async function vidensarkivGetRelatedHandler(payload: any, ctx: McpContext
 }
 
 export async function vidensarkivListHandler(payload: any, _ctx: McpContext): Promise<any> {
-  const vectorStore = getPgVectorStore();
+  const vectorStore = getNeo4jVectorStore();
   const { namespace } = payload;
 
   const stats = await vectorStore.getStatistics();
@@ -590,7 +590,7 @@ export async function vidensarkivListHandler(payload: any, _ctx: McpContext): Pr
 }
 
 export async function vidensarkivStatsHandler(_payload: any, _ctx: McpContext): Promise<any> {
-  const vectorStore = getPgVectorStore();
+  const vectorStore = getNeo4jVectorStore();
 
   const stats = await vectorStore.getStatistics();
 
