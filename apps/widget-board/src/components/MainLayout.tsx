@@ -507,11 +507,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex justify-center mt-3 md:mt-4 gap-2 items-center">
-                                        <Sparkles size={12} className="text-[#00B5CB]" />
-                                        <p className="text-center text-[9px] md:text-[10px] text-gray-500 font-medium tracking-wide uppercase">
-                                            DOT AI kan lave fejl. Kontroller vigtige oplysninger.
-                                        </p>
+                                    <div className="flex justify-center mt-3 md:mt-4 gap-4 items-center">
+                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] md:text-[10px] text-gray-400">
+                                            <Database size={10} className="text-[#00B5CB]" />
+                                            <span>MCP Hukommelse: Aktiv</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-white/5 border border-white/10 text-[9px] md:text-[10px] text-gray-400">
+                                            <Activity size={10} className="text-green-400" />
+                                            <span>System Status: Online</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <Sparkles size={10} className="text-[#00B5CB]" />
+                                            <p className="text-[9px] md:text-[10px] text-gray-500 font-medium tracking-wide uppercase">
+                                                DOT AI kan lave fejl.
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

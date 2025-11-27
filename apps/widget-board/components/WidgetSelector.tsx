@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Plus, Search, LayoutGrid, MessageSquare, Activity, Shield, BarChart2, FileText, Settings, Globe, Database, Code, Mic, Image as ImageIcon, Zap, Check, Cpu, Network } from 'lucide-react';
+import { X, Plus, Search, LayoutGrid, MessageSquare, Activity, Shield, BarChart2, FileText, Settings, Globe, Database, Code, Mic, Image as ImageIcon, Zap, Check, Cpu, Network, Briefcase, Wrench } from 'lucide-react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 
 interface WidgetSelectorProps {
@@ -13,6 +13,7 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
     const { availableWidgets } = useWidgetRegistry();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [selectedType, setSelectedType] = useState<'all' | 'app' | 'tool'>('all');
 
     // Get unique categories
     const categories = useMemo(() => {
@@ -26,9 +27,10 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
             const matchesSearch = (widget.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                                  widget.description.toLowerCase().includes(searchQuery.toLowerCase()));
             const matchesCategory = selectedCategory === 'all' || widget.category === selectedCategory;
-            return matchesSearch && matchesCategory;
+            const matchesType = selectedType === 'all' || (widget as any).type === selectedType;
+            return matchesSearch && matchesCategory && matchesType;
         });
-    }, [availableWidgets, searchQuery, selectedCategory]);
+    }, [availableWidgets, searchQuery, selectedCategory, selectedType]);
 
     // Map category/widget to icon
     const getWidgetIcon = (widget: any) => {
@@ -121,6 +123,31 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                     
                     {/* Categories Sidebar */}
                     <div className="w-64 border-r border-white/10 bg-[#0B3E6F]/20 flex flex-col overflow-y-auto py-6 px-4">
+                        {/* Type Filter */}
+                        <div className="mb-6 px-2">
+                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Type</h3>
+                            <div className="flex bg-black/20 p-1 rounded-lg">
+                                <button
+                                    onClick={() => setSelectedType('all')}
+                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors ${selectedType === 'all' ? 'bg-[#00B5CB] text-[#051e3c]' : 'text-gray-400 hover:text-white'}`}
+                                >
+                                    Alt
+                                </button>
+                                <button
+                                    onClick={() => setSelectedType('app')}
+                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${selectedType === 'app' ? 'bg-[#00B5CB] text-[#051e3c]' : 'text-gray-400 hover:text-white'}`}
+                                >
+                                    <Briefcase size={12} /> Apps
+                                </button>
+                                <button
+                                    onClick={() => setSelectedType('tool')}
+                                    className={`flex-1 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center justify-center gap-1 ${selectedType === 'tool' ? 'bg-[#00B5CB] text-[#051e3c]' : 'text-gray-400 hover:text-white'}`}
+                                >
+                                    <Wrench size={12} /> Tools
+                                </button>
+                            </div>
+                        </div>
+
                         <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4 px-2">Kategorier</h3>
                         <div className="space-y-1">
                             {categories.map(cat => (
@@ -150,8 +177,15 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                                 return (
                                     <div 
                                         key={widget.id}
-                                        className="group flex flex-col bg-[#0B3E6F]/40 hover:bg-[#0B3E6F]/60 border border-white/10 hover:border-[#00B5CB]/30 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20"
+                                        className="group flex flex-col bg-[#0B3E6F]/40 hover:bg-[#0B3E6F]/60 border border-white/10 hover:border-[#00B5CB]/30 rounded-2xl p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/20 relative overflow-hidden"
                                     >
+                                        {/* Type Badge */}
+                                        <div className="absolute top-0 right-0 p-0">
+                                            <div className={`px-2 py-1 rounded-bl-xl text-[9px] font-bold uppercase tracking-wider ${(widget as any).type === 'app' ? 'bg-purple-500/20 text-purple-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                                                {(widget as any).type === 'app' ? 'APP' : 'TOOL'}
+                                            </div>
+                                        </div>
+
                                         <div className="flex items-start justify-between mb-4">
                                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors duration-300 ${isActive ? 'bg-green-500/20 text-green-400' : 'bg-white/5 text-gray-300 group-hover:bg-[#00B5CB]/20 group-hover:text-[#00B5CB]'}`}>
                                                 {getWidgetIcon(widget)}
