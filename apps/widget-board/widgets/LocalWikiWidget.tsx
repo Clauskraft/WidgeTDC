@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Book, Plus, Edit2, Save, Hash, Share2, FileText, Shield, Sparkles, Database, AlertTriangle } from 'lucide-react';
+import { Search, Book, Plus, Edit2, Save, Hash, Share2, FileText, Shield, Sparkles, Database, AlertTriangle, Paperclip, Eye, EyeOff, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { sendChat } from '../src/utils/chat-providers';
 
 interface Article {
@@ -12,6 +12,17 @@ interface Article {
     source: 'manual' | 'file' | 'scraper' | 'email' | 'system';
     sensitivity: 'public' | 'internal' | 'confidential' | 'pii';
     originalSourcePath?: string;
+    attachments?: Attachment[];
+    ownerId?: string; // Bruger ID på ejeren
+}
+
+interface Attachment {
+    id: string;
+    name: string;
+    type: string;
+    size: string;
+    accessLevel: 'owner' | 'team' | 'public';
+    aiAnalysis?: string; // AI forslag til deling
 }
 
 // Mock data der simulerer læsning fra filsystemet
@@ -46,7 +57,12 @@ const INITIAL_ARTICLES: Article[] = [
         lastUpdated: '2025-11-26',
         tags: ['support', 'login', 'pii-detected'],
         source: 'email',
-        sensitivity: 'pii'
+        sensitivity: 'pii',
+        ownerId: 'current-user', // Simulerer at vi ejer denne
+        attachments: [
+            { id: 'a1', name: 'Fejlbesked.png', type: 'image/png', size: '1.2 MB', accessLevel: 'public' },
+            { id: 'a2', name: 'Kontrakt_Udkast.pdf', type: 'application/pdf', size: '450 KB', accessLevel: 'owner', aiAnalysis: 'Indeholder kontraktuelle data. Bør kun deles med omtanke.' }
+        ]
     }
 ];
 
@@ -68,12 +84,82 @@ const PrivacyGuard = ({ text, sensitivity }: { text: string, sensitivity: Articl
     return null;
 };
 
+const SmartAttachment = ({ attachment, isOwner }: { attachment: Attachment, isOwner: boolean }) => {
+    const [access, setAccess] = useState(attachment.accessLevel);
+    const [showAnalysis, setShowAnalysis] = useState(false);
+
+    const canView = isOwner || access === 'public' || access === 'team';
+
+    return (
+        <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5 group hover:bg-white/10 transition-colors">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-500/20 rounded text-blue-400">
+                    <Paperclip size={16} />
+                </div>
+                <div>
+                    <p className="text-sm font-medium text-gray-200 group-hover:text-white">{attachment.name}</p>
+                    <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                        <span>{attachment.size}</span>
+                        <span>•</span>
+                        <span className={`uppercase ${access === 'owner' ? 'text-red-400' : access === 'team' ? 'text-yellow-400' : 'text-green-400'}`}>
+                            {access === 'owner' ? 'Privat' : access === 'team' ? 'Team' : 'Offentlig'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+                {attachment.aiAnalysis && isOwner && (
+                    <div className="relative">
+                        <button 
+                            onClick={() => setShowAnalysis(!showAnalysis)}
+                            className="p-1.5 hover:bg-white/10 rounded text-purple-400 transition-colors"
+                            title="AI Analyse"
+                        >
+                            <Sparkles size={14} />
+                        </button>
+                        {showAnalysis && (
+                            <div className="absolute right-0 top-8 w-64 bg-[#0B3E6F] border border-white/20 rounded-xl p-3 shadow-2xl z-10 text-xs">
+                                <p className="text-purple-300 font-semibold mb-1">AI Anbefaling</p>
+                                <p className="text-gray-300 mb-2">{attachment.aiAnalysis}</p>
+                                <div className="flex gap-2">
+                                    <button className="flex-1 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded flex items-center justify-center gap-1">
+                                        <ThumbsUp size={12} /> Enig
+                                    </button>
+                                    <button className="flex-1 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded flex items-center justify-center gap-1">
+                                        <ThumbsDown size={12} /> Uenig
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+                
+                {isOwner ? (
+                    <button 
+                        onClick={() => setAccess(access === 'owner' ? 'public' : 'owner')}
+                        className={`p-1.5 rounded transition-colors ${access === 'owner' ? 'hover:bg-green-500/20 text-gray-400 hover:text-green-400' : 'hover:bg-red-500/20 text-green-400 hover:text-red-400'}`}
+                        title={access === 'owner' ? 'Gør offentlig' : 'Gør privat'}
+                    >
+                        {access === 'owner' ? <EyeOff size={14} /> : <Eye size={14} />}
+                    </button>
+                ) : (
+                    !canView && <div title="Ingen adgang"><Shield size={14} className="text-red-500" /></div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 export default function LocalWikiWidget() {
     const [articles, setArticles] = useState<Article[]>(INITIAL_ARTICLES);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+
+    // Simuleret bruger ID
+    const currentUserId = 'current-user';
 
     const filteredArticles = articles.filter(article => 
         article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -253,6 +339,24 @@ export default function LocalWikiWidget() {
                                         const content = line.replace(/\[REDACTED\]/g, '<span class="bg-red-500/20 text-red-300 px-1 rounded text-xs font-mono">[SLØRET]</span>');
                                         return <p key={i} className="text-gray-300 mb-2 leading-relaxed" dangerouslySetInnerHTML={{__html: content}} />;
                                     })}
+                                </div>
+                            )}
+
+                            {/* Vedhæftninger Sektion */}
+                            {selectedArticle.attachments && selectedArticle.attachments.length > 0 && (
+                                <div className="mt-8 pt-6 border-t border-white/10">
+                                    <h3 className="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                                        <Paperclip size={14} /> Vedhæftede Filer
+                                    </h3>
+                                    <div className="grid grid-cols-1 gap-2">
+                                        {selectedArticle.attachments.map(att => (
+                                            <SmartAttachment 
+                                                key={att.id} 
+                                                attachment={att} 
+                                                isOwner={selectedArticle.ownerId === currentUserId}
+                                            />
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
