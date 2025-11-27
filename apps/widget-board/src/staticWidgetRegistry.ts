@@ -40,6 +40,7 @@ export const staticWidgetRegistry: Record<string, any> = {
   'SystemMonitorWidget': lazy(() => import('../widgets/SystemMonitorWidget')),
   'SystemSettingsWidget': lazy(() => import('../widgets/SystemSettingsWidget')),
   'VideoAnalyzerWidget': lazy(() => import('../widgets/VideoAnalyzerWidget')),
+  'VisualizerWidget': lazy(() => import('../widgets/VisualizerWidget')),
   'WidgetImporterWidget': lazy(() => import('../widgets/WidgetImporterWidget')),
 };
 
@@ -81,5 +82,6 @@ export const widgetMetadata: Record<string, { name: string; description: string;
   'SystemMonitorWidget': { name: 'System Monitor', description: 'System monitoring', category: 'monitoring', type: 'tool', defaultLayout: { w: 6, h: 2 } },
   'SystemSettingsWidget': { name: 'System Settings', description: 'Configure settings', category: 'settings', type: 'app', defaultLayout: { w: 6, h: 3 } },
   'VideoAnalyzerWidget': { name: 'Video Analyzer', description: 'AI video analysis', category: 'media', type: 'tool', defaultLayout: { w: 8, h: 3 } },
+  'VisualizerWidget': { name: 'Visualizer', description: 'System arkitektur og diagrammer', category: 'development', type: 'app', defaultLayout: { w: 12, h: 4 } },
   'WidgetImporterWidget': { name: 'Widget Importer', description: 'Import widgets', category: 'system', type: 'tool', defaultLayout: { w: 6, h: 2 } },
 };
