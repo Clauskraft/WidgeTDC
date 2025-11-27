@@ -81,15 +81,46 @@ export const WidgetRegistryProvider: React.FC<{ children: ReactNode }> = ({ chil
   const [entries, setEntries] = useState<Map<string, WidgetRegistryEntry>>(new Map());
   const versionHistoryRef = useRef<Map<string, WidgetVersion[]>>(new Map());
 
-  // Auto-discover widget modules - widgets are in /widgets/ not /src/widgets/
-  const widgetModules = import.meta.glob('../widgets/**/*.tsx');
+  // Auto-discover widget modules from widgets folder (relative to this file in contexts/)
+  const widgetModules = import.meta.glob('/widgets/**/*.tsx');
+  const widgetModulesAlt = import.meta.glob('../widgets/**/*.tsx');
+  const widgetModulesRoot = import.meta.glob('./widgets/**/*.tsx');
 
   useEffect(() => {
+    // Debug: Log all glob results
+    console.log('[WidgetRegistry] Glob /widgets/**/*.tsx:', Object.keys(widgetModules));
+    console.log('[WidgetRegistry] Glob ../widgets/**/*.tsx:', Object.keys(widgetModulesAlt));
+    console.log('[WidgetRegistry] Glob ./widgets/**/*.tsx:', Object.keys(widgetModulesRoot));
+
+    // Combine all found modules
+    const allModules = { ...widgetModules, ...widgetModulesAlt, ...widgetModulesRoot };
+    console.log('[WidgetRegistry] All modules:', Object.keys(allModules));
+
     // 1. Register Built-in Widgets from WIDGET_REGISTRY
     Object.values(WIDGET_REGISTRY).forEach((def: any) => {
-      // Convert registry path (e.g., "./widgets/Name") to glob path (e.g., "../widgets/Name.tsx")
-      const modulePath = def.path.replace('./', '../') + '.tsx';
-      const importer = widgetModules[modulePath];
+      // Try multiple path formats
+      const pathVariants = [
+        def.path.replace('./', '../') + '.tsx',           // ../widgets/Name.tsx
+        def.path.replace('./', '/') + '.tsx',             // /widgets/Name.tsx
+        def.path + '.tsx',                                 // ./widgets/Name.tsx
+      ];
+
+      let importer = null;
+      let matchedPath = '';
+      for (const path of pathVariants) {
+        if (allModules[path]) {
+          importer = allModules[path];
+          matchedPath = path;
+          break;
+        }
+      }
+
+      // Debug: Log path matching
+      if (!importer) {
+        console.log(`[WidgetRegistry] No match for ${def.id}: tried`, pathVariants);
+      } else {
+        console.log(`[WidgetRegistry] Matched ${def.id} at ${matchedPath}`);
+      }
 
       if (importer) {
         const LazyComponent = React.lazy(importer as any);
