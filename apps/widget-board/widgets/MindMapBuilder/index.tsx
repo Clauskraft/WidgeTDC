@@ -25,9 +25,21 @@ import {
   ExternalLink,
   X,
   Target,
+  Database,
+  Globe,
+  FileText,
+  Mail,
+  BookOpen,
 } from 'lucide-react';
 import { useMindMapStore } from './mindmapStore';
 import { MindMapNode, MindMapEdge, NODE_COLORS, SOURCE_COLORS, EDGE_COLORS } from './types';
+import { 
+  DATA_SOURCES, 
+  unifiedSearch, 
+  expandNodeWithAI, 
+  setupAutoTracking,
+  DataSourceType 
+} from './dataSourceConnector';
 
 // ===== NODE COMPONENT =====
 interface NodeComponentProps {
@@ -355,31 +367,60 @@ export const MindMapBuilderWidget: React.FC = () => {
     // For demo, we just create the node
   };
 
-  // Handle node expansion (AI call)
+  // Handle node expansion (AI call with real data sources)
   const handleExpandNode = async (nodeId: string) => {
     const node = nodes.find((n) => n.id === nodeId);
     if (!node || node.isExpanding) return;
 
     setNodeExpanding(nodeId, true);
 
-    // Simulate AI expansion - replace with real MCP/API call
-    setTimeout(() => {
-      const mockExpansion = [
-        { label: `${node.label} - Aspekt 1`, type: 'expanded' as const, source: 'web' as const },
-        { label: `${node.label} - Aspekt 2`, type: 'expanded' as const, source: 'wikipedia' as const },
-        { label: `Related: ${node.label}`, type: 'suggested' as const, source: 'web' as const },
-      ];
+    try {
+      // Use real data sources via connector
+      const enabledSources: DataSourceType[] = DATA_SOURCES
+        .filter(ds => ds.enabled)
+        .map(ds => ds.type);
 
-      const mockEdges = mockExpansion.map(() => ({
-        sourceId: nodeId,
-        targetId: '', // Will be set by expandNode
-        type: 'relates_to' as const,
-        weight: 0.7,
-        animated: true,
-      }));
+      const expansion = await expandNodeWithAI(node, enabledSources);
 
-      expandNode(nodeId, mockExpansion, mockEdges);
-    }, 1500);
+      if (expansion.nodes.length > 0) {
+        const edges = expansion.edges.map((e) => ({
+          ...e,
+          sourceId: nodeId,
+        }));
+        expandNode(nodeId, expansion.nodes, edges);
+      } else {
+        // Fallback: search for related content
+        const searchResults = await unifiedSearch(node.label, enabledSources, 3);
+        
+        if (searchResults.length > 0) {
+          const fallbackNodes = searchResults.map((r) => ({
+            label: r.title.slice(0, 30),
+            description: r.snippet,
+            type: 'expanded' as const,
+            source: r.source,
+            sourceUrl: r.url,
+            size: 35,
+            color: NODE_COLORS.expanded,
+          }));
+
+          const fallbackEdges = fallbackNodes.map(() => ({
+            sourceId: nodeId,
+            targetId: '',
+            type: 'relates_to' as const,
+            weight: 0.6,
+            animated: true,
+          }));
+
+          expandNode(nodeId, fallbackNodes, fallbackEdges);
+        } else {
+          setNodeExpanding(nodeId, false);
+          console.warn('No expansion results found');
+        }
+      }
+    } catch (error) {
+      console.error('Expansion error:', error);
+      setNodeExpanding(nodeId, false);
+    }
   };
 
   // Handle wheel zoom

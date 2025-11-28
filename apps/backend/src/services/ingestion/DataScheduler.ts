@@ -2,6 +2,7 @@ import cron from 'node-cron';
 import { logger } from '../../utils/logger.js';
 import { getNeo4jVectorStore } from '../../platform/vector/Neo4jVectorStoreAdapter.js';
 import { OutlookEmailReader } from './OutlookEmailReader.js';
+import { PublicThreatScraper } from './PublicThreatScraper.js';
 import { eventBus } from '../../mcp/EventBus.js';
 
 export class DataScheduler {
@@ -31,11 +32,9 @@ export class DataScheduler {
             logger.info('📧 Running scheduled email ingestion...');
             try {
                 const reader = new OutlookEmailReader();
-                // Real ingestion attempt - will fail or return empty if no creds
                 const emails = await reader.readData();
                 
                 if (emails.length > 0) {
-                    // Store in Vector DB
                     const vectorStore = getNeo4jVectorStore();
                     
                     for (const email of emails) {
@@ -54,15 +53,18 @@ export class DataScheduler {
                     }
 
                     logger.info(`✅ Ingested ${emails.length} emails to vector store`);
-                    
-                    // Emit event for real-time UI updates
                     eventBus.emit('ingestion:emails', { count: emails.length });
                 } else {
                     logger.debug('No new emails found');
                 }
 
             } catch (error) {
-                logger.error('❌ Email ingestion failed (check credentials):', error);
+                // Only log error if it's not just missing credentials (which is expected in dev)
+                if ((error as any).message?.includes('Mangler IMAP credentials')) {
+                    logger.debug('Skipping email ingestion (no credentials)');
+                } else {
+                    logger.error('❌ Email ingestion failed:', error);
+                }
             }
         });
         this.tasks.push(task);
@@ -70,9 +72,22 @@ export class DataScheduler {
 
     private scheduleThreatIntel() {
         // Run every 15 minutes
+        const scraper = new PublicThreatScraper();
+        
         const task = cron.schedule('*/15 * * * *', async () => {
-            // No mock data - only real integration (to be implemented)
-            logger.debug('🛡️ Threat intelligence scan skipped (no providers configured)');
+            logger.info('🛡️ Running public threat intelligence scan...');
+            try {
+                const threats = await scraper.fetchThreats();
+                
+                if (threats.length > 0) {
+                    // Broadcast to UI (DarkWebMonitorWidget)
+                    // In a real system, we would also store this in Neo4j
+                    eventBus.emit('threat:detected', { threats });
+                    logger.info(`📡 Broadcasted ${threats.length} threats to UI`);
+                }
+            } catch (error) {
+                logger.error('Threat scan failed:', error);
+            }
         });
         this.tasks.push(task);
     }
@@ -80,7 +95,6 @@ export class DataScheduler {
     private scheduleSystemHealth() {
         // Run every 1 minute
         const task = cron.schedule('* * * * *', async () => {
-            // Heartbeat
             eventBus.emit('system:heartbeat', { 
                 timestamp: new Date().toISOString(),
                 status: 'healthy',
