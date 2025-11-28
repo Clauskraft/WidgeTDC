@@ -1,0 +1,601 @@
+<!DOCTYPE html><html lang="da" xmlns="http://www.w3.org/1999/xhtml"><head>
+	<script src="/Assets/js/vendor.min.js?v=06B0AAA2518E667754249625E110CF77"></script>
+	<script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-level="strict" data-cbid="100ede66-4472-485d-ac6d-a044e497b6cf" data-blockingmode="auto" data-culture="da" type="text/javascript"></script>
+	<script type="text/javascript">window.TalenthubWidget = { "o": 2234, "u": "8eb8c5487426413d8e07013ad3b269c3", "fullscreen": false };</script>
+	<title>Aktuelt | Politi</title>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+<meta name="description" content="Landsdækkende og lokale nyheder og presseinformation.">
+<meta name="keywords" content="politiet, politi, nyheder, presseinformation, døgnrapporter, efterlysninger, fremlysninger, savnede, tyvekoster, sociale medier, pressekontakt">
+
+<link rel="canonical" href="https://politi.dk/aktuelt">
+
+<meta name="robots" content="index, follow">
+
+<meta property="og:title" content="Aktuelt | Politi">
+<meta property="og:description" content="Landsdækkende og lokale nyheder og presseinformation.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://politi.dk/aktuelt">
+<meta property="og:image" content="https://politi.dk/-/media/mediefiler/landsdaekkende-billeder/artikel-b-3000px-x-h-2000px/presse/politi-banner-til-deling.png">
+	
+	<link rel="stylesheet" href="/Assets/css/main.min.css?v=27628DF2B296570C02BDAE062FD5F7A6">
+	<link rel="icon" type="image/x-icon" href="/Assets/favicons/favicon.ico">
+	<script src="/Assets/js/app.min.js?v=8D926A82B583AB4ABC59B56ED953CB60"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+		<script src="/Assets/js/angular-locale_da-dk.js"></script>
+	
+	
+</head>
+<body ng-app="app">
+	<a href="#main-body-content" id="skippy" tabindex="1" class="sr-only sr-only-focusable" aria-label="Spring til hovedindhold" title="Spring til hovedindhold">Spring til hovedindhold</a>
+	<div id="page-content">
+		<header ng-controller="headerController">
+	<div class="staffering_background">
+	</div>
+	<div class="header">
+		<div class="container-fluid">
+			<div class="searchbar nav-down">
+				<div class="row">
+
+					
+					<div class="col-5">
+						<div class="header-logo">
+							<a href="/da" tabindex="2" class="logo" aria-label="Politi logo" title="Forside">
+								<img class="headerLogoDanishLanguage img-responsive" src="-/media/fc4deb5679f649e7b0da81d9d3aef1c4.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web&amp;hash=01EDE1EB7926D5A0BD9BD0D737663ABC" alt="Politi logo">
+							</a>
+							<img class="politi-logo-print img-responsive" src="-/media/7cdbf4e295844f2f9762568438d6aa50.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web&amp;hash=0CA055215751A4F935431E0F94CEE523" alt="Politi logo print">
+						</div>
+					</div>
+
+					
+					<div class="col-7 search-col">
+						<div class="header-right">
+							<button type="submit" tabindex="3" aria-label="Åben søgning" name="searchbtn" class="search-button" ng-click="searchClicked()">
+								<img class="search-icon" alt="Søg">
+								<p class="icon-text body-small-police-regular">Søg</p>
+							</button>
+
+							<button class="sidebar-toggle visible-xs-inline-block" tabindex="7" aria-label="Åben global menu" ng-click="burgerClicked()">
+								<img class="burger-menu" alt="Menu">
+								<p class="icon-text body-small-police-regular">Menu</p>
+							</button>	
+						</div>
+					</div>
+
+				</div>
+			</div>	
+		</div>
+	</div>
+</header>
+		
+		
+		<div ng-cloak="" ng-controller="searchBarController">
+	<div class="SearchSidebar-overlay" ng-click="sidebarOverlayClicked()" ng-class="{'opened': searchResultOpen, 'closed': !searchResultOpen}"></div>
+	<div class="search-input-container" ng-class="{'opened': sidebarOpen}">
+		<button name="closebtn" tabindex="5" aria-label="Luk søgebar" class="search-close" ng-click="sidebarCloseClicked()">
+			<img class="close-icon" alt="Luk">
+			<p class="icon-text icon-text body-small-police-regular dark-blue">Luk</p> 
+		</button>
+
+		<form method="get" action="https://politi.dk/soegeside">
+			<label aria-hidden="true" for="globalSearch" style="display: none;">Søg</label>
+			<input class="search-input search-button" tabindex="4" id="globalSearch" role="search" aria-label="Global søgning" aria-labelledby="search_DC5A5BF2-8D4D-410A-ABB8-8FED6669B700" placeholder="Skriv søgeord" ng-change="doSearch()" ng-model="searchTerm" ng-model-options="{ debounce: 500 }" type="text" name="query" ng-class="{'animate':isSearching}" autocomplete="off">
+			<button type="submit" id="search_DC5A5BF2-8D4D-410A-ABB8-8FED6669B700" aria-label="Søg" class="search-submit">
+				<img class="search-icon" alt="Søg">
+			</button>
+		</form>
+	</div>
+
+	<div class="SearchSidebar" ng-class="{'opened': searchResultOpen}">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<div class="resultsTitle">
+						<p class="body-headline-police-regular primary-white">Forslag</p>
+					</div>
+				</div>
+			</div>
+			<div class="row" ng-repeat="result in searchResults | limitTo : 10">
+				<div class="col-12">
+					<div class="resultsContent">
+						<a href="https://politi.dk/soegeside?query={{result}}" tabindex="6" aria-label="Søg" title="Søg">
+							<h4 class="resultContentTitle h4-police-bold">{{result}}</h4> 
+						</a>	
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+		
+
+<nav ng-cloak="" ng-controller="navigationBarController" role="navigation" aria-labelledby="menu_EEACB413-9858-448B-909C-FF652D570E55">
+	<span aria-hidden="true" id="menu_EEACB413-9858-448B-909C-FF652D570E55" style="display:none;">Global menu</span>
+	<div class="sidebar-overlay" ng-click="sidebarOverlayClicked()" ng-class="{'opened': sidebarOpen, 'closed': !sidebarOpen}"></div>
+	<div class="sidenav" ng-class="{'opened': sidebarOpen}">
+		<div class="sidebar">
+			<div class="row">
+				<div class="col-12">
+					<button ng-click="sidebarCloseClicked()" class="closeSidebar" aria-label="Luk global sidemenu">
+						<img class="close-icon" alt="Luk">
+						<p class="icon-text body-small-police-regular">Luk</p>
+					</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12 col-md-9">
+					<!--Primære liste-->
+					<div class="primary-list">
+						<ul>
+								<li>
+									<a href="https://politi.dk/" class="white-link h3-police-regular" aria-label="Forside" title="Forside">
+										Forside
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/anmeld-kriminalitet" class="white-link h3-police-regular" aria-label="Anmeld kriminalitet" title="Anmeld kriminalitet">
+										Anmeld kriminalitet
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/service-og-tilladelser" class="white-link h3-police-regular" aria-label="Service og tilladelser" title="Service og tilladelser">
+										Service og tilladelser
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/lov-og-information" class="white-link h3-police-regular" aria-label="Lov og information" title="Lov og information">
+										Lov og information
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/aktuelt" class="white-link h3-police-regular" aria-label="Aktuelt" title="Aktuel">
+										Aktuelt
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/om-politiet" class="white-link h3-police-regular" aria-label="Om politiet" title="Om politiet">
+										Om politiet
+									</a>
+								</li>
+						</ul>
+					</div>
+
+						<!--Secondær liste-->
+						<div class="secondary-list">
+							<ul>
+									<li>
+										<a href="https://politi.dk/politikredse" class="white-link body-headline-police-regular" aria-label="Politikredse" title="Politikredse">
+											Politikredse
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/politiskolen" class="white-link body-headline-police-regular" aria-label="Politiskolen" title="Politiskolen">
+											Politiskolen
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/politimuseet" class="white-link body-headline-police-regular" aria-label="Politimuseet" title="Politimuseet">
+											Politimuseet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/virksomheden/rigspolitiet" class="white-link body-headline-police-regular" aria-label="Rigspolitiet" title="Rigspolitiet">
+											Rigspolitiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet" class="white-link body-headline-police-regular" aria-label="National enhed for Særlig Kriminalitet" title="National enhed for Særlig Kriminalitet">
+											National enhed for Særlig Kriminalitet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet/politiets-online-patrulje" class="white-link body-headline-police-regular" aria-label="Politiets Online Patrulje" title="Politiets Online Patrulje">
+											Politiets Online Patrulje
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/kontakt-politiet" class="white-link body-headline-police-regular" aria-label="Kontakt politiet" title="Kontakt politiet">
+											Kontakt politiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/kontakt-politiet/tip-politiet" class="white-link body-headline-police-regular" aria-label="Tip politiet" title="Tip politiet (dette er ikke en anmeldelse)">
+											Tip politiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/job-i-politiet" class="white-link body-headline-police-regular" aria-label="Job i politiet" title="Job i politiet">
+											Job i politiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/hittegods-og-tyvekoster" class="white-link body-headline-police-regular" aria-label="Hittegods og tyvekoster" title="Hittegods og tyvekoster">
+											Hittegods og tyvekoster
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/forebyggelse-af-kriminalitet" class="white-link body-headline-police-regular" aria-label="Forebyggelse af kriminalitet" title="Forebyggelse af kriminalitet">
+											Forebyggelse af kriminalitet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/om-hjemmesiden/driftsstatus" class="white-link body-headline-police-regular" aria-label="Driftsstatus" title="Driftsstatus">
+											Driftsstatus
+										</a>
+									</li>
+							</ul>
+						</div>
+											
+				</div>
+			</div>
+		</div>
+	</div>
+</nav>
+
+
+
+		
+
+<main id="main-body-content" class="body-text-arial-regular dark-blue">
+	
+	
+	
+	<nav class="container-fluid " aria-labelledby="breadcrumb_AABDC853-F358-4DFF-9457-F4D78EADA88E">
+	<div class="row">
+		<div class="col-12"> 
+				<span aria-hidden="true" id="breadcrumb_AABDC853-F358-4DFF-9457-F4D78EADA88E" style="display:none;">Breadcrumb</span>
+				<ul class="nav-breadcrumb white-breadcrumb-layout">
+						<li>
+							<a class="h4-police-regular" href="https://politi.dk/" aria-label="Forside" title="Forside">Forside</a>
+						</li>
+						<li>
+							<a class="h4-police-regular" href="https://politi.dk/aktuelt" aria-label="Aktuelt" title="Aktuel">Aktuelt</a>
+						</li>
+				</ul>
+		</div>
+	</div>
+</nav>
+
+	
+<section class="banner bannerMobile d-md-none d-lg-none" aria-labelledby="bannerMobile_B568CF3D-D7BF-46A2-BD83-1543C323FAAE">
+	<div class="bannerImg" style="background-image:url('https://politi.dk/-/media/mediefiler/landsdaekkende-billeder/kampagne-b-3000px-x-h-1000px/landsdaekkende/sektionsbannere/politibetjent-i-nattelivet-2.jpg')"></div>
+
+</section>
+
+
+<section class="banner bannerDesktop d-none d-sm-none d-md-block" style="background-image: url('https://politi.dk/-/media/mediefiler/landsdaekkende-billeder/kampagne-b-3000px-x-h-1000px/landsdaekkende/sektionsbannere/politibetjent-i-nattelivet-2.jpg')" aria-labelledby="bannerDesktop_B568CF3D-D7BF-46A2-BD83-1543C323FAAE">
+</section>
+<section class="container-fluid " aria-labelledby="content_F746DC4B-6A65-4BB3-9B81-5A6A7059185E">
+	<div class="row justify-content-center">
+		<div class="col-xs-12 col-md-10 col-lg-6 text-center">
+			<div class="contentHeadline">
+				<h1 id="content_F746DC4B-6A65-4BB3-9B81-5A6A7059185E" class="h1-police-bold dark-blue">Aktuelt</h1>
+				<p class="h4-arial-regular dark-blue">Landsdækkende og lokale nyheder og presseinformation.</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+	<div class="boxGrid">
+	<div class="container-fluid">
+
+
+		<div class="row linkBoxRow">
+
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/doegnrapporter" aria-label="Døgnrapporter" title="Døgnrapporter">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Døgnrapporter</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Uddrag af det seneste døgns hændelser. Bemærk at ikke alle politikredse udgiver døgnrapporter.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/nyhedsliste" aria-label="Nyheder" title="Nyheder">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Nyheder</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Beredskabsmeddelelser, nyheder, pressemeddelelser og servicemeddelelser.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/efterlyste-og-savnede-personer" aria-label="Efterlysninger" title="Efterlysninger">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Efterlysninger</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Aktuelle efterlysninger af formodede gerningspersoner.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/politiets-arrangementer" aria-label="Arrangementer" title="Arrangementer">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Arrangementer</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Begivenheder, hvor du kan møde politiet, fx til jobinformationsmøder eller Politiskolens studie- og træningsvejledninger.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/hittegods-og-tyvekoster" aria-label="Hittegods og tyvekoster" title="Hittegods og tyvekoster">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Hittegods og tyvekoster</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Aktuelle fremlysninger af hittegods og tyvekoster, der er beslaglagt fx i forbindelse med ransagninger.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/fundne-dyr" aria-label="Fundne dyr" title="Fundne dyr">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Fundne dyr</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Aktuelle fremlysninger af fundne eller indleverede dyr.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/presse" aria-label="Presse" title="Presse">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Presse</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Find en pressekontakt i politiet, download pressefotos, læs politiets pressepolitik og om, hvordan du søger aktindsigt. </p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/abonner" aria-label="Abonnér på nyt fra politiet" title="Abonnér på nyt fra politiet">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Abonnér på nyt fra politiet</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Abonnér på døgnrapporter, nyheder, efterlysninger, fremlysninger og arrangementer fra politiet.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/statistik" aria-label="Statistik og udgivelser" title="Statistik og udgivelser">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Statistik og udgivelser</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Nøgletal for kriminalitet og politiet som virksomhed.</p>
+					</a>
+				</div>
+				<div class="linkBoxWrapper col-12 col-sm-12 col-md-6 col-lg-4">
+					<a class="linkBox" href="https://politi.dk/sociale-medier" aria-label="Sociale medier" title="Sociale medier">
+						<h4 class="linkBoxTitle h4-police-bold dark-blue">Sociale medier</h4>
+						<p class="linkBoxText body-text-arial-regular dark-blue">Politiet er aktivt til stede på Facebook, Instagram, X, LinkedIn og YouTube. Følg os på sociale medier.</p>
+					</a>
+				</div>
+		</div>
+	</div>
+</div>
+</main>
+		<div class="NewsAndCookie">
+			
+		</div>
+
+		<footer class="footer d-md-none d-lg-none">
+	
+	<div class="backgroundSkew"></div>
+	<div class="footerMobile">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="footerLogoDanishLanguage">
+						<img src="-/media/fc4deb5679f649e7b0da81d9d3aef1c4.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web" alt="Politi logo">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+						<div class="alarmButtons">
+							<ul>
+									<li>
+										<p class="button-text h6-arial-regular primary-white">Alarm</p>
+										<a href="tel:112" class="footer-button h6-police-bold" aria-label="112" title="112">112</a>
+									</li>
+																	<li>
+										<p class="button-text h6-arial-regular primary-white">Service</p>
+										<a href="tel:114" class="footer-button h6-police-bold" aria-label="114" title="114">114</a>
+									</li>
+								<li>
+									<p class="h6-arial-regular dark-blue"></p>
+									<a class="footer-button h6-arial-bold" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a>
+								</li>
+							</ul>
+						</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<div class="footerFaq">
+						<ul>
+								<li><a class="body-text-police-regular white-link" title="Abonnér" href="https://politi.dk/abonner">Abonnér</a></li>
+								<li><a class="body-text-police-regular white-link" title="Driftsstatus" href="https://politi.dk/om-hjemmesiden/driftsstatus">Driftsstatus</a></li>
+								<li><a class="body-text-police-regular white-link" title="Kontakt politiet" href="https://politi.dk/kontakt-politiet">Kontakt politiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Tip politiet" href="https://politi.dk/kontakt-politiet/tip-politiet">Tip politiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Job i politiet" href="https://politi.dk/job-i-politiet">Job i politiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Presse" href="https://politi.dk/presse">Presse</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politiattest og lægeerklæringer" href="https://politi.dk/oevrige-indberetninger-og-tilladelser/politiattest-og-laegeerklaeringer">Politiattest og lægeerklæringer</a></li>
+								<li><a class="body-text-police-regular white-link" title="Cookies" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-cookies">Cookies</a></li>
+								<li><a class="body-text-police-regular white-link" title="Personoplysninger" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-personoplysninger">Personoplysninger</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Tilgængelighedserklæring" rel="noopener noreferrer" href="http://politi.dk/was">Tilgængelighedserklæring</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Guide til oplæsning af tekst" rel="noopener noreferrer" href="https://borger.dk/oplæsning">Guide til oplæsning af tekst</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col">
+					<div class="footerFaq">
+						<ul>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" rel="noopener noreferrer" href="https://pet.dk">PET</a></li>
+								<li><a class="body-text-police-regular white-link" title="Rigspolitiet" href="https://politi.dk/virksomheden/rigspolitiet">Rigspolitiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politikredse" href="https://politi.dk/politikredse">Politikredse</a></li>
+								<li><a class="body-text-police-regular white-link" title="National enhed for Særlig Kriminalitet" href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet">National enhed for Særlig Kriminalitet</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Hvidvasksekretariatet" rel="noopener noreferrer" href="https://hvidvask.dk/">Hvidvasksekretariatet</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Færøernes Politi" rel="noopener noreferrer" href="https://politi.fo">Færøernes Politi</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Grønlands Politi" rel="noopener noreferrer" href="https://politi.gl">Grønlands Politi</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politiskolen" href="https://politi.dk/politiskolen">Politiskolen</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politimuseet" href="https://politi.dk/politimuseet">Politimuseet</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Center for Beredskabskommunikation" rel="noopener noreferrer" href="https://sikkerhedsnet.dk/">Center for Beredskabskommunikation</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="footerSocialMedia">
+						<p class="body-text-police-regular">Følg politiet på sociale medier</p>
+						<ul>
+								<li>
+									<a class="socialMediaIcon" href="https://www.facebook.com/politi" target="_blank" aria-label="Politiet på Facebook" title="Politiet på Facebook">
+										<img class="SMIcon" src="/Assets/icons/white/Facebook_icon_white.svg" alt="Politiet på Facebook">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://twitter.com/rigspoliti" target="_blank" aria-label="Rigspolitiet på X" title="Rigspolitiet på X">
+										<img class="SMIcon" src="/Assets/icons/white/Twitter_icon_white.svg" alt="Rigspolitiet på X">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://www.linkedin.com/company/politi/" target="_blank" aria-label="Politiet på Linkedin" title="Politiet på Linkedin">
+										<img class="SMIcon" src="/Assets/icons/white/LinkedIn_white.svg" alt="Politiet på Linkedin">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://www.youtube.com/politi" target="_blank" aria-label="Politiet på Youtube" title="Politiet på Youtube">
+										<img class="SMIcon" src="/Assets/icons/white/Youtube_icon_white.svg" alt="Politiet på Youtube">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://www.instagram.com/politi/" target="_blank" aria-label="Politiet på Instagram" title="Politiet på Instagram">
+										<img class="SMIcon" src="/Assets/icons/white/Instagram_icon_white.svg" alt="Politiet på Instagram">
+									</a>
+								</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+<footer class="footer d-none d-sm-none d-md-block">
+	
+	<div class="backgroundSkew"></div>
+	<div class="footerTabletDesktop">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-7">
+					<div class="footerLogoDanishLanguage">
+						<img src="-/media/fc4deb5679f649e7b0da81d9d3aef1c4.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web" alt="Politi logo">
+					</div>
+					<div class="row">
+						<div class="col-6">
+							<div class="footerFaq">
+								<ul>
+										<li><a class="body-text-police-regular white-link" title="Abonnér" href="https://politi.dk/abonner">Abonnér</a></li>
+										<li><a class="body-text-police-regular white-link" title="Driftsstatus" href="https://politi.dk/om-hjemmesiden/driftsstatus">Driftsstatus</a></li>
+										<li><a class="body-text-police-regular white-link" title="Kontakt politiet" href="https://politi.dk/kontakt-politiet">Kontakt politiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Tip politiet" href="https://politi.dk/kontakt-politiet/tip-politiet">Tip politiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Job i politiet" href="https://politi.dk/job-i-politiet">Job i politiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Presse" href="https://politi.dk/presse">Presse</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politiattest og lægeerklæringer" href="https://politi.dk/oevrige-indberetninger-og-tilladelser/politiattest-og-laegeerklaeringer">Politiattest og lægeerklæringer</a></li>
+										<li><a class="body-text-police-regular white-link" title="Cookies" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-cookies">Cookies</a></li>
+										<li><a class="body-text-police-regular white-link" title="Personoplysninger" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-personoplysninger">Personoplysninger</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Tilgængelighedserklæring" rel="noopener noreferrer" href="http://politi.dk/was">Tilgængelighedserklæring</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Guide til oplæsning af tekst" rel="noopener noreferrer" href="https://borger.dk/oplæsning">Guide til oplæsning af tekst</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="footerFaq">
+								<ul>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" rel="noopener noreferrer" href="https://pet.dk">PET</a></li>
+										<li><a class="body-text-police-regular white-link" title="Rigspolitiet" href="https://politi.dk/virksomheden/rigspolitiet">Rigspolitiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politikredse" href="https://politi.dk/politikredse">Politikredse</a></li>
+										<li><a class="body-text-police-regular white-link" title="National enhed for Særlig Kriminalitet" href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet">National enhed for Særlig Kriminalitet</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Hvidvasksekretariatet" rel="noopener noreferrer" href="https://hvidvask.dk/">Hvidvasksekretariatet</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Færøernes Politi" rel="noopener noreferrer" href="https://politi.fo">Færøernes Politi</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Grønlands Politi" rel="noopener noreferrer" href="https://politi.gl">Grønlands Politi</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politiskolen" href="https://politi.dk/politiskolen">Politiskolen</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politimuseet" href="https://politi.dk/politimuseet">Politimuseet</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Center for Beredskabskommunikation" rel="noopener noreferrer" href="https://sikkerhedsnet.dk/">Center for Beredskabskommunikation</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<div class="footerSocialMedia">
+								<p class="body-text-police-regular">Følg politiet på sociale medier</p>
+								<ul>
+										<li>
+											<a class="socialMediaIcon" href="https://www.facebook.com/politi" target="_blank" aria-label="Politiet på Facebook" title="Politiet på Facebook">
+												<img class="SMIcon" src="/Assets/icons/white/Facebook_icon_white.svg" alt="Politiet på Facebook">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://twitter.com/rigspoliti" target="_blank" aria-label="Rigspolitiet på X" title="Rigspolitiet på X">
+												<img class="SMIcon" src="/Assets/icons/white/Twitter_icon_white.svg" alt="Rigspolitiet på X">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://www.linkedin.com/company/politi/" target="_blank" aria-label="Politiet på Linkedin" title="Politiet på Linkedin">
+												<img class="SMIcon" src="/Assets/icons/white/LinkedIn_white.svg" alt="Politiet på Linkedin">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://www.youtube.com/politi" target="_blank" aria-label="Politiet på Youtube" title="Politiet på Youtube">
+												<img class="SMIcon" src="/Assets/icons/white/Youtube_icon_white.svg" alt="Politiet på Youtube">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://www.instagram.com/politi/" target="_blank" aria-label="Politiet på Instagram" title="Politiet på Instagram">
+												<img class="SMIcon" src="/Assets/icons/white/Instagram_icon_white.svg" alt="Politiet på Instagram">
+											</a>
+										</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-5">
+						<div class="alarmButtons">
+							<ul>
+									<li class="li-label">
+										<p class="button-text h6-arial-regular primary-white">Alarm</p>
+									</li>
+									<li>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">2</button>
+									</li>
+																	<li class="li-label">
+										<p class="button-text h6-arial-regular primary-white">Service</p>
+									</li>
+									<li>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">4</button>
+									</li>
+																	<li><a class="footer-button-arrow tip-police h6-arial-bold" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a></li>
+							</ul>
+						</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+	</div>
+
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwr0uQsfgofjC4dxCKnuzEV8Wlm5pdgaE&amp;libraries=geometry,places&amp;language=da"></script>
+	<div id="monsido">
+		<div id="script-tag-manager">
+ 
+</div>
+		<script type="text/javascript">
+
+			/*<![CDATA[*/
+			var loadMonsidoScript = function () {
+				var sz = document.createElement('script'); sz.type = 'text/javascript'; sz.async = true;
+				sz.src = '//app-script.monsido.com/v2/monsido-script.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sz, s);
+			}
+			window.addEventListener('CookiebotOnAccept', function (e) {
+				if (Cookiebot.consent.statistics) {
+					loadMonsidoScript();
+				}
+			}, false);
+
+			if (Cookiebot.consent.statistics) {
+				loadMonsidoScript();
+			}
+
+			/*]]>*/
+		</script>
+	</div>
+
+</body></html>

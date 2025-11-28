@@ -1,0 +1,57 @@
+{
+  "name": "css-stripper-pro-hardened",
+  "version": "1.1.0",
+  "description": "Windows GUI to crawl a site, collect CSS, purge unused selectors, and export CSS. Hardened and fault-tolerant.",
+  "author": "Generated",
+  "license": "MIT",
+  "type": "module",
+  "main": "main.mjs",
+  "scripts": {
+    "dev": "electron .",
+    "start": "electron .",
+    "build:win": "electron-builder --win nsis",
+    "build:dir": "electron-builder --dir"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0-rc.12",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "electron": "^30.5.1",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.example.cssstripper.hardened",
+    "productName": "CSS Stripper Pro",
+    "files": [
+      "main.mjs",
+      "preload.cjs",
+      "index.html",
+      "renderer.js",
+      "src/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "css-stripper-pro-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false
+    }
+  }
+}

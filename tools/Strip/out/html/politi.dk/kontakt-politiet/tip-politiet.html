@@ -1,0 +1,813 @@
+<!DOCTYPE html><html lang="da" xmlns="http://www.w3.org/1999/xhtml"><head>
+	<script src="/Assets/js/vendor.min.js?v=06B0AAA2518E667754249625E110CF77"></script>
+	<script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-level="strict" data-cbid="100ede66-4472-485d-ac6d-a044e497b6cf" data-blockingmode="auto" data-culture="da" type="text/javascript"></script>
+	<script type="text/javascript">window.TalenthubWidget = { "o": 2234, "u": "8eb8c5487426413d8e07013ad3b269c3", "fullscreen": false };</script>
+	<title>Tip politiet | Kontakt politiet | Politi</title>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+
+<meta name="description" content="Hvis du har kendskab til noget, som politiet bør kende til, kan du sende os et tip. Bemærk tip er ikke det samme som en anmeldelse.">
+<meta name="keywords" content="Bekæmpe kriminalitet, tip politi, kriminalitet, ulovligheder, politistation">
+
+<link rel="canonical" href="https://politi.dk/om-politiet/kontakt-politiet/tip-politiet">
+
+<meta name="robots" content="index, follow">
+
+<meta property="og:title" content="Tip politiet | Kontakt politiet | Politi">
+<meta property="og:description" content="Hvis du har kendskab til noget, som politiet bør kende til, kan du sende os et tip. Bemærk tip er ikke det samme som en anmeldelse.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://politi.dk/kontakt-politiet/tip-politiet">
+<meta property="og:image" content="https://politi.dk/-/media/mediefiler/landsdaekkende-billeder/artikel-b-3000px-x-h-2000px/presse/politi-banner-til-deling.png">
+	
+	<link rel="stylesheet" href="/Assets/css/main.min.css?v=27628DF2B296570C02BDAE062FD5F7A6">
+	<link rel="icon" type="image/x-icon" href="/Assets/favicons/favicon.ico">
+	<script src="/Assets/js/app.min.js?v=8D926A82B583AB4ABC59B56ED953CB60"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.11/jquery.validate.unobtrusive.min.js"></script>
+		<script src="/Assets/js/angular-locale_da-dk.js"></script>
+	
+	
+</head>
+<body ng-app="app">
+	<a href="#main-body-content" id="skippy" tabindex="1" class="sr-only sr-only-focusable" aria-label="Spring til hovedindhold" title="Spring til hovedindhold">Spring til hovedindhold</a>
+	<div id="page-content">
+		<header ng-controller="headerController">
+	<div class="staffering_background">
+	</div>
+	<div class="header">
+		<div class="container-fluid">
+			<div class="searchbar nav-down">
+				<div class="row">
+
+					
+					<div class="col-5">
+						<div class="header-logo">
+							<a href="/da" tabindex="2" class="logo" aria-label="Politi logo" title="Forside">
+								<img class="headerLogoDanishLanguage img-responsive" src="-/media/fc4deb5679f649e7b0da81d9d3aef1c4.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web&amp;hash=01EDE1EB7926D5A0BD9BD0D737663ABC" alt="Politi logo">
+							</a>
+							<img class="politi-logo-print img-responsive" src="-/media/7cdbf4e295844f2f9762568438d6aa50.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web&amp;hash=0CA055215751A4F935431E0F94CEE523" alt="Politi logo print">
+						</div>
+					</div>
+
+					
+					<div class="col-7 search-col">
+						<div class="header-right">
+							<button type="submit" tabindex="3" aria-label="Åben søgning" name="searchbtn" class="search-button" ng-click="searchClicked()">
+								<img class="search-icon" alt="Søg">
+								<p class="icon-text body-small-police-regular">Søg</p>
+							</button>
+
+							<button class="sidebar-toggle visible-xs-inline-block" tabindex="7" aria-label="Åben global menu" ng-click="burgerClicked()">
+								<img class="burger-menu" alt="Menu">
+								<p class="icon-text body-small-police-regular">Menu</p>
+							</button>	
+						</div>
+					</div>
+
+				</div>
+			</div>	
+		</div>
+	</div>
+</header>
+		
+		
+		<div ng-cloak="" ng-controller="searchBarController">
+	<div class="SearchSidebar-overlay" ng-click="sidebarOverlayClicked()" ng-class="{'opened': searchResultOpen, 'closed': !searchResultOpen}"></div>
+	<div class="search-input-container" ng-class="{'opened': sidebarOpen}">
+		<button name="closebtn" tabindex="5" aria-label="Luk søgebar" class="search-close" ng-click="sidebarCloseClicked()">
+			<img class="close-icon" alt="Luk">
+			<p class="icon-text icon-text body-small-police-regular dark-blue">Luk</p> 
+		</button>
+
+		<form method="get" action="https://politi.dk/soegeside">
+			<label aria-hidden="true" for="globalSearch" style="display: none;">Søg</label>
+			<input class="search-input search-button" tabindex="4" id="globalSearch" role="search" aria-label="Global søgning" aria-labelledby="search_DC5A5BF2-8D4D-410A-ABB8-8FED6669B700" placeholder="Skriv søgeord" ng-change="doSearch()" ng-model="searchTerm" ng-model-options="{ debounce: 500 }" type="text" name="query" ng-class="{'animate':isSearching}" autocomplete="off">
+			<button type="submit" id="search_DC5A5BF2-8D4D-410A-ABB8-8FED6669B700" aria-label="Søg" class="search-submit">
+				<img class="search-icon" alt="Søg">
+			</button>
+		</form>
+	</div>
+
+	<div class="SearchSidebar" ng-class="{'opened': searchResultOpen}">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<div class="resultsTitle">
+						<p class="body-headline-police-regular primary-white">Forslag</p>
+					</div>
+				</div>
+			</div>
+			<div class="row" ng-repeat="result in searchResults | limitTo : 10">
+				<div class="col-12">
+					<div class="resultsContent">
+						<a href="https://politi.dk/soegeside?query={{result}}" tabindex="6" aria-label="Søg" title="Søg">
+							<h4 class="resultContentTitle h4-police-bold">{{result}}</h4> 
+						</a>	
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+		
+
+<nav ng-cloak="" ng-controller="navigationBarController" role="navigation" aria-labelledby="menu_EEACB413-9858-448B-909C-FF652D570E55">
+	<span aria-hidden="true" id="menu_EEACB413-9858-448B-909C-FF652D570E55" style="display:none;">Global menu</span>
+	<div class="sidebar-overlay" ng-click="sidebarOverlayClicked()" ng-class="{'opened': sidebarOpen, 'closed': !sidebarOpen}"></div>
+	<div class="sidenav" ng-class="{'opened': sidebarOpen}">
+		<div class="sidebar">
+			<div class="row">
+				<div class="col-12">
+					<button ng-click="sidebarCloseClicked()" class="closeSidebar" aria-label="Luk global sidemenu">
+						<img class="close-icon" alt="Luk">
+						<p class="icon-text body-small-police-regular">Luk</p>
+					</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12 col-md-9">
+					<!--Primære liste-->
+					<div class="primary-list">
+						<ul>
+								<li>
+									<a href="https://politi.dk/" class="white-link h3-police-regular" aria-label="Forside" title="Forside">
+										Forside
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/anmeld-kriminalitet" class="white-link h3-police-regular" aria-label="Anmeld kriminalitet" title="Anmeld kriminalitet">
+										Anmeld kriminalitet
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/service-og-tilladelser" class="white-link h3-police-regular" aria-label="Service og tilladelser" title="Service og tilladelser">
+										Service og tilladelser
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/lov-og-information" class="white-link h3-police-regular" aria-label="Lov og information" title="Lov og information">
+										Lov og information
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/aktuelt" class="white-link h3-police-regular" aria-label="Aktuelt" title="Aktuel">
+										Aktuelt
+									</a>
+								</li>
+								<li>
+									<a href="https://politi.dk/om-politiet" class="white-link h3-police-regular" aria-label="Om politiet" title="Om politiet">
+										Om politiet
+									</a>
+								</li>
+						</ul>
+					</div>
+
+						<!--Secondær liste-->
+						<div class="secondary-list">
+							<ul>
+									<li>
+										<a href="https://politi.dk/politikredse" class="white-link body-headline-police-regular" aria-label="Politikredse" title="Politikredse">
+											Politikredse
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/politiskolen" class="white-link body-headline-police-regular" aria-label="Politiskolen" title="Politiskolen">
+											Politiskolen
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/politimuseet" class="white-link body-headline-police-regular" aria-label="Politimuseet" title="Politimuseet">
+											Politimuseet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/virksomheden/rigspolitiet" class="white-link body-headline-police-regular" aria-label="Rigspolitiet" title="Rigspolitiet">
+											Rigspolitiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet" class="white-link body-headline-police-regular" aria-label="National enhed for Særlig Kriminalitet" title="National enhed for Særlig Kriminalitet">
+											National enhed for Særlig Kriminalitet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet/politiets-online-patrulje" class="white-link body-headline-police-regular" aria-label="Politiets Online Patrulje" title="Politiets Online Patrulje">
+											Politiets Online Patrulje
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/kontakt-politiet" class="white-link body-headline-police-regular" aria-label="Kontakt politiet" title="Kontakt politiet">
+											Kontakt politiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/kontakt-politiet/tip-politiet" class="white-link body-headline-police-regular" aria-label="Tip politiet" title="Tip politiet (dette er ikke en anmeldelse)">
+											Tip politiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/job-i-politiet" class="white-link body-headline-police-regular" aria-label="Job i politiet" title="Job i politiet">
+											Job i politiet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/hittegods-og-tyvekoster" class="white-link body-headline-police-regular" aria-label="Hittegods og tyvekoster" title="Hittegods og tyvekoster">
+											Hittegods og tyvekoster
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/forebyggelse-af-kriminalitet" class="white-link body-headline-police-regular" aria-label="Forebyggelse af kriminalitet" title="Forebyggelse af kriminalitet">
+											Forebyggelse af kriminalitet
+										</a>
+									</li>
+									<li>
+										<a href="https://politi.dk/om-hjemmesiden/driftsstatus" class="white-link body-headline-police-regular" aria-label="Driftsstatus" title="Driftsstatus">
+											Driftsstatus
+										</a>
+									</li>
+							</ul>
+						</div>
+											
+				</div>
+			</div>
+		</div>
+	</div>
+</nav>
+
+
+
+		
+	
+	<section class="deadlineStatuses">
+		<div class="container-fluid">
+			<div class="row">
+					<div class="col-12 col-sm-12 col-md-6 col-lg-6">
+						<div class="deadlineStatus">
+							<div class="status-circle-icon"></div>
+							<div class="deadlineStatusContent">
+								<a class="dark-blue-link body-xsmall-police-regular" href="https://politi.dk/kontakt-politiet/kontakt-politikreds">Hvis du oplever fejl ved indsendelse af formularen, kan du alternativt ringe til vores servicecenter på tlf.: 114 eller sende en mail til din politikreds.</a>
+							</div>
+						</div>
+					</div>
+			</div>
+		</div>
+	</section>
+
+
+<nav class="container-fluid " aria-labelledby="breadcrumb_13EAFB7B-0D9D-4C70-8E84-4AE1DF366108">
+	<div class="row">
+		<div class="col-12"> 
+				<span aria-hidden="true" id="breadcrumb_13EAFB7B-0D9D-4C70-8E84-4AE1DF366108" style="display:none;">Breadcrumb</span>
+				<ul class="nav-breadcrumb white-breadcrumb-layout">
+						<li>
+							<a class="h4-police-regular" href="https://politi.dk/" aria-label="Forside" title="Forside">Forside</a>
+						</li>
+						<li>
+							<a class="h4-police-regular" href="https://politi.dk/om-politiet" aria-label="Om politiet" title="Om politiet">Om politiet</a>
+						</li>
+						<li>
+							<a class="h4-police-regular" href="https://politi.dk/kontakt-politiet" aria-label="Kontakt politiet" title="Kontakt politiet">Kontakt politiet</a>
+						</li>
+						<li>
+							<a class="h4-police-regular" href="https://politi.dk/kontakt-politiet/tip-politiet" aria-label="Tip politiet" title="Tip politiet (dette er ikke en anmeldelse)">Tip politiet</a>
+						</li>
+				</ul>
+		</div>
+	</div>
+</nav>
+
+<section class="container-fluid " aria-labelledby="content_4D40831F-35FB-4A0D-8210-C424BA0338F5">
+	<div class="row ">
+		<div class="col-12 col-sm-12 col-md-8 col-lg-8 text-left">
+			<div class="contentHeadline">
+				<h1 id="content_4D40831F-35FB-4A0D-8210-C424BA0338F5" class="h1-police-bold dark-blue">Tip politiet - dette er ikke en anmeldelse</h1>
+				<p class="h4-arial-regular dark-blue">Hvis du har kendskab til noget, politiet bør kende til, kan du sende os et tip via nedenstående formular. Vi behandler alle indsendte tip, men du får ikke nødvendigvis et svar fra os. Vær opmærksom på, at et tip er ikke en anmeldelse, og du kan ikke forvente, at dit tip bliver efterforsket.</p>
+			</div>
+		</div>
+	</div>
+</section>
+
+<main class="container-fluid  body-text-arial-regular dark-blue" id="main-body-content">
+	<div class="row">
+		
+		<div class="col-xs-12 offset-md-1 col-md-10 offset-lg-0 col-lg-3">
+			
+		</div>
+
+		
+		<div class="col-xs-12 offset-md-1 col-md-10 offset-lg-0 col-lg-6">
+			<div class="infoBox">
+	<p class="infoBoxTitle body-headline-police-bold dark-blue">Ring altid 114 eller 112, hvis dit tip er af hastende karakter</p>
+	<div class="rich-text">
+		<p><a href="https://politi.dk/politikredse" target="_blank" title="Find ud af, hvilken politikreds du skal sende dit tip til" class="link-arrow">Find ud af, hvilken politikreds du skal sende dit tip til</a></p>
+<p><a href="https://politi.dk/anmeld-kriminalitet" title="Foretag en anmeldelse" class="link-arrow">Foretag en anmeldelse</a></p>
+	</div>
+</div>
+
+	<div class="formDiv" ng-if="Cookiebot.consent.marketing" ng-controller="formController" ng-init="init()">
+<form action="/formbuilder?sc_site=daDKwebsite&amp;fxb.FormItemId=71a021d8-59a4-4ec5-acee-6e470c701e97&amp;fxb.HtmlPrefix=fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888" class="custom-form" data-ajax="true" data-ajax-method="Post" data-ajax-mode="replace-with" data-ajax-success="
+jQuery.validator.unobtrusive.parse('#fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_71a021d8-59a4-4ec5-acee-6e470c701e97');
+jQuery.fxbFormTracker.texts=jQuery.fxbFormTracker.texts||{};
+jQuery.fxbFormTracker.texts.expiredWebSession='Your session has expired. Please refresh this page.';
+jQuery.fxbFormTracker.parse('#fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_71a021d8-59a4-4ec5-acee-6e470c701e97');
+jQuery.fxbConditions.parse('#fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_71a021d8-59a4-4ec5-acee-6e470c701e97')" data-ajax-update="#fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_71a021d8-59a4-4ec5-acee-6e470c701e97" data-sc-fxb="71a021d8-59a4-4ec5-acee-6e470c701e97" enctype="multipart/form-data" id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_71a021d8-59a4-4ec5-acee-6e470c701e97" method="post"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_FormSessionId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.FormSessionId" type="hidden" value="ab05e81e-eabe-4cbc-a06c-60ac6cab847f"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_IsSessionExpired" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.IsSessionExpired" type="hidden" value="0"><input name="__RequestVerificationToken" type="hidden" value="pVCKOYz-Z74V5hYrQ6X-91uuwsqN1Vi8XWDbebpZpkYuzRWYDq9Vznmbio19Q2Hg_TaEuQhnXCZbyz2OPTJGtRCR_I1ty-BHojA0XcG9W4E1"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_FormItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.FormItemId" type="hidden" value="71a021d8-59a4-4ec5-acee-6e470c701e97"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_PageItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.PageItemId" type="hidden" value="b58d77dc-1804-44e8-ab97-6a1fba43b727">
+<div class="row">
+	<div class="col-12">
+    	<div class="border-top-green"></div>
+
+<h3 class="">Oplysninger om din henvendelse</h3><div class="row">
+	<div class="col-12">
+    <input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_1bd0acde-f575-407a-8f3d-7e24617807ec" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="1bd0acde-f575-407a-8f3d-7e24617807ec"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_1bd0acde-f575-407a-8f3d-7e24617807ec__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[1bd0acde-f575-407a-8f3d-7e24617807ec].ItemId" type="hidden" value="1bd0acde-f575-407a-8f3d-7e24617807ec"><div ng-cloak="" ng-controller="categoryOptionController" ng-init="init([{&quot;CategoryName&quot;:&quot;Bander og rockere&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Berigelseskriminalitet&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Doping&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Drab&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Hooligans / Risk fans (sport)&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Menneskehandel&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Menneskesmugling&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Narkotika&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Omrejsende kriminelle&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Sexturisme og seksualforbrydelser&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Vold&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Våben&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk: kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk; kbh-seoe-efterret-analyse@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Økonomisk svindel på nettet&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]},{&quot;CategoryName&quot;:&quot;Andet&quot;,&quot;Districts&quot;:[{&quot;DistrictName&quot;:&quot;Bornholms Politi&quot;,&quot;Receivers&quot;:&quot;bornh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Fyns Politi&quot;,&quot;Receivers&quot;:&quot;fyn@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Politi&quot;,&quot;Receivers&quot;:&quot;kbh@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Københavns Vestegns Politi&quot;,&quot;Receivers&quot;:&quot;kbhv@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestjyllands Politi&quot;,&quot;Receivers&quot;:&quot;mvjyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Midt- og Vestsjællands Politi&quot;,&quot;Receivers&quot;:&quot;mvsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordjyllands Politi&quot;,&quot;Receivers&quot;:&quot;njyl@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Nordsjællands Politi&quot;,&quot;Receivers&quot;:&quot;nsj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Syd- og Sønderjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SJYL-Servicecenter@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydsjællands og Lolland-Falsters Politi&quot;,&quot;Receivers&quot;:&quot;ssj@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Sydøstjyllands Politi&quot;,&quot;Receivers&quot;:&quot;SOJYL-TipPolitiet@politi.dk&quot;},{&quot;DistrictName&quot;:&quot;Østjyllands Politi&quot;,&quot;Receivers&quot;:&quot;ojyl@politi.dk&quot;}]}])">
+	<label for="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_1bd0acde-f575-407a-8f3d-7e24617807ec__SelectedCategory">Vælg emne *</label>
+	<select class="polweb-customform-select" id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_1bd0acde-f575-407a-8f3d-7e24617807ec__SelectedCategory" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[1bd0acde-f575-407a-8f3d-7e24617807ec].SelectedCategory" data-sc-tracking="False" data-sc-field-name="CategoryOption.SelectedCategory" ng-model="selectedCategory" ng-change="updateDistricts(selectedCategory)" required="">
+		<option style="display:none" value=""></option>
+		<option class="polweb-customform-option" ng-repeat="category in categories" value="{{category.CategoryName}}">{{category.CategoryName}}</option>
+	</select>
+	<span class="field-validation-valid" data-valmsg-for="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[1bd0acde-f575-407a-8f3d-7e24617807ec].SelectedCategory" data-valmsg-replace="false">Feltet er påkrævet.</span>
+	<label for="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_1bd0acde-f575-407a-8f3d-7e24617807ec__SelectedDistrict">Vælg modtager *</label>
+	<select class="polweb-customform-select" id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_1bd0acde-f575-407a-8f3d-7e24617807ec__SelectedDistrict" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[1bd0acde-f575-407a-8f3d-7e24617807ec].SelectedDistrict" data-sc-tracking="False" data-sc-field-name="CategoryOption.SelectedDistrict" ng-model="selectedDistrict" ng-change="updateReceivers(selectedDistrict)" required="">
+		<option style="display:none" value=""></option>
+		<option class="polweb-customform-option" ng-repeat="district in availableDistricts.Districts" value="{{district.DistrictName}}">{{district.DistrictName}}</option>
+	</select>
+	<span class="field-validation-valid" data-valmsg-for="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[1bd0acde-f575-407a-8f3d-7e24617807ec].SelectedDistrict" data-valmsg-replace="false">Feltet er påkrævet.</span>
+	<input type="hidden" id="Receivers" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[1bd0acde-f575-407a-8f3d-7e24617807ec].Receivers" value="">
+</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+    <input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_776161ff-0f71-4991-9800-627c4147c2c6" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="776161ff-0f71-4991-9800-627c4147c2c6"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_776161ff-0f71-4991-9800-627c4147c2c6__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[776161ff-0f71-4991-9800-627c4147c2c6].ItemId" type="hidden" value="776161ff-0f71-4991-9800-627c4147c2c6"><label for="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_776161ff-0f71-4991-9800-627c4147c2c6__Value" class="">Hvad vil du fortælle politiet? *</label>
+<textarea id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_776161ff-0f71-4991-9800-627c4147c2c6__Value" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[776161ff-0f71-4991-9800-627c4147c2c6].Value" class="polweb-customform-validationField" rows="30" maxlength="2000" placeholder="Skriv dit tip" data-sc-tracking="True" data-sc-field-name="Description" data-val-required="Hvad vil du fortælle politiet? is required." data-val-length="Hvad vil du fortælle politiet? skal bestå af mindst 0 tegn og maks. 2000 tegn." data-val-length-max="2000" data-val="true"></textarea>
+<span class="field-validation-valid" data-valmsg-for="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[776161ff-0f71-4991-9800-627c4147c2c6].Value" data-valmsg-replace="true"></span>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+    <input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_d02e1445-dd52-4b40-b22e-69fd11055158" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="d02e1445-dd52-4b40-b22e-69fd11055158"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_d02e1445-dd52-4b40-b22e-69fd11055158__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[d02e1445-dd52-4b40-b22e-69fd11055158].ItemId" type="hidden" value="d02e1445-dd52-4b40-b22e-69fd11055158"><label for="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_d02e1445-dd52-4b40-b22e-69fd11055158__Value">Hvor har du observeret noget ulovligt? </label>
+<input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_d02e1445-dd52-4b40-b22e-69fd11055158__Value" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[d02e1445-dd52-4b40-b22e-69fd11055158].Value" class="polweb-customform-text" type="text" value="" maxlength="255" placeholder="Skriv sted eller adresse" data-sc-tracking="True" data-sc-field-name="Adress">
+<span class="field-validation-valid" data-valmsg-for="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[d02e1445-dd52-4b40-b22e-69fd11055158].Value" data-valmsg-replace="true"></span>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+    
+<label class="">Vedhæft evt. billeder (vi modtager max 3 billeder, max 5 MB per billede, i formaterne JPEG eller PNG) Ved mere end et billede skal du vedhæfte dem samtidigt.</label><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_5a4720b7-0047-41b5-84c7-57930447a16c" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="5a4720b7-0047-41b5-84c7-57930447a16c"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_5a4720b7-0047-41b5-84c7-57930447a16c__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[5a4720b7-0047-41b5-84c7-57930447a16c].ItemId" type="hidden" value="5a4720b7-0047-41b5-84c7-57930447a16c"><div ng-cloak="" ng-controller="takePictureController" ng-init="init(5, [&quot;png&quot;,&quot;jpg&quot;,&quot;jpeg&quot;], 3)">
+	<div class="box position-relative">
+		<input type="file" name="fileUpload[]" id="fileUpload" class="inputfile take-picture" data-multiple-caption="{count} files selected" accept="image/*,capture=camera" multiple="">
+		<label for="fileUpload">
+			<span></span>
+			<strong>
+				
+				<img width="25" src="/Assets/icons/white/Kamera_white.svg" alt="upload documentation" style="pointer-events: none">
+			</strong>
+		</label> 
+		<input type="hidden" id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_5a4720b7-0047-41b5-84c7-57930447a16c__Value" class="takePictureData" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[5a4720b7-0047-41b5-84c7-57930447a16c].Value" data-sc-tracking="False" data-sc-field-name="Take Picture">
+	</div>
+	
+	<span class="field-validation-error" ng-if="fileSizeError">Du har vedhæftet for tunge filer. Hvis du fortsætter, vil vi modtage dit tip, men ingen af de vedhæftede filer.</span>
+	<span class="field-validation-error" ng-if="fileTypeError">Du har vedhæftet en filtype, der ikke er tilladt. Hvis du fortsætter, vil vi modtage dit tip, men ingen af de vedhæftede filer.</span>
+	<span class="field-validation-error" ng-if="fileNumberError">Du har vedhæftet for mange filer. Hvis du fortsætter, vil vi modtage dit tip, men ingen af de vedhæftede filer.</span>
+</div>
+
+	</div>
+</div>
+
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+    	<div class="border-top-green"></div>
+
+<h3 class="">Oplysninger om dig (frivilligt)</h3><div class="row">
+	<div class="col-12">
+    <input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_820072b9-7b4d-4c5e-8e9e-2ddce9815a7d" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="820072b9-7b4d-4c5e-8e9e-2ddce9815a7d"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_820072b9-7b4d-4c5e-8e9e-2ddce9815a7d__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[820072b9-7b4d-4c5e-8e9e-2ddce9815a7d].ItemId" type="hidden" value="820072b9-7b4d-4c5e-8e9e-2ddce9815a7d"><label for="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_820072b9-7b4d-4c5e-8e9e-2ddce9815a7d__Value">Navn </label>
+<input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_820072b9-7b4d-4c5e-8e9e-2ddce9815a7d__Value" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[820072b9-7b4d-4c5e-8e9e-2ddce9815a7d].Value" class="polweb-customform-text" type="text" value="" maxlength="100" placeholder="Skriv dit fulde navn" data-sc-tracking="True" data-sc-field-name="Name" data-val-length="Navn skal bestå af mindst 4 tegn og maks. 100 tegn." data-val-length-min="4" data-val-length-max="100" data-val="true">
+<span class="field-validation-valid" data-valmsg-for="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[820072b9-7b4d-4c5e-8e9e-2ddce9815a7d].Value" data-valmsg-replace="true"></span>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+    <input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_caaea9da-aba3-49a5-8219-dd0300d90e8d" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="caaea9da-aba3-49a5-8219-dd0300d90e8d"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_caaea9da-aba3-49a5-8219-dd0300d90e8d__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[caaea9da-aba3-49a5-8219-dd0300d90e8d].ItemId" type="hidden" value="caaea9da-aba3-49a5-8219-dd0300d90e8d"><label for="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_caaea9da-aba3-49a5-8219-dd0300d90e8d__Value">Telefon </label>
+<input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_caaea9da-aba3-49a5-8219-dd0300d90e8d__Value" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[caaea9da-aba3-49a5-8219-dd0300d90e8d].Value" class="polweb-customform-telephone" type="tel" value="" maxlength="16" placeholder="Skriv dit telefonnummer" data-sc-tracking="True" data-sc-field-name="Telephone" data-val-regex="Telefon indeholder et ugyldigt telefonnummer." data-val-regex-pattern="^[+]?[0-9]{0,4}[\s 0-9]{8,25}$" data-val-length="Telefon skal bestå af mindst 6 tegn og maks. 16 tegn." data-val-length-min="6" data-val-length-max="16" data-val="true">
+<span class="field-validation-valid" data-valmsg-for="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[caaea9da-aba3-49a5-8219-dd0300d90e8d].Value" data-valmsg-replace="true"></span>
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+    <input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_014a4df9-4cda-4a06-adbe-ff9715a64c60" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="014a4df9-4cda-4a06-adbe-ff9715a64c60"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_014a4df9-4cda-4a06-adbe-ff9715a64c60__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[014a4df9-4cda-4a06-adbe-ff9715a64c60].ItemId" type="hidden" value="014a4df9-4cda-4a06-adbe-ff9715a64c60"><label for="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_014a4df9-4cda-4a06-adbe-ff9715a64c60__Value">E-mail </label>
+<input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_014a4df9-4cda-4a06-adbe-ff9715a64c60__Value" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[014a4df9-4cda-4a06-adbe-ff9715a64c60].Value" class="polweb-customform-email" type="email" value="" maxlength="60" placeholder="Skriv din e-mailadresse" data-sc-tracking="True" data-sc-field-name="Email" data-val-regex="E-mail indeholder en ugyldig e-mailadresse." data-val-regex-pattern="^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,17}$" data-val-length="E-mail skal bestå af mindst 4 tegn og maks. 60 tegn." data-val-length-min="4" data-val-length-max="60" data-val="true">
+<span class="field-validation-valid" data-valmsg-for="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[014a4df9-4cda-4a06-adbe-ff9715a64c60].Value" data-valmsg-replace="true"></span>
+	</div>
+</div>
+
+	</div>
+</div>
+<div class="row">
+	<div class="col-12">
+    <input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_6bde45c3-0d12-486c-8c85-549a1b4b3698" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="6bde45c3-0d12-486c-8c85-549a1b4b3698"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_6bde45c3-0d12-486c-8c85-549a1b4b3698__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[6bde45c3-0d12-486c-8c85-549a1b4b3698].ItemId" type="hidden" value="6bde45c3-0d12-486c-8c85-549a1b4b3698"><script src="https://www.google.com/recaptcha/api.js?hl=da"></script>
+
+<div id="recaptcha" class="recaptcha" ng-cloak="" ng-controller="googleReCaptchaController" ng-init="init()">
+	
+	<input type="hidden" id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_6bde45c3-0d12-486c-8c85-549a1b4b3698__Value" class="googleRecaptchaClass" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[6bde45c3-0d12-486c-8c85-549a1b4b3698].Value" data-sc-tracking="False" data-sc-field-name="Google reCaptcha">
+
+	<p></p>
+	<div vc-recaptcha="" key="'6LeVOy8jAAAAAJHQZK5P8J8XkNOZ837i8s_R_2ft'" class="polweb-customform-recaptcha" ng-model="formRecaptchaResponse"></div>
+	<span id="captchaError" class="field-validation-error">Errors.FieldRequiredGoogleReCaptcha</span>
+</div>
+
+<input value="Send" type="submit" ng-click="submit()" class="primary-button-arrow" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.4fc4bd1e-52be-40a6-82ab-140d320264af">
+<input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_NavigationButtons" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.NavigationButtons" type="hidden" value="4fc4bd1e-52be-40a6-82ab-140d320264af">
+<input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_4fc4bd1e-52be-40a6-82ab-140d320264af" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.4fc4bd1e-52be-40a6-82ab-140d320264af" type="hidden" value="0">
+<input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_Index_d9501d51-e31b-4612-86d9-0e8dcf58c1ce" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields.Index" type="hidden" value="d9501d51-e31b-4612-86d9-0e8dcf58c1ce"><input id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_d9501d51-e31b-4612-86d9-0e8dcf58c1ce__ItemId" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[d9501d51-e31b-4612-86d9-0e8dcf58c1ce].ItemId" type="hidden" value="d9501d51-e31b-4612-86d9-0e8dcf58c1ce"><input type="hidden" id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_d9501d51-e31b-4612-86d9-0e8dcf58c1ce__ipAddress" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[d9501d51-e31b-4612-86d9-0e8dcf58c1ce].ipAddress" value="87.49.146.166">
+<input type="hidden" id="fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_d9501d51-e31b-4612-86d9-0e8dcf58c1ce__port" name="fxb.3b8c51d8-f116-49a9-a45b-e81eb4d76888.Fields[d9501d51-e31b-4612-86d9-0e8dcf58c1ce].port" value="56742">
+
+<script type="text/javascript">
+	var hiddenField = document.getElementById("fxb_3b8c51d8-f116-49a9-a45b-e81eb4d76888_Fields_d9501d51-e31b-4612-86d9-0e8dcf58c1ce__ipAddress");
+	var parent = hiddenField.parentNode;
+	if (parent.classList.contains("sc-formdesign-fieldcontainer")) {
+		var textDiv = document.createElement("div");
+		textDiv.innerHTML = "(Hidden referring IP field)";
+		parent.appendChild(textDiv);
+	}
+</script>
+
+
+
+	</div>
+</div>
+</form>	</div>
+	<div ng-if="!Cookiebot.consent.marketing">
+		<div class="cookieOverlay" ng-cloak="" ng-controller="cookieOverlay">
+	<div class="cookieDescription">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<p class="body-text-arial-regular primary-white">Bag dette element er enten en kortvisning, en YouTube-video eller et robottjek, leveret af Google. Hvis du vil se et af disse elementer, skal du acceptere alle cookies.</p>
+					<button class="secondary-button body-xmedium-police-bold" ng-click="onOverlayClick()">Ret dit samtykke</button>
+					<br>
+					<br>
+					<a class="body-text-arial-regular green-dark-link" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-cookies" target="_blank" aria-label="Læs mere om cookies" title="Politiets brug af cookies">Læs mere om cookies</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+	</div>
+
+
+<div class="QAndAAccordion">
+	<div class="card-header">
+		<h6 class="QAAAccordionTitle h6-police-light dark-blue">Hvis du ikke ønsker at acceptere cookies</h6>
+	</div>
+
+	<div id="accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" class="accordion" role="tablist" aria-multiselectable="true">
+			<div class="card">
+				<div class="card-header" role="tab" id="ECE9149C-3530-47FA-9F53-F256502715F4X" data-target="#accordionElement_ECE9149C-3530-47FA-9F53-F256502715F4">
+					<a data-toggle="collapse" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-expanded="false" href="#accordionElement_ECE9149C-3530-47FA-9F53-F256502715F4" aria-label="Anvend hjemmesiden fra en anden enhed" title="Anvend hjemmesiden fra en anden enhed" class="body-text-arial-bold dark-blue QAAAAccordionHeader">
+						Anvend hjemmesiden fra en anden enhed
+					</a>
+				</div>
+
+				<div id="accordionElement_ECE9149C-3530-47FA-9F53-F256502715F4" class="collapse in " role="tabpanel" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-labelledby="ECE9149C-3530-47FA-9F53-F256502715F4X">
+					<div class="card-body">
+						<div class="rich-text">
+							<p>Hvis du ikke ønsker at acceptere cookies på din egen enhed, kan du enten bede en pårørende om at anvende hjemmesiden fra deres computer, tablet eller smartphone (og acceptere cookies), eller du kan benytte en offentligt tilgængelig computer, fx på et bibliotek.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header" role="tab" id="72A437EB-BBA3-4644-8DFB-3356CE9DAD9CX" data-target="#accordionElement_72A437EB-BBA3-4644-8DFB-3356CE9DAD9C">
+					<a data-toggle="collapse" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-expanded="false" href="#accordionElement_72A437EB-BBA3-4644-8DFB-3356CE9DAD9C" aria-label="Henvend dig på en politistation" title="Henvend dig på en politistation" class="body-text-arial-bold dark-blue QAAAAccordionHeader">
+						Henvend dig på en politistation
+					</a>
+				</div>
+
+				<div id="accordionElement_72A437EB-BBA3-4644-8DFB-3356CE9DAD9C" class="collapse in " role="tabpanel" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-labelledby="72A437EB-BBA3-4644-8DFB-3356CE9DAD9CX">
+					<div class="card-body">
+						<div class="rich-text">
+							<p>Du kan møde fysisk op på en politistation. Find kontaktoplysninger på alle landets politikredse nedenfor.</p>
+<p>&nbsp;</p>
+<p><a href="https://politi.dk/kontakt-politiet/kontakt-politikreds" title="Kontakt politikreds" class="link-arrow">Kontakt politikreds</a></p>
+<p>&nbsp;</p>
+<p>På nedenstående side finder du også under hver politikreds en liste over alle politistationer i politikredsen.</p>
+<p>&nbsp;</p>
+<p><a href="https://politi.dk/politikredse" title="Politikredse" class="link-arrow">Politikredse</a></p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header" role="tab" id="0DF6472D-7AE2-41C8-B983-07F10592847CX" data-target="#accordionElement_0DF6472D-7AE2-41C8-B983-07F10592847C">
+					<a data-toggle="collapse" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-expanded="false" href="#accordionElement_0DF6472D-7AE2-41C8-B983-07F10592847C" aria-label="Ring 114 til politiets servicecenter" title="Ring 114 til politiets servicecenter" class="body-text-arial-bold dark-blue QAAAAccordionHeader">
+						Ring 114 til politiets servicecenter
+					</a>
+				</div>
+
+				<div id="accordionElement_0DF6472D-7AE2-41C8-B983-07F10592847C" class="collapse in " role="tabpanel" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-labelledby="0DF6472D-7AE2-41C8-B983-07F10592847CX">
+					<div class="card-body">
+						<div class="rich-text">
+							114 er det direkte servicenummer til politiet i hele landet. Du kan ringe 114, hvis din henvendelse ikke er akut.
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header" role="tab" id="11D81B0C-044A-4D5A-A0EC-BFB5103FFE97X" data-target="#accordionElement_11D81B0C-044A-4D5A-A0EC-BFB5103FFE97">
+					<a data-toggle="collapse" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-expanded="false" href="#accordionElement_11D81B0C-044A-4D5A-A0EC-BFB5103FFE97" aria-label="Ring 112 til alarmcentralen" title="Ring 112 til alarmcentralen" class="body-text-arial-bold dark-blue QAAAAccordionHeader">
+						Ring 112 til alarmcentralen
+					</a>
+				</div>
+
+				<div id="accordionElement_11D81B0C-044A-4D5A-A0EC-BFB5103FFE97" class="collapse in " role="tabpanel" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-labelledby="11D81B0C-044A-4D5A-A0EC-BFB5103FFE97X">
+					<div class="card-body">
+						<div class="rich-text">
+							112 er nummeret til alarmcentralen. Du skal ringe 112, hvis du har akut behov for hjælp.
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="card">
+				<div class="card-header" role="tab" id="C75F4190-E7B0-4896-B2D9-B4D6D9B4010AX" data-target="#accordionElement_C75F4190-E7B0-4896-B2D9-B4D6D9B4010A">
+					<a data-toggle="collapse" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-expanded="false" href="#accordionElement_C75F4190-E7B0-4896-B2D9-B4D6D9B4010A" aria-label="Send mail til politikreds" title="Send mail til politikreds" class="body-text-arial-bold dark-blue QAAAAccordionHeader">
+						Send mail til politikreds
+					</a>
+				</div>
+
+				<div id="accordionElement_C75F4190-E7B0-4896-B2D9-B4D6D9B4010A" class="collapse in " role="tabpanel" data-parent="#accordion_BF45E5D2-F3A8-4ADB-8C4A-7E0939C17ABF" aria-labelledby="C75F4190-E7B0-4896-B2D9-B4D6D9B4010AX">
+					<div class="card-body">
+						<div class="rich-text">
+							<p>Du kan sende en mail til din politikreds. Find e-mailadresser til alle politikredse nedenfor. Du kan også skrive via Digital Post.</p>
+<p>&nbsp;</p>
+<p><a href="https://politi.dk/kontakt-politiet/kontakt-politikreds" title="Kontakt politikreds" class="link-arrow">Kontakt politikreds</a></p>
+						</div>
+					</div>
+				</div>
+			</div>
+	</div>
+</div><div class="linkAccordion">
+	<div class="card">
+		<div class="card-header">
+			<h6 class="linkAccordionTitle h6-police-light dark-blue">Hvis du indsender personoplysninger</h6>
+		</div>
+			<div class="card-body">
+				<a class="body-text-arial-bold dark-blue linkAccordionBody InternalLink" target="_blank" title="Politiets brug af personoplysninger" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-personoplysninger">Politiets brug af personoplysninger</a>
+			</div>
+	</div>
+</div>
+		</div>
+		<div class="col-xs-12 offset-md-1 col-md-10 offset-lg-0 col-lg-3">
+		</div>
+	</div>
+</main>
+		<div class="NewsAndCookie">
+			
+		</div>
+
+		<footer class="footer d-md-none d-lg-none">
+	
+	<div class="backgroundSkew"></div>
+	<div class="footerMobile">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-12">
+					<div class="footerLogoDanishLanguage">
+						<img src="-/media/fc4deb5679f649e7b0da81d9d3aef1c4.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web" alt="Politi logo">
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+						<div class="alarmButtons">
+							<ul>
+									<li>
+										<p class="button-text h6-arial-regular primary-white">Alarm</p>
+										<a href="tel:112" class="footer-button h6-police-bold" aria-label="112" title="112">112</a>
+									</li>
+																	<li>
+										<p class="button-text h6-arial-regular primary-white">Service</p>
+										<a href="tel:114" class="footer-button h6-police-bold" aria-label="114" title="114">114</a>
+									</li>
+								<li>
+									<p class="h6-arial-regular dark-blue"></p>
+									<a class="footer-button h6-arial-bold" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a>
+								</li>
+							</ul>
+						</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col">
+					<div class="footerFaq">
+						<ul>
+								<li><a class="body-text-police-regular white-link" title="Abonnér" href="https://politi.dk/abonner">Abonnér</a></li>
+								<li><a class="body-text-police-regular white-link" title="Driftsstatus" href="https://politi.dk/om-hjemmesiden/driftsstatus">Driftsstatus</a></li>
+								<li><a class="body-text-police-regular white-link" title="Kontakt politiet" href="https://politi.dk/kontakt-politiet">Kontakt politiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Tip politiet" href="https://politi.dk/kontakt-politiet/tip-politiet">Tip politiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Job i politiet" href="https://politi.dk/job-i-politiet">Job i politiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Presse" href="https://politi.dk/presse">Presse</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politiattest og lægeerklæringer" href="https://politi.dk/oevrige-indberetninger-og-tilladelser/politiattest-og-laegeerklaeringer">Politiattest og lægeerklæringer</a></li>
+								<li><a class="body-text-police-regular white-link" title="Cookies" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-cookies">Cookies</a></li>
+								<li><a class="body-text-police-regular white-link" title="Personoplysninger" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-personoplysninger">Personoplysninger</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Tilgængelighedserklæring" rel="noopener noreferrer" href="http://politi.dk/was">Tilgængelighedserklæring</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Guide til oplæsning af tekst" rel="noopener noreferrer" href="https://borger.dk/oplæsning">Guide til oplæsning af tekst</a></li>
+						</ul>
+					</div>
+				</div>
+				<div class="col">
+					<div class="footerFaq">
+						<ul>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" rel="noopener noreferrer" href="https://pet.dk">PET</a></li>
+								<li><a class="body-text-police-regular white-link" title="Rigspolitiet" href="https://politi.dk/virksomheden/rigspolitiet">Rigspolitiet</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politikredse" href="https://politi.dk/politikredse">Politikredse</a></li>
+								<li><a class="body-text-police-regular white-link" title="National enhed for Særlig Kriminalitet" href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet">National enhed for Særlig Kriminalitet</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Hvidvasksekretariatet" rel="noopener noreferrer" href="https://hvidvask.dk/">Hvidvasksekretariatet</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Færøernes Politi" rel="noopener noreferrer" href="https://politi.fo">Færøernes Politi</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Grønlands Politi" rel="noopener noreferrer" href="https://politi.gl">Grønlands Politi</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politiskolen" href="https://politi.dk/politiskolen">Politiskolen</a></li>
+								<li><a class="body-text-police-regular white-link" title="Politimuseet" href="https://politi.dk/politimuseet">Politimuseet</a></li>
+								<li><a class="body-text-police-regular white-link" target="_blank" title="Center for Beredskabskommunikation" rel="noopener noreferrer" href="https://sikkerhedsnet.dk/">Center for Beredskabskommunikation</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="footerSocialMedia">
+						<p class="body-text-police-regular">Følg politiet på sociale medier</p>
+						<ul>
+								<li>
+									<a class="socialMediaIcon" href="https://www.facebook.com/politi" target="_blank" aria-label="Politiet på Facebook" title="Politiet på Facebook">
+										<img class="SMIcon" src="/Assets/icons/white/Facebook_icon_white.svg" alt="Politiet på Facebook">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://twitter.com/rigspoliti" target="_blank" aria-label="Rigspolitiet på X" title="Rigspolitiet på X">
+										<img class="SMIcon" src="/Assets/icons/white/Twitter_icon_white.svg" alt="Rigspolitiet på X">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://www.linkedin.com/company/politi/" target="_blank" aria-label="Politiet på Linkedin" title="Politiet på Linkedin">
+										<img class="SMIcon" src="/Assets/icons/white/LinkedIn_white.svg" alt="Politiet på Linkedin">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://www.youtube.com/politi" target="_blank" aria-label="Politiet på Youtube" title="Politiet på Youtube">
+										<img class="SMIcon" src="/Assets/icons/white/Youtube_icon_white.svg" alt="Politiet på Youtube">
+									</a>
+								</li>
+								<li>
+									<a class="socialMediaIcon" href="https://www.instagram.com/politi/" target="_blank" aria-label="Politiet på Instagram" title="Politiet på Instagram">
+										<img class="SMIcon" src="/Assets/icons/white/Instagram_icon_white.svg" alt="Politiet på Instagram">
+									</a>
+								</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+<footer class="footer d-none d-sm-none d-md-block">
+	
+	<div class="backgroundSkew"></div>
+	<div class="footerTabletDesktop">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-7">
+					<div class="footerLogoDanishLanguage">
+						<img src="-/media/fc4deb5679f649e7b0da81d9d3aef1c4.ashx?h=16&amp;thn=1&amp;w=16&amp;db=web" alt="Politi logo">
+					</div>
+					<div class="row">
+						<div class="col-6">
+							<div class="footerFaq">
+								<ul>
+										<li><a class="body-text-police-regular white-link" title="Abonnér" href="https://politi.dk/abonner">Abonnér</a></li>
+										<li><a class="body-text-police-regular white-link" title="Driftsstatus" href="https://politi.dk/om-hjemmesiden/driftsstatus">Driftsstatus</a></li>
+										<li><a class="body-text-police-regular white-link" title="Kontakt politiet" href="https://politi.dk/kontakt-politiet">Kontakt politiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Tip politiet" href="https://politi.dk/kontakt-politiet/tip-politiet">Tip politiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Job i politiet" href="https://politi.dk/job-i-politiet">Job i politiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Presse" href="https://politi.dk/presse">Presse</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politiattest og lægeerklæringer" href="https://politi.dk/oevrige-indberetninger-og-tilladelser/politiattest-og-laegeerklaeringer">Politiattest og lægeerklæringer</a></li>
+										<li><a class="body-text-police-regular white-link" title="Cookies" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-cookies">Cookies</a></li>
+										<li><a class="body-text-police-regular white-link" title="Personoplysninger" href="https://politi.dk/om-hjemmesiden/politiets-brug-af-personoplysninger">Personoplysninger</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Tilgængelighedserklæring" rel="noopener noreferrer" href="http://politi.dk/was">Tilgængelighedserklæring</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Guide til oplæsning af tekst" rel="noopener noreferrer" href="https://borger.dk/oplæsning">Guide til oplæsning af tekst</a></li>
+								</ul>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="footerFaq">
+								<ul>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" rel="noopener noreferrer" href="https://pet.dk">PET</a></li>
+										<li><a class="body-text-police-regular white-link" title="Rigspolitiet" href="https://politi.dk/virksomheden/rigspolitiet">Rigspolitiet</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politikredse" href="https://politi.dk/politikredse">Politikredse</a></li>
+										<li><a class="body-text-police-regular white-link" title="National enhed for Særlig Kriminalitet" href="https://politi.dk/virksomheden/national-enhed-for-saerlig-kriminalitet">National enhed for Særlig Kriminalitet</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Hvidvasksekretariatet" rel="noopener noreferrer" href="https://hvidvask.dk/">Hvidvasksekretariatet</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Færøernes Politi" rel="noopener noreferrer" href="https://politi.fo">Færøernes Politi</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Grønlands Politi" rel="noopener noreferrer" href="https://politi.gl">Grønlands Politi</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politiskolen" href="https://politi.dk/politiskolen">Politiskolen</a></li>
+										<li><a class="body-text-police-regular white-link" title="Politimuseet" href="https://politi.dk/politimuseet">Politimuseet</a></li>
+										<li><a class="body-text-police-regular white-link" target="_blank" title="Center for Beredskabskommunikation" rel="noopener noreferrer" href="https://sikkerhedsnet.dk/">Center for Beredskabskommunikation</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-12">
+							<div class="footerSocialMedia">
+								<p class="body-text-police-regular">Følg politiet på sociale medier</p>
+								<ul>
+										<li>
+											<a class="socialMediaIcon" href="https://www.facebook.com/politi" target="_blank" aria-label="Politiet på Facebook" title="Politiet på Facebook">
+												<img class="SMIcon" src="/Assets/icons/white/Facebook_icon_white.svg" alt="Politiet på Facebook">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://twitter.com/rigspoliti" target="_blank" aria-label="Rigspolitiet på X" title="Rigspolitiet på X">
+												<img class="SMIcon" src="/Assets/icons/white/Twitter_icon_white.svg" alt="Rigspolitiet på X">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://www.linkedin.com/company/politi/" target="_blank" aria-label="Politiet på Linkedin" title="Politiet på Linkedin">
+												<img class="SMIcon" src="/Assets/icons/white/LinkedIn_white.svg" alt="Politiet på Linkedin">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://www.youtube.com/politi" target="_blank" aria-label="Politiet på Youtube" title="Politiet på Youtube">
+												<img class="SMIcon" src="/Assets/icons/white/Youtube_icon_white.svg" alt="Politiet på Youtube">
+											</a>
+										</li>
+										<li>
+											<a class="socialMediaIcon" href="https://www.instagram.com/politi/" target="_blank" aria-label="Politiet på Instagram" title="Politiet på Instagram">
+												<img class="SMIcon" src="/Assets/icons/white/Instagram_icon_white.svg" alt="Politiet på Instagram">
+											</a>
+										</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-5">
+						<div class="alarmButtons">
+							<ul>
+									<li class="li-label">
+										<p class="button-text h6-arial-regular primary-white">Alarm</p>
+									</li>
+									<li>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">2</button>
+									</li>
+																	<li class="li-label">
+										<p class="button-text h6-arial-regular primary-white">Service</p>
+									</li>
+									<li>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">1</button>
+										<button class="alarm-button h6-arial-bold">4</button>
+									</li>
+																	<li><a class="footer-button-arrow tip-police h6-arial-bold" target="_blank" title="English" rel="noopener noreferrer" href="https://politi.dk/en">English</a></li>
+							</ul>
+						</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</footer>
+	</div>
+
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBwr0uQsfgofjC4dxCKnuzEV8Wlm5pdgaE&amp;libraries=geometry,places&amp;language=da"></script>
+	<div id="monsido">
+		<div id="script-tag-manager">
+ 
+</div>
+		<script type="text/javascript">
+
+			/*<![CDATA[*/
+			var loadMonsidoScript = function () {
+				var sz = document.createElement('script'); sz.type = 'text/javascript'; sz.async = true;
+				sz.src = '//app-script.monsido.com/v2/monsido-script.js';
+				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(sz, s);
+			}
+			window.addEventListener('CookiebotOnAccept', function (e) {
+				if (Cookiebot.consent.statistics) {
+					loadMonsidoScript();
+				}
+			}, false);
+
+			if (Cookiebot.consent.statistics) {
+				loadMonsidoScript();
+			}
+
+			/*]]>*/
+		</script>
+	</div>
+
+</body></html>
