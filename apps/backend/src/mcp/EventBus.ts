@@ -29,7 +29,20 @@ export type EventType =
     | 'docgen:powerpoint:error'
     | 'devtools:scan:started'
     | 'devtools:scan:completed'
-    | 'devtools:scan:failed';
+    | 'devtools:scan:failed'
+    // Data ingestion events
+    | 'ingestion:emails'
+    | 'ingestion:news'
+    | 'ingestion:assets'
+    | 'threat:detected'
+    | 'system:heartbeat'
+    | 'system:force-refresh'
+    // WebSocket events
+    | 'ws:connected'
+    | 'ws:disconnected'
+    // HansPedder agent events
+    | 'hanspedder:test-results'
+    | 'hanspedder:nudge';
 
 export interface BaseEvent {
     type: EventType;

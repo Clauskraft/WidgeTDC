@@ -206,7 +206,7 @@ export class HansPedderAgentController {
       
       // Try a simple search
       const results = await store.search({
-        query: 'test',
+        text: 'test',
         namespace: 'system',
         limit: 1
       });
@@ -291,19 +291,19 @@ export class HansPedderAgentController {
     const name = 'eventBus';
     
     return new Promise((resolve) => {
-      const testEvent = `hanspedder:test-${Date.now()}`;
       let received = false;
       
       const handler = () => {
         received = true;
       };
       
-      eventBus.on(testEvent, handler);
-      eventBus.emit(testEvent, { test: true });
+      // Use a known event type for testing
+      eventBus.on('system:heartbeat', handler);
+      eventBus.emit('system:heartbeat', { test: true });
       
       // Give it 100ms
       setTimeout(() => {
-        eventBus.off(testEvent, handler);
+        eventBus.off('system:heartbeat', handler);
         resolve({
           name,
           passed: received,
@@ -320,7 +320,7 @@ export class HansPedderAgentController {
     const name = 'schedulerRunning';
     
     try {
-      const { dataScheduler } = await import('./DataScheduler.js');
+      const { dataScheduler } = await import('../ingestion/DataScheduler.js');
       // Check if scheduler has tasks
       const passed = (dataScheduler as any).isRunning === true;
       
@@ -354,7 +354,7 @@ export class HansPedderAgentController {
         case 'schedulerRunning':
           logger.info('   → Restarting DataScheduler...');
           try {
-            const { dataScheduler } = await import('./DataScheduler.js');
+            const { dataScheduler } = await import('../ingestion/DataScheduler.js');
             dataScheduler.start();
           } catch (e) {
             logger.error('   → Failed to restart scheduler:', e);
