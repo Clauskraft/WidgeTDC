@@ -4,6 +4,7 @@ import { getNeo4jVectorStore } from '../../platform/vector/Neo4jVectorStoreAdapt
 import { OutlookEmailReader } from './OutlookEmailReader.js';
 import { PublicThreatScraper } from './PublicThreatScraper.js';
 import { InternalLeakHunter } from './InternalLeakHunter.js';
+import { NewsMonitorScraper } from './NewsMonitorScraper.js';
 import { eventBus } from '../../mcp/EventBus.js';
 
 export class DataScheduler {
@@ -19,6 +20,7 @@ export class DataScheduler {
         this.scheduleEmailIngestion();
         this.scheduleThreatIntel();
         this.scheduleInternalHunt();
+        this.scheduleNewsMonitor();
         this.scheduleSystemHealth();
     }
 
@@ -29,7 +31,6 @@ export class DataScheduler {
     }
 
     private scheduleEmailIngestion() {
-        // Run every 5 minutes
         const task = cron.schedule('*/5 * * * *', async () => {
             logger.info('📧 Running scheduled email ingestion...');
             try {
@@ -38,7 +39,6 @@ export class DataScheduler {
                 
                 if (emails.length > 0) {
                     const vectorStore = getNeo4jVectorStore();
-                    
                     for (const email of emails) {
                         await vectorStore.upsert({
                             id: `email-${email.id}`,
@@ -53,13 +53,11 @@ export class DataScheduler {
                             namespace: 'emails'
                         });
                     }
-
                     logger.info(`✅ Ingested ${emails.length} emails to vector store`);
                     eventBus.emit('ingestion:emails', { count: emails.length });
                 } else {
                     logger.debug('No new emails found');
                 }
-
             } catch (error) {
                 if ((error as any).message?.includes('Mangler IMAP credentials')) {
                     logger.debug('Skipping email ingestion (no credentials)');
@@ -72,14 +70,11 @@ export class DataScheduler {
     }
 
     private scheduleThreatIntel() {
-        // Run every 15 minutes
         const scraper = new PublicThreatScraper();
-        
         const task = cron.schedule('*/15 * * * *', async () => {
             logger.info('🛡️ Running public threat intelligence scan...');
             try {
                 const threats = await scraper.fetchThreats();
-                
                 if (threats.length > 0) {
                     eventBus.emit('threat:detected', { threats });
                     logger.info(`📡 Broadcasted ${threats.length} threats to UI`);
@@ -92,7 +87,6 @@ export class DataScheduler {
     }
 
     private scheduleInternalHunt() {
-        // Run every 10 minutes
         const hunter = new InternalLeakHunter();
         const task = cron.schedule('*/10 * * * *', async () => {
             try {
@@ -104,8 +98,52 @@ export class DataScheduler {
         this.tasks.push(task);
     }
 
+    private scheduleNewsMonitor() {
+        // Run every hour
+        const scraper = new NewsMonitorScraper();
+        const task = cron.schedule('0 * * * *', async () => {
+            logger.info('📰 Running news monitor scan...');
+            try {
+                const news = await scraper.fetchNews();
+                if (news.length > 0) {
+                    const vectorStore = getNeo4jVectorStore();
+                    
+                    // Batch upsert to Neo4j
+                    await vectorStore.batchUpsert({
+                        records: news.map(item => ({
+                            id: item.id,
+                            content: `${item.title}\n${item.snippet}\nSource: ${item.source}\nCategory: ${item.category}`,
+                            metadata: {
+                                ...item,
+                                type: 'news',
+                                ingestedAt: new Date().toISOString()
+                            },
+                            namespace: 'news'
+                        })),
+                        namespace: 'news'
+                    });
+                    
+                    logger.info(`✅ Ingested ${news.length} news items`);
+                    eventBus.emit('ingestion:news', { count: news.length, items: news });
+                }
+            } catch (error) {
+                logger.error('News monitor failed:', error);
+            }
+        });
+        this.tasks.push(task);
+        
+        // Run immediately on startup (async)
+        setTimeout(() => {
+            logger.info('📰 Running initial news scan...');
+            scraper.fetchNews().then(news => {
+                if (news.length > 0) {
+                    eventBus.emit('ingestion:news', { count: news.length, items: news });
+                }
+            }).catch(err => logger.error('Initial news scan failed:', err));
+        }, 10000); // Wait 10s for DB to init
+    }
+
     private scheduleSystemHealth() {
-        // Run every 1 minute
         const task = cron.schedule('* * * * *', async () => {
             eventBus.emit('system:heartbeat', { 
                 timestamp: new Date().toISOString(),
@@ -117,5 +155,4 @@ export class DataScheduler {
     }
 }
 
-// Singleton
 export const dataScheduler = new DataScheduler();
