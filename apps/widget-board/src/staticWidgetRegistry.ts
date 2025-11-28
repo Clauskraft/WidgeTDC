@@ -47,6 +47,7 @@ export const staticWidgetRegistry: Record<string, any> = {
   'ExecutiveRiskCanvasWidget': lazy(() => import('../widgets/ExecutiveRiskCanvas')),
   'StrategicCockpitWidget': lazy(() => import('../widgets/StrategicCockpit')),
   'MindMapBuilderWidget': lazy(() => import('../widgets/MindMapBuilder')),
+  'HansPedderMonitorWidget': lazy(() => import('../widgets/HansPedderMonitor')),
 };
 
 // Widget metadata for display with new 'type' field
@@ -111,5 +112,12 @@ export const widgetMetadata: Record<string, { name: string; description: string;
     category: 'executive', 
     type: 'app', 
     defaultLayout: { w: 12, h: 6 } 
+  },
+  'HansPedderMonitorWidget': { 
+    name: 'HansPedder Monitor', 
+    description: 'Real-time monitoring af autonom agent - tests, health metrics og forbedringsnudges', 
+    category: 'executive', 
+    type: 'app', 
+    defaultLayout: { w: 6, h: 4 } 
   },
 };

@@ -488,7 +488,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                             className="w-full bg-transparent border-none text-sm md:text-base text-white placeholder-gray-400/60 p-3 md:p-4 pr-12 h-[48px] md:h-[56px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
                                             rows={1}
                                         />
-                                        <div className="flex items-center justify-between px-2 md:px-3 pb-2 md:pb-3">
+                                        <div className="flex items-center justify-between px-2 md:px-3 pb-2 md:pb-3 relative z-10">
                                             <div className="flex gap-1">
                                                 <button onClick={handleFileAttach} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
                                                     <Paperclip size={isMobile ? 16 : 18} />

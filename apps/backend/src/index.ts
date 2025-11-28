@@ -274,6 +274,15 @@ async function startServer() {
     dataScheduler.start();
     console.log('⏰ Data Ingestion Scheduler started');
 
+    // Step 3.9: Start HansPedder Agent Controller (continuous testing)
+    try {
+      const { hansPedderAgent } = await import('./services/agent/HansPedderAgentController.js');
+      hansPedderAgent.start();
+      console.log('🤖 HansPedder Agent Controller started (continuous testing + nudges)');
+    } catch (err) {
+      console.error('⚠️ Failed to start HansPedder Agent Controller:', err);
+    }
+
     // Step 4: Setup routes
     app.use('/api/mcp', mcpRouter);
     app.use('/api/mcp/autonomous', autonomousRouter);
@@ -282,6 +291,10 @@ async function startServer() {
     app.use('/api/evolution', evolutionRouter);
     app.use('/api/pal', palRouter);
     app.use('/api/security', securityRouter);
+
+    // HansPedder Agent Controller routes
+    const hanspedderRoutes = (await import('./routes/hanspedderRoutes.js')).default;
+    app.use('/api/hanspedder', hanspedderRoutes);
 
     // Health check endpoint - comprehensive system health
     app.get('/health', async (req, res) => {
