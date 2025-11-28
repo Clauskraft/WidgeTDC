@@ -234,28 +234,30 @@ export default function WidgeTDCPro() {
                         {widgets.map(w => (
                             <div
                                 key={w.id}
-                                className="bg-[#0B3E6F]/30 backdrop-blur-md border border-white/10 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl flex flex-col group hover:border-[#00B5CB]/30 transition-colors duration-300"
+                                className="bg-[#0B3E6F]/30 backdrop-blur-md border border-white/10 rounded-xl md:rounded-2xl overflow-hidden shadow-2xl flex flex-col group hover:border-[#00B5CB]/30 transition-colors duration-300 relative z-10"
                             >
                                 {/* Widget Header */}
-                                <div className="h-8 md:h-9 bg-white/5 border-b border-white/5 flex items-center justify-between px-2 md:px-3 widget-drag-handle cursor-grab active:cursor-grabbing shrink-0">
+                                <div className="h-8 md:h-9 bg-white/5 border-b border-white/5 flex items-center justify-between px-2 md:px-3 widget-drag-handle cursor-grab active:cursor-grabbing shrink-0 relative z-20">
                                     <div className="flex items-center gap-2">
                                         <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-[#00B5CB] shadow-[0_0_5px_#00B5CB]" />
-                                        <span className="text-[10px] md:text-xs font-medium text-gray-200 tracking-wide truncate max-w-[120px] md:max-w-none">
+                                        <span className="text-[10px] md:text-xs font-medium text-gray-200 tracking-wide truncate max-w-[120px] md:max-w-none pointer-events-none">
                                             {availableWidgets.find(aw => aw.id === w.widgetType)?.name}
                                         </span>
                                     </div>
                                     <div className="flex gap-1 md:gap-2">
                                         <button
+                                            onMouseDown={(e) => e.stopPropagation()}
                                             onClick={(e) => { e.stopPropagation(); setSettingsWidgetId(w.id); }}
-                                            className="p-1.5 md:p-2 hover:bg-white/20 rounded-lg text-gray-300 hover:text-white transition-colors"
+                                            className="p-1.5 md:p-2 hover:bg-white/20 rounded-lg text-gray-300 hover:text-white transition-colors cursor-pointer z-30"
                                             aria-label="Widget indstillinger"
                                             title="Indstillinger"
                                         >
                                             <Settings size={16} />
                                         </button>
                                         <button
+                                            onMouseDown={(e) => e.stopPropagation()}
                                             onClick={(e) => { e.stopPropagation(); removeWidget(w.id); }}
-                                            className="p-1.5 md:p-2 hover:bg-red-500/30 rounded-lg text-gray-300 hover:text-red-400 transition-colors"
+                                            className="p-1.5 md:p-2 hover:bg-red-500/30 rounded-lg text-gray-300 hover:text-red-400 transition-colors cursor-pointer z-30"
                                             aria-label="Luk widget"
                                             title="Luk widget"
                                         >

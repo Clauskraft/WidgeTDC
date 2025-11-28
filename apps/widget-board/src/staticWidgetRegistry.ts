@@ -42,6 +42,9 @@ export const staticWidgetRegistry: Record<string, any> = {
   'VideoAnalyzerWidget': lazy(() => import('../widgets/VideoAnalyzerWidget')),
   'VisualizerWidget': lazy(() => import('../widgets/VisualizerWidget')),
   'WidgetImporterWidget': lazy(() => import('../widgets/WidgetImporterWidget')),
+  
+  // Executive & Strategic Widgets
+  'ExecutiveRiskCanvasWidget': lazy(() => import('../widgets/ExecutiveRiskCanvas')),
 };
 
 // Widget metadata for display with new 'type' field
@@ -84,4 +87,13 @@ export const widgetMetadata: Record<string, { name: string; description: string;
   'VideoAnalyzerWidget': { name: 'Video Analyzer', description: 'AI video analysis', category: 'media', type: 'tool', defaultLayout: { w: 8, h: 3 } },
   'VisualizerWidget': { name: 'Visualizer', description: 'System arkitektur og diagrammer', category: 'development', type: 'app', defaultLayout: { w: 12, h: 4 } },
   'WidgetImporterWidget': { name: 'Widget Importer', description: 'Import widgets', category: 'system', type: 'tool', defaultLayout: { w: 6, h: 2 } },
+  
+  // Executive & Strategic Widgets
+  'ExecutiveRiskCanvasWidget': { 
+    name: 'Executive Risk Canvas', 
+    description: 'SVP-level Risk & P&L Control Surface med zoom/pan, forbindelseslinjer og argumentationskæder', 
+    category: 'executive', 
+    type: 'app', 
+    defaultLayout: { w: 12, h: 6 } 
+  },
 };

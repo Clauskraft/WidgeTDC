@@ -386,17 +386,17 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                             {/* Chat History */}
                             <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 md:space-y-6 scrollbar-hide">
                                 {messages.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-6 md:space-y-10 animate-fade-in px-4">
+                                    <div className="h-full flex flex-col items-center justify-start pt-[10vh] md:pt-[15vh] text-center space-y-6 md:space-y-8 animate-fade-in px-4">
                                         <div className="relative">
                                             <div className="absolute -inset-4 bg-[#00B5CB]/20 rounded-full blur-xl animate-pulse" />
-                                            <ClausLogo size={isMobile ? 48 : 64} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
+                                            <ClausLogo size={isMobile ? 40 : 56} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
                                         </div>
-                                        <h2 className="text-2xl md:text-5xl font-bold text-gradient tracking-tight drop-shadow-sm px-4">
+                                        <h2 className="text-xl md:text-4xl font-bold text-gradient tracking-tight drop-shadow-sm px-4 max-w-2xl leading-tight">
                                             Hej Claus, hvad skal vi løse?
                                         </h2>
 
                                         {/* Suggestion Cards - Responsive Grid */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 w-full max-w-4xl px-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 w-full max-w-3xl px-2">
                                             {[
                                                 { title: 'Møde Opsummering', sub: 'Generer referat fra Teams', icon: FileText, color: 'text-blue-400' },
                                                 { title: 'Data Analyse', sub: 'Analyser Q1 salgstal', icon: LayoutGrid, color: 'text-teal-400' },
@@ -405,14 +405,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                                 <button
                                                     key={i}
                                                     onClick={() => setChatInput(card.title + " ")}
-                                                    className="text-left p-4 md:p-5 rounded-2xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10 touch-target"
+                                                    className="text-left p-3 md:p-4 rounded-xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10 touch-target"
                                                 >
-                                                    <div className="flex justify-between items-start mb-2 md:mb-3">
-                                                        <card.icon size={isMobile ? 20 : 24} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
-                                                        <ArrowRight size={16} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <card.icon size={isMobile ? 18 : 20} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
+                                                        <ArrowRight size={14} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                                                     </div>
-                                                    <div className="font-semibold text-sm md:text-base text-gray-100 mb-1">{card.title}</div>
-                                                    <div className="text-xs text-gray-400 font-medium">{card.sub}</div>
+                                                    <div className="font-semibold text-xs md:text-sm text-gray-100 mb-0.5">{card.title}</div>
+                                                    <div className="text-[10px] md:text-xs text-gray-400 font-medium">{card.sub}</div>
                                                 </button>
                                             ))}
                                         </div>
@@ -479,34 +479,34 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         </div>
                                     )}
 
-                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-4xl border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
+                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-3xl border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
                                         <textarea
                                             value={chatInput}
                                             onChange={(e) => setChatInput(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Spørg DOT om hvad som helst..."
-                                            className="w-full bg-transparent border-none text-base md:text-lg text-white placeholder-gray-400/60 p-4 md:p-6 pr-14 min-h-[60px] md:min-h-[70px] max-h-[150px] md:max-h-[200px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
+                                            className="w-full bg-transparent border-none text-sm md:text-base text-white placeholder-gray-400/60 p-3 md:p-4 pr-12 h-[48px] md:h-[56px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
                                             rows={1}
                                         />
-                                        <div className="flex items-center justify-between px-3 md:px-5 pb-3 md:pb-5">
-                                            <div className="flex gap-1 md:gap-2">
-                                                <button onClick={handleFileAttach} className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
-                                                    <Paperclip size={isMobile ? 18 : 20} />
+                                        <div className="flex items-center justify-between px-2 md:px-3 pb-2 md:pb-3">
+                                            <div className="flex gap-1">
+                                                <button onClick={handleFileAttach} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
+                                                    <Paperclip size={isMobile ? 16 : 18} />
                                                 </button>
-                                                <button onClick={handleImageAttach} className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target hidden sm:flex" title="Vedhæft billede">
-                                                    <Image size={isMobile ? 18 : 20} />
+                                                <button onClick={handleImageAttach} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target hidden sm:flex" title="Vedhæft billede">
+                                                    <Image size={isMobile ? 16 : 18} />
                                                 </button>
                                             </div>
-                                            <div className="flex gap-2 md:gap-3">
-                                                <button className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95 touch-target" title="Tale">
-                                                    <Mic size={isMobile ? 18 : 22} />
+                                            <div className="flex gap-1 md:gap-2">
+                                                <button className="p-1.5 md:p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95 touch-target" title="Tale">
+                                                    <Mic size={isMobile ? 16 : 18} />
                                                 </button>
                                                 <button
                                                     onClick={handleSendMessage}
                                                     disabled={(!chatInput.trim() && attachments.length === 0) || isProcessing}
-                                                    className={`p-2 md:p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${(chatInput.trim() || attachments.length > 0) ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
+                                                    className={`p-1.5 md:p-2 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${(chatInput.trim() || attachments.length > 0) ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
                                                 >
-                                                    <Send size={isMobile ? 18 : 20} className={(chatInput.trim() || attachments.length > 0) ? 'ml-0.5' : ''} />
+                                                    <Send size={isMobile ? 16 : 18} className={(chatInput.trim() || attachments.length > 0) ? 'ml-0.5' : ''} />
                                                 </button>
                                             </div>
                                         </div>
