@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense, useRef, useCallback } from 'react';
-import { LayoutGrid, Settings, Trash2, Zap, Plus, X } from 'lucide-react';
+import { LayoutGrid, Settings, Zap, Plus, X, Star } from 'lucide-react';
 import { Responsive, WidthProvider, Layout, Layouts } from 'react-grid-layout';
 import WidgetSelector from './components/WidgetSelector';
 import AgentPanel from './components/AgentPanel';
@@ -26,6 +26,25 @@ export default function WidgeTDCPro() {
     const [isAgentPanelOpen, setIsAgentPanelOpen] = useState(false);
     const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
     const [settingsWidgetId, setSettingsWidgetId] = useState<string | null>(null);
+    
+    // Favorite widgets state
+    const [favoriteWidgets, setFavoriteWidgets] = useState<string[]>(() => {
+        const saved = localStorage.getItem('favorite_widgets');
+        return saved ? JSON.parse(saved) : [];
+    });
+    
+    // Save favorites to localStorage
+    useEffect(() => {
+        localStorage.setItem('favorite_widgets', JSON.stringify(favoriteWidgets));
+    }, [favoriteWidgets]);
+    
+    const handleToggleFavorite = (widgetId: string) => {
+        setFavoriteWidgets(prev => 
+            prev.includes(widgetId) 
+                ? prev.filter(id => id !== widgetId)
+                : [...prev, widgetId]
+        );
+    };
 
     // Measure container width for responsive grid
     useEffect(() => {
@@ -205,8 +224,8 @@ export default function WidgeTDCPro() {
                         cols={COLS}
                         rowHeight={rowHeight}
                         onLayoutChange={onLayoutChange}
-                        isDraggable={!isMobile}
-                        isResizable={!isMobile}
+                        isDraggable={true}
+                        isResizable={true}
                         draggableHandle=".widget-drag-handle"
                         margin={isMobile ? [12, 12] : [16, 16]}
                         containerPadding={isMobile ? [8, 8] : [16, 16]}
@@ -225,20 +244,22 @@ export default function WidgeTDCPro() {
                                             {availableWidgets.find(aw => aw.id === w.widgetType)?.name}
                                         </span>
                                     </div>
-                                    <div className="flex gap-0.5 md:gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-200">
+                                    <div className="flex gap-1 md:gap-2">
                                         <button
-                                            onClick={() => setSettingsWidgetId(w.id)}
-                                            className="p-1 md:p-1.5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors touch-target"
+                                            onClick={(e) => { e.stopPropagation(); setSettingsWidgetId(w.id); }}
+                                            className="p-1.5 md:p-2 hover:bg-white/20 rounded-lg text-gray-300 hover:text-white transition-colors"
                                             aria-label="Widget indstillinger"
+                                            title="Indstillinger"
                                         >
-                                            <Settings size={12} />
+                                            <Settings size={16} />
                                         </button>
                                         <button
-                                            onClick={() => removeWidget(w.id)}
-                                            className="p-1 md:p-1.5 hover:bg-red-500/20 rounded-lg text-gray-400 hover:text-red-400 transition-colors touch-target"
-                                            aria-label="Fjern widget"
+                                            onClick={(e) => { e.stopPropagation(); removeWidget(w.id); }}
+                                            className="p-1.5 md:p-2 hover:bg-red-500/30 rounded-lg text-gray-300 hover:text-red-400 transition-colors"
+                                            aria-label="Luk widget"
+                                            title="Luk widget"
                                         >
-                                            <Trash2 size={12} />
+                                            <X size={16} />
                                         </button>
                                     </div>
                                 </div>
@@ -258,6 +279,8 @@ export default function WidgeTDCPro() {
                 onClose={() => setIsWidgetSelectorOpen(false)}
                 onAddWidget={handleToggleWidget}
                 activeWidgets={widgets.map(w => w.widgetType)}
+                favoriteWidgets={favoriteWidgets}
+                onToggleFavorite={handleToggleFavorite}
             />
 
             {/* Agent Panel Modal */}

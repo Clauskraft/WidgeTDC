@@ -36,7 +36,7 @@ export const CalendarView: React.FC = () => {
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [newSource, setNewSource] = useState({ name: '', email: '', type: 'google' as const, color: 'green' });
+    const [newSource, setNewSource] = useState<{ name: string; email: string; type: 'google' | 'outlook'; color: string }>({ name: '', email: '', type: 'google', color: 'green' });
 
     const days = ['Man', 'Tir', 'Ons', 'Tor', 'Fre', 'Lør', 'Søn'];
     const hours = Array.from({ length: 11 }, (_, i) => i + 8);

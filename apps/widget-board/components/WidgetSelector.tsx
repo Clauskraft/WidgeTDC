@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Plus, Search, LayoutGrid, MessageSquare, Activity, Shield, BarChart2, FileText, Settings, Globe, Database, Code, Mic, Image as ImageIcon, Zap, Check, Cpu, Network, Briefcase, Wrench } from 'lucide-react';
+import { X, Plus, Search, LayoutGrid, MessageSquare, Activity, Shield, BarChart2, FileText, Settings, Globe, Database, Code, Mic, Image as ImageIcon, Zap, Check, Cpu, Network, Briefcase, Wrench, Star } from 'lucide-react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 
 interface WidgetSelectorProps {
@@ -7,9 +7,11 @@ interface WidgetSelectorProps {
     onClose: () => void;
     onAddWidget: (widgetId: string) => void;
     activeWidgets?: string[];
+    favoriteWidgets?: string[];
+    onToggleFavorite?: (widgetId: string) => void;
 }
 
-export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWidgets = [] }: WidgetSelectorProps) {
+export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWidgets = [], favoriteWidgets = [], onToggleFavorite }: WidgetSelectorProps) {
     const { availableWidgets } = useWidgetRegistry();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -207,9 +209,24 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
                                         </p>
 
                                         <div className="pt-4 border-t border-white/5 flex items-center justify-between mt-auto">
-                                            <span className="text-xs font-mono text-gray-500">
-                                                {widget.defaultLayout?.w || 6}x{widget.defaultLayout?.h || 4}
-                                            </span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-mono text-gray-500">
+                                                    {widget.defaultLayout?.w || 6}x{widget.defaultLayout?.h || 4}
+                                                </span>
+                                                {onToggleFavorite && (
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); onToggleFavorite(widget.id); }}
+                                                        className={`p-1.5 rounded-lg transition-all ${
+                                                            favoriteWidgets.includes(widget.id)
+                                                                ? 'text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20'
+                                                                : 'text-gray-500 hover:text-yellow-400 hover:bg-white/5'
+                                                        }`}
+                                                        title={favoriteWidgets.includes(widget.id) ? 'Fjern fra favoritter' : 'Tilføj til favoritter'}
+                                                    >
+                                                        <Star size={14} fill={favoriteWidgets.includes(widget.id) ? 'currentColor' : 'none'} />
+                                                    </button>
+                                                )}
+                                            </div>
                                             
                                             <button
                                                 onClick={() => onAddWidget(widget.id)}

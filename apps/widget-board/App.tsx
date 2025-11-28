@@ -3,7 +3,7 @@ import WidgeTDCPro from './WidgeTDC_Pro.tsx';
 import { WidgetRegistryProvider } from './contexts/WidgetRegistryContext';
 import { GlobalStateProvider } from './contexts/GlobalStateContext';
 import './App.css';
-import { PlatformProvider } from './src/platform/core/PlatformProvider';
+import { PlatformProvider } from './src/platform/core/PlatformProvider.tsx';
 
 // Loading fallback
 const AppLoader = () => (

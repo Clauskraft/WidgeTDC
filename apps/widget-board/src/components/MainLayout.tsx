@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu } from 'lucide-react';
+﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu, Database, Activity, Star, Heart } from 'lucide-react';
 import { ClausLogo } from './ClausLogo';
-import { WordView } from './apps/WordView';
-import { OutlookView } from './apps/OutlookView';
-import { CalendarView } from './apps/CalendarView';
 import { CHAT_PROVIDERS, sendChat, checkOllamaStatus, type ChatMessage as ProviderChatMessage, type ChatProvider, type ChatModel } from '../utils/chat-providers';
 
 interface MainLayoutProps {
@@ -56,6 +53,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const [favoriteWidgets, setFavoriteWidgets] = useState<string[]>(() => {
+        const saved = localStorage.getItem('favorite_widgets');
+        return saved ? JSON.parse(saved) : [];
+    });
     const [selectedProvider, setSelectedProvider] = useState<string>(() => {
         return localStorage.getItem('selected_provider') || 'deepseek';
     });
@@ -89,6 +90,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         localStorage.setItem('api_keys', JSON.stringify(apiKeys));
     }, [apiKeys]);
 
+    // Save favorite widgets
+    useEffect(() => {
+        localStorage.setItem('favorite_widgets', JSON.stringify(favoriteWidgets));
+    }, [favoriteWidgets]);
+
     // Auto-collapse sidebar on mobile
     useEffect(() => {
         if (isMobile) {
@@ -108,10 +114,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const sidebarItems = [
         { id: 'chat', icon: MessageSquare, label: 'DOT Chat' },
         { id: 'apps', icon: LayoutGrid, label: 'Mine Apps' },
+        { id: 'favorites', icon: Star, label: 'Favoritter' },
         { id: 'create', icon: Plus, label: 'Opret' },
-        { id: 'word', icon: FileText, label: 'Word' },
-        { id: 'outlook', icon: Mail, label: 'Outlook' },
-        { id: 'calendar', icon: Calendar, label: 'Kalender' },
     ];
 
     const scrollToBottom = () => {
@@ -125,7 +129,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const handleSendMessage = async () => {
         if (!chatInput.trim() && attachments.length === 0) return;
 
-        const userContent = chatInput + (attachments.length > 0 ? `\n\n📎 ${attachments.map(f => f.name).join(', ')}` : '');
+        const userContent = chatInput + (attachments.length > 0 ? `\n\nðŸ“Ž ${attachments.map(f => f.name).join(', ')}` : '');
         
         const userMsg: ChatMessage = {
             id: crypto.randomUUID(),
@@ -475,7 +479,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         </div>
                                     )}
 
-                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
+                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-4xl border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
                                         <textarea
                                             value={chatInput}
                                             onChange={(e) => setChatInput(e.target.value)}
@@ -538,14 +542,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
                             <div className="max-w-6xl mx-auto">
                                 <h2 className="text-2xl md:text-3xl font-light text-white mb-2">Opret nyt indhold</h2>
-                                <p className="text-gray-400 mb-6 md:mb-10 font-light text-sm md:text-base">Vælg en skabelon eller start fra bunden med DOT AI.</p>
+                                <p className="text-gray-400 mb-6 md:mb-10 font-light text-sm md:text-base">VÃ¦lg en skabelon eller start fra bunden med DOT AI.</p>
 
                                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                                     {[
                                         { title: 'Dokument', sub: 'Rapporter, notater og artikler', icon: FileText, color: 'bg-blue-500/20 text-blue-400' },
-                                        { title: 'Præsentation', sub: 'Slides og visuelle overblik', icon: LayoutGrid, color: 'bg-orange-500/20 text-orange-400' },
+                                        { title: 'PrÃ¦sentation', sub: 'Slides og visuelle overblik', icon: LayoutGrid, color: 'bg-orange-500/20 text-orange-400' },
                                         { title: 'Email', sub: 'Nyhedsbreve og kampagner', icon: Mail, color: 'bg-purple-500/20 text-purple-400' },
-                                        { title: 'Begivenhed', sub: 'Møder og workshops', icon: Calendar, color: 'bg-teal-500/20 text-teal-400' }
+                                        { title: 'Begivenhed', sub: 'MÃ¸der og workshops', icon: Calendar, color: 'bg-teal-500/20 text-teal-400' }
                                     ].map((card, i) => (
                                         <button key={i} className="group relative p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden touch-target">
                                             <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -562,21 +566,39 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         </div>
                     )}
 
-                    {activeTab === 'word' && (
-                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
-                            <WordView />
-                        </div>
-                    )}
-
-                    {activeTab === 'outlook' && (
-                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
-                            <OutlookView />
-                        </div>
-                    )}
-
-                    {activeTab === 'calendar' && (
-                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
-                            <CalendarView />
+                    {activeTab === 'favorites' && (
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
+                            <div className="max-w-6xl mx-auto">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <Star size={28} className="text-yellow-400" />
+                                    <h2 className="text-2xl md:text-3xl font-light text-white">Mine Favoritter</h2>
+                                </div>
+                                {favoriteWidgets.length === 0 ? (
+                                    <div className="text-center py-20">
+                                        <Star size={48} className="mx-auto text-gray-600 mb-4" />
+                                        <p className="text-gray-400 text-lg mb-2">Ingen favoritter endnu</p>
+                                        <p className="text-gray-500 text-sm">Gå til "Mine Apps" og klik på ★ for at tilføje widgets som favoritter</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {favoriteWidgets.map((widgetId) => (
+                                            <div key={widgetId} className="p-4 rounded-xl bg-[#0B3E6F]/30 border border-white/10 hover:border-yellow-400/30 transition-all group">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-white font-medium truncate">{widgetId}</span>
+                                                    <button
+                                                        onClick={() => setFavoriteWidgets(prev => prev.filter(id => id !== widgetId))}
+                                                        className="p-1 hover:bg-white/10 rounded text-yellow-400 hover:text-yellow-300"
+                                                        title="Fjern fra favoritter"
+                                                    >
+                                                        <Star size={16} fill="currentColor" />
+                                                    </button>
+                                                </div>
+                                                <p className="text-xs text-gray-500">Klik for at åbne</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>

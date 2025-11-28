@@ -9,13 +9,23 @@ export interface WidgetEntry {
   category: string;
   component: React.LazyExoticComponent<any>;
   defaultLayout: { w: number; h: number };
+  minW?: number;
+  maxW?: number;
+  minH?: number;
+  maxH?: number;
+  enabled?: boolean;
 }
+
+// Alias for backward compatibility
+export type WidgetRegistryEntry = WidgetEntry;
 
 // Define the shape of our context
 interface WidgetRegistryContextType {
   availableWidgets: WidgetEntry[];
   getWidgetComponent: (id: string) => React.ComponentType<any> | null;
   isLoading: boolean;
+  registerWidget?: (widget: WidgetEntry) => void;
+  setEnabled?: (id: string, enabled: boolean) => void;
 }
 
 const WidgetRegistryContext = createContext<WidgetRegistryContextType | undefined>(undefined);

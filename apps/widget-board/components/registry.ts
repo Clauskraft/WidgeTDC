@@ -37,15 +37,5 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         minW: 3,
         minH: 5,
     },
-    {
-        id: 'AgentTeamBuilderWidget',
-        name: 'Agent Team Builder',
-        category: 'testing',
-        component: lazy(() => import('../widgets/AgentTeamBuilderWidget')),
-        defaultLayout: { w: 4, h: 6 },
-        source: 'builtin',
-        minW: 3,
-        minH: 4,
-    },
     // Add other widgets here as needed
 ];
