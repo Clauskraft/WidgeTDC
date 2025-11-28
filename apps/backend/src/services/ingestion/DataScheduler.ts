@@ -3,6 +3,7 @@ import { logger } from '../../utils/logger.js';
 import { getNeo4jVectorStore } from '../../platform/vector/Neo4jVectorStoreAdapter.js';
 import { OutlookEmailReader } from './OutlookEmailReader.js';
 import { PublicThreatScraper } from './PublicThreatScraper.js';
+import { InternalLeakHunter } from './InternalLeakHunter.js';
 import { eventBus } from '../../mcp/EventBus.js';
 
 export class DataScheduler {
@@ -17,6 +18,7 @@ export class DataScheduler {
         // Schedule tasks
         this.scheduleEmailIngestion();
         this.scheduleThreatIntel();
+        this.scheduleInternalHunt();
         this.scheduleSystemHealth();
     }
 
@@ -59,7 +61,6 @@ export class DataScheduler {
                 }
 
             } catch (error) {
-                // Only log error if it's not just missing credentials (which is expected in dev)
                 if ((error as any).message?.includes('Mangler IMAP credentials')) {
                     logger.debug('Skipping email ingestion (no credentials)');
                 } else {
@@ -80,13 +81,24 @@ export class DataScheduler {
                 const threats = await scraper.fetchThreats();
                 
                 if (threats.length > 0) {
-                    // Broadcast to UI (DarkWebMonitorWidget)
-                    // In a real system, we would also store this in Neo4j
                     eventBus.emit('threat:detected', { threats });
                     logger.info(`📡 Broadcasted ${threats.length} threats to UI`);
                 }
             } catch (error) {
                 logger.error('Threat scan failed:', error);
+            }
+        });
+        this.tasks.push(task);
+    }
+
+    private scheduleInternalHunt() {
+        // Run every 10 minutes
+        const hunter = new InternalLeakHunter();
+        const task = cron.schedule('*/10 * * * *', async () => {
+            try {
+                await hunter.hunt();
+            } catch (error) {
+                logger.error('Internal hunt failed:', error);
             }
         });
         this.tasks.push(task);

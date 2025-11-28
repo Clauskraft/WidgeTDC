@@ -40,6 +40,7 @@ import {
   setupAutoTracking,
   DataSourceType 
 } from './dataSourceConnector';
+import { DataSourcesPanel } from './DataSourcesPanel';
 
 // ===== NODE COMPONENT =====
 interface NodeComponentProps {
@@ -355,16 +356,39 @@ export const MindMapBuilderWidget: React.FC = () => {
     clear,
   } = useMindMapStore();
 
-  // Handle search submit
+  // Handle search submit - search in existing data sources
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
 
-    // Create node from search
-    const newNode = addNodeFromSearch(searchQuery.trim());
-    
-    // Simulate AI expansion (replace with real API call)
-    // For demo, we just create the node
+    setSearching(true);
+
+    try {
+      // Search in existing data sources first
+      const enabledSources: DataSourceType[] = DATA_SOURCES
+        .filter(ds => ds.enabled)
+        .map(ds => ds.type);
+
+      const results = await unifiedSearch(searchQuery.trim(), enabledSources, 5);
+
+      // Create root node from search
+      const description = results.length > 0 
+        ? `Fundet ${results.length} resultater i dine data`
+        : undefined;
+      
+      const newNode = addNodeFromSearch(searchQuery.trim(), description);
+
+      // If we have results, optionally auto-expand
+      if (results.length > 0) {
+        console.log(`[MindMap] Found ${results.length} results for "${searchQuery}"`);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      // Still create the node even if search fails
+      addNodeFromSearch(searchQuery.trim());
+    } finally {
+      setSearching(false);
+    }
   };
 
   // Handle node expansion (AI call with real data sources)
@@ -570,9 +594,24 @@ export const MindMapBuilderWidget: React.FC = () => {
             >
               <Trash2 className="w-4 h-4 text-white/40 group-hover:text-red-400" />
             </button>
+
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className={`p-2 rounded-lg transition-colors ${
+                showSettings ? 'bg-cyan-500/20 text-cyan-400' : 'hover:bg-white/10 text-white/60'
+              }`}
+              title="Data Sources"
+            >
+              <Database className="w-4 h-4" />
+            </button>
           </div>
         </div>
       </header>
+
+      {/* Data Sources Panel */}
+      {showSettings && (
+        <DataSourcesPanel onClose={() => setShowSettings(false)} />
+      )}
 
       {/* Canvas */}
       <div

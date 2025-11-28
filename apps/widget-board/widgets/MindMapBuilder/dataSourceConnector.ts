@@ -16,7 +16,7 @@ interface VectorSearchResult {
 }
 
 // Aggregated data sources
-type DataSourceType = 
+export type DataSourceType = 
   | 'vidensarkiv'      // Main knowledge archive (PgVector)
   | 'local_files'      // LocalFileScanner data
   | 'browser_history'  // BrowserHistoryReader data
