@@ -190,7 +190,7 @@ export class LlmService {
     return res.content;
   }
 
-  async generateContextualResponse(systemContext: string, userQuery: string, additionalContext?: string): Promise<string> {
+  async generateContextualResponse(systemContext: string, userQuery: string, additionalContext?: string, model?: string): Promise<string> {
     const messages: ChatMessage[] = [{ role: 'system', content: systemContext }];
     if (additionalContext) {
       messages.push({ role: 'system', content: `Additional Context: ${additionalContext}` });
@@ -198,7 +198,7 @@ export class LlmService {
     messages.push({ role: 'user', content: userQuery });
 
     const res = await this.complete({
-      model: 'gpt-4o',
+      model: model || 'gpt-4o',
       messages
     });
     return res.content;

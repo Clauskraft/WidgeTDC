@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
 import { X, Plus, Search, LayoutGrid, MessageSquare, Activity, Shield, BarChart2, FileText, Settings, Globe, Database, Code, Mic, Image as ImageIcon, Zap, Check, Cpu, Network, Briefcase, Wrench, Star } from 'lucide-react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 
@@ -81,7 +80,7 @@ export default function WidgetSelector({ isOpen, onClose, onAddWidget, activeWid
 
     if (!isOpen) return null;
 
-    return createPortal(
+    return (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#051e3c]/95 backdrop-blur-xl animate-in fade-in duration-200">
             
             {/* Main Container */}

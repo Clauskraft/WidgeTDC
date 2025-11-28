@@ -66,7 +66,8 @@ ${payload.widgetData || 'None'}
   const aiResponse = await llmService.generateContextualResponse(
     systemContext,
     payload.userQuery,
-    additionalContext
+    additionalContext,
+    payload.model
   );
 
   return {
@@ -151,7 +152,10 @@ export async function cmaMemoryRetrieveHandler(payload: any, ctx: McpContext): P
 export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<any> {
   console.log('🔍 sragQueryHandler called with:', JSON.stringify(payload));
   try {
-    const query = payload.naturalLanguageQuery.toLowerCase();
+    const rawQuery = payload.query || payload.naturalLanguageQuery || '';
+    const query = rawQuery.toLowerCase();
+    const model = payload.model;
+
     const sqlKeywords = ['sum', 'count', 'average', 'total', 'group by', 'where'];
     const isAnalytical = sqlKeywords.some(keyword => query.includes(keyword));
 
@@ -167,8 +171,9 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
       console.log('🤖 Calling LLM for analytical response...');
       const aiResponse = await llmService.generateContextualResponse(
         systemContext,
-        payload.naturalLanguageQuery,
-        factsContext
+        rawQuery,
+        factsContext,
+        model
       );
       console.log('✅ LLM response received');
 
@@ -199,8 +204,9 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
       console.log('🤖 Calling LLM for semantic response...');
       const aiResponse = await llmService.generateContextualResponse(
         systemContext,
-        payload.naturalLanguageQuery,
-        docsContext
+        rawQuery,
+        docsContext,
+        model
       );
       console.log('✅ LLM response received');
 
@@ -258,7 +264,8 @@ Recent Run: ${JSON.stringify(payload, null, 2)}
   const aiAnalysis = await llmService.generateContextualResponse(
     systemContext,
     'Analyze this agent performance and provide recommendations',
-    metricsContext
+    metricsContext,
+    payload.model
   );
 
   return {
@@ -286,7 +293,8 @@ export async function evolutionAnalyzePromptsHandler(payload: any, _ctx: McpCont
   const aiAnalysis = await llmService.generateContextualResponse(
     systemContext,
     'Analyze prompt evolution and suggest improvements',
-    promptsContext
+    promptsContext,
+    payload.model
   );
 
   return {
@@ -431,7 +439,7 @@ export async function autonomousAgentTeamCoordinateHandler(payload: any, _ctx: M
   return result;
 }
 
-// Vidensarkiv (Neo4j Vector) tool handlers
+// Vidensarkiv (PgVector) tool handlers
 export async function vidensarkivSearchHandler(payload: any, ctx: McpContext): Promise<any> {
   const vectorStore = getNeo4jVectorStore();
   const { query, limit = 10, namespace } = payload;

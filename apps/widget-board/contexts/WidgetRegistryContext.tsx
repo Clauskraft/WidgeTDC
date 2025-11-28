@@ -7,6 +7,7 @@ export interface WidgetEntry {
   name: string;
   description: string;
   category: string;
+  type?: 'app' | 'tool';
   component: React.LazyExoticComponent<any>;
   defaultLayout: { w: number; h: number };
   minW?: number;
@@ -41,7 +42,8 @@ export function WidgetRegistryProvider({ children }: { children: ReactNode }) {
         name: id,
         description: '',
         category: 'misc',
-        defaultLayout: { w: 6, h: 2 }
+        defaultLayout: { w: 6, h: 2 },
+        type: 'app'
       };
 
       return {
@@ -49,6 +51,7 @@ export function WidgetRegistryProvider({ children }: { children: ReactNode }) {
         name: meta.name,
         description: meta.description,
         category: meta.category,
+        type: (meta as any).type || 'app',
         component: component as React.LazyExoticComponent<any>,
         defaultLayout: meta.defaultLayout,
       };
