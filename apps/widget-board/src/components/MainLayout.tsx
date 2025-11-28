@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu, Database, Activity, Star, Heart } from 'lucide-react';
-import { ClausLogo } from './ClausLogo';
+import { DotLogo } from './DotLogo';
 import { CHAT_PROVIDERS, sendChat, checkOllamaStatus, type ChatMessage as ProviderChatMessage, type ChatProvider, type ChatModel } from '../utils/chat-providers';
 
 interface MainLayoutProps {
@@ -270,8 +270,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                 {/* Header / Logo */}
                 <div className="h-16 md:h-20 flex items-center justify-between px-4 md:px-5 shrink-0">
                     <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
-                        <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
-                            <ClausLogo size={isMobile ? 20 : 24} />
+                        <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/5 flex items-center justify-center shadow-lg shadow-[#00B5CB]/10 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
+                            <DotLogo size={isMobile ? 24 : 28} />
                         </div>
                         <div className={`flex flex-col transition-all duration-300 ${showLabels ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
                             <span className="font-bold text-base md:text-lg tracking-tight text-white leading-none">DOT</span>
@@ -388,8 +388,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                 {messages.length === 0 ? (
                                     <div className="h-full flex flex-col items-center justify-start pt-[10vh] md:pt-[15vh] text-center space-y-6 md:space-y-8 animate-fade-in px-4">
                                         <div className="relative">
-                                            <div className="absolute -inset-4 bg-[#00B5CB]/20 rounded-full blur-xl animate-pulse" />
-                                            <ClausLogo size={isMobile ? 40 : 56} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
+                                            <div className="absolute -inset-8 bg-[#00B5CB]/10 rounded-full blur-2xl animate-pulse" />
+                                            <DotLogo size={isMobile ? 64 : 80} className="relative z-10" />
                                         </div>
                                         <h2 className="text-xl md:text-4xl font-bold text-gradient tracking-tight drop-shadow-sm px-4 max-w-2xl leading-tight">
                                             Hej Claus, hvad skal vi løse?
