@@ -3,6 +3,7 @@ import { dataIngestionEngine } from '../services/ingestion/DataIngestionEngine.j
 import { LocalFileScanner } from '../services/ingestion/LocalFileScanner.js';
 import { BrowserHistoryReader } from '../services/ingestion/BrowserHistoryReader.js';
 import { OutlookEmailReader } from '../services/ingestion/OutlookEmailReader.js';
+import { getNeo4jVectorStore } from '../../platform/vector/Neo4jVectorStoreAdapter.js';
 import * as os from 'os';
 import * as path from 'path';
 
@@ -64,12 +65,17 @@ export async function ingestionStartHandler(params: any): Promise<any> {
 }
 
 export async function ingestionStatusHandler(params: any): Promise<any> {
-    await initializeAdapters();
+    // Get real stats from Vector Store
+    const vectorStore = getNeo4jVectorStore();
+    const stats = await vectorStore.getStatistics();
+    
+    const engineStatus = dataIngestionEngine.getStatus();
 
-    const status = dataIngestionEngine.getStatus();
     return {
         success: true,
-        ...status
+        totalDocuments: stats.totalRecords,
+        sources: stats.perNamespace, // emails, news, etc.
+        engineStatus: engineStatus
     };
 }
 
