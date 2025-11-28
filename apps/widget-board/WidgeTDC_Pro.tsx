@@ -226,6 +226,7 @@ export default function WidgeTDCPro() {
                         onLayoutChange={onLayoutChange}
                         isDraggable={true}
                         isResizable={true}
+                        resizeHandles={['se']}
                         draggableHandle=".widget-drag-handle"
                         margin={isMobile ? [12, 12] : [16, 16]}
                         containerPadding={isMobile ? [8, 8] : [16, 16]}
@@ -266,8 +267,10 @@ export default function WidgeTDCPro() {
                                     </div>
                                 </div>
                                 {/* Widget Content */}
-                                <div className="flex-1 overflow-hidden relative">
-                                    {renderWidget(w)}
+                                <div className="flex-1 overflow-hidden relative p-1">
+                                    <div className="w-full h-full text-xs md:text-sm">
+                                        {renderWidget(w)}
+                                    </div>
                                 </div>
                             </div>
                         ))}

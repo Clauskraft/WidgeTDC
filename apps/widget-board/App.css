@@ -47,6 +47,10 @@
   position: absolute;
   width: 20px;
   height: 20px;
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+  z-index: 50; /* Ensure handle is above widget content */
 }
 
 .react-grid-item > .react-resizable-handle::after {

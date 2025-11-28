@@ -226,9 +226,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
 
     // Determine sidebar width based on state and device
     const getSidebarWidth = () => {
-        if (isMobile) return '280px';
-        if (isTablet) return isSidebarOpen ? '280px' : '70px';
-        return isSidebarOpen ? '280px' : '70px';
+        if (isMobile) return '240px';
+        if (isTablet) return isSidebarOpen ? '240px' : '64px';
+        return isSidebarOpen ? '240px' : '64px';
     };
 
     const showLabels = isMobile || (isSidebarOpen && !isMobile);
