@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Mail, Send, Sparkles, RefreshCw, Check, Clock, AlertCircle } from 'lucide-react';
+import { Mail, Send, Sparkles, RefreshCw, Check, AlertCircle } from 'lucide-react';
+import { useWidgetSync } from '../../hooks/useWidgetSync';
 
 interface EmailSuggestion {
     id: string;
@@ -13,121 +14,37 @@ interface EmailSuggestion {
 }
 
 export const OutlookView: React.FC = () => {
+    // START TOM: Ingen mock emails
     const [emails, setEmails] = useState<EmailSuggestion[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false); // Venter på backend fetch
     const [selectedReply, setSelectedReply] = useState<{ emailId: string; reply: string } | null>(null);
 
-    // Fetch emails from backend
+    // Synkroniser med backend
+    useWidgetSync('outlook-view', {
+        unreadCount: emails.length,
+        highImportanceCount: emails.filter(e => e.importance === 'high').length
+    });
+
+    // TODO: Implementer fetch fra backend API
+    /*
     useEffect(() => {
         const fetchEmails = async () => {
+            setLoading(true);
             try {
-                // Try to fetch from backend MCP
                 const response = await fetch('/api/mcp/route', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        tool: 'email.rag',
-                        payload: { action: 'list', limit: 5 }
-                    })
+                    body: JSON.stringify({ tool: 'email.rag', payload: { action: 'list' } })
                 });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.emails && Array.isArray(data.emails)) {
-                        // Transform backend data to our format with AI suggestions
-                        const emailsWithSuggestions = data.emails.map((email: any) => ({
-                            id: email.id,
-                            from: email.sender?.name || email.from || 'Ukendt',
-                            subject: email.subject || 'Ingen emne',
-                            preview: email.bodyPreview || email.preview || '',
-                            receivedAt: formatDate(email.receivedDateTime || email.date),
-                            importance: email.importance || 'normal',
-                            suggestedReplies: generateSuggestions(email)
-                        }));
-                        setEmails(emailsWithSuggestions);
-                        setLoading(false);
-                        return;
-                    }
-                }
-            } catch (error) {
-                console.log('[OutlookView] Backend not available, using demo data');
+                // ...
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoading(false);
             }
-
-            // Fallback to demo data if backend fails
-            setEmails([
-                {
-                    id: '1',
-                    from: 'Lars Jensen',
-                    subject: 'Projektstatus Q2 - Kræver svar',
-                    preview: 'Hej Claus, kan du bekræfte at vi er klar til launch næste uge?',
-                    receivedAt: 'I dag, 10:30',
-                    importance: 'high',
-                    suggestedReplies: [
-                        'Ja, vi er klar til launch som planlagt.',
-                        'Jeg har brug for lidt mere tid - kan vi tage et møde?',
-                        'Lad mig vende tilbage inden kl. 15 med en status.'
-                    ]
-                },
-                {
-                    id: '2',
-                    from: 'Mette Hansen',
-                    subject: 'Frokostmøde i morgen?',
-                    preview: 'Har du tid til at spise frokost i morgen kl. 12?',
-                    receivedAt: 'I dag, 09:15',
-                    importance: 'normal',
-                    suggestedReplies: [
-                        'Ja, det lyder godt! Ses kl. 12.',
-                        'Desværre, jeg har møde. Hvad med torsdag?',
-                        'Måske - jeg vender tilbage senere i dag.'
-                    ]
-                },
-                {
-                    id: '3',
-                    from: 'Support Team',
-                    subject: 'URGENT: Server nedbrud',
-                    preview: 'Server 3 er nede. Kan du tjekke logs hurtigst muligt?',
-                    receivedAt: 'I dag, 08:45',
-                    importance: 'high',
-                    suggestedReplies: [
-                        'Jeg kigger på det med det samme.',
-                        'Har eskaleret til DevOps teamet.',
-                        'Kan du sende mig log-filerne?'
-                    ]
-                }
-            ]);
-            setLoading(false);
         };
-
         fetchEmails();
     }, []);
-
-    const formatDate = (dateStr: string) => {
-        if (!dateStr) return 'Ukendt';
-        const date = new Date(dateStr);
-        const now = new Date();
-        const isToday = date.toDateString() === now.toDateString();
-        if (isToday) {
-            return `I dag, ${date.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })}`;
-        }
-        return date.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' });
-    };
-
-    const generateSuggestions = (email: any): string[] => {
-        // Simple rule-based suggestions - in production, use AI
-        const subject = (email.subject || '').toLowerCase();
-        const body = (email.bodyPreview || email.body?.content || '').toLowerCase();
-
-        if (subject.includes('møde') || body.includes('møde')) {
-            return ['Ja, jeg deltager.', 'Desværre, jeg kan ikke den dag.', 'Kan vi flytte det?'];
-        }
-        if (subject.includes('urgent') || email.importance === 'high') {
-            return ['Jeg kigger på det nu.', 'Tak for heads up - er på det.', 'Kan du give flere detaljer?'];
-        }
-        if (body.includes('?')) {
-            return ['Ja, det er korrekt.', 'Nej, lad mig forklare...', 'Godt spørgsmål - jeg vender tilbage.'];
-        }
-        return ['Tak for beskeden.', 'Modtaget - jeg vender tilbage.', 'Noteret.'];
-    };
+    */
 
     const handleSendReply = async (emailId: string, reply: string) => {
         setSelectedReply({ emailId, reply });
@@ -182,12 +99,12 @@ export const OutlookView: React.FC = () => {
             </div>
 
             {/* Email List with Suggestions */}
-            <div className="overflow-y-auto max-h-[calc(100%-80px)]">
+            <div className="overflow-y-auto max-h-[calc(100%-80px)] relative">
                 {emails.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                    <div className="flex flex-col items-center justify-center py-12 text-gray-400 h-full absolute inset-0">
                         <Check size={48} className="mb-4 text-green-400" />
-                        <p className="font-medium">Alle emails besvaret!</p>
-                        <p className="text-sm text-gray-500">Ingen ventende svar</p>
+                        <p className="font-medium">Ingen emails</p>
+                        <p className="text-sm text-gray-500">Forbind til Outlook for at se data</p>
                     </div>
                 ) : (
                     emails.map((email) => (
@@ -195,6 +112,7 @@ export const OutlookView: React.FC = () => {
                             key={email.id} 
                             className={`p-4 border-b border-white/5 ${email.isProcessing ? 'opacity-50' : ''}`}
                         >
+                            {/* ... (Render logic remains, men vil ikke blive vist før data kommer) ... */}
                             {/* Email Header */}
                             <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-2">

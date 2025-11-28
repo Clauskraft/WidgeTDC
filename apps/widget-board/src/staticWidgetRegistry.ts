@@ -96,4 +96,11 @@ export const widgetMetadata: Record<string, { name: string; description: string;
     type: 'app', 
     defaultLayout: { w: 12, h: 6 } 
   },
+  'StrategicCockpitWidget': { 
+    name: 'Strategic Cockpit', 
+    description: 'Glass, Neon & The Graph - AI Agent Council, Observation Cards, Neural Stream og Neo4j Mindmap', 
+    category: 'executive', 
+    type: 'app', 
+    defaultLayout: { w: 12, h: 6 } 
+  },
 };
