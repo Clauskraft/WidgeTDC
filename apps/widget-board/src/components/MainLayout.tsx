@@ -479,36 +479,38 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         </div>
                                     )}
 
-                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-3xl border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
+                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-1 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative flex items-end p-2">
+                                        <div className="flex gap-1 pb-2 pl-2">
+                                            <button onClick={handleFileAttach} className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
+                                                <Paperclip size={isMobile ? 18 : 20} />
+                                            </button>
+                                        </div>
                                         <textarea
                                             value={chatInput}
-                                            onChange={(e) => setChatInput(e.target.value)}
+                                            onChange={(e) => {
+                                                setChatInput(e.target.value);
+                                                e.target.style.height = 'auto';
+                                                e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
+                                            }}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Spørg DOT om hvad som helst..."
-                                            className="w-full bg-transparent border-none text-sm md:text-base text-white placeholder-gray-400/60 p-3 md:p-4 pr-12 h-[48px] md:h-[56px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
+                                            className="flex-1 bg-transparent border-none text-sm md:text-base text-white placeholder-gray-400/60 py-3 px-3 max-h-[150px] resize-none focus:ring-0 outline-none font-light scrollbar-hide min-h-[44px]"
                                             rows={1}
+                                            style={{ height: '44px' }}
                                         />
-                                        <div className="flex items-center justify-between px-2 md:px-3 pb-2 md:pb-3 relative z-10">
-                                            <div className="flex gap-1">
-                                                <button onClick={handleFileAttach} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
-                                                    <Paperclip size={isMobile ? 16 : 18} />
+                                        <div className="flex gap-1 pb-1.5 pr-1.5">
+                                            {!chatInput.trim() && (
+                                                <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95 touch-target" title="Tale">
+                                                    <Mic size={isMobile ? 18 : 20} />
                                                 </button>
-                                                <button onClick={handleImageAttach} className="p-1.5 md:p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target hidden sm:flex" title="Vedhæft billede">
-                                                    <Image size={isMobile ? 16 : 18} />
-                                                </button>
-                                            </div>
-                                            <div className="flex gap-1 md:gap-2">
-                                                <button className="p-1.5 md:p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95 touch-target" title="Tale">
-                                                    <Mic size={isMobile ? 16 : 18} />
-                                                </button>
-                                                <button
-                                                    onClick={handleSendMessage}
-                                                    disabled={(!chatInput.trim() && attachments.length === 0) || isProcessing}
-                                                    className={`p-1.5 md:p-2 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${(chatInput.trim() || attachments.length > 0) ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
-                                                >
-                                                    <Send size={isMobile ? 16 : 18} className={(chatInput.trim() || attachments.length > 0) ? 'ml-0.5' : ''} />
-                                                </button>
-                                            </div>
+                                            )}
+                                            <button
+                                                onClick={handleSendMessage}
+                                                disabled={(!chatInput.trim() && attachments.length === 0) || isProcessing}
+                                                className={`p-2 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${(chatInput.trim() || attachments.length > 0) ? 'bg-[#00B5CB] text-[#051e3c] shadow-lg shadow-[#00B5CB]/20' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}
+                                            >
+                                                <Send size={isMobile ? 16 : 18} className={(chatInput.trim() || attachments.length > 0) ? 'ml-0.5' : ''} />
+                                            </button>
                                         </div>
                                     </div>
                                     <div className="flex justify-center mt-3 md:mt-4 gap-4 items-center">
