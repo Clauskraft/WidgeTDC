@@ -45,6 +45,8 @@ export const staticWidgetRegistry: Record<string, any> = {
   
   // Executive & Strategic Widgets
   'ExecutiveRiskCanvasWidget': lazy(() => import('../widgets/ExecutiveRiskCanvas')),
+  'StrategicCockpitWidget': lazy(() => import('../widgets/StrategicCockpit')),
+  'MindMapBuilderWidget': lazy(() => import('../widgets/MindMapBuilder')),
 };
 
 // Widget metadata for display with new 'type' field
@@ -99,6 +101,13 @@ export const widgetMetadata: Record<string, { name: string; description: string;
   'StrategicCockpitWidget': { 
     name: 'Strategic Cockpit', 
     description: 'Glass, Neon & The Graph - AI Agent Council, Observation Cards, Neural Stream og Neo4j Mindmap', 
+    category: 'executive', 
+    type: 'app', 
+    defaultLayout: { w: 12, h: 6 } 
+  },
+  'MindMapBuilderWidget': { 
+    name: 'MindMap Builder', 
+    description: 'Interaktiv mindmap - søg efter emner, AI udvider automatisk med relaterede nodes og tracking', 
     category: 'executive', 
     type: 'app', 
     defaultLayout: { w: 12, h: 6 } 
