@@ -1,40 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { GoogleGenAI } from '@google/genai';
-import type { Message, GroundingSource } from '../types';
+import { useMCP } from '../src/hooks/useMCP';
 import { Button } from '../components/ui/Button';
+import { Bot, User, Send, Sparkles } from 'lucide-react';
 
-const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
+interface Message {
+  id: string;
+  content: string;
+  sender: 'user' | 'agent';
+  timestamp: Date;
+}
+
+const AgentChatWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
+  const { send } = useMCP();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [useGoogleSearch, setUseGoogleSearch] = useState(false);
-  const [useGoogleMaps, setUseGoogleMaps] = useState(false);
   const [useThinkingMode, setUseThinkingMode] = useState(false);
-  const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  useEffect(() => {
-    if (useGoogleMaps) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          position => {
-            setLocation({
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            });
-          },
-          error => {
-            console.warn('Geolocation permission denied or unavailable.', error);
-            // Optionally, inform the user that location access is beneficial for Maps search.
-          }
-        );
-      }
-    }
-  }, [useGoogleMaps]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -51,82 +37,27 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
     setInputValue('');
     setIsLoading(true);
 
-    const apiKey =
-      process.env.GEMINI_API_KEY ?? process.env.API_KEY ?? import.meta.env.VITE_GEMINI_API_KEY;
-
-    if (!apiKey) {
-      const errorMessage: Message = {
-        id: `error-${Date.now()}`,
-        content:
-          'Fejl: API nøgle mangler. Sæt den venligst i dine secrets for at bruge denne widget.',
-        sender: 'agent',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      setIsLoading(false);
-      return;
-    }
-
     try {
-      const ai = new GoogleGenAI({ apiKey });
-
-      const modelName = useThinkingMode ? 'gemini-2.5-pro' : 'gemini-2.5-flash';
-
-      const tools: any[] = [];
-      if (useGoogleSearch) {
-        tools.push({ googleSearch: {} });
-      }
-      if (useGoogleMaps) {
-        tools.push({ googleMaps: {} });
-      }
-
-      const config: any = {};
-      if (tools.length > 0) {
-        config.tools = tools;
-      }
-      if (useThinkingMode) {
-        config.thinkingConfig = { thinkingBudget: 32768 };
-      }
-      if (useGoogleMaps && location) {
-        config.toolConfig = {
-          retrievalConfig: {
-            latLng: location,
-          },
-        };
-      }
-
-      const response = await ai.models.generateContent({
-        model: modelName,
-        contents: { parts: [{ text: currentInput }] },
-        config: config,
+      // Send to backend via MCP
+      // We use 'srag.query' as a generic chat endpoint for now, but specifying a persona
+      const response = await send('agent-orchestrator', 'srag.query', {
+        naturalLanguageQuery: currentInput,
+        model: useThinkingMode ? 'deepseek-reasoner' : 'deepseek-chat', // Use backend defaults
+        systemPrompt: "You are a specialized Agent focused on executing tasks."
       });
-
-      const agentResponseText = response.text;
-      const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-
-      const sources: GroundingSource[] = groundingChunks
-        .map((chunk: any) => {
-          const sourceData = chunk.web || chunk.maps;
-          return {
-            uri: sourceData?.uri || '#',
-            title: sourceData?.title || 'Ukendt Kilde',
-          };
-        })
-        .filter((source: GroundingSource) => source.uri !== '#');
 
       const agentMessage: Message = {
         id: `agent-${Date.now()}`,
-        content: agentResponseText,
+        content: response.response || response.content || JSON.stringify(response),
         sender: 'agent',
-        timestamp: new Date(),
-        sources: sources.length > 0 ? sources : undefined,
+        timestamp: new Date()
       };
       setMessages(prev => [...prev, agentMessage]);
     } catch (error: any) {
-      console.error('Failed to fetch chat response:', error);
+      console.error('Chat error:', error);
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
-        content: `Fejl: Kunne ikke hente svar fra Gemini API.\n\n${error.message || 'En ukendt fejl opstod.'}`,
+        content: `Fejl: Kunne ikke forbinde til agenten. ${error.message}`,
         sender: 'agent',
         timestamp: new Date(),
       };
@@ -137,80 +68,66 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey) {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
-  const Toggle: React.FC<{ label: string; checked: boolean; onChange: () => void }> = ({
-    label,
-    checked,
-    onChange,
-  }) => (
-    <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="ms-focusable w-4 h-4 rounded text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-700 dark:border-gray-600"
-      />
-      {label}
-    </label>
-  );
-
   return (
-    <div className="h-full flex flex-col -m-4">
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="h-full flex flex-col -m-4" data-testid="agent-chat-widget">
+      {/* Header */}
+      <div className="p-3 border-b border-white/10 bg-[#0B3E6F]/20 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+            <Bot size={18} className="text-[#00B5CB]" />
+            <h3 className="text-sm font-semibold text-white">Agent Chat</h3>
+        </div>
+        <button 
+            onClick={() => setUseThinkingMode(!useThinkingMode)}
+            className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors ${useThinkingMode ? 'bg-purple-500/20 text-purple-300' : 'text-gray-400 hover:text-white'}`}
+            title="Aktiver dyb analyse (R1)"
+        >
+            <Sparkles size={12} /> Thinking
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        {messages.length === 0 && (
+            <div className="text-center py-8 text-gray-500 text-xs">
+                Start en samtale med agenten...
+            </div>
+        )}
         {messages.map(message => (
           <div
             key={message.id}
             className={`flex items-end gap-2 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
+            {message.sender === 'agent' && (
+                <div className="w-6 h-6 rounded-full bg-[#00B5CB]/20 flex items-center justify-center shrink-0">
+                    <Bot size={12} className="text-[#00B5CB]" />
+                </div>
+            )}
             <div
-              className={`p-3 rounded-lg max-w-[80%] flex flex-col ${
+              className={`p-3 rounded-xl max-w-[85%] text-sm ${
                 message.sender === 'user'
-                  ? 'bg-blue-500 text-white rounded-br-none'
-                  : 'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-bl-none'
+                  ? 'bg-[#00B5CB] text-[#051e3c] rounded-br-none'
+                  : 'bg-[#0B3E6F]/40 text-gray-200 border border-white/10 rounded-bl-none'
               }`}
             >
-              <p className="whitespace-pre-wrap text-sm">{message.content}</p>
-              {message.sources && message.sources.length > 0 && (
-                <div className="mt-3 pt-2 border-t border-blue-400 dark:border-gray-600">
-                  <h4 className="text-xs font-bold mb-1 text-blue-100 dark:text-gray-300">
-                    Kilder:
-                  </h4>
-                  <div className="space-y-1">
-                    {message.sources.map((source, index) => (
-                      <a
-                        href={source.uri}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        key={index}
-                        className="ms-focusable block text-xs text-blue-200 dark:text-blue-300 hover:underline truncate"
-                      >
-                        {source.title}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
             </div>
           </div>
         ))}
         {isLoading && (
           <div className="flex items-end gap-2 justify-start">
-            <div className="p-3 rounded-lg max-w-[80%] bg-gray-200 dark:bg-gray-700 rounded-bl-none">
+             <div className="w-6 h-6 rounded-full bg-[#00B5CB]/20 flex items-center justify-center shrink-0">
+                <Bot size={12} className="text-[#00B5CB]" />
+            </div>
+            <div className="p-3 rounded-xl bg-[#0B3E6F]/40 border border-white/10 rounded-bl-none">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                  style={{ animationDelay: '0.1s' }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
-                  style={{ animationDelay: '0.2s' }}
-                ></div>
+                <div className="w-1.5 h-1.5 bg-[#00B5CB] rounded-full animate-bounce"></div>
+                <div className="w-1.5 h-1.5 bg-[#00B5CB] rounded-full animate-bounce delay-75"></div>
+                <div className="w-1.5 h-1.5 bg-[#00B5CB] rounded-full animate-bounce delay-150"></div>
               </div>
             </div>
           </div>
@@ -218,40 +135,24 @@ const AgentChatWidget: React.FC<{ widgetId: string }> = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
-        <div className="flex items-center flex-wrap gap-x-4 gap-y-2">
-          <Toggle
-            label="Google Search"
-            checked={useGoogleSearch}
-            onChange={() => setUseGoogleSearch(v => !v)}
-          />
-          <Toggle
-            label="Google Maps"
-            checked={useGoogleMaps}
-            onChange={() => setUseGoogleMaps(v => !v)}
-          />
-          <Toggle
-            label="Thinking Mode"
-            checked={useThinkingMode}
-            onChange={() => setUseThinkingMode(v => !v)}
-          />
-        </div>
+      <div className="p-3 border-t border-white/10 bg-[#0B3E6F]/10">
         <div className="relative">
           <textarea
             value={inputValue}
             onChange={e => setInputValue(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder="Skriv din besked... (Shift+Enter for ny linje)"
-            className="ms-focusable w-full p-3 pr-20 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 resize-none"
-            rows={2}
+            placeholder="Skriv besked..."
+            className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-4 pr-12 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00B5CB]/50 resize-none"
+            rows={1}
+            style={{ minHeight: '44px' }}
           />
-          <Button
+          <button
             onClick={handleSend}
             disabled={isLoading || !inputValue.trim()}
-            className="absolute right-3 top-1/2 -translate-y-1/2"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-[#00B5CB] text-[#051e3c] rounded-lg hover:bg-[#009eb3] disabled:opacity-50 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
           >
-            Send
-          </Button>
+            <Send size={14} />
+          </button>
         </div>
       </div>
     </div>

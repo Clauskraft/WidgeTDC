@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
 import type { ToolSuggestion, ToolStatus, Agent } from '../types';
 import { Button } from '../components/ui/Button';
+import { useWidgetSync } from '../src/hooks/useWidgetSync';
+import { Bot, Wrench, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 
 const ALL_TOOLS: Omit<ToolSuggestion, 'status'>[] = [
     { name: 'calculator', description: 'Matematiske beregninger.', category: 'Beregning' },
     { name: 'public_search', description: 'Søgning i offentlige kilder.', category: 'Søgning' },
     { name: 'private_search', description: 'Søgning i interne kilder.', category: 'Søgning' },
     { name: 'gdpr_analyzer', description: 'GDPR compliance analyse.', category: 'Compliance' },
+    { name: 'code_interpreter', description: 'Kør Python kode sikkert.', category: 'Udvikling' },
+    { name: 'email_sender', description: 'Send emails via Outlook.', category: 'Kommunikation' },
 ];
 
-const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
+const AgentBuilderWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
   const [agentName, setAgentName] = useState('');
   const [instruction, setInstruction] = useState('');
   const debouncedInstruction = useDebounce(instruction, 500);
@@ -20,6 +24,12 @@ const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
   const [createdAgents, setCreatedAgents] = useState<Agent[]>([]);
   const [isListVisible, setIsListVisible] = useState(true);
 
+  // Sync state to brain
+  useWidgetSync(widgetId, {
+    agentCount: createdAgents.length,
+    lastAgent: createdAgents[createdAgents.length - 1]?.name,
+    draftName: agentName
+  });
 
   useEffect(() => {
     async function fetchSuggestions() {
@@ -29,19 +39,22 @@ const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
       }
       setIsLoading(true);
       try {
-        // Mocking API call
-        await new Promise(res => setTimeout(res, 500));
-        const mockData = { tools: [
-            debouncedInstruction.includes("beregn") && {name: "calculator", status: "recommended" as const},
-            debouncedInstruction.includes("søg") && {name: "public_search", status: "recommended" as const},
-            debouncedInstruction.includes("privat") && {name: "private_search", status: "mandatory" as const},
-            debouncedInstruction.includes("privat") && {name: "public_search", status: "excluded" as const},
-        // FIX: Replaced incorrect type predicate with `filter(Boolean)` for correct type inference.
-        ].filter(Boolean) };
-
+        // Simple heuristic logic instead of mock API
         const newTools = ALL_TOOLS.map((tool): ToolSuggestion => {
-            const suggestion = mockData.tools.find(t => t.name === tool.name);
-            return {...tool, status: suggestion?.status || 'optional'};
+            let status: ToolStatus = 'optional';
+            const instr = debouncedInstruction.toLowerCase();
+            
+            if (instr.includes('beregn') && tool.name === 'calculator') status = 'recommended';
+            if (instr.includes('søg') && tool.name === 'public_search') status = 'recommended';
+            if (instr.includes('privat') || instr.includes('intern')) {
+                if (tool.name === 'private_search') status = 'mandatory';
+                if (tool.name === 'public_search') status = 'excluded';
+            }
+            if (instr.includes('gdpr') && tool.name === 'gdpr_analyzer') status = 'mandatory';
+            if (instr.includes('kode') && tool.name === 'code_interpreter') status = 'recommended';
+            if (instr.includes('email') && tool.name === 'email_sender') status = 'recommended';
+
+            return {...tool, status};
         });
         setTools(newTools);
 
@@ -92,141 +105,145 @@ const AgentBuilderWidget: React.FC<{ widgetId: string }> = () => {
   };
   
   const getStatusClasses = (status: ToolStatus) => ({
-      'mandatory': 'border-red-500 bg-red-50 dark:bg-red-900/50',
-      'recommended': 'border-blue-500 bg-blue-50 dark:bg-blue-900/50',
-      'excluded': 'opacity-50',
-      'optional': 'border-gray-200 dark:border-gray-700'
+      'mandatory': 'border-red-500/50 bg-red-500/10',
+      'recommended': 'border-blue-500/50 bg-blue-500/10',
+      'excluded': 'opacity-30 cursor-not-allowed',
+      'optional': 'border-white/10 hover:border-white/20'
   }[status]);
   
   const getStatusBadgeClasses = (status: ToolStatus) => ({
-      'mandatory': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-      'recommended': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-      'excluded': 'bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
-      'optional': 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+      'mandatory': 'bg-red-500/20 text-red-300',
+      'recommended': 'bg-blue-500/20 text-blue-300',
+      'excluded': 'bg-gray-500/20 text-gray-400',
+      'optional': 'bg-white/10 text-gray-400'
   }[status]);
 
   const getStatusText = (status: ToolStatus) => ({
-      'mandatory': 'Obligatorisk',
+      'mandatory': 'Krævet',
       'recommended': 'Anbefalet',
       'excluded': 'Ekskluderet',
       'optional': 'Valgfri'
   }[status]);
 
   return (
-    <div className="h-full flex flex-col -m-4">
-        <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-            <div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+    <div className="h-full flex flex-col -m-4" data-testid="agent-builder-widget">
+        <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-2">
+                <Bot size={20} className="text-[#00B5CB]" />
+                <h3 className="text-lg font-semibold text-white">Agent Builder</h3>
+            </div>
+
+            {/* Created Agents List */}
+            <div className="border-b border-white/10 pb-4 mb-4">
                 <div 
-                    className="flex justify-between items-center cursor-pointer" 
+                    className="flex justify-between items-center cursor-pointer group" 
                     onClick={() => setIsListVisible(!isListVisible)}
-                    aria-expanded={isListVisible}
-                    aria-controls="created-agents-list"
                 >
                     <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-base">Oprettede Agenter</h3>
-                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        <h4 className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">Dine Agenter</h4>
+                        <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-[#00B5CB]/20 text-[#00B5CB]">
                             {createdAgents.length}
                         </span>
                     </div>
-                    <button className="ms-focusable p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label={isListVisible ? "Skjul liste" : "Vis liste"}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className={`h-5 w-5 transition-transform duration-200 ${isListVisible ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
+                    <button className="p-1 rounded-full hover:bg-white/10 text-gray-400">
+                        {isListVisible ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                     </button>
                 </div>
                 
                 {isListVisible && (
-                    <div id="created-agents-list" className="mt-2 max-h-48 overflow-y-auto pr-2 -mr-2 space-y-3">
+                    <div className="mt-3 space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
                         {createdAgents.length > 0 ? (
                             createdAgents.map(agent => (
-                                <div key={agent.id} className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 flex flex-col gap-2">
+                                <div key={agent.id} className="p-3 bg-[#0B3E6F]/20 rounded-lg border border-white/5 flex flex-col gap-2">
                                     <div className="flex items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0012 11z" clipRule="evenodd" />
-                                        </svg>
-                                        <p className="font-bold text-gray-900 dark:text-gray-50 truncate">{agent.name}</p>
+                                        <Bot size={16} className="text-[#00B5CB]" />
+                                        <p className="font-medium text-sm text-white truncate">{agent.name}</p>
                                     </div>
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <strong className="text-xs font-semibold text-gray-500 dark:text-gray-400">Værktøjer:</strong>
+                                    <div className="flex flex-wrap items-center gap-1.5">
                                         {agent.tools.length > 0 ? (
                                             agent.tools.map(tool => (
-                                                <span key={tool} className="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 capitalize">
+                                                <span key={tool} className="px-1.5 py-0.5 text-[10px] font-medium rounded bg-white/5 text-gray-300 capitalize">
                                                     {tool.replace('_', ' ')}
                                                 </span>
                                             ))
                                         ) : (
-                                            <span className="text-xs text-gray-500 dark:text-gray-400 italic">Ingen</span>
+                                            <span className="text-[10px] text-gray-500 italic">Ingen værktøjer</span>
                                         )}
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <div className="text-center py-6 text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-200 dark:border-gray-700">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                </svg>
-                                <p className="mt-2 font-semibold">Ingen agenter oprettet</p>
-                                <p className="text-xs mt-1">Dine oprettede agenter vil blive vist her.</p>
+                            <div className="text-center py-4 text-xs text-gray-500 border border-dashed border-white/10 rounded-lg">
+                                Ingen agenter oprettet endnu
                             </div>
                         )}
                     </div>
                 )}
             </div>
 
-            <div>
-                <label htmlFor="agentName" className="text-sm font-medium mb-1 block">Agent Navn</label>
-                <input id="agentName" type="text" value={agentName} onChange={e => setAgentName(e.target.value)} placeholder="Eks: GDPR Compliance Agent" className="ms-focusable w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600" />
-            </div>
+            {/* Form */}
+            <div className="space-y-3">
+                <div>
+                    <label className="text-xs font-medium text-gray-400 mb-1 block">Navn</label>
+                    <input 
+                        value={agentName} 
+                        onChange={e => setAgentName(e.target.value)} 
+                        placeholder="Eks: Support Agent" 
+                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00B5CB]" 
+                    />
+                </div>
 
-            <div>
-                 <label htmlFor="agentInstruction" className="text-sm font-medium mb-1 block">Instruktion</label>
-                <textarea id="agentInstruction" value={instruction} onChange={e => setInstruction(e.target.value)} placeholder="Beskriv agentens opgaver og kompetenceområde..." rows={4} className="ms-focusable w-full p-2 rounded-lg border bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600 resize-none" />
-            </div>
+                <div>
+                     <label className="text-xs font-medium text-gray-400 mb-1 block">Instruktion (Prompt)</label>
+                    <textarea 
+                        value={instruction} 
+                        onChange={e => setInstruction(e.target.value)} 
+                        placeholder="Beskriv agentens opgave..." 
+                        rows={3} 
+                        className="w-full bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00B5CB] resize-none" 
+                    />
+                </div>
 
-            <div>
-                <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                    Værktøjer
-                    {isLoading && <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>}
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {tools.map(tool => (
-                        <div 
-                            key={tool.name} 
-                            onClick={() => handleToolToggle(tool.name)}
-                            role="checkbox"
-                            aria-checked={selectedTools.has(tool.name)}
-                            tabIndex={tool.status === 'excluded' ? -1 : 0}
-                            onKeyDown={(e) => {
-                                if (e.key === ' ' || e.key === 'Enter') {
-                                    e.preventDefault();
-                                    handleToolToggle(tool.name);
-                                }
-                            }}
-                            className={`ms-focusable p-3 rounded-lg border-2 flex flex-col gap-1 transition-all ${getStatusClasses(tool.status)} ${selectedTools.has(tool.name) ? 'ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800 ring-blue-500' : ''} ${tool.status === 'excluded' ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                        >
-                            <div className="flex justify-between items-start">
-                                <span className="font-semibold capitalize">{tool.name.replace('_', ' ')}</span>
-                                <input 
-                                    type="checkbox" 
-                                    checked={selectedTools.has(tool.name)} 
-                                    readOnly 
-                                    disabled={tool.status === 'mandatory' || tool.status === 'excluded'} 
-                                    className="w-4 h-4 rounded text-blue-600 bg-gray-100 border-gray-300 pointer-events-none flex-shrink-0" 
-                                />
+                <div>
+                    <h4 className="text-xs font-medium text-gray-400 mb-2 flex items-center gap-2">
+                        Værktøjer
+                        {isLoading && <div className="w-3 h-3 border-2 border-[#00B5CB] border-t-transparent rounded-full animate-spin"></div>}
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {tools.map(tool => (
+                            <div 
+                                key={tool.name} 
+                                onClick={() => handleToolToggle(tool.name)}
+                                className={`p-2 rounded-lg border flex flex-col gap-1 transition-all cursor-pointer ${getStatusClasses(tool.status)} ${selectedTools.has(tool.name) ? 'border-[#00B5CB] bg-[#00B5CB]/10' : 'bg-[#0B3E6F]/10'}`}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-1.5">
+                                        <Wrench size={12} className="text-gray-400" />
+                                        <span className="text-xs font-medium text-gray-200 capitalize">{tool.name.replace('_', ' ')}</span>
+                                    </div>
+                                    {selectedTools.has(tool.name) && <div className="w-2 h-2 rounded-full bg-[#00B5CB]" />}
+                                </div>
+                                <p className="text-[10px] text-gray-500 line-clamp-1">{tool.description}</p>
+                                <div className="mt-auto pt-1">
+                                  <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${getStatusBadgeClasses(tool.status)}`}>
+                                      {getStatusText(tool.status)}
+                                  </span>
+                                </div>
                             </div>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 flex-grow">{tool.description}</p>
-                            <div className="mt-auto pt-1">
-                              <span className={`text-xs px-2 py-1 rounded-full font-semibold ${getStatusBadgeClasses(tool.status)}`}>
-                                  {getStatusText(tool.status)}
-                              </span>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-            <Button onClick={handleCreateAgent} className="w-full" disabled={!agentName.trim() || !instruction.trim()}>Opret Agent</Button>
+        <div className="p-4 border-t border-white/10 bg-[#0B3E6F]/20">
+            <Button 
+                onClick={handleCreateAgent} 
+                className="w-full flex items-center justify-center gap-2 bg-[#00B5CB] hover:bg-[#009eb3] text-[#051e3c] font-semibold transition-colors" 
+                disabled={!agentName.trim() || !instruction.trim()}
+            >
+                <Plus size={16} /> Opret Agent
+            </Button>
         </div>
     </div>
   );

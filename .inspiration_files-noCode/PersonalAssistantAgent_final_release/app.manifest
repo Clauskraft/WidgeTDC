@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
+  <!-- Set processorArchitecture to * so the EXE is architecture-agnostic; runtime selection happens at publish time -->
+  <assemblyIdentity version="1.0.0.0" processorArchitecture="*" name="PersonalAssistantAgent.app" type="win32" />
+  <!-- Request that the application runs with the privileges of the invoking user (default) -->
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <requestedPrivileges xmlns="urn:schemas-microsoft-com:asm.v3">
+        <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+</assembly>
