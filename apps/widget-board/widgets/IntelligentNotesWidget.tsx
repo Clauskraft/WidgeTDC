@@ -1,331 +1,194 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Button } from '../components/ui/Button';
-
-type NoteSource =
-  | 'Microsoft OneNote'
-  | 'Google Keep'
-  | 'Apple Notes'
-  | 'Evernote'
-  | 'Local Files'
-  | 'Email';
-
-type ComplianceStatus = 'clean' | 'review' | 'restricted';
+import { useMCP } from '../src/hooks/useMCP';
+import { Plus, Search, Save, Trash2, FileText, RefreshCw, Tag, Shield } from 'lucide-react';
 
 interface NoteRecord {
   id: string;
-  source: NoteSource;
   title: string;
   body: string;
   tags: string[];
   updatedAt: string;
   owner: string;
-  compliance: ComplianceStatus;
-  retention: '30d' | '90d' | '1y' | 'archive';
+  compliance: 'clean' | 'review' | 'restricted';
   riskScore: number;
-  attachments: number;
+  source?: string;
 }
 
-const SOURCE_OPTIONS: NoteSource[] = [
-  'Microsoft OneNote',
-  'Google Keep',
-  'Apple Notes',
-  'Evernote',
-  'Local Files',
-  'Email',
-];
+const IntelligentNotesWidget: React.FC<{ widgetId: string }> = ({ widgetId }) => {
+  const { send } = useMCP();
+  const [notes, setNotes] = useState<NoteRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentNote, setCurrentNote] = useState<Partial<NoteRecord>>({});
 
-const SAMPLE_NOTES: NoteRecord[] = [
-  {
-    id: 'nt-1',
-    source: 'Microsoft OneNote',
-    title: 'Q4 Strategy Workshop',
-    body: 'Collected workshop notes covering AI procurement roadmap, stakeholder interviews and deliverables for DG CONNECT.',
-    tags: ['strategy', 'ai', 'eu'],
-    updatedAt: '2025-02-10T09:30:00Z',
-    owner: 'A. Rossi',
-    compliance: 'clean',
-    retention: '1y',
-    riskScore: 12,
-    attachments: 3,
-  },
-  {
-    id: 'nt-2',
-    source: 'Google Keep',
-    title: 'Privacy Task Force recap',
-    body: 'Summary of Schrems II mitigation controls, DPA template updates and DPIA workflow automation ideas.',
-    tags: ['privacy', 'gdpr'],
-    updatedAt: '2025-02-09T14:20:00Z',
-    owner: 'K. Jensen',
-    compliance: 'review',
-    retention: '90d',
-    riskScore: 58,
-    attachments: 1,
-  },
-  {
-    id: 'nt-3',
-    source: 'Local Files',
-    title: 'Field research scans',
-    body: 'Offline PDFs captured from site inspections in Munich and Ghent. Contains photos, transcripts and checklists.',
-    tags: ['inspection', 'pdf'],
-    updatedAt: '2025-02-07T07:15:00Z',
-    owner: 'M. Novak',
-    compliance: 'restricted',
-    retention: '30d',
-    riskScore: 83,
-    attachments: 12,
-  },
-  {
-    id: 'nt-4',
-    source: 'Email',
-    title: 'Bid coaching thread',
-    body: 'Email notes exchanged with supplier consortium clarifying KPIs, SOW split and legal guardrails.',
-    tags: ['bid', 'procurement'],
-    updatedAt: '2025-02-11T18:40:00Z',
-    owner: 'L. Ruíz',
-    compliance: 'review',
-    retention: '1y',
-    riskScore: 46,
-    attachments: 2,
-  },
-  {
-    id: 'nt-5',
-    source: 'Evernote',
-    title: 'Incident Post-Mortem',
-    body: 'Voice memo transcription summarizing containment timeline, threat intel links and RCA decisions.',
-    tags: ['security', 'incident'],
-    updatedAt: '2025-02-05T11:05:00Z',
-    owner: 'J. Olofsson',
-    compliance: 'clean',
-    retention: '1y',
-    riskScore: 28,
-    attachments: 0,
-  },
-];
-
-const complianceLabels: Record<ComplianceStatus, { label: string; color: string }> = {
-  clean: {
-    label: 'Ingen findings',
-    color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10',
-  },
-  review: { label: 'Kræver review', color: 'text-amber-600 bg-amber-50 dark:bg-amber-500/10' },
-  restricted: { label: 'Restriktioner', color: 'text-rose-600 bg-rose-50 dark:bg-rose-500/10' },
-};
-
-const retentionLabel: Record<NoteRecord['retention'], string> = {
-  '30d': '30 dage',
-  '90d': '90 dage',
-  '1y': '1 år',
-  archive: 'Arkiv',
-};
-
-const IntelligentNotesWidget: React.FC<{ widgetId: string }> = () => {
-  const [query, setQuery] = useState('');
-  const [selectedSources, setSelectedSources] = useState<Set<NoteSource>>(new Set(SOURCE_OPTIONS));
-  const [flaggedOnly, setFlaggedOnly] = useState(false);
-  const [retentionFilter, setRetentionFilter] = useState<NoteRecord['retention'] | 'all'>('all');
-
-  const filteredNotes = useMemo(() => {
-    return SAMPLE_NOTES.filter(note => {
-      const matchesSource = selectedSources.has(note.source);
-      const matchesQuery = `${note.title} ${note.body} ${note.tags.join(' ')}`
-        .toLowerCase()
-        .includes(query.toLowerCase());
-      const matchesFlag = !flaggedOnly || note.compliance !== 'clean';
-      const matchesRetention = retentionFilter === 'all' || note.retention === retentionFilter;
-      return matchesSource && matchesQuery && matchesFlag && matchesRetention;
-    });
-  }, [query, selectedSources, flaggedOnly, retentionFilter]);
-
-  const summary = useMemo(() => {
-    const distribution = SOURCE_OPTIONS.reduce<Record<NoteSource, number>>(
-      (acc, source) => {
-        acc[source] = SAMPLE_NOTES.filter(note => note.source === source).length;
-        return acc;
-      },
-      {} as Record<NoteSource, number>
-    );
-
-    const flagged = SAMPLE_NOTES.filter(note => note.compliance !== 'clean');
-    const avgRisk =
-      SAMPLE_NOTES.reduce((sum, note) => sum + note.riskScore, 0) / SAMPLE_NOTES.length;
-
-    return { distribution, flagged: flagged.length, avgRisk: Math.round(avgRisk) };
-  }, []);
-
-  const aiInsights = useMemo(() => {
-    if (filteredNotes.length === 0) {
-      return 'Ingen noter matcher filtrene lige nu.';
-    }
-    const highestRisk = [...filteredNotes].sort((a, b) => b.riskScore - a.riskScore)[0];
-    const thematicTags = new Map<string, number>();
-    filteredNotes.forEach(note => {
-      note.tags.forEach(tag => {
-        thematicTags.set(tag, (thematicTags.get(tag) || 0) + 1);
-      });
-    });
-    const topTags = [...thematicTags.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 2)
-      .map(([tag]) => tag);
-    return `Fokusområder: ${topTags.join(', ') || 'n/a'}. Højeste risikonote er "${highestRisk.title}" fra ${highestRisk.source} med score ${highestRisk.riskScore}.`;
-  }, [filteredNotes]);
-
-  const toggleSource = (source: NoteSource) => {
-    setSelectedSources(prev => {
-      const next = new Set(prev);
-      if (next.has(source)) {
-        next.delete(source);
-      } else {
-        next.add(source);
+  const fetchNotes = async () => {
+    setIsLoading(true);
+    try {
+      const response = await send('agent-orchestrator', 'notes.list', {});
+      if (response && response.notes) {
+        setNotes(response.notes);
       }
-      return next;
-    });
+    } catch (error) {
+      console.error('Failed to fetch notes:', error);
+      // Fallback if backend is offline
+      setNotes([]); 
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  useEffect(() => {
+    fetchNotes();
+  }, []);
+
+  const handleSave = async () => {
+    if (!currentNote.title) return;
+    
+    try {
+      if (currentNote.id) {
+        // Update
+        await send('agent-orchestrator', 'notes.update', {
+          id: currentNote.id,
+          title: currentNote.title,
+          content: currentNote.body,
+          tags: currentNote.tags
+        });
+      } else {
+        // Create
+        await send('agent-orchestrator', 'notes.create', {
+          title: currentNote.title,
+          content: currentNote.body,
+          tags: currentNote.tags
+        });
+      }
+      setIsEditing(false);
+      setCurrentNote({});
+      fetchNotes();
+    } catch (error) {
+      console.error('Failed to save note:', error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Er du sikker?')) return;
+    try {
+      await send('agent-orchestrator', 'notes.delete', { id });
+      fetchNotes();
+    } catch (error) {
+      console.error('Failed to delete note:', error);
+    }
+  };
+
+  const filteredNotes = useMemo(() => {
+    return notes.filter(note => 
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  }, [notes, searchQuery]);
+
+  if (isEditing) {
+    return (
+      <div className="h-full flex flex-col p-4 bg-[#0B3E6F]/20">
+        <div className="flex justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">{currentNote.id ? 'Rediger Note' : 'Ny Note'}</h3>
+          <div className="flex gap-2">
+            <Button variant="subtle" size="small" onClick={() => setIsEditing(false)}>Annuller</Button>
+            <Button variant="primary" size="small" onClick={handleSave}><Save size={14} className="mr-1"/> Gem</Button>
+          </div>
+        </div>
+        <input
+          className="bg-black/20 border border-white/10 rounded-lg p-2 mb-2 text-white placeholder-gray-400 focus:outline-none focus:border-[#00B5CB]"
+          placeholder="Titel"
+          value={currentNote.title || ''}
+          onChange={e => setCurrentNote(prev => ({ ...prev, title: e.target.value }))}
+        />
+        <textarea
+          className="flex-1 bg-black/20 border border-white/10 rounded-lg p-2 mb-2 text-white placeholder-gray-400 focus:outline-none focus:border-[#00B5CB] resize-none font-mono text-sm"
+          placeholder="Skriv dine tanker..."
+          value={currentNote.body || ''}
+          onChange={e => setCurrentNote(prev => ({ ...prev, body: e.target.value }))}
+        />
+        <input
+          className="bg-black/20 border border-white/10 rounded-lg p-2 text-white placeholder-gray-400 focus:outline-none focus:border-[#00B5CB] text-sm"
+          placeholder="Tags (komma separeret)"
+          value={currentNote.tags?.join(', ') || ''}
+          onChange={e => setCurrentNote(prev => ({ ...prev, tags: e.target.value.split(',').map(t => t.trim()) }))}
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="h-full flex flex-col -m-4">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
-        <h3 className="text-lg font-semibold">Intelligent Notes Aggregator</h3>
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          Saml noter på tværs af OneNote, Keep, Apple Notes, Evernote, lokale filer og mails med
-          automatisk compliance scanning.
-        </p>
-        <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
-          <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-            <p className="text-gray-500 text-xs">Total noter</p>
-            <p className="text-2xl font-semibold">{SAMPLE_NOTES.length}</p>
-          </div>
-          <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-            <p className="text-gray-500 text-xs">Flaggede</p>
-            <p className="text-2xl font-semibold text-amber-600">{summary.flagged}</p>
-          </div>
-          <div className="p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-            <p className="text-gray-500 text-xs">Gns. risiko</p>
-            <p className="text-2xl font-semibold">{summary.avgRisk}</p>
-          </div>
+    <div className="h-full flex flex-col" data-testid="intelligent-notes-widget">
+      <div className="flex items-center justify-between mb-4 px-1">
+        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+          <FileText size={18} /> Noter
+        </h3>
+        <div className="flex gap-2">
+          <button 
+            onClick={fetchNotes} 
+            className={`p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors ${isLoading ? 'animate-spin' : ''}`}
+          >
+            <RefreshCw size={16} />
+          </button>
+          <button 
+            onClick={() => { setCurrentNote({}); setIsEditing(true); }}
+            className="px-3 py-1.5 bg-[#00B5CB] hover:bg-[#009eb3] text-[#051e3c] rounded-lg text-sm font-medium flex items-center gap-1 transition-colors"
+          >
+            <Plus size={16} /> Ny
+          </button>
         </div>
       </div>
 
-      <div className="p-4 space-y-4 flex-1 overflow-auto">
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="flex-1">
-            <label className="text-xs font-semibold text-gray-500 block mb-1">Søg</label>
-            <input
-              type="search"
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              placeholder="Søg på tværs af alle kilder..."
-              className="ms-focusable w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-gray-500 block mb-1">Retention</label>
-            <select
-              value={retentionFilter}
-              onChange={e => setRetentionFilter(e.target.value as any)}
-              className="ms-focusable px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+        <input 
+          type="text" 
+          placeholder="Søg i noter..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-black/20 border border-white/10 rounded-lg py-2 pl-9 pr-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00B5CB]/50 transition-colors"
+        />
+      </div>
+
+      <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+        {filteredNotes.length > 0 ? (
+          filteredNotes.map(note => (
+            <div 
+              key={note.id} 
+              onClick={() => { setCurrentNote(note); setIsEditing(true); }}
+              className="p-3 bg-[#0B3E6F]/20 hover:bg-[#0B3E6F]/40 border border-white/5 hover:border-[#00B5CB]/30 rounded-xl transition-all cursor-pointer group"
             >
-              <option value="all">Alle perioder</option>
-              <option value="30d">30 dage</option>
-              <option value="90d">90 dage</option>
-              <option value="1y">1 år</option>
-              <option value="archive">Arkiv</option>
-            </select>
-          </div>
-          <label className="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-200">
-            <input
-              type="checkbox"
-              checked={flaggedOnly}
-              onChange={() => setFlaggedOnly(v => !v)}
-              className="ms-focusable rounded border-gray-300"
-            />
-            Kun noter med fund
-          </label>
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold text-gray-500 mb-1">Kilder</p>
-          <div className="flex flex-wrap gap-2">
-            {SOURCE_OPTIONS.map(source => {
-              const isActive = selectedSources.has(source);
-              return (
-                <button
-                  key={source}
-                  onClick={() => toggleSource(source)}
-                  className={`ms-focusable px-3 py-1 rounded-full border text-xs font-medium transition-colors ${
-                    isActive
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300'
-                  }`}
-                >
-                  {source}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 p-4">
-          <p className="text-xs uppercase tracking-wide text-gray-500">AI indblik</p>
-          <p className="text-sm mt-2 text-gray-800 dark:text-gray-200">{aiInsights}</p>
-        </div>
-
-        <div className="space-y-3">
-          {filteredNotes.map(note => {
-            const compliance = complianceLabels[note.compliance];
-            return (
-              <div
-                key={note.id}
-                className="border border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-900/60 p-4"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{note.title}</p>
-                    <p className="text-xs text-gray-500">
-                      {note.source} • Opdateret {new Date(note.updatedAt).toLocaleDateString()} •{' '}
-                      {note.owner}
-                    </p>
-                  </div>
-                  <span className={`px-2 py-1 text-xs rounded-full ${compliance.color}`}>
-                    {compliance.label}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-700 dark:text-gray-200 mt-3 line-clamp-2">
-                  {note.body}
-                </p>
-                <div className="flex flex-wrap items-center gap-2 mt-3 text-xs">
-                  {note.tags.map(tag => (
-                    <span
-                      key={tag}
-                      className="px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-200"
-                    >
-                      #{tag}
+              <div className="flex justify-between items-start mb-1">
+                <h4 className="font-medium text-gray-200 group-hover:text-white truncate pr-2">{note.title}</h4>
+                {note.compliance !== 'clean' && <Shield size={12} className="text-amber-400 shrink-0" />}
+              </div>
+              <p className="text-xs text-gray-400 line-clamp-2 mb-2">{note.body}</p>
+              <div className="flex items-center justify-between">
+                <div className="flex gap-1">
+                  {note.tags?.slice(0, 3).map(tag => (
+                    <span key={tag} className="text-[10px] px-1.5 py-0.5 bg-white/5 rounded text-gray-400 flex items-center gap-1">
+                      <Tag size={8} /> {tag}
                     </span>
                   ))}
-                  <span className="text-gray-500">Retention: {retentionLabel[note.retention]}</span>
-                  <span className="text-gray-500">Risiko: {note.riskScore}</span>
-                  <span className="text-gray-500">Bilag: {note.attachments}</span>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Button variant="primary" size="small">
-                    Åbn kilde
-                  </Button>
-                  <Button variant="subtle" size="small">
-                    Del sikkert
-                  </Button>
-                  <Button variant="subtle" size="small">
-                    Flag til compliance
-                  </Button>
-                </div>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleDelete(note.id); }}
+                  className="p-1 hover:bg-red-500/20 text-gray-500 hover:text-red-400 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Trash2 size={12} />
+                </button>
               </div>
-            );
-          })}
-          {filteredNotes.length === 0 && (
-            <div className="p-6 border border-dashed border-gray-300 rounded-xl text-center text-sm text-gray-500">
-              Ingen noter matcher dine filtre.
             </div>
-          )}
-        </div>
+          ))
+        ) : (
+          <div className="text-center py-8 text-gray-500 text-xs">
+            {isLoading ? 'Indlæser...' : 'Ingen noter fundet'}
+          </div>
+        )}
       </div>
     </div>
   );

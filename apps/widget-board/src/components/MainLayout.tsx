@@ -494,7 +494,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                             }}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Spørg DOT om hvad som helst..."
-                                            className="flex-1 bg-transparent border-none text-sm md:text-base text-white placeholder-gray-400/60 py-3 px-3 max-h-[150px] resize-none focus:ring-0 outline-none font-light scrollbar-hide min-h-[44px]"
+                                            className="flex-1 bg-transparent border-none text-sm md:text-base text-white placeholder-gray-400/60 py-3 px-3 max-h-[150px] resize-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none font-light scrollbar-hide min-h-[44px]"
                                             rows={1}
                                             style={{ height: '44px' }}
                                         />
