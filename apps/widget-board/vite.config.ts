@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
     root: __dirname,
     base: isElectron ? './' : '/',
     build: {
-      outDir: path.resolve(__dirname, '../../dist'),
+      outDir: 'dist',
       emptyOutDir: true,
       sourcemap: mode === 'development',
       rollupOptions: {

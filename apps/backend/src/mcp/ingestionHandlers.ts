@@ -3,7 +3,7 @@ import { dataIngestionEngine } from '../services/ingestion/DataIngestionEngine.j
 import { LocalFileScanner } from '../services/ingestion/LocalFileScanner.js';
 import { BrowserHistoryReader } from '../services/ingestion/BrowserHistoryReader.js';
 import { OutlookEmailReader } from '../services/ingestion/OutlookEmailReader.js';
-import { getNeo4jVectorStore } from '../../platform/vector/Neo4jVectorStoreAdapter.js';
+import { getNeo4jVectorStore } from '../platform/vector/Neo4jVectorStoreAdapter.js';
 import * as os from 'os';
 import * as path from 'path';
 

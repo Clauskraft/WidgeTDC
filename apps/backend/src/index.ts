@@ -56,9 +56,18 @@ app.use(csrfProtectionMiddleware);
 // CRITICAL: Start server only after database is initialized
 async function startServer() {
   try {
-    // Step 1: Initialize database (MUST be first!)
-    await initializeDatabase();
-    console.log('🗄️  Database initialized');
+    // Step 1: Initialize Prisma (PostgreSQL + pgvector) - Primary database
+    try {
+      const { getDatabaseAdapter } = await import('./platform/db/PrismaDatabaseAdapter.js');
+      const prismaAdapter = getDatabaseAdapter();
+      await prismaAdapter.initialize();
+      console.log('🐘 PostgreSQL + pgvector initialized via Prisma');
+    } catch (prismaError) {
+      console.warn('⚠️  Prisma/PostgreSQL not available, falling back to sql.js:', prismaError);
+      // Fallback to sql.js for development without Docker
+      await initializeDatabase();
+      console.log('🗄️  SQLite (sql.js) initialized as fallback');
+    }
 
     // Step 1.5: Initialize Neo4j Graph Database
     try {
@@ -66,6 +75,19 @@ async function startServer() {
       const neo4jAdapter = getNeo4jGraphAdapter();
       await neo4jAdapter.initialize();
       console.log('🕸️  Neo4j Graph Database initialized');
+
+      // Also connect Neo4jService (used by GraphMemoryService)
+      const { neo4jService } = await import('./database/Neo4jService.js');
+      await neo4jService.connect();
+      console.log('🕸️  Neo4j Service connected');
+
+      // Run initialization if database is empty
+      const stats = await neo4jAdapter.getStatistics();
+      if (stats.nodeCount < 5) {
+        console.log('📦 Neo4j database appears empty, running initialization...');
+        const { initializeNeo4j } = await import('./scripts/initNeo4j.js');
+        await initializeNeo4j();
+      }
     } catch (error) {
       console.warn('⚠️  Neo4j not available (optional):', error);
       console.log('   Continuing without Neo4j - using implicit graph patterns');
@@ -348,6 +370,532 @@ async function startServer() {
     // Readiness/Liveness checks
     app.get('/ready', (req, res) => res.json({ ready: true, timestamp: new Date().toISOString() }));
     app.get('/live', (req, res) => res.json({ live: true, timestamp: new Date().toISOString() }));
+
+    // HyperLog API - Real-time intelligence monitoring for NeuroLink widget
+    app.get('/api/hyper/events', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const events = hyperLog.getHistory(50);
+        const metrics = hyperLog.getMetrics();
+        res.json({ events, metrics });
+      } catch (error) {
+        console.error('HyperLog error:', error);
+        res.status(500).json({ error: 'HyperLog unavailable', events: [], metrics: { totalThoughts: 0, toolUsageRate: 0, activeAgents: 0 } });
+      }
+    });
+
+    // ============================================
+    // SEMANTIC BUS: Widget Telepathy API
+    // ============================================
+
+    // Dream API - Semantic search across collective memory
+    app.post('/api/hyper/dream', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const { query, limit = 5, minScore = 0.6 } = req.body;
+
+        if (!query) {
+          return res.status(400).json({ error: 'Query is required' });
+        }
+
+        const results = await hyperLog.findRelatedThoughts(query, limit, minScore);
+        const canDream = hyperLog.canDream();
+
+        res.json({
+          results,
+          query,
+          dreamMode: canDream ? 'semantic' : 'keyword',
+          timestamp: Date.now()
+        });
+      } catch (error) {
+        console.error('Dream API error:', error);
+        res.status(500).json({ error: 'Dream failed', results: [] });
+      }
+    });
+
+    // Broadcast API - Widget sends a thought into the collective
+    app.post('/api/hyper/broadcast', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const { type, agent, content, metadata = {} } = req.body;
+
+        if (!type || !agent || !content) {
+          return res.status(400).json({ error: 'type, agent, and content are required' });
+        }
+
+        const eventId = await hyperLog.log(type, agent, content, metadata);
+
+        res.json({
+          success: true,
+          eventId,
+          timestamp: Date.now()
+        });
+      } catch (error) {
+        console.error('Broadcast API error:', error);
+        res.status(500).json({ error: 'Broadcast failed' });
+      }
+    });
+
+    // Find similar thoughts to a specific event
+    app.get('/api/hyper/similar/:eventId', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const { eventId } = req.params;
+        const limit = parseInt(req.query.limit as string) || 5;
+
+        const results = await hyperLog.findSimilarTo(eventId, limit);
+
+        res.json({ results, eventId });
+      } catch (error) {
+        console.error('Similar API error:', error);
+        res.status(500).json({ error: 'Similarity search failed', results: [] });
+      }
+    });
+
+    // Get causal path leading to an event (rewind the brain)
+    app.get('/api/hyper/rewind/:eventId', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const { eventId } = req.params;
+        const maxDepth = parseInt(req.query.maxDepth as string) || 50;
+
+        const path = await hyperLog.getCausalPath(eventId, maxDepth);
+
+        res.json({ path, eventId, depth: path.length });
+      } catch (error) {
+        console.error('Rewind API error:', error);
+        res.status(500).json({ error: 'Rewind failed', path: [] });
+      }
+    });
+
+    // Start a new thought chain (correlation)
+    app.post('/api/hyper/chain/start', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const { label } = req.body;
+
+        const correlationId = hyperLog.startChain(label);
+
+        res.json({ correlationId, label });
+      } catch (error) {
+        console.error('Chain start error:', error);
+        res.status(500).json({ error: 'Failed to start chain' });
+      }
+    });
+
+    // Get brain status (can it dream?)
+    app.get('/api/hyper/status', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const metrics = hyperLog.getMetrics();
+        const canDream = hyperLog.canDream();
+
+        res.json({
+          canDream,
+          metrics,
+          status: canDream ? 'dreaming' : 'awake',
+          timestamp: Date.now()
+        });
+      } catch (error) {
+        console.error('Status API error:', error);
+        res.status(500).json({ error: 'Status unavailable' });
+      }
+    });
+
+    // ============================================
+    // THE STRATEGIST - Team Delegation API
+    // ============================================
+
+    /**
+     * POST /api/team/delegate
+     * The Strategist delegates tasks to team members (Architect, Visionary)
+     */
+    app.post('/api/team/delegate', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const {
+          task,
+          assignTo,
+          priority = 'medium',
+          context = {},
+          parentTaskId
+        } = req.body;
+
+        if (!task || !assignTo) {
+          return res.status(400).json({
+            error: 'Missing required fields: task, assignTo'
+          });
+        }
+
+        // Log the delegation event
+        const eventId = await hyperLog.log(
+          'DELEGATION',
+          'TheStrategist',
+          `Delegating to ${assignTo}: ${task}`,
+          {
+            assignedTo: assignTo,
+            priority,
+            context,
+            parentTaskId,
+            status: 'pending'
+          }
+        );
+
+        // Broadcast the delegation for the assigned widget to pick up
+        await hyperLog.log(
+          'THOUGHT',
+          assignTo,
+          `Received task from Strategist: ${task}`,
+          {
+            delegationId: eventId,
+            priority,
+            context
+          }
+        );
+
+        res.json({
+          success: true,
+          delegationId: eventId,
+          message: `Task delegated to ${assignTo}`,
+          task: {
+            id: eventId,
+            description: task,
+            assignedTo: assignTo,
+            priority,
+            status: 'pending',
+            createdAt: Date.now()
+          }
+        });
+
+      } catch (error) {
+        console.error('Delegation API error:', error);
+        res.status(500).json({ error: 'Delegation failed' });
+      }
+    });
+
+    /**
+     * GET /api/team/tasks
+     * Get all delegated tasks and their status
+     */
+    app.get('/api/team/tasks', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const { assignedTo, status } = req.query;
+
+        // Search for delegation events
+        const allEvents = hyperLog.getHistory(100);
+        let tasks = allEvents.filter(e => e.type === 'DELEGATION');
+
+        if (assignedTo) {
+          tasks = tasks.filter(t => t.metadata?.assignedTo === assignedTo);
+        }
+        if (status) {
+          tasks = tasks.filter(t => t.metadata?.status === status);
+        }
+
+        res.json({
+          tasks: tasks.map(t => ({
+            id: t.id,
+            description: t.content,
+            assignedTo: t.metadata?.assignedTo,
+            priority: t.metadata?.priority,
+            status: t.metadata?.status || 'pending',
+            createdAt: t.timestamp,
+            context: t.metadata?.context
+          })),
+          total: tasks.length
+        });
+
+      } catch (error) {
+        console.error('Tasks API error:', error);
+        res.status(500).json({ error: 'Failed to fetch tasks' });
+      }
+    });
+
+    /**
+     * PUT /api/team/tasks/:taskId/status
+     * Update task status (e.g., in_progress, completed, blocked)
+     */
+    app.put('/api/team/tasks/:taskId/status', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const { taskId } = req.params;
+        const { status, result, notes } = req.body;
+
+        if (!status) {
+          return res.status(400).json({ error: 'Status is required' });
+        }
+
+        // Log the status update
+        const eventId = await hyperLog.log(
+          'REASONING_UPDATE',
+          'TheStrategist',
+          `Task ${taskId} status updated to: ${status}`,
+          {
+            taskId,
+            newStatus: status,
+            result,
+            notes,
+            updatedAt: Date.now()
+          }
+        );
+
+        res.json({
+          success: true,
+          taskId,
+          status,
+          updateEventId: eventId
+        });
+
+      } catch (error) {
+        console.error('Task update API error:', error);
+        res.status(500).json({ error: 'Failed to update task' });
+      }
+    });
+
+    /**
+     * POST /api/team/plan
+     * The Strategist creates a multi-step plan with dependencies
+     */
+    app.post('/api/team/plan', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const {
+          goal,
+          steps,
+          teamMembers = ['TheArchitect', 'TheVisionary']
+        } = req.body;
+
+        if (!goal || !steps || !Array.isArray(steps)) {
+          return res.status(400).json({
+            error: 'Missing required fields: goal, steps (array)'
+          });
+        }
+
+        // Start a new correlation chain for this plan
+        const planId = hyperLog.startChain(`Plan: ${goal.substring(0, 50)}`);
+
+        // Log the plan creation
+        await hyperLog.log(
+          'CRITICAL_DECISION',
+          'TheStrategist',
+          `Created plan: ${goal}`,
+          {
+            planId,
+            totalSteps: steps.length,
+            teamMembers,
+            steps: steps.map((s: any, i: number) => ({
+              order: i + 1,
+              ...s
+            }))
+          }
+        );
+
+        // Create delegation events for each step
+        const delegations: { id: string; step: string }[] = [];
+        for (let i = 0; i < steps.length; i++) {
+          const step = steps[i];
+          const eventId = await hyperLog.log(
+            'DELEGATION',
+            'TheStrategist',
+            `Step ${i + 1}: ${step.task}`,
+            {
+              planId,
+              stepOrder: i + 1,
+              assignedTo: step.assignTo || teamMembers[i % teamMembers.length],
+              dependsOn: step.dependsOn || (i > 0 ? [delegations[i-1].id] : []),
+              status: 'pending',
+              priority: step.priority || 'medium'
+            }
+          );
+          delegations.push({ id: eventId, step: step.task });
+        }
+
+        res.json({
+          success: true,
+          planId,
+          goal,
+          steps: delegations.map((d, i) => ({
+            ...d,
+            order: i + 1,
+            assignedTo: steps[i].assignTo || teamMembers[i % teamMembers.length]
+          })),
+          totalSteps: steps.length
+        });
+
+      } catch (error) {
+        console.error('Plan API error:', error);
+        res.status(500).json({ error: 'Failed to create plan' });
+      }
+    });
+
+    /**
+     * GET /api/team/status
+     * Get overall team status and workload
+     */
+    app.get('/api/team/status', async (req, res) => {
+      try {
+        const { hyperLog } = await import('./services/hyper-log.js');
+        const allEvents = hyperLog.getHistory(200);
+
+        const delegations = allEvents.filter(e => e.type === 'DELEGATION');
+        const byAgent: Record<string, any> = {};
+
+        // Aggregate by team member
+        for (const d of delegations) {
+          const agent = d.metadata?.assignedTo || 'Unassigned';
+          if (!byAgent[agent]) {
+            byAgent[agent] = {
+              name: agent,
+              pending: 0,
+              inProgress: 0,
+              completed: 0,
+              blocked: 0,
+              tasks: []
+            };
+          }
+
+          const status = d.metadata?.status || 'pending';
+          byAgent[agent][status === 'in_progress' ? 'inProgress' : status]++;
+          byAgent[agent].tasks.push({
+            id: d.id,
+            task: d.content,
+            status,
+            priority: d.metadata?.priority
+          });
+        }
+
+        res.json({
+          team: Object.values(byAgent),
+          summary: {
+            totalTasks: delegations.length,
+            pending: delegations.filter(d => d.metadata?.status === 'pending').length,
+            inProgress: delegations.filter(d => d.metadata?.status === 'in_progress').length,
+            completed: delegations.filter(d => d.metadata?.status === 'completed').length
+          },
+          lastUpdated: Date.now()
+        });
+
+      } catch (error) {
+        console.error('Team status API error:', error);
+        res.status(500).json({ error: 'Failed to fetch team status' });
+      }
+    });
+
+    // ============================================
+    // THE COLONIZER - API Assimilation Engine
+    // ============================================
+
+    /**
+     * POST /api/evolution/colonize
+     * Assimilate a new external API into the WidgeTDC swarm
+     */
+    app.post('/api/evolution/colonize', async (req, res) => {
+      try {
+        const { colonizerService } = await import('./services/colonizer-service.js');
+        const { systemName, documentation, generateTests = false, dryRun = false } = req.body;
+
+        if (!systemName || !documentation) {
+          return res.status(400).json({
+            error: 'Missing required fields: systemName, documentation'
+          });
+        }
+
+        console.log(`🛸 [COLONIZER API] Received assimilation request for: ${systemName}`);
+
+        const result = await colonizerService.assimilateSystem({
+          systemName,
+          apiSpecContent: documentation,
+          generateTests,
+          dryRun
+        });
+
+        res.json(result);
+
+      } catch (error: any) {
+        console.error('Colonizer API error:', error);
+        res.status(500).json({ error: error.message || 'Assimilation failed' });
+      }
+    });
+
+    /**
+     * GET /api/evolution/systems
+     * List all assimilated systems
+     */
+    app.get('/api/evolution/systems', async (req, res) => {
+      try {
+        const { colonizerService } = await import('./services/colonizer-service.js');
+        const systems = await colonizerService.listAssimilatedSystems();
+
+        res.json({
+          systems,
+          count: systems.length,
+          toolsDirectory: 'apps/backend/src/tools/generated'
+        });
+
+      } catch (error: any) {
+        console.error('Systems list API error:', error);
+        res.status(500).json({ error: 'Failed to list systems' });
+      }
+    });
+
+    /**
+     * DELETE /api/evolution/systems/:systemName
+     * Remove an assimilated system
+     */
+    app.delete('/api/evolution/systems/:systemName', async (req, res) => {
+      try {
+        const { colonizerService } = await import('./services/colonizer-service.js');
+        const { systemName } = req.params;
+
+        const success = await colonizerService.removeSystem(systemName);
+
+        if (success) {
+          res.json({
+            success: true,
+            message: `System ${systemName} removed. Restart server to complete removal.`
+          });
+        } else {
+          res.status(404).json({
+            success: false,
+            message: `System ${systemName} not found`
+          });
+        }
+
+      } catch (error: any) {
+        console.error('System removal API error:', error);
+        res.status(500).json({ error: 'Failed to remove system' });
+      }
+    });
+
+    /**
+     * GET /api/codex/status
+     * Get Codex Symbiosis status
+     */
+    app.get('/api/codex/status', async (_req, res) => {
+      try {
+        const { CODEX_VERSION } = await import('./config/codex.js');
+
+        res.json({
+          version: CODEX_VERSION,
+          status: 'active',
+          injectionPoint: 'LLM Service',
+          principles: [
+            'HUKOMMELSE - Check context before responding',
+            'TRANSPARENS - Explain all actions',
+            'SIKKERHED - Never leak PII without approval',
+            'SAMARBEJDE - Compatible with team patterns',
+            'VÆKST - Suggest improvements when seen',
+            'YDMYGHED - Ask when uncertain',
+            'LOYALITET - Serve The Executive'
+          ],
+          message: 'Codex Symbiosis is active. All AI responses are filtered through the ethical framework.'
+        });
+
+      } catch (error: any) {
+        res.status(500).json({ error: 'Failed to get Codex status' });
+      }
+    });
 
     // Step 5: Create HTTP server
     const server = createServer(app);

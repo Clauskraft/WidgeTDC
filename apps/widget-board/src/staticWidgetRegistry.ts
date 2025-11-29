@@ -18,6 +18,7 @@ export const staticWidgetRegistry: Record<string, any> = {
   'FeedIngestionWidget': lazy(() => import('../widgets/FeedIngestionWidget')),
   'ImageAnalyzerWidget': lazy(() => import('../widgets/ImageAnalyzerWidget')),
   'IntelligentNotesWidget': lazy(() => import('../widgets/IntelligentNotesWidget')),
+  'IntelligenceEvolutionWidget': lazy(() => import('../widgets/IntelligenceEvolutionWidget')),
   'KanbanWidget': lazy(() => import('../widgets/KanbanWidget')),
   'LiveConversationWidget': lazy(() => import('../widgets/LiveConversationWidget')),
   'LocalScanWidget': lazy(() => import('../widgets/LocalScanWidget')),
@@ -48,6 +49,11 @@ export const staticWidgetRegistry: Record<string, any> = {
   'StrategicCockpitWidget': lazy(() => import('../widgets/StrategicCockpit')),
   'MindMapBuilderWidget': lazy(() => import('../widgets/MindMapBuilder')),
   'HansPedderMonitorWidget': lazy(() => import('../widgets/HansPedderMonitor')),
+
+  // The Agent Team - Semantic Brain Widgets
+  'TheArchitectWidget': lazy(() => import('../widgets/TheArchitectWidget')),
+  'VisionaryWidget': lazy(() => import('../widgets/VisionaryWidget')),
+  'SemanticBrainDemoWidget': lazy(() => import('../src/components/SemanticBrainDemo')),
 };
 
 // Widget metadata for display with new 'type' field
@@ -66,6 +72,7 @@ export const widgetMetadata: Record<string, { name: string; description: string;
   'FeedIngestionWidget': { name: 'Feed Ingestion', description: 'Process data feeds', category: 'data', type: 'tool', defaultLayout: { w: 6, h: 2 } },
   'ImageAnalyzerWidget': { name: 'Image Analyzer', description: 'AI image analysis', category: 'media', type: 'tool', defaultLayout: { w: 6, h: 3 } },
   'IntelligentNotesWidget': { name: 'Intelligent Notes', description: 'Smart note-taking', category: 'productivity', type: 'app', defaultLayout: { w: 4, h: 3 } },
+  'IntelligenceEvolutionWidget': { name: 'NeuroLink Monitor', description: 'Real-time analyse af systemets intelligens-udvikling', category: 'analysis', type: 'app', defaultLayout: { w: 4, h: 4 } },
   'KanbanWidget': { name: 'Kanban Board', description: 'Task management', category: 'productivity', type: 'app', defaultLayout: { w: 12, h: 3 } },
   'LiveConversationWidget': { name: 'Live Conversation', description: 'Real-time chat', category: 'communication', type: 'app', defaultLayout: { w: 6, h: 3 } },
   'LocalScanWidget': { name: 'Local Scan', description: 'Scan local system', category: 'security', type: 'tool', defaultLayout: { w: 6, h: 2 } },
@@ -113,11 +120,34 @@ export const widgetMetadata: Record<string, { name: string; description: string;
     type: 'app', 
     defaultLayout: { w: 12, h: 6 } 
   },
-  'HansPedderMonitorWidget': { 
-    name: 'HansPedder Monitor', 
-    description: 'Real-time monitoring af autonom agent - tests, health metrics og forbedringsnudges', 
-    category: 'executive', 
-    type: 'app', 
-    defaultLayout: { w: 6, h: 4 } 
+  'HansPedderMonitorWidget': {
+    name: 'HansPedder Monitor',
+    description: 'Real-time monitoring af autonom agent - tests, health metrics og forbedringsnudges',
+    category: 'executive',
+    type: 'app',
+    defaultLayout: { w: 6, h: 4 }
+  },
+
+  // The Agent Team - Semantic Brain Widgets
+  'TheArchitectWidget': {
+    name: 'The Architect',
+    description: 'Intelligent Code Builder med semantisk hukommelse - husker dine præferencer og mønstre',
+    category: 'agents',
+    type: 'app',
+    defaultLayout: { w: 6, h: 5 }
+  },
+  'VisionaryWidget': {
+    name: 'The Visionary',
+    description: 'Intelligent Diagram Generator - Mermaid.js diagrammer med semantisk hukommelse',
+    category: 'agents',
+    type: 'app',
+    defaultLayout: { w: 6, h: 5 }
+  },
+  'SemanticBrainDemoWidget': {
+    name: 'Semantic Brain Demo',
+    description: 'Widget Telepathy demo - test recall, broadcast og semantic search',
+    category: 'agents',
+    type: 'tool',
+    defaultLayout: { w: 6, h: 4 }
   },
 };

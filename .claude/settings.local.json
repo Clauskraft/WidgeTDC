@@ -45,7 +45,9 @@
       "Bash(git config --get user.name)",
       "Bash(git config --get user.email)",
       "Bash(git config --list --local)",
-      "Bash(git config --get-regexp remote)"
+      "Bash(git config --get-regexp remote)",
+      "Bash(git rebase:*)",
+      "Bash(GIT_EDITOR=true git rebase:*)"
     ],
     "deny": [],
     "ask": []

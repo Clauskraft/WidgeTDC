@@ -2,6 +2,9 @@ import OpenAI from 'openai';
 // DeepSeek uses OpenAI-compatible API, no separate stub needed
 // Google Generative AI imported dynamically to avoid issues if package is missing
 
+// CODEX SYMBIOSIS: The system's conscience
+import { CODEX_SYSTEM_PROMPT, CODEX_VERSION, buildCodexPrompt } from '../../config/codex.js';
+
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -53,17 +56,31 @@ export class LlmService {
     return 'openai'; // Default
   }
 
+  /**
+   * CODEX-ENHANCED COMPLETION
+   * All LLM calls now pass through the Codex filter.
+   * The system's conscience is injected as the FIRST system message.
+   */
   async complete(options: ChatCompletionOptions): Promise<ChatCompletionResponse> {
     const provider = this.getProvider(options.model);
+
+    // CODEX INJECTION: Prepend the system's conscience to all messages
+    // This ensures every AI response adheres to our ethical framework
+    const codexEnhancedMessages = this.injectCodex(options.messages);
+
+    const enhancedOptions = {
+      ...options,
+      messages: codexEnhancedMessages
+    };
 
     try {
       switch (provider) {
         case 'openai':
-          return await this.completeOpenAI(options);
+          return await this.completeOpenAI(enhancedOptions);
         case 'deepseek':
-          return await this.completeDeepSeek(options);
+          return await this.completeDeepSeek(enhancedOptions);
         case 'google':
-          return await this.completeGoogle(options);
+          return await this.completeGoogle(enhancedOptions);
         default:
           throw new Error(`Provider ${provider} not supported yet`);
       }
@@ -71,10 +88,34 @@ export class LlmService {
       // Fallback to mock if key is missing or API fails
       if (error.message.includes('API key not configured') || error.message.includes('not configured')) {
         console.warn(`⚠️ LLM Provider ${provider} not configured. Using mock response.`);
-        return this.completeMock(options);
+        return this.completeMock(enhancedOptions);
       }
       throw error;
     }
+  }
+
+  /**
+   * CODEX INJECTION
+   * Injects the Codex system prompt as the FIRST message,
+   * ensuring it has the highest priority in the AI's decision-making.
+   */
+  private injectCodex(messages: ChatMessage[]): ChatMessage[] {
+    // Check if Codex is already injected (avoid double injection)
+    const hasCodex = messages.some(m =>
+      m.role === 'system' && m.content.includes('CODEX SYMBIOSIS')
+    );
+
+    if (hasCodex) {
+      return messages;
+    }
+
+    // Inject Codex as the FIRST system message
+    console.log(`🧬 [CODEX v${CODEX_VERSION}] Injecting symbiosis protocol...`);
+
+    return [
+      { role: 'system', content: CODEX_SYSTEM_PROMPT },
+      ...messages
+    ];
   }
 
   private completeMock(options: ChatCompletionOptions): ChatCompletionResponse {

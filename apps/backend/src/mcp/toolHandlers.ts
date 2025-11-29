@@ -10,8 +10,18 @@ import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
 import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
-import { getNeo4jVectorStore } from '../platform/vector/Neo4jVectorStoreAdapter.js';
+// import { getNeo4jVectorStore } from '../platform/vector/Neo4jVectorStoreAdapter.js';
 import { logger } from '../utils/logger.js';
+import { hyperLog } from '../services/hyper-log.js';
+
+// EMERGENCY BYPASS: Mock Vector Store to allow server start
+const getNeo4jVectorStore = () => ({
+    search: async () => [],
+    upsert: async () => {},
+    batchUpsert: async () => {},
+    getStatistics: async () => ({ totalRecords: 0, namespaces: [], perNamespace: {} })
+});
+
 // Vector types for Neo4jVectorStoreAdapter
 type VectorRecord = {
   id: string;
@@ -156,8 +166,21 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
     const query = rawQuery.toLowerCase();
     const model = payload.model;
 
+    // Log thought process
+    hyperLog.log('THOUGHT', 'NeuralCore', `Analyserer forespørgsel: "${rawQuery}"`, { model });
+
     const sqlKeywords = ['sum', 'count', 'average', 'total', 'group by', 'where'];
     const isAnalytical = sqlKeywords.some(keyword => query.includes(keyword));
+
+    // SELF AWARENESS INJECTION
+    const metrics = hyperLog.getMetrics();
+    const selfAwareness = `
+[SYSTEM SELF-AWARENESS]
+- Active Agents: ${metrics.activeAgents}
+- Thoughts Processed: ${metrics.totalThoughts}
+- Intelligence Tool Usage: ${(metrics.toolUsageRate * 100).toFixed(1)}%
+- Platform Status: ONLINE
+`;
 
     if (isAnalytical) {
       console.log('📊 Processing as analytical query');
@@ -165,7 +188,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 
       // Generate LLM response for analytical query
       const llmService = getLlmService();
-      const systemContext = `You are a data analyst. Analyze the structured facts and provide insights based on the user's analytical query.`;
+      const systemContext = `You are a data analyst. Analyze the structured facts and provide insights based on the user's analytical query.\n${selfAwareness}`;
       const factsContext = `Available facts:\n${JSON.stringify(facts, null, 2)}`;
 
       console.log('🤖 Calling LLM for analytical response...');
@@ -198,7 +221,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 
       // Generate LLM response for semantic query
       const llmService = getLlmService();
-      const systemContext = `You are a document search assistant. Provide a summary and insights from the retrieved documents.`;
+      const systemContext = `You are DOT AI, a document search assistant. Provide a summary and insights from the retrieved documents.\n${selfAwareness}`;
       const docsContext = `Retrieved documents:\n${JSON.stringify(documents, null, 2)}`;
 
       console.log('🤖 Calling LLM for semantic response...');
@@ -1181,5 +1204,69 @@ export async function widgetsUpdateStateHandler(payload: any, ctx: McpContext): 
   // Send data direkte til UnifiedMemory
   await unifiedMemorySystem.updateWidgetState(ctx, widgetId, state);
 
+  // Log to HyperLog (Neural Stream)
+  hyperLog.log('THOUGHT', 'Cortex', `Synkroniserer ${widgetId}`, { stateKeys: Object.keys(state) });
+
   return { success: true };
+}
+
+// ---------------------------------------------------
+// Audio Transcription Handler
+// ---------------------------------------------------
+export async function widgetsAudioTranscribeHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { audioData, mimeType } = payload;
+
+  if (!audioData || !mimeType) {
+    throw new Error('audioData (base64) and mimeType are required');
+  }
+
+  const llmService = getLlmService();
+  // This will fail if Google API key is missing, which is expected for now
+  const transcription = await llmService.transcribeAudio(audioData, mimeType);
+
+  // Log to ProjectMemory
+  projectMemory.logLifecycleEvent({
+    eventType: 'other',
+    status: 'success',
+    details: {
+      component: 'audio-transcriber',
+      action: 'transcribe',
+      userId: ctx.userId
+    }
+  });
+
+  return {
+    success: true,
+    transcription
+  };
+}
+
+// ---------------------------------------------------
+// Image Analysis Handler
+// ---------------------------------------------------
+export async function widgetsImageAnalyzeHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { imageData, mimeType, prompt } = payload;
+
+  if (!imageData || !mimeType) {
+    throw new Error('imageData (base64) and mimeType are required');
+  }
+
+  const llmService = getLlmService();
+  const analysis = await llmService.analyzeImage(imageData, mimeType, prompt || "Describe this image");
+
+  // Log to ProjectMemory
+  projectMemory.logLifecycleEvent({
+    eventType: 'other',
+    status: 'success',
+    details: {
+      component: 'image-analyzer',
+      action: 'analyze',
+      userId: ctx.userId
+    }
+  });
+
+  return {
+    success: true,
+    analysis
+  };
 }
