@@ -27,6 +27,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
 import { neo4jAdapter } from '../adapters/Neo4jAdapter.js';
+import { ingestRepository } from '../../services/GraphIngestor.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SECURITY: Safe Zone Configuration
@@ -301,6 +302,79 @@ class NeuralBridgeServer {
                         type: 'object',
                         properties: {}
                     }
+                },
+                {
+                    name: 'ingest_knowledge_graph',
+                    description: 'Ingest a repository or directory into the knowledge graph. Creates Repository, Directory, and File nodes with CONTAINS relationships.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            path: {
+                                type: 'string',
+                                description: 'Path to repository or directory to ingest'
+                            },
+                            name: {
+                                type: 'string',
+                                description: 'Optional name for the repository'
+                            },
+                            maxDepth: {
+                                type: 'number',
+                                description: 'Maximum directory depth to traverse (default: 10)'
+                            }
+                        },
+                        required: ['path']
+                    }
+                },
+                {
+                    name: 'read_agent_messages',
+                    description: 'Read messages from the agent communication inbox',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            agent: {
+                                type: 'string',
+                                enum: ['claude', 'gemini'],
+                                description: 'Which agent inbox to read'
+                            },
+                            unreadOnly: {
+                                type: 'boolean',
+                                description: 'Only show unread messages'
+                            }
+                        }
+                    }
+                },
+                {
+                    name: 'send_agent_message',
+                    description: 'Send a message to another agent via the communication protocol',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            to: {
+                                type: 'string',
+                                enum: ['gemini', 'claude', 'human'],
+                                description: 'Recipient agent'
+                            },
+                            type: {
+                                type: 'string',
+                                enum: ['response', 'task', 'question', 'status', 'alert'],
+                                description: 'Message type'
+                            },
+                            subject: {
+                                type: 'string',
+                                description: 'Message subject'
+                            },
+                            body: {
+                                type: 'string',
+                                description: 'Message body'
+                            },
+                            priority: {
+                                type: 'string',
+                                enum: ['low', 'normal', 'high', 'critical'],
+                                description: 'Message priority'
+                            }
+                        },
+                        required: ['to', 'type', 'subject', 'body']
+                    }
                 }
             ]
         }));
@@ -346,6 +420,15 @@ class NeuralBridgeServer {
 
                     case 'get_graph_stats':
                         return await this.handleGetGraphStats(args);
+
+                    case 'ingest_knowledge_graph':
+                        return await this.handleIngestKnowledgeGraph(args);
+
+                    case 'read_agent_messages':
+                        return await this.handleReadAgentMessages(args);
+
+                    case 'send_agent_message':
+                        return await this.handleSendAgentMessage(args);
 
                     default:
                         throw new Error(`Unknown tool: ${name}`);
@@ -1021,6 +1104,153 @@ class NeuralBridgeServer {
     }
 
     // ═══════════════════════════════════════════════════════════════════════
+    // INGESTION & AGENT COMMUNICATION HANDLERS
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private async handleIngestKnowledgeGraph(args: any) {
+        const { path: targetPath, name, maxDepth = 10 } = args;
+
+        if (!targetPath) {
+            throw new Error('Path is required');
+        }
+
+        try {
+            console.error(`[Neural Bridge] 🚀 Starting ingestion of: ${targetPath}`);
+
+            const result = await ingestRepository({
+                rootPath: targetPath,
+                repositoryName: name,
+                maxDepth: maxDepth
+            });
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: result.success,
+                        repositoryId: result.repositoryId,
+                        stats: result.stats,
+                        errors: result.errors,
+                        message: result.success 
+                            ? `Successfully ingested ${result.stats.totalNodes} nodes with ${result.stats.relationshipsCreated} relationships`
+                            : 'Ingestion failed - check errors'
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        error: error.message,
+                        hint: 'Ensure Neo4j is running and path exists'
+                    }, null, 2)
+                }],
+                isError: true
+            };
+        }
+    }
+
+    private async handleReadAgentMessages(args: any) {
+        const agent = args?.agent || 'claude';
+        const inboxPath = path.join(SAFE_DESKTOP_PATH, 'agents', agent, 'inbox');
+
+        try {
+            const files = await this.listSafeFiles(inboxPath, false);
+            const messages: any[] = [];
+
+            for (const file of files) {
+                if (file.type === '.json') {
+                    try {
+                        const content = await fs.readFile(
+                            path.join(inboxPath, file.name), 
+                            'utf-8'
+                        );
+                        messages.push(JSON.parse(content));
+                    } catch {
+                        // Skip invalid JSON
+                    }
+                }
+            }
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        agent: agent,
+                        inboxPath: inboxPath,
+                        messageCount: messages.length,
+                        messages: messages
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        error: error.message,
+                        hint: 'Agent inbox may not exist yet'
+                    }, null, 2)
+                }]
+            };
+        }
+    }
+
+    private async handleSendAgentMessage(args: any) {
+        const { to, type, subject, body, priority = 'normal' } = args;
+
+        if (!to || !type || !subject || !body) {
+            throw new Error('to, type, subject, and body are required');
+        }
+
+        const timestamp = new Date().toISOString();
+        const messageId = `msg-${Date.now()}`;
+        const filename = `${timestamp.replace(/[:.]/g, '-')}_claude_${to}_${type}.json`;
+
+        const message = {
+            id: messageId,
+            timestamp: timestamp,
+            from: 'claude',
+            to: to,
+            type: type,
+            priority: priority,
+            subject: subject,
+            body: body,
+            context: {
+                session: 'neural-bridge',
+                source: 'mcp-tool'
+            },
+            requires_response: type !== 'status' && type !== 'response'
+        };
+
+        // Write to own outbox
+        const outboxPath = path.join(SAFE_DESKTOP_PATH, 'agents', 'claude', 'outbox', filename);
+        await fs.writeFile(outboxPath, JSON.stringify(message, null, 2));
+
+        // Copy to recipient's inbox
+        if (to !== 'human') {
+            const recipientInbox = path.join(SAFE_DESKTOP_PATH, 'agents', to, 'inbox', filename);
+            await fs.writeFile(recipientInbox, JSON.stringify(message, null, 2));
+        }
+
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    success: true,
+                    messageId: messageId,
+                    sentTo: to,
+                    filename: filename,
+                    message: `Message sent to ${to}`
+                }, null, 2)
+            }]
+        };
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
     // Server Start
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -1028,8 +1258,9 @@ class NeuralBridgeServer {
         const transport = new StdioServerTransport();
         await this.server.connect(transport);
 
-        console.error('🧠 Neural Bridge MCP Server v2.0 running via stdio');
+        console.error('🧠 Neural Bridge MCP Server v2.1 running via stdio');
         console.error('🔗 Neo4j Integration: ENABLED');
+        console.error('🤝 Agent Communication: ENABLED');
         console.error(`📁 DropZone: ${SAFE_DESKTOP_PATH}`);
         console.error(`📚 Vidensarkiv: ${VIDENSARKIV_PATH}`);
     }
