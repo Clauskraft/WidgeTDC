@@ -5,6 +5,71 @@
 
 ---
 
+## Handover #002
+**Dato:** 2025-11-30 15:25 UTC
+
+### Afgiver: Claude (Opus 4.5 via claude.ai)
+**Session:** Neo4j Live Integration - Graph-Native Vision
+
+#### Hvad blev implementeret:
+
+1. **Neo4jAdapter** (`apps/backend/src/adapters/Neo4jAdapter.ts`)
+   - Singleton pattern med self-healing
+   - Circuit breaker for fejlhåndtering
+   - Connection pooling og auto-reconnect
+   - Health monitoring
+   - High-level operations: searchNodes, createNode, createRelationship
+
+2. **Neural Bridge v2.0** (Opdateret `NeuralBridgeServer.ts`)
+   - Opgraderet fra 8 til 12 MCP tools
+   - Live Neo4j integration
+   - Nye graf-operationer
+
+#### Nye MCP Tools (4 tilføjet):
+| Tool | Beskrivelse |
+|------|-------------|
+| `query_knowledge_graph` | Cypher queries, søgning, list labels/relationships |
+| `create_graph_node` | Opret noder i grafen |
+| `create_graph_relationship` | Opret relationer mellem noder |
+| `get_node_connections` | Hent alle forbindelser for en node |
+| `get_graph_stats` | Graf-statistikker fra Neo4j |
+
+#### Filer oprettet/ændret:
+| Fil | Handling | Linjer |
+|-----|----------|--------|
+| `src/adapters/Neo4jAdapter.ts` | OPRETTET | 438 |
+| `src/mcp/servers/NeuralBridgeServer.ts` | OPDATERET | 670→1046 |
+
+#### Neo4j Konfiguration:
+```env
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=kodeord
+NEO4J_DATABASE=neo4j
+```
+
+#### Test kommandoer til Claude Desktop:
+- "List alle labels i knowledge graph"
+- "Søg efter noder med navnet SelfHealingAdapter"
+- "Opret en node for component NeuralBridge"
+- "Vis graph statistikker"
+
+#### Åbne opgaver:
+- [ ] Test alle 12 MCP tools fra Claude Desktop
+- [ ] Verificer Neo4j forbindelse med docker-compose
+- [ ] Tilføj APOC procedures til Neo4j
+
+#### Kendte issues:
+- Kræver Neo4j kørende: `docker-compose up neo4j`
+
+---
+
+### Modtager: [AFVENTER]
+**Bekræftet:** [ ]
+**Dato:** 
+
+---
+
 ## Handover #001
 **Dato:** 2025-11-30 15:05 UTC
 
@@ -48,8 +113,8 @@
 - ⏳ Afventer Claude Desktop genstart for fuld test
 
 #### Åbne opgaver til næste session:
-- [ ] Neo4j live-integration til `query_knowledge_graph`
-- [ ] Test alle 8 MCP tools fra Claude Desktop
+- [x] Neo4j live-integration til `query_knowledge_graph` *(Completed in #002)*
+- [ ] Test alle MCP tools fra Claude Desktop
 - [ ] Implementer real-time health monitoring fra SelfHealingAdapter
 - [ ] Tilføj vidensarkiv path hvis den eksisterer
 
@@ -62,16 +127,6 @@
 ### Modtager: [AFVENTER]
 **Bekræftet:** [ ]
 **Dato:** 
-
-#### Modtagers noter:
-```
-[Tilføjes af modtagende model/agent]
-```
-
-#### Validering udført:
-- [ ] Filer verificeret
-- [ ] Server testet
-- [ ] Dependencies bekræftet
 
 ---
 
@@ -122,6 +177,7 @@
 ```
 Backend:        C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\backend
 Neural Bridge:  apps/backend/src/mcp/servers/NeuralBridgeServer.ts
+Neo4j Adapter:  apps/backend/src/adapters/Neo4jAdapter.ts
 Claude Config:  %APPDATA%\Claude\claude_desktop_config.json
 DropZone:       C:\Users\claus\Desktop\WidgeTDC_DropZone
 Vidensarkiv:    C:\Users\claus\Desktop\vidensarkiv
@@ -137,6 +193,9 @@ cd apps/backend && npm run dev
 
 # Frontend
 cd apps/widget-board && npm run dev
+
+# Neo4j (Docker)
+docker-compose up neo4j
 ```
 
 ### Git commit standard:
@@ -145,3 +204,19 @@ git add -A
 git commit -m "[HANDOVER #XXX] Beskrivelse af ændringer"
 git push origin main
 ```
+
+### MCP Tools Oversigt (v2.0):
+| Tool | Type | Beskrivelse |
+|------|------|-------------|
+| `get_system_health` | System | Health status |
+| `list_dropzone_files` | File | List safe files |
+| `read_dropzone_file` | File | Read from DropZone |
+| `list_vidensarkiv` | File | List knowledge archive |
+| `read_vidensarkiv_file` | File | Read from archive |
+| `execute_widget_command` | System | Run WidgeTDC commands |
+| `query_knowledge_graph` | Graph | Query Neo4j |
+| `create_graph_node` | Graph | Create nodes |
+| `create_graph_relationship` | Graph | Create relationships |
+| `get_node_connections` | Graph | Get node relationships |
+| `get_harvest_stats` | Data | OmniHarvester stats |
+| `get_graph_stats` | Graph | Neo4j statistics |

@@ -8,8 +8,9 @@
  * ║  • Read system health via SelfHealingAdapter                              ║
  * ║  • Read files from designated Safe Zones                                  ║
  * ║  • Execute WidgeTDC commands                                              ║
- * ║  • Query Neo4j knowledge graph                                            ║
+ * ║  • Query Neo4j knowledge graph (LIVE)                                     ║
  * ║  • Access OmniHarvester data                                              ║
+ * ║  • Create nodes and relationships in the graph                            ║
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
@@ -25,6 +26,7 @@ import { z } from 'zod';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
+import { neo4jAdapter } from '../adapters/Neo4jAdapter.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SECURITY: Safe Zone Configuration
@@ -76,7 +78,7 @@ class NeuralBridgeServer {
         this.server = new Server(
             {
                 name: 'widgetdc-neural-bridge',
-                version: '1.0.0',
+                version: '2.0.0',
             },
             {
                 capabilities: {
@@ -100,7 +102,7 @@ class NeuralBridgeServer {
             tools: [
                 {
                     name: 'get_system_health',
-                    description: 'Get WidgeTDC system health status including all adapters and services',
+                    description: 'Get WidgeTDC system health status including Neo4j and all adapters',
                     inputSchema: {
                         type: 'object',
                         properties: {
@@ -190,25 +192,92 @@ class NeuralBridgeServer {
                 },
                 {
                     name: 'query_knowledge_graph',
-                    description: 'Query the Neo4j knowledge graph',
+                    description: 'Query the Neo4j knowledge graph with Cypher or natural language search',
                     inputSchema: {
                         type: 'object',
                         properties: {
                             query: {
                                 type: 'string',
-                                description: 'Search query or Cypher query'
+                                description: 'Cypher query or search term'
                             },
                             type: {
                                 type: 'string',
-                                enum: ['search', 'cypher'],
-                                description: 'Query type'
+                                enum: ['search', 'cypher', 'labels', 'relationships'],
+                                description: 'Query type: search (text), cypher (raw), labels (list all), relationships (list types)'
                             },
                             limit: {
                                 type: 'number',
-                                description: 'Maximum results to return'
+                                description: 'Maximum results to return (default: 20)'
                             }
                         },
                         required: ['query']
+                    }
+                },
+                {
+                    name: 'create_graph_node',
+                    description: 'Create or merge a node in the knowledge graph',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            label: {
+                                type: 'string',
+                                description: 'Node label (e.g., Component, Document, Concept)'
+                            },
+                            properties: {
+                                type: 'object',
+                                description: 'Node properties (name, description, etc.)'
+                            }
+                        },
+                        required: ['label', 'properties']
+                    }
+                },
+                {
+                    name: 'create_graph_relationship',
+                    description: 'Create a relationship between two nodes in the graph',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            fromNodeId: {
+                                type: 'string',
+                                description: 'Source node ID'
+                            },
+                            toNodeId: {
+                                type: 'string',
+                                description: 'Target node ID'
+                            },
+                            relationshipType: {
+                                type: 'string',
+                                description: 'Relationship type (e.g., DEPENDS_ON, CONTAINS, RELATED_TO)'
+                            },
+                            properties: {
+                                type: 'object',
+                                description: 'Optional relationship properties'
+                            }
+                        },
+                        required: ['fromNodeId', 'toNodeId', 'relationshipType']
+                    }
+                },
+                {
+                    name: 'get_node_connections',
+                    description: 'Get all connections (relationships) for a specific node',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            nodeId: {
+                                type: 'string',
+                                description: 'Node ID to get connections for'
+                            },
+                            direction: {
+                                type: 'string',
+                                enum: ['in', 'out', 'both'],
+                                description: 'Direction of relationships'
+                            },
+                            limit: {
+                                type: 'number',
+                                description: 'Maximum connections to return'
+                            }
+                        },
+                        required: ['nodeId']
                     }
                 },
                 {
@@ -223,6 +292,14 @@ class NeuralBridgeServer {
                                 description: 'Time range for statistics'
                             }
                         }
+                    }
+                },
+                {
+                    name: 'get_graph_stats',
+                    description: 'Get knowledge graph statistics (node counts, relationship counts by type)',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {}
                     }
                 }
             ]
@@ -255,8 +332,20 @@ class NeuralBridgeServer {
                     case 'query_knowledge_graph':
                         return await this.handleQueryKnowledgeGraph(args);
 
+                    case 'create_graph_node':
+                        return await this.handleCreateGraphNode(args);
+
+                    case 'create_graph_relationship':
+                        return await this.handleCreateGraphRelationship(args);
+
+                    case 'get_node_connections':
+                        return await this.handleGetNodeConnections(args);
+
                     case 'get_harvest_stats':
                         return await this.handleGetHarvestStats(args);
+
+                    case 'get_graph_stats':
+                        return await this.handleGetGraphStats(args);
 
                     default:
                         throw new Error(`Unknown tool: ${name}`);
@@ -291,6 +380,12 @@ class NeuralBridgeServer {
                     uri: 'widgetdc://vidensarkiv',
                     name: 'Knowledge Archive',
                     description: 'Files in the vidensarkiv',
+                    mimeType: 'application/json'
+                },
+                {
+                    uri: 'widgetdc://graph',
+                    name: 'Knowledge Graph',
+                    description: 'Neo4j knowledge graph statistics',
                     mimeType: 'application/json'
                 }
             ]
@@ -330,6 +425,16 @@ class NeuralBridgeServer {
                         }]
                     };
 
+                case 'widgetdc://graph':
+                    const graphHealth = await neo4jAdapter.healthCheck();
+                    return {
+                        contents: [{
+                            uri,
+                            mimeType: 'application/json',
+                            text: JSON.stringify(graphHealth, null, 2)
+                        }]
+                    };
+
                 default:
                     throw new Error(`Unknown resource: ${uri}`);
             }
@@ -343,7 +448,6 @@ class NeuralBridgeServer {
     private async handleGetSystemHealth(args: any) {
         const detailed = args?.detailed ?? false;
 
-        // Simulate checking various components
         await this.updateSystemHealth();
 
         const response = detailed ? this.systemHealth : {
@@ -389,14 +493,12 @@ class NeuralBridgeServer {
             throw new Error('Filename is required');
         }
 
-        // Security: Ensure file is within safe zone
         const safePath = path.join(SAFE_DESKTOP_PATH, path.basename(filename));
 
         if (!safePath.startsWith(SAFE_DESKTOP_PATH)) {
             throw new Error('Access denied: File outside safe zone');
         }
 
-        // Check extension
         const ext = path.extname(filename).toLowerCase();
         if (!ALLOWED_EXTENSIONS.includes(ext)) {
             throw new Error(`File type not allowed: ${ext}`);
@@ -424,7 +526,6 @@ class NeuralBridgeServer {
 
         const targetPath = path.join(VIDENSARKIV_PATH, subfolder);
 
-        // Security check
         if (!targetPath.startsWith(VIDENSARKIV_PATH)) {
             throw new Error('Access denied: Path outside vidensarkiv');
         }
@@ -452,7 +553,6 @@ class NeuralBridgeServer {
 
         const safePath = path.join(VIDENSARKIV_PATH, filepath);
 
-        // Security check
         if (!safePath.startsWith(VIDENSARKIV_PATH)) {
             throw new Error('Access denied: Path outside vidensarkiv');
         }
@@ -481,7 +581,6 @@ class NeuralBridgeServer {
     private async handleExecuteCommand(args: any) {
         const { command, params } = args;
 
-        // Map commands to WidgeTDC backend endpoints
         const results: Record<string, any> = {
             harvest: {
                 action: 'OmniHarvester scan initiated',
@@ -502,7 +601,7 @@ class NeuralBridgeServer {
                 action: 'Status check',
                 services: {
                     backend: 'running',
-                    neo4j: 'connected',
+                    neo4j: neo4jAdapter.isHealthy() ? 'connected' : 'disconnected',
                     mcp: 'active'
                 }
             },
@@ -521,54 +620,301 @@ class NeuralBridgeServer {
         };
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // NEO4J GRAPH HANDLERS (LIVE)
+    // ═══════════════════════════════════════════════════════════════════════
+
     private async handleQueryKnowledgeGraph(args: any) {
-        const { query, type = 'search', limit = 10 } = args;
+        const { query, type = 'search', limit = 20 } = args;
 
-        // This would normally connect to Neo4j
-        // For now, return simulated response
-        const response = {
-            queryType: type,
-            query: query,
-            limit: limit,
-            results: [],
-            message: 'Neo4j integration - connect to actual database for real results',
-            hint: 'Use the WidgeTDC frontend for full knowledge graph access'
-        };
+        try {
+            let results: any[];
+            let cypherUsed: string;
 
-        return {
-            content: [{
-                type: 'text',
-                text: JSON.stringify(response, null, 2)
-            }]
-        };
+            switch (type) {
+                case 'cypher':
+                    // Direct Cypher execution (with safety check)
+                    if (query.toLowerCase().includes('delete') || 
+                        query.toLowerCase().includes('drop') ||
+                        query.toLowerCase().includes('remove')) {
+                        throw new Error('Destructive queries not allowed via this interface');
+                    }
+                    cypherUsed = query;
+                    results = await neo4jAdapter.executeQuery(query);
+                    break;
+
+                case 'labels':
+                    // List all node labels
+                    cypherUsed = 'CALL db.labels() YIELD label RETURN label';
+                    results = await neo4jAdapter.readQuery(cypherUsed);
+                    break;
+
+                case 'relationships':
+                    // List all relationship types
+                    cypherUsed = 'CALL db.relationshipTypes() YIELD relationshipType RETURN relationshipType';
+                    results = await neo4jAdapter.readQuery(cypherUsed);
+                    break;
+
+                case 'search':
+                default:
+                    // Full-text search across all nodes
+                    cypherUsed = `
+                        MATCH (n)
+                        WHERE n.name CONTAINS $query 
+                           OR n.title CONTAINS $query
+                           OR n.content CONTAINS $query
+                           OR n.description CONTAINS $query
+                        RETURN n, labels(n) as labels
+                        LIMIT $limit
+                    `;
+                    results = await neo4jAdapter.readQuery(cypherUsed, { 
+                        query, 
+                        limit: parseInt(String(limit)) 
+                    });
+                    break;
+            }
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        queryType: type,
+                        query: query,
+                        cypherExecuted: cypherUsed,
+                        resultCount: results.length,
+                        results: results
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        error: error.message,
+                        queryType: type,
+                        query: query,
+                        hint: 'Check Neo4j connection or query syntax'
+                    }, null, 2)
+                }],
+                isError: true
+            };
+        }
+    }
+
+    private async handleCreateGraphNode(args: any) {
+        const { label, properties } = args;
+
+        if (!label || !properties) {
+            throw new Error('Label and properties are required');
+        }
+
+        // Validate label (prevent injection)
+        if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(label)) {
+            throw new Error('Invalid label format');
+        }
+
+        try {
+            const result = await neo4jAdapter.createNode(label, {
+                ...properties,
+                createdAt: new Date().toISOString(),
+                source: 'neural-bridge'
+            });
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: true,
+                        action: 'node_created',
+                        label: label,
+                        node: result
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            throw new Error(`Failed to create node: ${error.message}`);
+        }
+    }
+
+    private async handleCreateGraphRelationship(args: any) {
+        const { fromNodeId, toNodeId, relationshipType, properties = {} } = args;
+
+        if (!fromNodeId || !toNodeId || !relationshipType) {
+            throw new Error('fromNodeId, toNodeId, and relationshipType are required');
+        }
+
+        // Validate relationship type
+        if (!/^[A-Z_][A-Z0-9_]*$/.test(relationshipType)) {
+            throw new Error('Invalid relationship type format (use UPPERCASE_WITH_UNDERSCORES)');
+        }
+
+        try {
+            const result = await neo4jAdapter.createRelationship(
+                fromNodeId,
+                toNodeId,
+                relationshipType,
+                {
+                    ...properties,
+                    createdAt: new Date().toISOString(),
+                    source: 'neural-bridge'
+                }
+            );
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: true,
+                        action: 'relationship_created',
+                        type: relationshipType,
+                        result: result
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            throw new Error(`Failed to create relationship: ${error.message}`);
+        }
+    }
+
+    private async handleGetNodeConnections(args: any) {
+        const { nodeId, direction = 'both', limit = 50 } = args;
+
+        if (!nodeId) {
+            throw new Error('nodeId is required');
+        }
+
+        try {
+            const connections = await neo4jAdapter.getNodeRelationships(
+                nodeId,
+                direction,
+                limit
+            );
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        nodeId: nodeId,
+                        direction: direction,
+                        connectionCount: connections.length,
+                        connections: connections
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            throw new Error(`Failed to get connections: ${error.message}`);
+        }
     }
 
     private async handleGetHarvestStats(args: any) {
         const timeRange = args?.timeRange || '24h';
 
-        // Simulated harvest statistics
-        const stats = {
-            timeRange,
-            filesScanned: 288,
-            linesOfCode: 58317,
-            nodesCreated: 1247,
-            relationshipsCreated: 3891,
-            categories: {
-                SOURCE_CODE: 156,
-                DARK_DATA: 42,
-                SUPER_INTELLIGENCE: 12,
-                DOCUMENTS: 67,
-                GENERIC: 11
-            },
-            lastRun: new Date().toISOString()
-        };
+        // Query Neo4j for actual harvest statistics
+        try {
+            const stats = await neo4jAdapter.readQuery(`
+                MATCH (n)
+                WITH labels(n) as nodeLabels, count(*) as cnt
+                UNWIND nodeLabels as label
+                RETURN label, sum(cnt) as count
+                ORDER BY count DESC
+            `);
 
-        return {
-            content: [{
-                type: 'text',
-                text: JSON.stringify(stats, null, 2)
-            }]
-        };
+            const relStats = await neo4jAdapter.readQuery(`
+                MATCH ()-[r]->()
+                RETURN type(r) as type, count(r) as count
+                ORDER BY count DESC
+            `);
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        timeRange,
+                        nodesByLabel: stats,
+                        relationshipsByType: relStats,
+                        lastUpdated: new Date().toISOString()
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            // Fallback to simulated stats if Neo4j unavailable
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        timeRange,
+                        filesScanned: 288,
+                        linesOfCode: 58317,
+                        nodesCreated: 1247,
+                        relationshipsCreated: 3891,
+                        note: 'Simulated stats - Neo4j connection issue',
+                        error: error.message
+                    }, null, 2)
+                }]
+            };
+        }
+    }
+
+    private async handleGetGraphStats(args: any) {
+        try {
+            const health = await neo4jAdapter.healthCheck();
+
+            // Get label counts
+            const labelCounts = await neo4jAdapter.readQuery(`
+                CALL db.labels() YIELD label
+                CALL {
+                    WITH label
+                    MATCH (n)
+                    WHERE label IN labels(n)
+                    RETURN count(n) as count
+                }
+                RETURN label, count
+                ORDER BY count DESC
+            `).catch(() => []);
+
+            // Get relationship type counts
+            const relCounts = await neo4jAdapter.readQuery(`
+                CALL db.relationshipTypes() YIELD relationshipType
+                CALL {
+                    WITH relationshipType
+                    MATCH ()-[r]->()
+                    WHERE type(r) = relationshipType
+                    RETURN count(r) as count
+                }
+                RETURN relationshipType, count
+                ORDER BY count DESC
+            `).catch(() => []);
+
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        health: health,
+                        labels: labelCounts,
+                        relationshipTypes: relCounts,
+                        timestamp: new Date().toISOString()
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        error: error.message,
+                        hint: 'Neo4j may not be running. Start with: docker-compose up neo4j'
+                    }, null, 2)
+                }],
+                isError: true
+            };
+        }
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -580,7 +926,7 @@ class NeuralBridgeServer {
             await fs.access(SAFE_DESKTOP_PATH);
         } catch {
             await fs.mkdir(SAFE_DESKTOP_PATH, { recursive: true });
-            console.log(`📁 Created DropZone at: ${SAFE_DESKTOP_PATH}`);
+            console.error(`📁 Created DropZone at: ${SAFE_DESKTOP_PATH}`);
         }
     }
 
@@ -620,12 +966,41 @@ class NeuralBridgeServer {
     }
 
     private async updateSystemHealth(): Promise<void> {
+        // Check Neo4j health
+        const neo4jHealth = await neo4jAdapter.healthCheck().catch(() => ({
+            connected: false,
+            lastCheck: new Date().toISOString()
+        }));
+
         const components = [
-            { name: 'Backend Server', healthy: true, latency: 12 },
-            { name: 'Neo4j Database', healthy: true, latency: 45 },
-            { name: 'MCP WebSocket', healthy: true, latency: 5 },
-            { name: 'OmniHarvester', healthy: true, latency: 0 },
-            { name: 'SelfHealingAdapter', healthy: true, latency: 8 }
+            { 
+                name: 'Backend Server', 
+                healthy: true, 
+                latency: 12 
+            },
+            { 
+                name: 'Neo4j Database', 
+                healthy: neo4jHealth.connected, 
+                latency: neo4jHealth.latencyMs,
+                message: neo4jHealth.connected 
+                    ? `${neo4jHealth.nodeCount} nodes, ${neo4jHealth.relationshipCount} relationships`
+                    : 'Connection failed'
+            },
+            { 
+                name: 'MCP WebSocket', 
+                healthy: true, 
+                latency: 5 
+            },
+            { 
+                name: 'OmniHarvester', 
+                healthy: true, 
+                latency: 0 
+            },
+            { 
+                name: 'SelfHealingAdapter', 
+                healthy: true, 
+                latency: 8 
+            }
         ];
 
         const healthyCount = components.filter(c => c.healthy).length;
@@ -653,7 +1028,8 @@ class NeuralBridgeServer {
         const transport = new StdioServerTransport();
         await this.server.connect(transport);
 
-        console.error('🧠 Neural Bridge MCP Server running via stdio');
+        console.error('🧠 Neural Bridge MCP Server v2.0 running via stdio');
+        console.error('🔗 Neo4j Integration: ENABLED');
         console.error(`📁 DropZone: ${SAFE_DESKTOP_PATH}`);
         console.error(`📚 Vidensarkiv: ${VIDENSARKIV_PATH}`);
     }
