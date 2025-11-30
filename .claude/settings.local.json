@@ -22,6 +22,7 @@
       "Bash(npm run lint:*)",
       "Bash(lsof:*)",
       "Bash(xargs kill -9)",
+<<<<<<< Updated upstream
       "Bash(gh pr merge:*)",
       "Bash(gh pr view:*)",
       "Bash(git pull:*)",
@@ -48,6 +49,14 @@
       "Bash(git config --get-regexp remote)",
       "Bash(git rebase:*)",
       "Bash(GIT_EDITOR=true git rebase:*)"
+=======
+      "Bash(docker-compose ps:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(curl:*)",
+      "Bash(docker exec:*)",
+      "Bash(find:*)"
+>>>>>>> Stashed changes
     ],
     "deny": [],
     "ask": []
