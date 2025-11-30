@@ -1,332 +1,366 @@
-# WidgeTDC - Enterprise Autonomous Intelligence Platform
+# 🧠 WidgeTDC - Neural Command Center
 
-> **Production-Ready AI Platform** with Semantic Search, Autonomous Learning, and Distributed Architecture
+> **EU Digital Sovereignty Platform** | GDPR-Compliant Intelligence & Automation System
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19-61dafb)](https://react.dev/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791)](https://www.postgresql.org/)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
-
----
-
-## 🚀 What is WidgeTDC?
-
-WidgeTDC is an **Enterprise-grade Autonomous Intelligence Platform** that combines:
-
-- **🧠 Semantic Vector Database** - Intelligent search using pgvector + multi-provider embeddings
-- **🤖 Autonomous Task Engine** - Self-learning AI that consolidates and optimizes memory
-- **📊 Unified Memory System** - Working, Episodic, and Procedural memory
-- **🔄 Distributed Event System** - Redis-based pub/sub for scalability
-- **📡 20+ Data Sources** - Ingest from Gmail, Outlook, Drive, Twitter, browser history, and more
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](docker-compose.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](tsconfig.json)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](apps/widget-board)
+[![Neo4j](https://img.shields.io/badge/Neo4j-5.15-008CC1?logo=neo4j)](docker-compose.yml)
+[![License](https://img.shields.io/badge/License-Proprietary-red)]()
 
 ---
 
-## ✨ Key Features
+## 🎯 What is WidgeTDC?
 
-### 🔍 Semantic Search & RAG
-- **Natural language queries** - Ask questions, get semantically similar results
-- **Auto-embedding generation** - Just provide text, embeddings are created automatically
-- **Multi-provider support** - OpenAI (best quality), HuggingFace (good), or Transformers.js (free, local)
-- **Hybrid search** - Combines keyword and semantic search with re-ranking
-- **Query expansion** - Automatically expands queries with synonyms and related terms
+WidgeTDC is a sophisticated **widget-based intelligence platform** designed for cybersecurity professionals, OSINT analysts, and executive decision-makers. It serves as a neural interface for data analysis, featuring real-time knowledge graphs, AI-powered insights, and comprehensive automation tools.
 
-### 🧠 Autonomous Intelligence
-- **Learning loops** - Nightly consolidation, pattern extraction, memory optimization
-- **Multi-hop reasoning** - UnifiedGraphRAG for complex queries
-- **Self-improvement** - Learns from patterns and optimizes workflows
-- **Meta-learning** - Learns how to learn across different domains
-- **RLHF alignment** - Human feedback integration for safe AI behavior
+### Key Capabilities
 
-### 🤖 Advanced Agent System
-- **Dynamic agent spawning** - Automatically creates agents based on workload
-- **Agent specialization** - Agents learn and specialize in specific tasks
-- **Inter-agent communication** - Negotiation, delegation, and knowledge sharing
-- **Collaborative execution** - Multiple agents work together on complex tasks
-
-### 🎨 Multi-Modal Support
-- **Image processing** - CLIP-style embeddings for visual search
-- **Audio analysis** - Audio embeddings and transcription
-- **Video understanding** - Combined visual and audio processing
-- **Cross-modal search** - Search images with text, or vice versa
-
-### 🏢 Enterprise Ready
-- **Scalable infrastructure** - PostgreSQL + pgvector, Neo4j graph database, Redis
-- **Production monitoring** - Distributed tracing, metrics, health checks
-- **Zero-downtime upgrades** - Backward compatible architecture
-- **Multi-tenant ready** - Namespace isolation, user/org tracking
-- **External integrations** - Slack, GitHub, Jira webhooks and notifications
+- **42+ Widgets** across 9 specialized categories
+- **11 MCP Tools** for AI-powered operations
+- **Knowledge Graph** visualization with Neo4j integration
+- **Real-time Monitoring** via Prometheus, Grafana & Loki
+- **OmniHarvester** for intelligent data ingestion
+- **GDPR-Compliant** architecture with EU data sovereignty
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Architecture Overview
 
 ```
-Frontend (React 19) 
-    ↓ WebSocket + REST
-Backend (Node.js + Express)
-    ↓
-Cognitive Layer (Autonomous Agent, GraphRAG, Memory)
-    ↓
-Data Layer (Embedding Service, Vector Store)
-    ↓
-Persistence (PostgreSQL + pgvector, Redis, Neo4j)
+┌─────────────────────────────────────────────────────────────────┐
+│                     WidgeTDC Neural Command Center              │
+├─────────────────────────────────────────────────────────────────┤
+│  Frontend (React 19 + Vite)              Port 8888              │
+│  ├── 42+ Interactive Widgets                                    │
+│  ├── Real-time WebSocket Communication                          │
+│  └── 3D Knowledge Graph Visualization                           │
+├─────────────────────────────────────────────────────────────────┤
+│  Backend (Node.js + Express)             Port 3001              │
+│  ├── MCP WebSocket Server (11 Tools)                            │
+│  ├── Gemini AI Integration                                      │
+│  ├── RESTful API Layer                                          │
+│  └── OmniHarvester Data Pipeline                                │
+├─────────────────────────────────────────────────────────────────┤
+│  Data Layer                                                     │
+│  ├── PostgreSQL + pgvector         Port 5432                    │
+│  ├── Neo4j Knowledge Graph         Port 7474/7687               │
+│  ├── Redis Cache                   Port 6379                    │
+│  └── SQLite (embedded)                                          │
+├─────────────────────────────────────────────────────────────────┤
+│  Observability Stack                                            │
+│  ├── Prometheus                    Port 9090                    │
+│  ├── Grafana                       Port 3000                    │
+│  ├── Loki                          Port 3100                    │
+│  └── NocoDB Admin                  Port 8080                    │
+└─────────────────────────────────────────────────────────────────┘
 ```
-
-See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed diagrams and flow charts.
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Docker Desktop** (for PostgreSQL, Redis, Neo4j)
-- **Node.js 18+**
-- **PowerShell** (Windows) or **Bash** (Mac/Linux)
 
-### Automated Setup (Recommended)
+- **Docker Desktop** with WSL2 (Windows) or Docker Engine (Linux/Mac)
+- **Node.js 20+** (for local development)
+- **8GB+ RAM** recommended
 
-```powershell
-# Windows (run as Administrator)
-.\setup-enterprise.ps1
-```
+### One-Command Deployment
 
 ```bash
-# Mac/Linux
-chmod +x setup-enterprise.sh
-./setup-enterprise.sh
-```
-
-### Manual Setup
-
-```bash
-# 1. Clone repository
-git clone https://github.com/your-org/WidgeTDC.git
+# Clone the repository
+git clone https://github.com/ClausDesWorworworworworworworworworworworworworworwor/WidgeTDC.git
 cd WidgeTDC
 
-# 2. Install dependencies
-cd apps/backend
-npm install
-npm install @xenova/transformers  # For local embeddings
+# Start all services
+docker-compose up -d --build
 
-# 3. Configure environment
-cp .env.example .env
-echo "EMBEDDING_PROVIDER=transformers" >> .env
-
-# 4. Start infrastructure
-cd ../..
-docker-compose up -d
-
-# 5. Run database migrations
-cd apps/backend
-npx prisma migrate dev --name init
-
-# 6. Start backend
-npm run dev
+# View logs
+docker-compose logs -f
 ```
 
-### Production Deployment
+### Access Points
+
+| Service | URL | Credentials |
+|---------|-----|-------------|
+| **Frontend** | http://localhost:8888 | - |
+| **Backend API** | http://localhost:3001 | - |
+| **Grafana** | http://localhost:3000 | admin / admin |
+| **Neo4j Browser** | http://localhost:7474 | neo4j / password |
+| **NocoDB** | http://localhost:8080 | - |
+| **Prometheus** | http://localhost:9090 | - |
+
+---
+
+## 📁 Project Structure
+
+```
+WidgeTDC/
+├── apps/
+│   ├── backend/                 # Node.js API Server
+│   │   ├── src/
+│   │   │   ├── database/        # SQLite + schemas
+│   │   │   ├── mcp/             # MCP WebSocket router
+│   │   │   ├── services/        # Business logic
+│   │   │   │   ├── memory/      # Contextual Memory Agent
+│   │   │   │   ├── srag/        # Structured RAG
+│   │   │   │   ├── evolution/   # Self-evolving agents
+│   │   │   │   ├── pal/         # AI PAL assistant
+│   │   │   │   └── ai/          # Gemini integration
+│   │   │   └── harvester/       # OmniHarvester pipeline
+│   │   └── Dockerfile
+│   │
+│   └── widget-board/            # React 19 Frontend
+│       ├── src/
+│       │   ├── widgets/         # 42+ widget implementations
+│       │   ├── components/      # Shared UI components
+│       │   └── hooks/           # Custom React hooks
+│       ├── nginx.conf           # Production server config
+│       └── Dockerfile
+│
+├── packages/
+│   └── shared/
+│       ├── mcp-types/           # MCP message interfaces
+│       └── domain-types/        # Domain entity types
+│
+├── monitoring/
+│   ├── prometheus.yml           # Metrics configuration
+│   └── grafana/                 # Dashboard provisioning
+│
+├── docker-compose.yml           # Full stack orchestration
+└── README.md
+```
+
+---
+
+## 🧩 Widget Categories
+
+### 🔐 Cybersecurity & OSINT (15 widgets)
+- Domain Intelligence
+- IP Analysis
+- Email Investigation
+- Phone Number Lookup
+- Geolocation Tools
+- Dark Web Monitoring
+- Threat Intelligence
+
+### 🤖 AI & Machine Learning (8 widgets)
+- Neural Core (ai.think, ai.analyze, ai.summarize, ai.extract)
+- Knowledge Graph Explorer
+- DNA Splicer (Code Analysis)
+- Cyber Ops Dashboard
+
+### 📊 Executive Decision Support (6 widgets)
+- CMA Decision Assistant
+- SRAG Data Governance
+- KPI Monitor
+- Strategic Dashboard
+
+### 🔧 System & Development (13 widgets)
+- MCP Inspector
+- Harvest Control Panel
+- System Logs Viewer
+- Evolution Monitor
+- AI PAL Assistant
+
+---
+
+## 🔌 MCP Tools Reference
+
+The backend exposes **11 MCP tools** via WebSocket at `ws://localhost:3001/mcp/ws`:
+
+| Tool | Description |
+|------|-------------|
+| `cma.context` | Contextual memory retrieval |
+| `cma.ingest` | Memory ingestion pipeline |
+| `srag.query` | Structured RAG queries |
+| `evolution.report-run` | Agent evolution tracking |
+| `evolution.get-prompt` | Prompt version retrieval |
+| `pal.event` | User event logging |
+| `pal.board-action` | Dashboard interactions |
+| `ai.think` | Deep reasoning operations |
+| `ai.analyze` | Data analysis tasks |
+| `ai.summarize` | Content summarization |
+| `ai.extract` | Entity extraction |
+
+---
+
+## 🔧 Development
+
+### Local Development Setup
 
 ```bash
-# Build
-npm run build
+# Install dependencies
+npm install --legacy-peer-deps
 
-# Start with PM2
-pm2 start ../../ecosystem.config.js
+# Build shared packages
+npm run build -w packages/shared/mcp-types
+npm run build -w packages/shared/domain-types
 
-# Monitor
-pm2 logs widgetdc-backend
-pm2 monit
+# Start backend (Terminal 1)
+cd apps/backend && npm run dev
+
+# Start frontend (Terminal 2)
+cd apps/widget-board && npm run dev
 ```
 
-See [QUICK_START.md](QUICK_START.md) for detailed instructions.
+### Environment Variables
+
+Create `.env` file in project root:
+
+```env
+# AI Configuration
+GEMINI_API_KEY=your_gemini_api_key
+
+# Security
+JWT_SECRET=your_secure_jwt_secret
+
+# Database (optional - defaults work with Docker)
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=widgetdc
+POSTGRES_PASSWORD=widgetdc_dev
+POSTGRES_DB=widgetdc
+
+# Neo4j
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=password
+
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
+```
 
 ---
 
-## 📚 Documentation
+## 📊 API Examples
 
-- **[Quick Start](QUICK_START.md)** - Get running in 5 minutes
-- **[Architecture](ARCHITECTURE.md)** - System design and diagrams
-- **[Semantic Search Guide](SEMANTIC_SEARCH_GUIDE.md)** - How to use vector search
-- **[Enterprise Setup](ENTERPRISE_SETUP_GUIDE.md)** - Production deployment
-- **[Environment Setup](ENVIRONMENT_SETUP.md)** - Configuration options
-- **[Enterprise Upgrade](ENTERPRISE_UPGRADE_COMPLETE.md)** - What's new in v2.0
+### Health Check
+```bash
+curl http://localhost:3001/health
+```
+
+### AI Operations
+```bash
+# Think deeply about a topic
+curl -X POST http://localhost:3001/api/mcp/route \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tool": "ai.think",
+    "payload": {
+      "prompt": "Analyze cybersecurity trends for 2025"
+    }
+  }'
+```
+
+### Memory Operations
+```bash
+# Ingest memory
+curl -X POST http://localhost:3001/api/memory/ingest \
+  -H "Content-Type: application/json" \
+  -d '{
+    "orgId": "org-1",
+    "userId": "user-1",
+    "entityType": "ThreatIntel",
+    "content": "New APT group detected targeting EU infrastructure",
+    "importance": 8,
+    "tags": ["threat", "apt", "eu"]
+  }'
+```
+
+### SRAG Queries
+```bash
+curl -X POST http://localhost:3001/api/srag/query \
+  -H "Content-Type: application/json" \
+  -d '{
+    "orgId": "org-1",
+    "naturalLanguageQuery": "What are the top security incidents this month?"
+  }'
+```
 
 ---
 
-## 🧠 Usage Examples
-
-### Semantic Search
-
-```typescript
-import { getPgVectorStore } from './platform/vector/PgVectorStoreAdapter';
-
-const vectorStore = getPgVectorStore();
-await vectorStore.initialize();
-
-// Search using natural language
-const results = await vectorStore.search({
-  text: "What is machine learning?",
-  limit: 5
-});
-
-results.forEach(result => {
-  console.log(`${result.similarity.toFixed(2)}: ${result.content}`);
-});
-```
-
-### Auto-Embedding
-
-```typescript
-// Embeddings generated automatically
-await vectorStore.upsert({
-  id: "doc-123",
-  content: "Machine learning is a subset of AI...",
-  metadata: { source: "wikipedia" }
-});
-```
-
-### MCP Tool Usage
+## 🐳 Docker Commands
 
 ```bash
-# Via API
-POST http://localhost:3001/api/mcp/route
-{
-  "tool": "vidensarkiv.search",
-  "payload": {
-    "query": "How do I configure authentication?",
-    "limit": 5
-  }
-}
+# Start all services
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f [service_name]
+
+# Stop all services
+docker-compose down
+
+# Reset everything (including data)
+docker-compose down -v
+
+# Rebuild specific service
+docker-compose up -d --build backend
+
+# Check service status
+docker-compose ps
 ```
 
 ---
 
-## 🔧 Configuration
+## 🛡️ Security & Compliance
 
-### Embedding Providers
-
-**Local (Free, Private)**
-```env
-EMBEDDING_PROVIDER=transformers
-# No API key needed!
-```
-
-**OpenAI (Best Quality)**
-```env
-EMBEDDING_PROVIDER=openai
-OPENAI_API_KEY=sk-your-key-here
-```
-
-**HuggingFace (Good Middle Ground)**
-```env
-EMBEDDING_PROVIDER=huggingface
-HUGGINGFACE_API_KEY=hf_your-token-here
-```
-
-### Database
-
-```env
-DATABASE_URL="postgresql://widgetdc:widgetdc_dev@localhost:5432/widgetdc"
-REDIS_URL="redis://localhost:6379"
-```
-
----
-
-## 📊 Performance
-
-| Metric | Value |
-|--------|-------|
-| **Vector Insert** | ~50ms (with auto-embedding) |
-| **Semantic Search** | ~20ms (1M+ records) |
-| **Concurrent Users** | 100+ |
-| **Scalability** | Horizontal (Redis event bus) |
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- React 19, TypeScript, Vite
-- react-grid-layout (dashboard)
-
-### Backend
-- Node.js, Express, TypeScript
-- Prisma ORM, Winston logging
-
-### Databases
-- PostgreSQL 16 + pgvector
-- Redis 7 (events)
-- Neo4j 5 (optional, knowledge graph)
-
-### AI/ML
-- OpenAI (embeddings & LLM)
-- HuggingFace (embeddings)
-- Transformers.js (local embeddings)
-- Google Gemini (LLM)
-
-### DevOps
-- Docker Compose
-- PM2 (process management)
-- Winston (logging)
+- **GDPR Compliant**: EU data sovereignty by design
+- **Input Validation**: All API endpoints validated
+- **SQL Injection Prevention**: Prepared statements only
+- **Encrypted Communications**: TLS/SSL ready
+- **Audit Logging**: Full activity trails
+- **Role-Based Access**: Configurable permissions
 
 ---
 
 ## 🗺️ Roadmap
 
-### ✅ Phase 1: Foundation (COMPLETE)
-- [x] PostgreSQL + pgvector migration
-- [x] Redis event bus
-- [x] PM2 process management
-- [x] Winston logging
+### Current (v2.0)
+- [x] 42+ widgets operational
+- [x] 11 MCP tools integrated
+- [x] Docker orchestration
+- [x] Neo4j knowledge graph
+- [x] Gemini AI integration
+- [x] Prometheus/Grafana monitoring
 
-### ✅ Phase 1.5: Semantic Search (COMPLETE)
-- [x] Multi-provider embedding service
-- [x] Auto-embedding generation
-- [x] Text-based search
-- [x] Backward compatibility
+### Next (v3.0)
+- [ ] Expand to 210+ widgets
+- [ ] 54 MCP tools
+- [ ] ThreeBrain 3D neural visualization
+- [ ] 47 HuggingFace model integrations
+- [ ] SpørEngine autonomous investigations
+- [ ] Enterprise SSO integration
 
-### 🚧 Phase 2: Security & Governance (NEXT)
-- [ ] JWT/OAuth authentication
-- [ ] Row Level Security (RLS)
-- [ ] Human-in-the-Loop approvals
-- [ ] Comprehensive audit logging
+---
 
-### 📅 Phase 3: Observability
-- [ ] OpenTelemetry instrumentation
-- [ ] LLM evaluation framework
-- [ ] Grafana dashboards
-- [ ] Cost tracking
+## 📄 License
+
+**Proprietary** - All rights reserved.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+1. Create feature branch from `main`
+2. Make changes with tests
+3. Update documentation
+4. Submit pull request
 
 ---
 
-## 📝 License
+## 📞 Support
 
-MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-## 🙏 Acknowledgments
-
-- Built with [PostgreSQL](https://www.postgresql.org/) and [pgvector](https://github.com/pgvector/pgvector)
-- Powered by [Transformers.js](https://huggingface.co/docs/transformers.js)
-- Inspired by the [Model Context Protocol](https://modelcontextprotocol.io/)
+- **Documentation**: See `/docs` folder
+- **Architecture**: [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **Issues**: GitHub Issues
 
 ---
 
-## 📧 Support
-
-- **Issues:** [GitHub Issues](https://github.com/your-org/WidgeTDC/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/your-org/WidgeTDC/discussions)
-- **Documentation:** [Full Docs](docs/)
-
----
-
-**Version:** 2.0.0 (Enterprise)  
-**Status:** 🟢 Production Ready  
-**Last Updated:** November 24, 2025
+<p align="center">
+  Built with 🧠 for Intelligence Operations<br>
+  <strong>WidgeTDC Neural Command Center</strong>
+</p>

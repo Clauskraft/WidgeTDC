@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'widgetdc-backend'
+    static_configs:
+      - targets: ['backend:3001']
+    metrics_path: '/metrics'
+
+  # Note: PostgreSQL, Redis, and Neo4j require exporters for metrics
+  # Direct scraping of native ports doesn't work
+  # To enable metrics, add:
+  # - postgres_exporter for PostgreSQL
+  # - redis_exporter for Redis
+  # - neo4j has built-in metrics at /metrics on 2004 port (needs config)
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: '/metrics'
+
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+    metrics_path: '/metrics'
