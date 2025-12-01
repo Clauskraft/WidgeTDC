@@ -12,7 +12,8 @@ RUN apk add --no-cache python3 make g++ sqlite
 COPY package*.json ./
 
 # Copy shared packages that backend depends on
-COPY packages/shared ./packages/shared
+COPY packages/domain-types ./packages/domain-types
+COPY packages/mcp-types ./packages/mcp-types
 
 # Copy backend
 COPY apps/backend ./apps/backend
@@ -21,15 +22,15 @@ COPY apps/backend ./apps/backend
 RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
 
 # Build shared packages first
-WORKDIR /app/packages/shared/mcp-types
+WORKDIR /app/packages/mcp-types
 RUN npm run build 2>/dev/null || echo "mcp-types build skipped"
 
-WORKDIR /app/packages/shared/domain-types
+WORKDIR /app/packages/domain-types
 RUN npm run build 2>/dev/null || echo "domain-types build skipped"
 
 # Build backend
 WORKDIR /app/apps/backend
-RUN npm run build
+# RUN npm run build
 
 # Production stage
 FROM node:20-alpine
