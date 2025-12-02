@@ -95,3 +95,8 @@ Thumbs.db
 
 # Windows special files
 nul
+
+# Build Artifacts (Global)
+dist/
+build/
+out/
