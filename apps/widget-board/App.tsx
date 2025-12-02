@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import WidgeTDCPro from './WidgeTDC_Pro.tsx';
+import MatrixFigmaLayout from './src/components/layouts/MatrixFigmaLayout';
 import { WidgetRegistryProvider } from './contexts/WidgetRegistryContext';
 import { GlobalStateProvider } from './contexts/GlobalStateContext';
 import './App.css';
@@ -7,15 +7,10 @@ import { PlatformProvider } from './src/platform/core/PlatformProvider.tsx';
 
 // Loading fallback
 const AppLoader = () => (
-  <div className="w-full h-screen flex items-center justify-center bg-[#050505]">
-    <div className="text-slate-200 text-center">
-      <div className="text-4xl mb-4">🚀</div>
-      <p>Initializing WidgeTDC Pro...</p>
-      <div className="mt-4 flex gap-1 justify-center">
-        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
-        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-        <div className="w-2 h-2 bg-teal-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-      </div>
+  <div className="w-full h-screen flex items-center justify-center bg-[#020617]">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-16 h-16 border-4 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+      <div className="font-mono text-emerald-500 animate-pulse tracking-widest">INITIALIZING SYSTEM...</div>
     </div>
   </div>
 );
@@ -26,7 +21,7 @@ export default function App() {
       <GlobalStateProvider>
         <Suspense fallback={<AppLoader />}>
           <WidgetRegistryProvider>
-            <WidgeTDCPro />
+            <MatrixFigmaLayout />
           </WidgetRegistryProvider>
         </Suspense>
       </GlobalStateProvider>

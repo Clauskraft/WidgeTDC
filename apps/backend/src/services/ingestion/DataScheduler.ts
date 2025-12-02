@@ -5,7 +5,9 @@ import { OutlookEmailReader } from './OutlookEmailReader.js';
 import { PublicThreatScraper } from './PublicThreatScraper.js';
 import { InternalLeakHunter } from './InternalLeakHunter.js';
 import { NewsMonitorScraper } from './NewsMonitorScraper.js';
+import { LocalFileScanner } from './LocalFileScanner.js';
 import { eventBus } from '../../mcp/EventBus.js';
+import path from 'path';
 
 export class DataScheduler {
     private isRunning = false;
@@ -22,12 +24,87 @@ export class DataScheduler {
         this.scheduleInternalHunt();
         this.scheduleNewsMonitor();
         this.scheduleSystemHealth();
+        this.scheduleLocalFiles();
     }
 
     stop() {
         this.tasks.forEach(t => t.stop());
         this.isRunning = false;
         logger.info('🛑 DataScheduler stopped');
+    }
+
+    private scheduleLocalFiles() {
+        const scanPath = path.resolve('data/ingestion');
+        const scanner = new LocalFileScanner({
+            rootPaths: [scanPath],
+            extensions: ['.pdf', '.txt', '.md']
+        });
+
+        // Run every 30 minutes
+        const task = cron.schedule('*/30 * * * *', async () => {
+            logger.info(`📂 Scanning local files in ${scanPath}...`);
+            try {
+                if (await scanner.isAvailable()) {
+                    const files = await scanner.fetch();
+                    const entities = await scanner.transform(files);
+                    
+                    if (entities.length > 0) {
+                        const vectorStore = getNeo4jVectorStore();
+                        await vectorStore.batchUpsert({
+                            records: entities.map(entity => ({
+                                id: entity.id,
+                                content: entity.content,
+                                metadata: {
+                                    ...entity.metadata,
+                                    type: 'document',
+                                    source: 'local_ingestion'
+                                },
+                                namespace: 'documents'
+                            })),
+                            namespace: 'documents'
+                        });
+                        
+                        logger.info(`✅ Ingested ${entities.length} local documents`);
+                        eventBus.emit('ingestion:documents', { count: entities.length });
+                    }
+                } else {
+                    logger.warn(`Local ingestion path not accessible: ${scanPath}`);
+                }
+            } catch (error) {
+                logger.error('Local file scan failed:', error);
+            }
+        });
+        this.tasks.push(task);
+
+        // Initial scan (delayed)
+        setTimeout(async () => {
+             logger.info('📂 Running initial local file scan...');
+             try {
+                if (await scanner.isAvailable()) {
+                    const files = await scanner.fetch();
+                    const entities = await scanner.transform(files);
+                    if (entities.length > 0) {
+                         const vectorStore = getNeo4jVectorStore();
+                         await vectorStore.batchUpsert({
+                            records: entities.map(entity => ({
+                                id: entity.id,
+                                content: entity.content,
+                                metadata: {
+                                    ...entity.metadata,
+                                    type: 'document',
+                                    source: 'local_ingestion'
+                                },
+                                namespace: 'documents'
+                            })),
+                            namespace: 'documents'
+                        });
+                        logger.info(`✅ Ingested ${entities.length} local documents (initial)`);
+                    }
+                }
+             } catch (e) {
+                 logger.error('Initial local scan failed:', e);
+             }
+        }, 15000);
     }
 
     private scheduleEmailIngestion() {

@@ -22,7 +22,8 @@ export class Neo4jService {
 
     constructor() {
         this.uri = process.env.NEO4J_URI || 'bolt://localhost:7687';
-        this.username = process.env.NEO4J_USERNAME || 'neo4j';
+        // Support both NEO4J_USER and NEO4J_USERNAME for compatibility
+        this.username = process.env.NEO4J_USER || process.env.NEO4J_USERNAME || 'neo4j';
         this.password = process.env.NEO4J_PASSWORD || 'password';
     }
 
@@ -52,6 +53,10 @@ export class Neo4jService {
         }
     }
 
+    async close(): Promise<void> {
+        await this.disconnect();
+    }
+
     private getSession(): Session {
         if (!this.driver) {
             throw new Error('Neo4j driver not initialized. Call connect() first.');
@@ -69,7 +74,7 @@ export class Neo4jService {
             );
             const node = result.records[0].get('n');
             return {
-                id: node.identity.toString(),
+                id: node.elementId,
                 labels: node.labels,
                 properties: node.properties,
             };
@@ -86,19 +91,20 @@ export class Neo4jService {
     ): Promise<GraphRelationship> {
         const session = this.getSession();
         try {
+            // Use elementId lookup instead of id()
             const result = await session.run(
                 `MATCH (a), (b)
-         WHERE id(a) = $startId AND id(b) = $endId
+         WHERE elementId(a) = $startId AND elementId(b) = $endId
          CREATE (a)-[r:${type} $properties]->(b)
          RETURN r`,
-                { startId: parseInt(startNodeId), endId: parseInt(endNodeId), properties }
+                { startId: startNodeId, endId: endNodeId, properties }
             );
             const rel = result.records[0].get('r');
             return {
-                id: rel.identity.toString(),
+                id: rel.elementId,
                 type: rel.type,
-                startNodeId: rel.start.toString(),
-                endNodeId: rel.end.toString(),
+                startNodeId: rel.startNodeElementId,
+                endNodeId: rel.endNodeElementId,
                 properties: rel.properties,
             };
         } finally {
@@ -119,7 +125,7 @@ export class Neo4jService {
             return result.records.map(record => {
                 const node = record.get('n');
                 return {
-                    id: node.identity.toString(),
+                    id: node.elementId,
                     labels: node.labels,
                     properties: node.properties,
                 };
@@ -143,13 +149,13 @@ export class Neo4jService {
         const session = this.getSession();
         try {
             const result = await session.run(
-                'MATCH (n) WHERE id(n) = $id RETURN n',
-                { id: parseInt(nodeId) }
+                'MATCH (n) WHERE elementId(n) = $id RETURN n',
+                { id: nodeId }
             );
             if (result.records.length === 0) return null;
             const node = result.records[0].get('n');
             return {
-                id: node.identity.toString(),
+                id: node.elementId,
                 labels: node.labels,
                 properties: node.properties,
             };
@@ -162,8 +168,8 @@ export class Neo4jService {
         const session = this.getSession();
         try {
             await session.run(
-                'MATCH (n) WHERE id(n) = $id DETACH DELETE n',
-                { id: parseInt(nodeId) }
+                'MATCH (n) WHERE elementId(n) = $id DETACH DELETE n',
+                { id: nodeId }
             );
         } finally {
             await session.close();
@@ -175,17 +181,17 @@ export class Neo4jService {
         try {
             const result = await session.run(
                 `MATCH (n)-[r]-(m) 
-         WHERE id(n) = $id 
-         RETURN r, id(startNode(r)) as startId, id(endNode(r)) as endId`,
-                { id: parseInt(nodeId) }
+         WHERE elementId(n) = $id 
+         RETURN r`,
+                { id: nodeId }
             );
             return result.records.map(record => {
                 const rel = record.get('r');
                 return {
-                    id: rel.identity.toString(),
+                    id: rel.elementId,
                     type: rel.type,
-                    startNodeId: record.get('startId').toString(),
-                    endNodeId: record.get('endId').toString(),
+                    startNodeId: rel.startNodeElementId,
+                    endNodeId: rel.endNodeElementId,
                     properties: rel.properties,
                 };
             });

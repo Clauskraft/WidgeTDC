@@ -20,7 +20,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      NODE_ENV: production
+      NODE_ENV: ${NODE_ENV:-development}
       PORT: 3001
       # 🧠 AI Brain
       GEMINI_API_KEY: ${GEMINI_API_KEY}
@@ -69,7 +69,7 @@ services:
       dockerfile: Dockerfile
     container_name: widgetdc-frontend
     ports:
-      - "8888:80"
+      - "8081:80"
     depends_on:
       backend:
         condition: service_healthy
@@ -141,11 +141,11 @@ services:
       - widgetdc-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "cypher-shell -u neo4j -p password 'RETURN 1' || exit 1"]
-      interval: 30s
-      timeout: 10s
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:7474"]
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 30s
 
   # ===========================================
   # MONITORING & OBSERVABILITY

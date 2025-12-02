@@ -1,0 +1,24 @@
+[
+  {
+    "title": "Etablering af SOC og beredskab til Region Hovedstaden",
+    "buyer": null,
+    "status": "Gap Detected",
+    "url": "https://udbud.dk/...",
+    "missingKeywords": [
+      "Threat Intelligence",
+      "Log Management"
+    ],
+    "recommendation": "INITIATE R&D SPRINT"
+  },
+  {
+    "title": "Landsdækkende IoT-netværk til forsyningssektoren",
+    "buyer": null,
+    "status": "Gap Detected",
+    "url": "https://udbud.dk/...",
+    "missingKeywords": [
+      "5G",
+      "NB-IoT"
+    ],
+    "recommendation": "INITIATE R&D SPRINT"
+  }
+]

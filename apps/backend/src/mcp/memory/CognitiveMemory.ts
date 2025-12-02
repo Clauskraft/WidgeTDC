@@ -200,10 +200,23 @@ export class CognitiveMemory {
       `;
 
             let results: any[];
+            // Check if db.prepare exists (it does for both)
             if (this.db.prepare) {
                 const stmt = this.db.prepare(sql);
-                results = stmt.all(sourceName, limit);
+                // Check if the statement itself supports .all() (better-sqlite3)
+                if (stmt.all) {
+                    results = stmt.all(sourceName, limit);
+                } else {
+                    // Fallback for sql.js using step()
+                    stmt.bind([sourceName, limit]);
+                    results = [];
+                    while (stmt.step()) {
+                        results.push(stmt.getAsObject());
+                    }
+                    stmt.free();
+                }
             } else {
+                // Fallback if db.prepare doesn't exist (unlikely but safe)
                 const stmt = this.db.prepare(sql);
                 stmt.bind([sourceName, limit]);
                 results = [];

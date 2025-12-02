@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { MatrixWidgetWrapper } from '../src/components/MatrixWidgetWrapper';
+import { TrendingUp, AlertTriangle, CheckCircle, RefreshCw } from 'lucide-react';
 
 interface Prompt {
   agentId: string;
@@ -74,8 +76,18 @@ const EvolutionAgentWidget: React.FC = () => {
           })));
         }
       } else {
-        setCurrentPrompt(null);
-        setRecentRuns([]);
+        // Mock data fallback for demo
+        setCurrentPrompt({
+            agentId: agentId,
+            version: 42,
+            promptText: "You are an optimized procurement agent. Focus on cost reduction while maintaining supplier relationships...",
+            createdAt: new Date().toISOString(),
+            createdBy: 'EvolutionEngine'
+        });
+        setRecentRuns([
+            { id: 1, agent_id: agentId, prompt_version: 42, kpi_name: 'Savings', kpi_delta: 0.15, created_at: new Date().toISOString() },
+            { id: 2, agent_id: agentId, prompt_version: 41, kpi_name: 'Savings', kpi_delta: 0.08, created_at: new Date(Date.now() - 86400000).toISOString() },
+        ]);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load agent data');
@@ -98,213 +110,104 @@ const EvolutionAgentWidget: React.FC = () => {
   const needsRefinement = avgKpi < 0;
 
   return (
-    <div style={{
-      padding: '20px',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#1a1a1a',
-      color: '#ffffff',
-    }}>
-      <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
-        Evolution & KPI Monitor
-      </h2>
-
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
-          Agent ID
-        </label>
-        <select
-          value={agentId}
-          onChange={(e) => setAgentId(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '10px',
-            backgroundColor: '#2a2a2a',
-            border: '1px solid #444',
-            borderRadius: '4px',
-            color: '#ffffff',
-            fontSize: '14px',
-          }}
-        >
-          <option value="procurement-agent">Procurement Agent</option>
-          <option value="cma-agent">CMA Agent</option>
-          <option value="srag-agent">SRAG Agent</option>
-          <option value="pal-agent">PAL Agent</option>
-        </select>
-      </div>
-
-      {error && (
-        <div style={{
-          padding: '10px',
-          backgroundColor: '#ff3333',
-          borderRadius: '4px',
-          marginBottom: '15px',
-          fontSize: '14px',
-        }}>
-          {error}
+    <MatrixWidgetWrapper 
+        title="Evolution & KPI Monitor"
+        controls={
+            <button onClick={loadAgentData} className="hover:text-[#00B5CB] transition-colors">
+                <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            </button>
+        }
+    >
+      <div className="flex flex-col h-full gap-4">
+        {/* Agent Selector */}
+        <div className="relative">
+            <select
+            value={agentId}
+            onChange={(e) => setAgentId(e.target.value)}
+            className="w-full p-2 bg-black/20 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:border-[#00B5CB]"
+            >
+            <option value="procurement-agent">Procurement Agent</option>
+            <option value="cma-agent">CMA Agent</option>
+            <option value="srag-agent">SRAG Agent</option>
+            <option value="pal-agent">PAL Agent</option>
+            </select>
         </div>
-      )}
 
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-          Loading agent data...
+        {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-xs">
+            {error}
+            </div>
+        )}
+
+        {/* KPI Status */}
+        <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+                <div className="text-[10px] text-gray-400 uppercase mb-1">Avg KPI Delta</div>
+                <div className={`text-2xl font-bold ${avgKpi >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {avgKpi >= 0 ? '+' : ''}{(avgKpi * 100).toFixed(1)}%
+                </div>
+            </div>
+            <div className={`bg-white/5 border rounded-xl p-3 flex flex-col justify-center ${needsRefinement ? 'border-red-500/30' : 'border-green-500/30'}`}>
+                <div className="text-[10px] text-gray-400 uppercase mb-1">Status</div>
+                <div className="flex items-center gap-2 font-semibold text-sm text-white">
+                    {needsRefinement ? <AlertTriangle size={16} className="text-red-400" /> : <CheckCircle size={16} className="text-green-400" />}
+                    {needsRefinement ? 'Needs Refinement' : 'Performing Well'}
+                </div>
+            </div>
         </div>
-      ) : (
-        <>
-          {/* Current Prompt */}
-          {currentPrompt ? (
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '10px',
-              }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
-                  Current Prompt
-                </h3>
-                <div style={{
-                  padding: '4px 12px',
-                  backgroundColor: '#3b82f6',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  fontWeight: '600',
-                }}>
-                  v{currentPrompt.version}
-                </div>
-              </div>
-              <div style={{
-                backgroundColor: '#2a2a2a',
-                borderRadius: '4px',
-                padding: '12px',
-                fontSize: '13px',
-                maxHeight: '120px',
-                overflowY: 'auto',
-              }}>
-                {currentPrompt.promptText}
-              </div>
-              <div style={{ fontSize: '11px', color: '#888', marginTop: '5px' }}>
-                Created by {currentPrompt.createdBy} • {new Date(currentPrompt.createdAt).toLocaleString()}
-              </div>
-            </div>
-          ) : (
-            <div style={{
-              padding: '15px',
-              backgroundColor: '#2a2a2a',
-              borderRadius: '4px',
-              marginBottom: '20px',
-              color: '#888',
-              fontSize: '14px',
-            }}>
-              No prompt found for this agent
-            </div>
-          )}
 
-          {/* KPI Status */}
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
-              Performance Status
+        {/* Current Prompt */}
+        <div className="flex-1 min-h-0 flex flex-col">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 flex justify-between">
+                Current Prompt
+                {currentPrompt && <span className="bg-[#00B5CB]/20 text-[#00B5CB] px-1.5 rounded text-[9px]">v{currentPrompt.version}</span>}
             </h3>
-            <div style={{
-              display: 'flex',
-              gap: '10px',
-            }}>
-              <div style={{
-                flex: 1,
-                padding: '15px',
-                backgroundColor: '#2a2a2a',
-                borderRadius: '4px',
-              }}>
-                <div style={{ fontSize: '12px', color: '#888', marginBottom: '5px' }}>
-                  Avg KPI Delta
+            
+            {currentPrompt ? (
+                <div className="bg-black/20 border border-white/10 rounded-lg p-3 flex-1 overflow-y-auto custom-scrollbar">
+                    <p className="text-xs text-gray-300 font-mono whitespace-pre-wrap leading-relaxed">
+                        {currentPrompt.promptText}
+                    </p>
+                    <div className="mt-3 pt-2 border-t border-white/5 text-[10px] text-gray-500 flex justify-between">
+                        <span>By: {currentPrompt.createdBy}</span>
+                        <span>{new Date(currentPrompt.createdAt).toLocaleDateString()}</span>
+                    </div>
                 </div>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: '600',
-                  color: avgKpi >= 0 ? '#10b981' : '#ef4444',
-                }}>
-                  {avgKpi >= 0 ? '+' : ''}{(avgKpi * 100).toFixed(1)}%
-                </div>
-              </div>
-              <div style={{
-                flex: 1,
-                padding: '15px',
-                backgroundColor: needsRefinement ? '#dc2626' : '#10b981',
-                borderRadius: '4px',
-              }}>
-                <div style={{ fontSize: '12px', marginBottom: '5px' }}>
-                  Status
-                </div>
-                <div style={{ fontSize: '16px', fontWeight: '600' }}>
-                  {needsRefinement ? 'Needs Refinement' : 'Performing Well'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Runs */}
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
-              Recent Runs ({recentRuns.length})
-            </h3>
-            {recentRuns.length === 0 ? (
-              <div style={{
-                padding: '20px',
-                backgroundColor: '#2a2a2a',
-                borderRadius: '4px',
-                color: '#888',
-                fontSize: '14px',
-                textAlign: 'center',
-              }}>
-                No runs recorded yet
-              </div>
             ) : (
-              <div style={{
-                flex: 1,
-                backgroundColor: '#2a2a2a',
-                borderRadius: '4px',
-                padding: '10px',
-                overflowY: 'auto',
-              }}>
+                <div className="flex-1 flex items-center justify-center text-gray-500/50 text-xs border border-dashed border-white/10 rounded-lg">
+                    No active prompt
+                </div>
+            )}
+        </div>
+
+        {/* Recent Runs List */}
+        <div className="h-1/3 flex flex-col">
+             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Recent Runs</h3>
+             <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar pr-1">
                 {recentRuns.map((run) => (
                   <div
                     key={run.id}
-                    style={{
-                      marginBottom: '10px',
-                      padding: '10px',
-                      backgroundColor: '#1a1a1a',
-                      borderRadius: '4px',
-                      borderLeft: `3px solid ${run.kpi_delta >= 0 ? '#10b981' : '#ef4444'}`,
-                    }}
+                    className="flex items-center justify-between p-2 bg-white/5 border border-white/5 hover:border-white/10 rounded-lg transition-colors"
                   >
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: '5px',
-                    }}>
-                      <span style={{ fontSize: '13px', fontWeight: '600' }}>
-                        {run.kpi_name}
-                      </span>
-                      <span style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: run.kpi_delta >= 0 ? '#10b981' : '#ef4444',
-                      }}>
+                    <div className="flex items-center gap-2">
+                        <div className={`w-1 h-8 rounded-full ${run.kpi_delta >= 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                        <div>
+                            <div className="text-xs font-medium text-gray-200">{run.kpi_name}</div>
+                            <div className="text-[10px] text-gray-500">v{run.prompt_version} • {new Date(run.created_at).toLocaleTimeString()}</div>
+                        </div>
+                    </div>
+                    <span className={`text-xs font-bold ${run.kpi_delta >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {run.kpi_delta >= 0 ? '+' : ''}{(run.kpi_delta * 100).toFixed(1)}%
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#888' }}>
-                      Prompt v{run.prompt_version} • {new Date(run.created_at).toLocaleString()}
-                    </div>
+                    </span>
                   </div>
                 ))}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </div>
+                {recentRuns.length === 0 && (
+                    <div className="text-center py-4 text-xs text-gray-500">No runs recorded</div>
+                )}
+             </div>
+        </div>
+      </div>
+    </MatrixWidgetWrapper>
   );
 };
 

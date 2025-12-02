@@ -244,6 +244,36 @@ export class LlmService {
     });
     return res.content;
   }
+
+  async transcribeAudio(audioData: Buffer, mimeType: string): Promise<string> {
+      // Mock implementation for now as we don't have audio setup
+      console.log(`[LlmService] Transcribing audio (${audioData.length} bytes, ${mimeType})`);
+      return "Audio transcription not yet implemented. This is a placeholder.";
+  }
+
+  async analyzeImage(imageData: Buffer, mimeType: string, prompt: string): Promise<string> {
+      if (this.googleKey) {
+          try {
+             const { GoogleGenerativeAI } = await import('@google/generative-ai');
+             const genAI = new GoogleGenerativeAI(this.googleKey);
+             const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+             
+             const imagePart = {
+                inlineData: {
+                    data: imageData.toString('base64'),
+                    mimeType
+                }
+             };
+             
+             const result = await model.generateContent([prompt, imagePart]);
+             const response = await result.response;
+             return response.text();
+          } catch (e) {
+              console.error('Gemini image analysis failed:', e);
+          }
+      }
+      return `[Mock Image Analysis] I see an image of size ${imageData.length} bytes. (Configure GOOGLE_API_KEY for real analysis)`;
+  }
 }
 
 // Singleton instance

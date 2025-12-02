@@ -1,0 +1,46 @@
+{
+  "generatedAt": "2025-12-01T02:01:39.353Z",
+  "count": 3,
+  "opportunities": [
+    {
+      "title": "Etablering af SOC og beredskab til Region Hovedstaden",
+      "buyer": "Region Hovedstaden",
+      "score": 100,
+      "capabilities": [
+        "Threat Intelligence",
+        "SOC",
+        "Log Management"
+      ],
+      "isUpscale": false,
+      "rationale": "",
+      "url": "https://udbud.dk/...",
+      "status": "STRONG FIT"
+    },
+    {
+      "title": "Landsdækkende IoT-netværk til forsyningssektoren",
+      "buyer": "HOFOR",
+      "score": 100,
+      "capabilities": [
+        "5G",
+        "IoT",
+        "NB-IoT"
+      ],
+      "isUpscale": false,
+      "rationale": "",
+      "url": "https://udbud.dk/...",
+      "status": "STRONG FIT"
+    },
+    {
+      "title": "Sikker kommunikationsplatform (Unified Comms)",
+      "buyer": "Oslo Kommune",
+      "score": 50,
+      "capabilities": [
+        "Teams"
+      ],
+      "isUpscale": false,
+      "rationale": "",
+      "url": "https://doffin.no/...",
+      "status": "DEVELOPMENT NEEDED"
+    }
+  ]
+}

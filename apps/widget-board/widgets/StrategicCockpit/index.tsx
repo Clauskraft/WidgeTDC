@@ -3,17 +3,8 @@
 
 import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
-  Radar,
-  Network,
-  Sparkles,
-  Map,
-  Settings,
-  RefreshCw,
-  ZoomIn,
-  ZoomOut,
-  Eye,
-  EyeOff,
-  Plus,
+  Radar, Network, Sparkles, Map, Settings, RefreshCw,
+  ZoomIn, ZoomOut, Eye, EyeOff, Plus, Target
 } from 'lucide-react';
 import { useCockpitStore } from './cockpitStore';
 import { AgentCouncil } from './AgentCouncil';
@@ -21,7 +12,8 @@ import { ObservationCardComponent } from './ObservationCard';
 import { NeuralStreamPanel } from './NeuralStreamPanel';
 import { CardConnections } from './CardConnections';
 import { MindmapOverlay } from './MindmapOverlay';
-import { NEON_COLORS } from './types';
+import { MarketRadarPanel } from './MarketRadarPanel';
+import { MatrixWidgetWrapper } from '../../src/components/MatrixWidgetWrapper';
 
 interface StrategicCockpitWidgetProps {
   widgetId?: string;
@@ -56,10 +48,10 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
     mindmapMode,
     showAgentCouncil,
     showNeuralStream,
+    showMarketRadar,
     isConnecting,
     connectionSource,
     wsConnected,
-    lastUpdate,
     // Actions
     setViewport,
     setZoom,
@@ -75,6 +67,7 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
     toggleAgentCouncil,
     setActiveNeuralSection,
     toggleNeuralStream,
+    toggleMarketRadar,
     toggleMindmap,
     setMindmapMode,
     selectGraphNode,
@@ -181,112 +174,34 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
 
   const selectedCard = cards.find((c) => c.id === selectedCardId);
 
-  return (
-    <div className="relative w-full h-full min-h-[600px] bg-slate-950 overflow-hidden">
-      {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-30 h-14 border-b border-white/10 bg-black/40 backdrop-blur-xl">
-        <div className="h-full px-4 flex items-center justify-between">
-          {/* Left section */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 border border-cyan-500/30">
-                <Radar className="w-5 h-5 text-cyan-400" />
-              </div>
-              <div>
-                <h1 className="text-sm font-bold text-white">Strategic Cockpit</h1>
-                <p className="text-[10px] text-white/40">Glass, Neon & The Graph</p>
-              </div>
-            </div>
-
-            {/* Quick stats */}
-            <div className="hidden lg:flex items-center gap-4 ml-4 pl-4 border-l border-white/10">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-                <span className="text-xs text-white/60">
-                  {cards.filter((c) => c.priority === 'critical').length} Critical
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-xs text-white/60">
-                  {agents.filter((a) => a.status === 'active').length} Active Agents
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right section - Controls */}
-          <div className="flex items-center gap-2">
-            {/* View toggles */}
-            <div className="flex items-center bg-white/5 rounded-lg p-0.5">
-              <button
-                onClick={toggleMindmap}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs transition-all ${
-                  showMindmap
-                    ? 'bg-purple-500/30 text-purple-300'
-                    : 'text-white/50 hover:text-white'
-                }`}
-              >
-                <Network className="w-3.5 h-3.5" />
-                Mindmap
-              </button>
-              <button
-                onClick={toggleNeuralStream}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs transition-all ${
-                  showNeuralStream
-                    ? 'bg-cyan-500/30 text-cyan-300'
-                    : 'text-white/50 hover:text-white'
-                }`}
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Neural Stream
-              </button>
-            </div>
-
-            {/* Zoom controls */}
-            <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-              <button
-                onClick={() => setZoom(viewport.zoom - 0.2)}
-                className="p-1 hover:bg-white/10 rounded transition-colors"
-              >
-                <ZoomOut className="w-3.5 h-3.5 text-white/60" />
-              </button>
-              <span className="text-xs text-white/50 w-12 text-center">
-                {Math.round(viewport.zoom * 100)}%
-              </span>
-              <button
-                onClick={() => setZoom(viewport.zoom + 0.2)}
-                className="p-1 hover:bg-white/10 rounded transition-colors"
-              >
-                <ZoomIn className="w-3.5 h-3.5 text-white/60" />
-              </button>
-            </div>
-
-            <button
-              onClick={resetToDefault}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              title="Reset to default"
-            >
-              <RefreshCw className="w-4 h-4 text-white/60" />
-            </button>
-          </div>
+  const Controls = () => (
+    <div className="flex items-center gap-2">
+        <div className="flex items-center bg-white/5 rounded-lg p-0.5">
+            <button onClick={toggleMindmap} className={`p-1 rounded transition-colors ${showMindmap ? 'text-purple-400 bg-purple-500/20' : 'text-gray-400 hover:text-white'}`} title="Mindmap"><Network size={14} /></button>
+            <button onClick={toggleNeuralStream} className={`p-1 rounded transition-colors ${showNeuralStream ? 'text-cyan-400 bg-cyan-500/20' : 'text-gray-400 hover:text-white'}`} title="Neural Stream"><Sparkles size={14} /></button>
+            <button onClick={toggleMarketRadar} className={`p-1 rounded transition-colors ${showMarketRadar ? 'text-amber-400 bg-amber-500/20' : 'text-gray-400 hover:text-white'}`} title="Market Radar"><Target size={14} /></button>
         </div>
-      </header>
+        <div className="w-px h-4 bg-white/10 mx-1" />
+        <button onClick={() => setZoom(viewport.zoom - 0.2)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomOut size={14} /></button>
+        <button onClick={() => setZoom(viewport.zoom + 0.2)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomIn size={14} /></button>
+        <button onClick={resetToDefault} className="p-1 hover:text-[#00B5CB] text-gray-400"><RefreshCw size={14} /></button>
+    </div>
+  );
 
-      {/* Main Canvas */}
+  return (
+    <MatrixWidgetWrapper title="Strategic Cockpit" controls={<Controls />} className="relative">
       <div
         ref={canvasRef}
-        className="absolute inset-0 top-14 overflow-hidden"
+        className="absolute inset-0 top-0 overflow-hidden bg-[#020617]"
         style={{
           cursor: isPanning ? 'grabbing' : isConnecting ? 'crosshair' : 'grab',
-          paddingBottom: showAgentCouncil ? (agentCouncilExpanded ? '128px' : '48px') : '0',
-          paddingRight: showNeuralStream ? '384px' : '0',
+          // paddingRight: showNeuralStream || showMarketRadar ? '384px' : '0', 
         }}
         onMouseDown={handleCanvasMouseDown}
       >
         {/* Grid background */}
         <div
-          className="absolute inset-0 canvas-bg"
+          className="absolute inset-0 canvas-bg pointer-events-none"
           style={{
             backgroundImage: `
               radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.03) 0%, transparent 50%),
@@ -340,7 +255,7 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
 
         {/* Connection mode indicator */}
         {isConnecting && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-cyan-500/20 backdrop-blur-md rounded-full border border-cyan-500/50">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-cyan-500/20 backdrop-blur-md rounded-full border border-cyan-500/50 z-20">
             <span className="text-sm text-cyan-400">
               Click another card to connect · Press ESC to cancel
             </span>
@@ -348,15 +263,22 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
         )}
       </div>
 
-      {/* Neural Stream Panel */}
+      {/* Conditionally render panels */}
       {showNeuralStream && (
-        <NeuralStreamPanel
-          context={neuralStream}
-          activeSection={activeNeuralSection}
-          onSectionChange={setActiveNeuralSection}
-          onClose={toggleNeuralStream}
-          selectedCardTitle={selectedCard?.title}
-        />
+        <div className="absolute right-0 top-0 bottom-0 w-96 border-l border-white/10 bg-black/80 backdrop-blur-xl z-20">
+            <NeuralStreamPanel
+            context={neuralStream}
+            activeSection={activeNeuralSection}
+            onSectionChange={setActiveNeuralSection}
+            onClose={toggleNeuralStream}
+            selectedCardTitle={selectedCard?.title}
+            />
+        </div>
+      )}
+      {showMarketRadar && (
+          <div className="absolute right-0 top-0 bottom-0 w-96 border-l border-white/10 bg-black/80 backdrop-blur-xl z-20">
+            <MarketRadarPanel onClose={toggleMarketRadar} />
+          </div>
       )}
 
       {/* Mindmap Overlay */}
@@ -376,31 +298,29 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
 
       {/* Agent Council */}
       {showAgentCouncil && (
-        <AgentCouncil
-          agents={agents}
-          isExpanded={agentCouncilExpanded}
-          onToggle={() => setAgentCouncilExpanded(!agentCouncilExpanded)}
-        />
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+            <AgentCouncil
+            agents={agents}
+            isExpanded={agentCouncilExpanded}
+            onToggle={() => setAgentCouncilExpanded(!agentCouncilExpanded)}
+            />
+        </div>
       )}
 
       {/* Status bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-6 bg-black/60 border-t border-white/10 flex items-center justify-between px-4 text-[10px] text-white/40"
-        style={{ marginBottom: showAgentCouncil ? (agentCouncilExpanded ? '128px' : '48px') : '0' }}
-      >
+      <div className="absolute bottom-0 left-0 right-0 h-6 bg-black/80 border-t border-white/10 flex items-center justify-between px-4 text-[10px] text-white/40 z-10">
         <div className="flex items-center gap-4">
-          <span>{cards.length} observation cards</span>
-          <span>{cards.reduce((sum, c) => sum + c.connections.length, 0)} connections</span>
+          <span>{cards.length} active cards</span>
           <span>{mindmap.nodes.length} graph nodes</span>
         </div>
         <div className="flex items-center gap-4">
-          <span>Keyboard: + - 0 Esc Ctrl+M Ctrl+N</span>
           <span className="flex items-center gap-1">
             <span className={`w-1.5 h-1.5 rounded-full ${wsConnected ? 'bg-emerald-400' : 'bg-rose-400'}`} />
-            {wsConnected ? 'WebSocket Connected' : 'Disconnected'}
+            {wsConnected ? 'WS Connected' : 'WS Offline'}
           </span>
         </div>
       </div>
-    </div>
+    </MatrixWidgetWrapper>
   );
 };
 

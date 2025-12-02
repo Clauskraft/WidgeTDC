@@ -150,24 +150,26 @@ export class HybridSearchEngine {
             // Use UnifiedMemorySystem to find holographic patterns
             const patterns = await unifiedMemorySystem.findHolographicPatterns(ctx);
 
-            patterns.forEach((pattern: any, index: number) => {
-                // Check if pattern matches query keywords
-                const queryWords = query.toLowerCase().split(/\s+/);
-                const patternText = JSON.stringify(pattern).toLowerCase();
-                const matchCount = queryWords.filter(word => 
-                    patternText.includes(word)
-                ).length;
+            if (Array.isArray(patterns)) {
+                patterns.forEach((pattern: any, index: number) => {
+                    // Check if pattern matches query keywords
+                    const queryWords = query.toLowerCase().split(/\s+/);
+                    const patternText = JSON.stringify(pattern).toLowerCase();
+                    const matchCount = queryWords.filter(word => 
+                        patternText.includes(word)
+                    ).length;
 
-                if (matchCount > 0) {
-                    results.push({
-                        id: `pattern-${pattern.keyword || index}`,
-                        type: 'pattern',
-                        score: (matchCount / queryWords.length) * pattern.frequency,
-                        content: pattern,
-                        source: 'graph_traversal'
-                    });
-                }
-            });
+                    if (matchCount > 0) {
+                        results.push({
+                            id: `pattern-${pattern.keyword || index}`,
+                            type: 'pattern',
+                            score: (matchCount / queryWords.length) * (pattern.frequency || 0.5),
+                            content: pattern,
+                            source: 'graph_traversal'
+                        });
+                    }
+                });
+            }
         } catch (error) {
             console.warn('Graph traversal error:', error);
         }

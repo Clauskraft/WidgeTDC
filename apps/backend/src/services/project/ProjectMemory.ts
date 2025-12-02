@@ -56,17 +56,44 @@ class ProjectMemoryService {
     public getLifecycleEvents(limit = 50): LifecycleEvent[] {
         const db = getDatabase();
         try {
-            const rows = db.prepare(`
-        SELECT * FROM project_lifecycle_events ORDER BY created_at DESC LIMIT $limit
-        `).all({ $limit: limit } as any) as any[];
+            // Handle sql.js compatibility using exec
+            if (!(db as any).prepare('SELECT 1').all) {
+                const result = (db as any).exec(`SELECT * FROM project_lifecycle_events ORDER BY created_at DESC LIMIT ${limit}`);
+                
+                if (!result || result.length === 0) {
+                    return [];
+                }
 
-            return rows.map(row => ({
-                id: row.id,
-                eventType: row.event_type,
-                status: row.status,
-                details: JSON.parse(row.details),
-                createdAt: row.created_at
-            }));
+                const columns = result[0].columns;
+                const values = result[0].values;
+
+                return values.map((row: any[]) => {
+                    const obj: any = {};
+                    columns.forEach((col: string, idx: number) => {
+                        obj[col] = row[idx];
+                    });
+                    return {
+                        id: obj.id,
+                        eventType: obj.event_type,
+                        status: obj.status,
+                        details: JSON.parse(obj.details || '{}'),
+                        createdAt: obj.created_at
+                    };
+                });
+            } else {
+                // Fallback for better-sqlite3 if available
+                const rows = db.prepare(`
+            SELECT * FROM project_lifecycle_events ORDER BY created_at DESC LIMIT $limit
+            `).all({ $limit: limit } as any) as any[];
+
+                return rows.map(row => ({
+                    id: row.id,
+                    eventType: row.event_type,
+                    status: row.status,
+                    details: JSON.parse(row.details || '{}'),
+                    createdAt: row.created_at
+                }));
+            }
         } catch (error) {
             console.error('[ProjectMemory] Failed to get events:', error);
             return [];

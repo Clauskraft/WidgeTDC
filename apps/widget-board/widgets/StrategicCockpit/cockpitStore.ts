@@ -52,6 +52,9 @@ interface CockpitActions {
   setNeuralIncidents: (incidents: RelatedIncident[]) => void;
   setNeuralPolicies: (policies: AffectingPolicy[]) => void;
 
+  // Market Radar
+  toggleMarketRadar: () => void;
+
   // Mindmap
   toggleMindmap: () => void;
   setMindmapMode: (mode: 'overlay' | 'panel') => void;
@@ -179,6 +182,11 @@ export const useCockpitStore = create<CockpitStore>()(
       })),
       toggleNeuralStream: () => set((state) => ({
         showNeuralStream: !state.showNeuralStream,
+        showMarketRadar: false, // Ensure mutual exclusivity
+      })),
+      toggleMarketRadar: () => set((state) => ({
+        showMarketRadar: !state.showMarketRadar,
+        showNeuralStream: false, // Ensure mutual exclusivity
       })),
       setNeuralDocuments: (docs) => set((state) => ({
         neuralStream: { ...state.neuralStream, documents: docs },
@@ -267,6 +275,7 @@ export const useCockpitStore = create<CockpitStore>()(
         cards: state.cards,
         showAgentCouncil: state.showAgentCouncil,
         showNeuralStream: state.showNeuralStream,
+        showMarketRadar: state.showMarketRadar,
         showMindmap: state.showMindmap,
         mindmapMode: state.mindmapMode,
         mindmap: state.mindmap,

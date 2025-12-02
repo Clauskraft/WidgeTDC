@@ -120,13 +120,27 @@ export class LocalFileScanner implements DataSourceAdapter {
                 if (['.txt', '.md', '.json', '.csv'].includes(file.extension)) {
                     try {
                         content = await fs.readFile(file.path, 'utf-8');
-                        // Truncate if too long
-                        if (content.length > 10000) {
-                            content = content.substring(0, 10000) + '... (truncated)';
-                        }
                     } catch {
                         content = '(unable to read)';
                     }
+                } else if (file.extension === '.pdf') {
+                    try {
+                        const dataBuffer = await fs.readFile(file.path);
+                        // pdf-parse v2.x uses a class-based API
+                        const { PDFParse } = await import('pdf-parse');
+                        const parser = new PDFParse({ data: dataBuffer });
+                        const textResult = await parser.getText();
+                        content = textResult.text;
+                        await parser.destroy();
+                    } catch (e) {
+                        console.warn(`Failed to parse PDF ${file.path}:`, e);
+                        content = '(unable to read pdf)';
+                    }
+                }
+
+                // Truncate if too long (except for PDFs where we might want more context, but keeping safety limit)
+                if (content.length > 50000) {
+                    content = content.substring(0, 50000) + '... (truncated)';
                 }
 
                 entities.push({
@@ -139,7 +153,10 @@ export class LocalFileScanner implements DataSourceAdapter {
                         path: file.path,
                         size: file.size,
                         extension: file.extension,
-                        modifiedAt: file.modifiedAt,
+                        // Convert Date to ISO string for Neo4j compatibility
+                        modifiedAt: file.modifiedAt instanceof Date
+                            ? file.modifiedAt.toISOString()
+                            : String(file.modifiedAt),
                     },
                     timestamp: new Date()
                 });

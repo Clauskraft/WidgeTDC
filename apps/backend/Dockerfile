@@ -12,8 +12,8 @@ RUN apk add --no-cache python3 make g++ sqlite
 COPY package*.json ./
 
 # Copy shared packages that backend depends on
-COPY packages/domain-types ./packages/domain-types
 COPY packages/mcp-types ./packages/mcp-types
+COPY packages/domain-types ./packages/domain-types
 
 # Copy backend
 COPY apps/backend ./apps/backend
@@ -30,7 +30,7 @@ RUN npm run build 2>/dev/null || echo "domain-types build skipped"
 
 # Build backend
 WORKDIR /app/apps/backend
-# RUN npm run build
+RUN npm run build
 
 # Production stage
 FROM node:20-alpine
@@ -47,12 +47,15 @@ COPY --from=builder /app/apps/backend/package*.json ./
 # Copy runtime assets (schema.sql)
 COPY --from=builder /app/apps/backend/src/database/schema.sql ./dist/schema.sql
 
-# Copy external modules from root node_modules (hoisted)
-COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
-COPY --from=builder /app/node_modules/bindings ./node_modules/bindings
-COPY --from=builder /app/node_modules/file-uri-to-path ./node_modules/file-uri-to-path
-COPY --from=builder /app/node_modules/prebuild-install ./node_modules/prebuild-install
-COPY --from=builder /app/node_modules/gpt-3-encoder ./node_modules/gpt-3-encoder
+# Copy all node_modules (robust against hoisting changes)
+# We do this BEFORE copying shared packages to ensure symlinks are overwritten by actual files
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy built shared packages (overwriting potential symlinks from node_modules)
+COPY --from=builder /app/packages/mcp-types/dist ./node_modules/@widget-tdc/mcp-types/dist
+COPY --from=builder /app/packages/mcp-types/package.json ./node_modules/@widget-tdc/mcp-types/
+COPY --from=builder /app/packages/domain-types/dist ./node_modules/@widget-tdc/domain-types/dist
+COPY --from=builder /app/packages/domain-types/package.json ./node_modules/@widget-tdc/domain-types/
 
 # Create data directories
 RUN mkdir -p /app/data /app/logs

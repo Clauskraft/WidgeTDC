@@ -54,6 +54,7 @@ export const staticWidgetRegistry: Record<string, any> = {
   'TheArchitectWidget': lazy(() => import('../widgets/TheArchitectWidget')),
   'VisionaryWidget': lazy(() => import('../widgets/VisionaryWidget')),
   'SemanticBrainDemoWidget': lazy(() => import('../src/components/SemanticBrainDemo')),
+  'NeuralInterfaceWidget': lazy(() => import('../widgets/NeuralInterfaceWidget')),
 };
 
 // Widget metadata for display with new 'type' field
@@ -149,5 +150,12 @@ export const widgetMetadata: Record<string, { name: string; description: string;
     category: 'agents',
     type: 'tool',
     defaultLayout: { w: 6, h: 4 }
+  },
+  'NeuralInterfaceWidget': {
+    name: 'Neural Interface',
+    description: 'God Mode 3D Brain Visualization',
+    category: 'nexus',
+    type: 'app',
+    defaultLayout: { w: 12, h: 6 }
   },
 };

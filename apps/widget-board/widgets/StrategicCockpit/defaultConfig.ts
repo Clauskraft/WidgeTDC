@@ -461,6 +461,7 @@ export const defaultCockpitState: CockpitState = {
   mindmapMode: 'overlay',
   showAgentCouncil: true,
   showNeuralStream: true,
+  showMarketRadar: false,
   isConnecting: false,
   connectionSource: null,
   wsConnected: false,

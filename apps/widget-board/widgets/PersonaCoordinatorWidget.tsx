@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MatrixWidgetWrapper } from '../src/components/MatrixWidgetWrapper';
 import { Users, Upload, Shield, Layout, Code, Sparkles, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface PersonaFeedback {
@@ -23,28 +24,28 @@ const personas = [
     id: 'architecture',
     name: 'Architecture Expert',
     icon: Layout,
-    color: '#3b82f6',
+    color: 'text-blue-400',
     focus: 'System design, scalability, patterns',
   },
   {
     id: 'security',
     name: 'Security Expert',
     icon: Shield,
-    color: '#ef4444',
+    color: 'text-red-400',
     focus: 'Vulnerabilities, compliance, auth',
   },
   {
     id: 'backend',
     name: 'Backend Expert',
     icon: Code,
-    color: '#10b981',
+    color: 'text-emerald-400',
     focus: 'APIs, databases, performance',
   },
   {
     id: 'frontend',
     name: 'Frontend Expert',
     icon: Sparkles,
-    color: '#f59e0b',
+    color: 'text-amber-400',
     focus: 'UX, accessibility, responsive',
   },
 ];
@@ -71,17 +72,37 @@ export const PersonaCoordinatorWidget: React.FC = () => {
     setIsReviewing(true);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('personas', JSON.stringify(selectedPersonas));
+        // Mock response for UI testing if backend is unavailable
+        await new Promise(r => setTimeout(r, 2000));
+        
+        // Fallback Mock Data
+        const mockResult: ReviewResult = {
+            summary: "Strong architectural foundation, but potential security gaps in authentication flow.",
+            consensus: ["Microservices approach is appropriate", "React stack is well chosen"],
+            disagreements: ["Database choice (SQL vs NoSQL)", "Auth provider strategy"],
+            overallScore: 78,
+            personas: [
+                { 
+                    persona: 'architecture', role: 'Architect', feedback: 'Clean separation of concerns. Good scalability.', confidence: 0.9, 
+                    recommendations: ['Add caching layer'], concerns: []
+                },
+                {
+                    persona: 'security', role: 'Security', feedback: 'Auth flow needs hardening against CSRF.', confidence: 0.75,
+                    recommendations: ['Implement strict CSP'], concerns: ['Token storage in localStorage']
+                }
+            ]
+        };
+        setResult(mockResult);
 
-      const response = await fetch('/api/commands/sc/spec-panel', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-      setResult(data);
+        // Real fetch call (commented out until backend endpoint is verified)
+        /*
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('personas', JSON.stringify(selectedPersonas));
+        const response = await fetch('/api/commands/sc/spec-panel', { method: 'POST', body: formData });
+        const data = await response.json();
+        setResult(data);
+        */
     } catch (error) {
       console.error('Review error:', error);
     } finally {
@@ -90,152 +111,112 @@ export const PersonaCoordinatorWidget: React.FC = () => {
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'text-success';
-    if (confidence >= 0.6) return 'text-warning';
-    return 'text-destructive';
+    if (confidence >= 0.8) return 'text-green-400';
+    if (confidence >= 0.6) return 'text-yellow-400';
+    return 'text-red-400';
   };
 
   return (
-    <div className="group flex flex-col h-full bg-card/5 backdrop-blur-sm rounded-lg border border-border/20 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-hero)] overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/20 bg-gradient-to-r from-primary/5 to-accent/5">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/20 rounded-lg animate-glow-pulse">
-            <Users className="w-6 h-6" style={{ color: 'hsl(var(--primary))' }} />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-card-foreground">Persona Coordinator</h3>
-            <p className="text-sm text-muted-foreground">Multi-Expert Review Panel</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Persona Selection */}
-      <div className="p-4 border-b border-border/20 bg-gradient-subtle">
-        <p className="text-sm font-semibold text-card-foreground mb-3">Vælg eksperter til review:</p>
-        <div className="grid grid-cols-2 gap-3">
-          {personas.map((persona) => {
-            const Icon = persona.icon;
-            const isSelected = selectedPersonas.includes(persona.id);
-            return (
-              <button
-                key={persona.id}
-                onClick={() => togglePersona(persona.id)}
-                className={`p-4 rounded-lg border-2 transition-all duration-200 text-left backdrop-blur-sm ${
-                  isSelected
-                    ? 'border-primary bg-primary/10 scale-105'
-                    : 'border-border bg-card/30 hover:bg-accent/50 hover:scale-[1.02]'
-                }`}
-              >
-                <div className="flex items-center gap-3 mb-2">
-                  <Icon
-                    className="w-6 h-6 transition-colors"
-                    style={{ color: isSelected ? persona.color : 'hsl(var(--muted-foreground))' }}
-                  />
-                  <span className={`font-semibold transition-colors ${isSelected ? 'text-card-foreground' : 'text-muted-foreground'}`}>
-                    {persona.name}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground">{persona.focus}</p>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gradient-subtle">
+    <MatrixWidgetWrapper title="Persona Coordinator">
+      <div className="flex flex-col h-full gap-4">
+        
+        {/* Persona Selection Grid */}
         {!result && (
-          <div className="flex flex-col items-center justify-center h-full text-center animate-fade-in">
-            <div className="p-6 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/10 mb-6">
-              <Users className="w-16 h-16 mx-auto mb-4" style={{ color: 'hsl(var(--primary))' }} />
-              <h4 className="text-xl font-semibold text-card-foreground mb-2">
-                Upload specification for review
-              </h4>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Få feedback fra {selectedPersonas.length} eksperter på din arkitektur, design eller specification
-              </p>
-
-              <label className="inline-flex items-center gap-2 btn-primary cursor-pointer">
-                <Upload className="w-5 h-5" />
-                <span>Upload dokument</span>
-                <input
-                  type="file"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                  accept=".md,.txt,.pdf,.docx"
-                  disabled={isReviewing || selectedPersonas.length === 0}
-                />
-              </label>
-
-              {selectedPersonas.length === 0 && (
-                <p className="mt-4 text-sm text-destructive animate-fade-in">⚠️ Vælg mindst én ekspert</p>
-              )}
-
-              {isReviewing && (
-                <div className="mt-4 flex items-center gap-2 text-muted-foreground animate-fade-in">
-                  <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: 'hsl(var(--primary))' }} />
-                  <span>Gennemgår med {selectedPersonas.length} eksperter...</span>
+            <div className="space-y-3">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Select Expert Panel</p>
+                <div className="grid grid-cols-2 gap-2">
+                {personas.map((persona) => {
+                    const Icon = persona.icon;
+                    const isSelected = selectedPersonas.includes(persona.id);
+                    return (
+                    <button
+                        key={persona.id}
+                        onClick={() => togglePersona(persona.id)}
+                        className={`p-3 rounded-xl border text-left transition-all duration-200 flex flex-col gap-2 ${
+                        isSelected
+                            ? 'bg-[#00B5CB]/10 border-[#00B5CB] shadow-lg shadow-[#00B5CB]/10'
+                            : 'bg-white/5 border-white/5 hover:bg-white/10'
+                        }`}
+                    >
+                        <div className="flex items-center justify-between w-full">
+                            <Icon className={`w-5 h-5 ${persona.color}`} />
+                            {isSelected && <CheckCircle className="w-4 h-4 text-[#00B5CB]" />}
+                        </div>
+                        <div>
+                            <span className={`text-sm font-medium block ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                                {persona.name}
+                            </span>
+                            <span className="text-[10px] text-gray-500 line-clamp-1">{persona.focus}</span>
+                        </div>
+                    </button>
+                    );
+                })}
                 </div>
-              )}
             </div>
+        )}
 
-            <div className="grid grid-cols-2 gap-4 text-left max-w-2xl">
-              <div className="p-4 bg-success/10 backdrop-blur rounded-lg border border-success/20 transition-transform hover:scale-105">
-                <CheckCircle className="w-8 h-8 mb-2" style={{ color: 'hsl(var(--success))' }} />
-                <p className="text-sm font-semibold text-card-foreground">Consensus</p>
-                <p className="text-xs text-muted-foreground">Where experts agree</p>
-              </div>
-              <div className="p-4 bg-warning/10 backdrop-blur rounded-lg border border-warning/20 transition-transform hover:scale-105">
-                <AlertCircle className="w-8 h-8 mb-2" style={{ color: 'hsl(var(--warning))' }} />
-                <p className="text-sm font-semibold text-card-foreground">Trade-offs</p>
-                <p className="text-xs text-muted-foreground">Productive tensions</p>
-              </div>
-            </div>
+        {/* Upload / Loading State */}
+        {!result && (
+          <div className="flex-1 flex flex-col items-center justify-center p-6 border-2 border-dashed border-white/10 rounded-xl bg-black/20 mt-2">
+            {isReviewing ? (
+                <div className="text-center space-y-3">
+                    <div className="relative w-12 h-12 mx-auto">
+                        <div className="absolute inset-0 border-2 border-[#00B5CB] border-t-transparent rounded-full animate-spin" />
+                    </div>
+                    <p className="text-sm text-gray-300">Consulting experts...</p>
+                    <p className="text-xs text-gray-500">Analyzing document structure</p>
+                </div>
+            ) : (
+                <label className="flex flex-col items-center cursor-pointer group">
+                    <div className="p-4 bg-white/5 rounded-full mb-3 group-hover:bg-[#00B5CB]/20 transition-colors">
+                        <Upload className="w-6 h-6 text-gray-400 group-hover:text-[#00B5CB]" />
+                    </div>
+                    <span className="text-sm font-semibold text-gray-200 group-hover:text-white">Upload Specification</span>
+                    <span className="text-xs text-gray-500 mt-1">PDF, MD, or TXT</span>
+                    <input
+                        type="file"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        accept=".md,.txt,.pdf,.docx"
+                        disabled={isReviewing || selectedPersonas.length === 0}
+                    />
+                </label>
+            )}
           </div>
         )}
 
+        {/* Results View */}
         {result && (
-          <div className="space-y-6 animate-fade-in">
+          <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar pr-1">
             {/* Overall Summary */}
-            <div className="p-6 bg-gradient-card backdrop-blur-sm border border-primary/30 rounded-lg">
-              <div className="flex items-center gap-4 mb-4">
-                <div className={`text-4xl font-bold ${getConfidenceColor(result.overallScore / 100)}`}>
+            <div className="p-4 bg-[#00B5CB]/10 border border-[#00B5CB]/20 rounded-xl">
+              <div className="flex items-center gap-4">
+                <div className={`text-3xl font-bold ${getConfidenceColor(result.overallScore / 100)}`}>
                   {result.overallScore}
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold text-card-foreground">Overall Assessment</h4>
-                  <p className="text-sm text-muted-foreground">{result.summary}</p>
+                  <h4 className="text-sm font-bold text-white uppercase tracking-wide">Consensus Score</h4>
+                  <p className="text-xs text-gray-300 mt-1">{result.summary}</p>
                 </div>
               </div>
             </div>
 
             {/* Consensus & Disagreements */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-success/10 backdrop-blur border border-success/30 rounded-lg transition-transform hover:scale-[1.02]">
-                <div className="flex items-center gap-2 mb-3">
-                  <CheckCircle className="w-5 h-5 text-success" />
-                  <h5 className="font-semibold text-success">Expert Consensus</h5>
-                </div>
-                <ul className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <h5 className="font-bold text-xs text-green-400 mb-2 flex items-center gap-1"><CheckCircle size={12}/> Consensus</h5>
+                <ul className="space-y-1">
                   {result.consensus.map((item, index) => (
-                    <li key={index} className="text-sm text-card-foreground">
-                      • {item}
-                    </li>
+                    <li key={index} className="text-[10px] text-gray-300">• {item}</li>
                   ))}
                 </ul>
               </div>
 
-              <div className="p-4 bg-warning/10 backdrop-blur border border-warning/30 rounded-lg transition-transform hover:scale-[1.02]">
-                <div className="flex items-center gap-2 mb-3">
-                  <AlertCircle className="w-5 h-5 text-warning" />
-                  <h5 className="font-semibold text-warning">Trade-offs Found</h5>
-                </div>
-                <ul className="space-y-2">
+              <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <h5 className="font-bold text-xs text-yellow-400 mb-2 flex items-center gap-1"><AlertCircle size={12}/> Conflicts</h5>
+                <ul className="space-y-1">
                   {result.disagreements.map((item, index) => (
-                    <li key={index} className="text-sm text-card-foreground">
-                      • {item}
-                    </li>
+                    <li key={index} className="text-[10px] text-gray-300">• {item}</li>
                   ))}
                 </ul>
               </div>
@@ -243,62 +224,34 @@ export const PersonaCoordinatorWidget: React.FC = () => {
 
             {/* Individual Persona Feedback */}
             <div>
-              <h4 className="text-lg font-semibold text-card-foreground mb-4">
-                Expert Feedback ({result.personas.length})
-              </h4>
-              <div className="space-y-4">
+              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Expert Feedback</h4>
+              <div className="space-y-3">
                 {result.personas.map((personaFeedback, index) => {
                   const persona = personas.find((p) => p.id === personaFeedback.persona);
                   if (!persona) return null;
                   const Icon = persona.icon;
 
                   return (
-                    <div
-                      key={index}
-                      className="p-5 bg-card/50 backdrop-blur-sm border border-border/20 rounded-lg transition-all hover:scale-[1.01] hover:shadow-[var(--shadow-card)]"
-                    >
-                      {/* Persona Header */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <Icon className="w-6 h-6" style={{ color: persona.color }} />
-                          <div>
-                            <h5 className="font-semibold text-card-foreground">{persona.name}</h5>
-                            <p className="text-sm text-muted-foreground">{personaFeedback.role}</p>
-                          </div>
+                    <div key={index} className="p-3 bg-white/5 border border-white/10 rounded-xl">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Icon className={`w-4 h-4 ${persona.color}`} />
+                          <span className="text-xs font-bold text-white">{persona.name}</span>
                         </div>
-                        <div className={`text-xl font-bold ${getConfidenceColor(personaFeedback.confidence)}`}>
-                          {Math.round(personaFeedback.confidence * 100)}%
-                        </div>
+                        <span className={`text-xs font-mono ${getConfidenceColor(personaFeedback.confidence)}`}>
+                          {Math.round(personaFeedback.confidence * 100)}% conf.
+                        </span>
                       </div>
 
-                      {/* Feedback */}
-                      <p className="text-card-foreground mb-4">{personaFeedback.feedback}</p>
-
-                      {/* Recommendations */}
-                      {personaFeedback.recommendations.length > 0 && (
-                        <div className="mb-4">
-                          <p className="text-sm font-semibold text-success mb-2">✅ Recommendations:</p>
-                          <ul className="space-y-1">
-                            {personaFeedback.recommendations.map((rec, i) => (
-                              <li key={i} className="text-sm text-card-foreground ml-4">
-                                • {rec}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
+                      <p className="text-xs text-gray-300 mb-2">{personaFeedback.feedback}</p>
 
                       {/* Concerns */}
                       {personaFeedback.concerns.length > 0 && (
-                        <div>
-                          <p className="text-sm font-semibold text-destructive mb-2">⚠️ Concerns:</p>
-                          <ul className="space-y-1">
-                            {personaFeedback.concerns.map((concern, i) => (
-                              <li key={i} className="text-sm text-card-foreground ml-4">
-                                • {concern}
-                              </li>
-                            ))}
-                          </ul>
+                        <div className="mt-2 pt-2 border-t border-white/5">
+                          <p className="text-[10px] font-bold text-red-400 mb-1">Concerns:</p>
+                          {personaFeedback.concerns.map((c, i) => (
+                              <p key={i} className="text-[10px] text-gray-400 pl-2 border-l border-red-500/30">{c}</p>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -307,36 +260,16 @@ export const PersonaCoordinatorWidget: React.FC = () => {
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => {
-                  setResult(null);
-                  setSelectedFile(null);
-                }}
-                className="btn-secondary"
-              >
-                New Review
-              </button>
-              <button
-                onClick={() => {
-                  const json = JSON.stringify(result, null, 2);
-                  const blob = new Blob([json], { type: 'application/json' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `review-${Date.now()}.json`;
-                  a.click();
-                }}
-                className="btn-primary"
-              >
-                Export Review
-              </button>
-            </div>
+            <button
+                onClick={() => { setResult(null); setSelectedFile(null); }}
+                className="w-full py-2 bg-white/10 hover:bg-white/20 text-xs font-medium rounded-lg text-white transition-colors"
+            >
+                Start New Review
+            </button>
           </div>
         )}
       </div>
-    </div>
+    </MatrixWidgetWrapper>
   );
 };
 

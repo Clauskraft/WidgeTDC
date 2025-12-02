@@ -1,16 +1,12 @@
 // Executive Risk Canvas - Main Widget Component
 // SVP-level Risk & P&L Control Surface with zoom/pan infinite canvas
 
-import React, { useRef, useState, useCallback, useEffect, Suspense } from 'react';
+import React, { useRef, useState, useCallback, useEffect } from 'react';
 import {
   ZoomIn,
   ZoomOut,
   Maximize,
   Target,
-  Layers,
-  Plus,
-  Settings,
-  Download,
   Presentation,
   Eye,
   EyeOff,
@@ -26,6 +22,7 @@ import { ConnectionLines } from './ConnectionLines';
 import { Minimap } from './Minimap';
 import { DEFAULT_EXECUTIVE_SUMMARY } from './defaultConfig';
 import { staticWidgetRegistry } from '../../src/staticWidgetRegistry';
+import { MatrixWidgetWrapper } from '../../src/components/MatrixWidgetWrapper';
 
 interface ExecutiveRiskCanvasProps {
   widgetId?: string;
@@ -153,153 +150,64 @@ const ExecutiveRiskCanvasWidget: React.FC<ExecutiveRiskCanvasProps> = ({ widgetI
 
   const summary = DEFAULT_EXECUTIVE_SUMMARY;
 
+  const Controls = () => (
+    <div className="flex items-center gap-2">
+      {/* View Mode Toggle */}
+      <div className="flex items-center bg-white/5 rounded-lg p-0.5">
+        <button
+          onClick={() => setViewportMode('portfolio')}
+          className={`px-2 py-1 text-[10px] font-medium rounded transition-all ${
+            viewport.mode === 'portfolio' ? 'bg-cyan-500 text-white' : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          Portfolio
+        </button>
+        <button
+          onClick={() => setViewportMode('crisis')}
+          className={`px-2 py-1 text-[10px] font-medium rounded transition-all ${
+            viewport.mode === 'crisis' ? 'bg-rose-500 text-white' : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          Crisis
+        </button>
+      </div>
+
+      <button onClick={() => setZoom(viewport.zoom * 0.8)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomOut size={14} /></button>
+      <span className="text-[10px] text-gray-500 w-8 text-center">{Math.round(viewport.zoom * 100)}%</span>
+      <button onClick={() => setZoom(viewport.zoom * 1.25)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomIn size={14} /></button>
+      
+      <div className="w-px h-4 bg-white/10 mx-1" />
+      
+      <button onClick={toggleMinimap} className={`p-1 ${showMinimap ? 'text-[#00B5CB]' : 'text-gray-400'}`}><Eye size={14} /></button>
+      <button onClick={togglePresentationMode} className="p-1 hover:text-[#00B5CB] text-gray-400"><Presentation size={14} /></button>
+      <button onClick={resetToDefault} className="p-1 hover:text-[#00B5CB] text-gray-400"><RefreshCw size={14} /></button>
+    </div>
+  );
+
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 -m-4">
-      {/* Header Bar */}
+    <MatrixWidgetWrapper title="Executive Risk Canvas" controls={<Controls />} className="relative">
+      {/* Stats Overlay */}
       {!presentationMode && (
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-black/20 backdrop-blur-sm">
-          <div className="flex items-center gap-4">
-            <div>
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Target className="w-5 h-5 text-cyan-400" />
-                Executive Risk Canvas
-              </h2>
-              <p className="text-xs text-white/50">SVP AI Cloud & Cyber · Risk & P&L Control Surface</p>
+        <div className="absolute top-2 left-2 z-10 flex gap-2">
+            <div className="bg-black/60 backdrop-blur-md border border-rose-500/30 rounded-lg px-3 py-1.5 flex flex-col items-center min-w-[80px]">
+                <div className="text-lg font-bold text-rose-400 leading-none">{summary.criticalIncidents}</div>
+                <div className="text-[9px] text-rose-500/70 uppercase font-bold tracking-wider">Critical</div>
             </div>
-
-            {/* Quick Stats */}
-            <div className="hidden lg:flex items-center gap-4 ml-6 pl-6 border-l border-white/10">
-              <div className="text-center">
-                <div className="flex items-center gap-1 text-rose-400">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span className="text-xl font-bold">{summary.criticalIncidents}</span>
-                </div>
-                <span className="text-[10px] text-white/40 uppercase">Critical</span>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1 text-amber-400">
-                  <TrendingUp className="w-4 h-4" />
-                  <span className="text-xl font-bold">{summary.pendingDecisions}</span>
-                </div>
-                <span className="text-[10px] text-white/40 uppercase">Pending</span>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1 text-cyan-400">
-                  <DollarSign className="w-4 h-4" />
-                  <span className="text-xl font-bold">{formatCurrency(summary.totalArrAtRisk)}</span>
-                </div>
-                <span className="text-[10px] text-white/40 uppercase">ARR at Risk</span>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center gap-1 text-emerald-400">
-                  <Shield className="w-4 h-4" />
-                  <span className="text-xl font-bold">{summary.complianceScore}%</span>
-                </div>
-                <span className="text-[10px] text-white/40 uppercase">Compliance</span>
-              </div>
+            <div className="bg-black/60 backdrop-blur-md border border-cyan-500/30 rounded-lg px-3 py-1.5 flex flex-col items-center min-w-[80px]">
+                <div className="text-lg font-bold text-cyan-400 leading-none">{formatCurrency(summary.totalArrAtRisk)}</div>
+                <div className="text-[9px] text-cyan-500/70 uppercase font-bold tracking-wider">Risk ARR</div>
             </div>
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center gap-2">
-            {/* View Mode Toggle */}
-            <div className="flex items-center bg-white/5 rounded-lg p-0.5">
-              <button
-                onClick={() => setViewportMode('portfolio')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                  viewport.mode === 'portfolio'
-                    ? 'bg-cyan-500 text-white'
-                    : 'text-white/60 hover:text-white'
-                }`}
-              >
-                Portfolio
-              </button>
-              <button
-                onClick={() => setViewportMode('crisis')}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                  viewport.mode === 'crisis'
-                    ? 'bg-rose-500 text-white'
-                    : 'text-white/60 hover:text-white'
-                }`}
-              >
-                Crisis
-              </button>
+             <div className="bg-black/60 backdrop-blur-md border border-emerald-500/30 rounded-lg px-3 py-1.5 flex flex-col items-center min-w-[80px]">
+                <div className="text-lg font-bold text-emerald-400 leading-none">{summary.complianceScore}%</div>
+                <div className="text-[9px] text-emerald-500/70 uppercase font-bold tracking-wider">Compliance</div>
             </div>
-
-            {/* Cluster Quick Nav */}
-            <select
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white"
-              onChange={(e) => e.target.value && focusCluster(e.target.value)}
-              defaultValue=""
-            >
-              <option value="" disabled>Jump to Cluster...</option>
-              {clusters.map(c => (
-                <option key={c.id} value={c.id}>
-                  {c.name} ({c.severity})
-                </option>
-              ))}
-            </select>
-
-            {/* Zoom Controls */}
-            <div className="flex items-center gap-1 bg-white/5 rounded-lg px-2 py-1">
-              <button
-                onClick={() => setZoom(viewport.zoom * 0.8)}
-                className="p-1 hover:bg-white/10 rounded"
-              >
-                <ZoomOut className="w-4 h-4 text-white/60" />
-              </button>
-              <span className="text-xs text-white/60 w-12 text-center">
-                {Math.round(viewport.zoom * 100)}%
-              </span>
-              <button
-                onClick={() => setZoom(viewport.zoom * 1.25)}
-                className="p-1 hover:bg-white/10 rounded"
-              >
-                <ZoomIn className="w-4 h-4 text-white/60" />
-              </button>
-              <button
-                onClick={resetViewport}
-                className="p-1 hover:bg-white/10 rounded ml-1"
-                title="Reset View"
-              >
-                <Maximize className="w-4 h-4 text-white/60" />
-              </button>
-            </div>
-
-            {/* Action Buttons */}
-            <button
-              onClick={toggleMinimap}
-              className={`p-2 rounded-lg transition-colors ${
-                showMinimap ? 'bg-cyan-500/20 text-cyan-400' : 'bg-white/5 text-white/60 hover:text-white'
-              }`}
-              title="Toggle Minimap"
-            >
-              {showMinimap ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-            </button>
-
-            <button
-              onClick={togglePresentationMode}
-              className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors"
-              title="Presentation Mode (Ctrl+P)"
-            >
-              <Presentation className="w-4 h-4" />
-            </button>
-
-            <button
-              onClick={resetToDefault}
-              className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-colors"
-              title="Reset to Default"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </button>
-          </div>
         </div>
       )}
 
       {/* Canvas Area */}
       <div
         ref={canvasRef}
-        className={`flex-1 relative overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`w-full h-full relative overflow-hidden bg-[#050B14] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -381,18 +289,18 @@ const ExecutiveRiskCanvasWidget: React.FC<ExecutiveRiskCanvasProps> = ({ widgetI
 
         {/* Presentation Mode Overlay */}
         {presentationMode && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-6 py-2 flex items-center gap-4">
-            <span className="text-white/60 text-sm">Presentation Mode</span>
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-md rounded-full px-6 py-2 flex items-center gap-4 border border-white/10">
+            <span className="text-white/60 text-xs uppercase tracking-widest">Presentation Mode</span>
             <button
               onClick={togglePresentationMode}
-              className="text-white/80 hover:text-white text-sm font-medium"
+              className="text-[#00B5CB] hover:text-white text-xs font-bold"
             >
-              Exit (Ctrl+P)
+              EXIT
             </button>
           </div>
         )}
       </div>
-    </div>
+    </MatrixWidgetWrapper>
   );
 };
 
@@ -406,24 +314,24 @@ const SelectedConnectionPanel: React.FC<{
   if (!connection) return null;
 
   return (
-    <div className="absolute bottom-4 left-4 w-96 bg-slate-900/95 backdrop-blur-md rounded-xl border border-white/10 shadow-2xl overflow-hidden">
-      <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
-        <h3 className="font-semibold text-white">Argumentationskæde</h3>
-        <button onClick={onClose} className="text-white/40 hover:text-white">×</button>
+    <div className="absolute bottom-4 left-4 w-80 bg-black/90 backdrop-blur-md rounded-xl border border-white/10 shadow-2xl overflow-hidden z-20">
+      <div className="px-4 py-2 border-b border-white/10 flex items-center justify-between bg-white/5">
+        <h3 className="text-xs font-bold text-white uppercase">Connection Link</h3>
+        <button onClick={onClose} className="text-white/40 hover:text-white text-lg">×</button>
       </div>
       <div className="p-4 space-y-3">
         <div>
-          <span className="text-xs text-white/40 uppercase">Forbindelse</span>
+          <span className="text-[9px] text-gray-500 uppercase tracking-wider">Label</span>
           <p className="text-sm text-white font-medium">{connection.label}</p>
         </div>
         {connection.svpBudskab && (
-          <div className="p-3 bg-white/5 rounded-lg border border-white/10">
-            <span className="text-xs text-cyan-400 uppercase block mb-1">SVP Budskab</span>
-            <p className="text-sm text-white/80 italic">"{connection.svpBudskab}"</p>
+          <div className="p-3 bg-cyan-500/10 rounded-lg border border-cyan-500/20">
+            <span className="text-[9px] text-cyan-400 uppercase block mb-1 font-bold">SVP Insight</span>
+            <p className="text-xs text-cyan-100 italic">"{connection.svpBudskab}"</p>
           </div>
         )}
-        <div className="flex items-center gap-2 text-xs text-white/50">
-          <span className={`px-2 py-0.5 rounded ${
+        <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+          <span className={`px-2 py-0.5 text-[9px] rounded uppercase font-bold ${
             connection.connectionType === 'causal' ? 'bg-rose-500/20 text-rose-400' :
             connection.connectionType === 'regulatory' ? 'bg-amber-500/20 text-amber-400' :
             connection.connectionType === 'financial' ? 'bg-blue-500/20 text-blue-400' :
@@ -431,7 +339,7 @@ const SelectedConnectionPanel: React.FC<{
           }`}>
             {connection.connectionType}
           </span>
-          <span>{connection.style}</span>
+          <span className="text-[10px] text-gray-500 uppercase">{connection.style}</span>
         </div>
       </div>
     </div>

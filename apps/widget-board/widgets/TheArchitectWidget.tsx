@@ -1,18 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSemanticBrain } from '../src/hooks/useSemanticBrain';
+import { MatrixWidgetWrapper } from '../src/components/MatrixWidgetWrapper';
 import {
   Hammer, Brain, Sparkles, Code, Copy, Check,
-  Play, ChevronDown, ChevronUp, Zap, History
+  Play, History, Zap
 } from 'lucide-react';
 
 /**
  * The Architect - Intelligent Code Builder Widget
- *
- * Features:
- * - Semantic memory: Recalls past preferences and patterns
- * - Context-aware code generation
- * - Live preview capability
- * - Broadcasts insights for other widgets
  */
 
 interface GeneratedComponent {
@@ -190,177 +185,125 @@ export default ${componentName};
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white rounded-xl border border-amber-500/30 shadow-xl overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-gradient-to-r from-amber-900/20 to-orange-900/20">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-amber-500/20 rounded-lg">
-            <Hammer className="w-5 h-5 text-amber-400" />
-          </div>
-          <div>
-            <h3 className="font-bold text-lg">The Architect</h3>
-            <p className="text-xs text-slate-400">
-              {canDream ? '🧠 Memory Active' : '💤 Memory Offline'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {brainStatus && (
-            <span className="text-xs text-slate-500">
-              {brainStatus.metrics.totalThoughts} thoughts
-            </span>
-          )}
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-            title="Generation History"
-          >
-            <History className="w-4 h-4 text-slate-400" />
-          </button>
-        </div>
-      </div>
+    <MatrixWidgetWrapper 
+        title="The Architect" 
+        controls={
+            <button
+                onClick={() => setShowHistory(!showHistory)}
+                className={`p-1 rounded hover:text-[#00B5CB] transition-colors ${showHistory ? 'text-[#00B5CB]' : 'text-gray-400'}`}
+                title="History"
+            >
+                <History size={14} />
+            </button>
+        }
+    >
+      <div className="flex flex-col gap-4 h-full">
+         {/* Memory Indicator */}
+        {thoughts.length > 0 && (
+            <div className="p-2 bg-purple-500/10 border border-purple-500/20 rounded-lg flex items-start gap-2 animate-fade-in">
+                <Brain className="w-3 h-3 text-purple-400 mt-0.5 shrink-0" />
+                <div className="flex-1 overflow-hidden">
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-purple-300 uppercase tracking-wider mb-1">
+                        Active Memory Context ({thoughts.length})
+                        {isRecalling && <Sparkles className="w-2 h-2 animate-pulse" />}
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                         {thoughts.slice(0, 3).map((t, i) => (
+                            <span key={i} className="text-[9px] px-1.5 py-0.5 bg-purple-500/20 rounded text-purple-200 truncate max-w-[150px]" title={t.content}>
+                                {t.content}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
 
-      {/* Memory Indicator */}
-      {thoughts.length > 0 && (
-        <div className="mx-4 mt-3 p-3 bg-purple-900/20 border border-purple-500/30 rounded-lg">
-          <div className="flex items-center gap-2 text-purple-300 text-xs font-medium mb-2">
-            <Brain className="w-3 h-3" />
-            <span>MEMORY ACTIVATED ({thoughts.length} relevant)</span>
-            {isRecalling && <Sparkles className="w-3 h-3 animate-pulse" />}
-          </div>
-          <ul className="space-y-1">
-            {thoughts.slice(0, 3).map((t, i) => (
-              <li key={i} className="text-xs text-purple-200/70 truncate flex items-center gap-2">
-                <span className="text-purple-400">•</span>
-                <span className="flex-1 truncate">{t.content}</span>
-                <span className="text-purple-400/50 text-[10px]">
-                  {(t.score * 100).toFixed(0)}%
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4">
         {/* Prompt Input */}
-        <div>
-          <label className="block text-sm font-medium text-slate-300 mb-2">
-            What should I build?
-          </label>
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Describe the component you want... e.g., 'A dark-themed dashboard card with a sparkline chart and status indicator'"
-            rows={4}
-            className="w-full bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 resize-none"
-          />
+        <div className="relative">
+            <div className="absolute top-3 left-3 text-amber-500/50">
+                 <Hammer size={16} />
+            </div>
+             <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe the component you want to build..."
+                className="w-full bg-black/20 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/20 resize-none min-h-[80px]"
+            />
+            <button
+                onClick={handleBuild}
+                disabled={isGenerating || !prompt.trim()}
+                className="absolute bottom-2 right-2 p-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg shadow-amber-900/20"
+            >
+                {isGenerating ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Zap size={16} />}
+            </button>
         </div>
 
-        {/* Generate Button */}
-        <button
-          onClick={handleBuild}
-          disabled={isGenerating || !prompt.trim()}
-          className="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 disabled:from-slate-600 disabled:to-slate-600 rounded-lg font-semibold flex items-center justify-center gap-2 transition-all"
-        >
-          {isGenerating ? (
-            <>
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Building...
-            </>
-          ) : (
-            <>
-              <Zap className="w-4 h-4" />
-              Build Component
-            </>
-          )}
-        </button>
+        {/* Output Area */}
+        <div className="flex-1 min-h-0 flex flex-col relative">
+            {generatedCode ? (
+                 <div className="flex-1 bg-[#0F1117] border border-white/10 rounded-xl overflow-hidden flex flex-col">
+                     <div className="h-8 flex items-center justify-between px-3 border-b border-white/5 bg-white/5">
+                         <span className="text-[10px] font-mono text-gray-400 flex items-center gap-1">
+                             <Code size={10} /> REACT COMPONENT
+                         </span>
+                         <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setShowPreview(!showPreview)}
+                                className={`text-[10px] px-2 py-0.5 rounded transition-colors ${showPreview ? 'bg-amber-500/20 text-amber-400' : 'text-gray-400 hover:text-white'}`}
+                            >
+                                <Play size={10} className="inline mr-1" /> Preview
+                            </button>
+                            <button
+                                onClick={handleCopy}
+                                className="text-[10px] px-2 py-0.5 rounded text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                                {copied ? <Check size={10} className="inline mr-1 text-green-400" /> : <Copy size={10} className="inline mr-1" />}
+                                {copied ? 'Copied' : 'Copy'}
+                            </button>
+                         </div>
+                     </div>
+                     <div className="flex-1 overflow-auto p-3 custom-scrollbar">
+                         <pre className="text-xs font-mono text-gray-300 leading-relaxed">
+                             {generatedCode}
+                         </pre>
+                     </div>
+                 </div>
+            ) : (
+                <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-xl text-gray-500/40 gap-2">
+                     <Hammer size={32} strokeWidth={1} />
+                     <p className="text-xs">Awaiting architecture specifications</p>
+                </div>
+            )}
+        </div>
 
-        {/* Generated Code */}
-        {generatedCode && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-slate-300">
-                Generated Code
-              </label>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="px-3 py-1 text-xs bg-slate-700 hover:bg-slate-600 rounded-lg flex items-center gap-1"
-                >
-                  <Play className="w-3 h-3" />
-                  Preview
-                </button>
-                <button
-                  onClick={handleCopy}
-                  className="px-3 py-1 text-xs bg-slate-700 hover:bg-slate-600 rounded-lg flex items-center gap-1"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="w-3 h-3 text-green-400" />
-                      Copied!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3" />
-                      Copy
-                    </>
-                  )}
-                </button>
-              </div>
+         {/* History Overlay */}
+         {showHistory && history.length > 0 && (
+            <div className="absolute inset-x-4 bottom-4 top-20 bg-[#0B1015]/95 backdrop-blur-xl border border-white/10 rounded-xl p-3 z-20 flex flex-col animate-fade-in">
+                <div className="flex items-center justify-between mb-2 pb-2 border-b border-white/5">
+                     <h4 className="text-xs font-bold text-gray-300 uppercase">Build History</h4>
+                     <button onClick={() => setShowHistory(false)} className="text-gray-500 hover:text-white">Close</button>
+                </div>
+                <div className="flex-1 overflow-y-auto space-y-2 custom-scrollbar">
+                    {history.map((item) => (
+                        <button
+                            key={item.id}
+                            onClick={() => {
+                                setPrompt(item.prompt);
+                                setGeneratedCode(item.code);
+                                setShowHistory(false);
+                            }}
+                            className="w-full text-left p-2 rounded-lg hover:bg-white/5 transition-colors group"
+                        >
+                            <p className="text-xs text-gray-300 truncate group-hover:text-amber-400 transition-colors">{item.prompt}</p>
+                            <span className="text-[10px] text-gray-600">{new Date(item.timestamp).toLocaleTimeString()}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
-            <div className="relative">
-              <pre className="bg-slate-950 border border-slate-700 rounded-lg p-4 overflow-x-auto text-sm text-slate-300 max-h-80">
-                <code>{generatedCode}</code>
-              </pre>
-              <div className="absolute top-2 right-2">
-                <Code className="w-4 h-4 text-slate-600" />
-              </div>
-            </div>
-          </div>
-        )}
+         )}
 
-        {/* History Panel */}
-        {showHistory && history.length > 0 && (
-          <div className="border-t border-slate-700 pt-4">
-            <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
-              <History className="w-4 h-4" />
-              Recent Builds
-            </h4>
-            <div className="space-y-2 max-h-40 overflow-y-auto">
-              {history.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setPrompt(item.prompt);
-                    setGeneratedCode(item.code);
-                  }}
-                  className="w-full text-left p-3 bg-slate-800/50 hover:bg-slate-700/50 rounded-lg transition-colors"
-                >
-                  <p className="text-sm text-white truncate">{item.prompt}</p>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
-                    <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
-                    {item.memories.length > 0 && (
-                      <span className="text-purple-400">
-                        +{item.memories.length} memories
-                      </span>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
-
-      {/* Footer */}
-      <div className="p-3 border-t border-white/10 bg-slate-900/50 text-center">
-        <p className="text-[10px] text-slate-500">
-          The Architect learns from your preferences via the Semantic Bus
-        </p>
-      </div>
-    </div>
+    </MatrixWidgetWrapper>
   );
 };
 
