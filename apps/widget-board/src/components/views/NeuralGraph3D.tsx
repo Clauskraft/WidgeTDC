@@ -94,20 +94,25 @@ export default function NeuralGraph3D() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
-  // Update dimensions on resize
+  // Update dimensions on resize with ResizeObserver for robustness
   useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        setDimensions({
-          width: containerRef.current.clientWidth,
-          height: containerRef.current.clientHeight,
+    if (typeof window === 'undefined' || !containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+        // Only update if dimensions actually changed to prevent render loops
+        setDimensions(prev => {
+          if (Math.abs(prev.width - width) > 1 || Math.abs(prev.height - height) > 1) {
+            return { width, height };
+          }
+          return prev;
         });
       }
-    };
+    });
 
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
   }, []);
 
   // Auto-rotation effect
@@ -116,7 +121,9 @@ export default function NeuralGraph3D() {
 
     let angle = 0;
     const distance = 400;
-    const interval = setInterval(() => {
+    let frameId: number;
+
+    const animate = () => {
       angle += 0.002;
       const camera = graphRef.current?.camera();
       if (camera) {
@@ -124,10 +131,14 @@ export default function NeuralGraph3D() {
         camera.position.z = distance * Math.cos(angle);
         camera.lookAt(0, 0, 0);
       }
-    }, 30);
+      frameId = requestAnimationFrame(animate);
+    };
 
-    return () => clearInterval(interval);
-  }, [autoRotate]);
+    // Use requestAnimationFrame instead of setInterval for smoother, non-blocking animation
+    animate();
+
+    return () => cancelAnimationFrame(frameId);
+  }, [autoRotate, graphRef.current]); // Added graphRef.current dependency
 
   // Determine node type from labels
   const getNodeType = (labels: string[]): GraphNode['nodeType'] => {

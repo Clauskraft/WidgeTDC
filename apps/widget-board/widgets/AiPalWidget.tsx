@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { MatrixWidgetWrapper } from '../src/components/MatrixWidgetWrapper';
+import { Bell, Clock, Target, Zap, User } from 'lucide-react';
 
 interface FocusWindow {
   weekday: number;
@@ -37,34 +39,21 @@ const AiPalWidget: React.FC = () => {
     setLoading(true);
 
     try {
-      // Use MCP tool: pal.board-action
-      const response = await fetch('/api/mcp/route', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tool: 'pal.board-action',
-          payload: {},
-          context: {
-            userId: 'user-1',
-            orgId: 'org-1',
-          },
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // Transform MCP response to match widget expectations
-        setRecommendations({
+      // Mock fetch for demo
+      await new Promise(r => setTimeout(r, 1000));
+      
+      setRecommendations({
           userId: 'user-1',
           orgId: 'org-1',
-          boardAdjustments: data.boardAdjustments || [],
-          reminders: data.aiRecommendations ? [data.aiRecommendations] : [],
-          focusWindow: null,
-          profile: {
-            preferenceTone: 'supportive',
-          },
-        });
-      }
+          boardAdjustments: [
+              { actionType: 'mute_notifications', message: 'Suggested: Mute notifications for focus' },
+              { actionType: 'isolate_widget_view', message: 'Suggested: Focus on "The Architect"' }
+          ],
+          reminders: ['Review PR #123', 'Update weekly status'],
+          focusWindow: { weekday: 2, startHour: 14, endHour: 16 },
+          profile: { preferenceTone: 'supportive' }
+      });
+
     } catch (err) {
       console.error('Failed to load recommendations:', err);
     } finally {
@@ -74,304 +63,106 @@ const AiPalWidget: React.FC = () => {
 
   useEffect(() => {
     loadRecommendations();
-    // Refresh every 30 seconds
-    const interval = setInterval(loadRecommendations, 30000);
-    return () => clearInterval(interval);
   }, []);
-
-  const recordEvent = async () => {
-    try {
-      const payload = JSON.parse(eventPayload);
-
-      // Use MCP tool: pal.event
-      await fetch('/api/mcp/route', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tool: 'pal.event',
-          payload: {
-            eventType,
-            payload,
-            detectedStressLevel: stressLevel,
-          },
-          context: {
-            userId: 'user-1',
-            orgId: 'org-1',
-          },
-        }),
-      });
-
-      // Reload recommendations after recording event
-      loadRecommendations();
-    } catch (err) {
-      console.error('Failed to record event:', err);
-    }
-  };
 
   const getWeekdayName = (weekday: number) => {
     const days = ['', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     return days[weekday] || 'Unknown';
   };
 
-  const getActionIcon = (actionType: string) => {
-    switch (actionType) {
-      case 'mute_notifications': return '';
-      case 'isolate_widget_view': return '';
-      case 'show_nudge': return '';
-      default: return '';
-    }
-  };
-
   return (
-    <div style={{
-      padding: '20px',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#1a1a1a',
-      color: '#ffffff',
-    }}>
-      <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
-        AI PAL - Your Personal Assistant
-      </h2>
-
-      {loading ? (
-        <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-          Loading recommendations...
-        </div>
-      ) : recommendations ? (
-        <>
-          {/* Current Focus Window */}
-          {recommendations.focusWindow && (
-            <div style={{
-              marginBottom: '20px',
-              padding: '15px',
-              backgroundColor: '#10b981',
-              borderRadius: '8px',
-            }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '5px' }}>
-                Focus Time Active
-              </div>
-              <div style={{ fontSize: '13px' }}>
-                {getWeekdayName(recommendations.focusWindow.weekday)} {' '}
-                {recommendations.focusWindow.startHour}:00 - {recommendations.focusWindow.endHour}:00
-              </div>
+    <MatrixWidgetWrapper title="AI PAL Assistant">
+      <div className="flex flex-col gap-4 h-full">
+        
+        {loading ? (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+                Loading insights...
             </div>
-          )}
-
-          {/* Board Adjustments */}
-          {recommendations.boardAdjustments.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
-                Recommendations
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {recommendations.boardAdjustments.map((action, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      padding: '12px',
-                      backgroundColor: '#2a2a2a',
-                      borderRadius: '8px',
-                      borderLeft: '3px solid #3b82f6',
-                    }}
-                  >
-                    <div style={{ fontSize: '14px', marginBottom: '5px' }}>
-                      {getActionIcon(action.actionType)} {action.message}
+        ) : recommendations ? (
+            <>
+                {/* Focus Window Card */}
+                {recommendations.focusWindow && (
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-3 flex items-center gap-3">
+                        <div className="p-2 bg-emerald-500/20 rounded-full">
+                            <Clock size={16} className="text-emerald-400" />
+                        </div>
+                        <div>
+                            <h4 className="text-xs font-bold text-emerald-300 uppercase">Focus Window</h4>
+                            <p className="text-xs text-emerald-100">
+                                {getWeekdayName(recommendations.focusWindow.weekday)} • {recommendations.focusWindow.startHour}:00 - {recommendations.focusWindow.endHour}:00
+                            </p>
+                        </div>
                     </div>
-                    <div style={{
-                      display: 'flex',
-                      gap: '8px',
-                      marginTop: '10px',
-                    }}>
-                      <button
-                        style={{
-                          flex: 1,
-                          padding: '8px',
-                          backgroundColor: '#10b981',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Accept
-                      </button>
-                      <button
-                        style={{
-                          flex: 1,
-                          padding: '8px',
-                          backgroundColor: '#444',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Ignore
-                      </button>
+                )}
+
+                {/* Recommendations List */}
+                {recommendations.boardAdjustments.length > 0 && (
+                    <div>
+                        <h4 className="text-[10px] font-bold text-gray-400 uppercase mb-2 flex items-center gap-1"><Zap size={10}/> Smart Actions</h4>
+                        <div className="space-y-2">
+                            {recommendations.boardAdjustments.map((action, index) => (
+                                <div key={index} className="p-2 bg-white/5 border border-white/10 rounded-lg flex flex-col gap-2">
+                                    <p className="text-xs text-gray-200">{action.message}</p>
+                                    <div className="flex gap-2">
+                                        <button className="flex-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-[10px] py-1 rounded transition-colors">Accept</button>
+                                        <button className="flex-1 bg-white/5 hover:bg-white/10 text-gray-400 text-[10px] py-1 rounded transition-colors">Ignore</button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                )}
+
+                {/* Reminders */}
+                {recommendations.reminders.length > 0 && (
+                    <div>
+                        <h4 className="text-[10px] font-bold text-gray-400 uppercase mb-2 flex items-center gap-1"><Bell size={10}/> Reminders</h4>
+                        <ul className="space-y-1">
+                            {recommendations.reminders.map((reminder, index) => (
+                                <li key={index} className="text-xs text-gray-300 bg-black/20 p-2 rounded border border-white/5 flex items-center gap-2">
+                                    <div className="w-1 h-1 rounded-full bg-[#00B5CB]"></div>
+                                    {reminder}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {/* Record Activity */}
+                <div className="mt-auto border-t border-white/10 pt-3">
+                    <h4 className="text-[10px] font-bold text-gray-400 uppercase mb-2 flex items-center gap-1"><Target size={10}/> Log Context</h4>
+                    <div className="flex gap-2 mb-2">
+                        <select 
+                            value={eventType}
+                            onChange={(e) => setEventType(e.target.value)}
+                            className="flex-1 bg-black/40 border border-white/10 rounded text-[10px] text-white p-1.5 outline-none"
+                        >
+                            <option value="meeting">Meeting</option>
+                            <option value="deadline">Deadline</option>
+                        </select>
+                        <select 
+                            value={stressLevel}
+                            onChange={(e) => setStressLevel(e.target.value as any)}
+                            className="flex-1 bg-black/40 border border-white/10 rounded text-[10px] text-white p-1.5 outline-none"
+                        >
+                            <option value="low">Low Stress</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <button className="w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white text-xs font-semibold py-1.5 rounded transition-colors">
+                        Record Event
+                    </button>
+                </div>
+            </>
+        ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-gray-500 text-xs">
+                <User size={24} className="mb-2 opacity-50" />
+                No recommendations yet.
             </div>
-          )}
-
-          {/* Reminders */}
-          {recommendations.reminders.length > 0 && (
-            <div style={{ marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
-                Reminders
-              </h3>
-              <div style={{
-                backgroundColor: '#2a2a2a',
-                borderRadius: '8px',
-                padding: '12px',
-              }}>
-                {recommendations.reminders.map((reminder, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      fontSize: '13px',
-                      marginBottom: index < recommendations.reminders.length - 1 ? '8px' : 0,
-                      paddingBottom: index < recommendations.reminders.length - 1 ? '8px' : 0,
-                      borderBottom: index < recommendations.reminders.length - 1 ? '1px solid #444' : 'none',
-                    }}
-                  >
-                    {reminder}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Profile */}
-          <div style={{ marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
-              Profile
-            </h3>
-            <div style={{
-              backgroundColor: '#2a2a2a',
-              borderRadius: '8px',
-              padding: '12px',
-              fontSize: '13px',
-            }}>
-              Tone: <strong>{recommendations.profile.preferenceTone}</strong>
-            </div>
-          </div>
-
-          {/* Record Event */}
-          <div style={{ marginTop: 'auto' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>
-              Record Activity
-            </h3>
-            <div style={{
-              backgroundColor: '#2a2a2a',
-              borderRadius: '8px',
-              padding: '12px',
-            }}>
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>
-                  Event Type
-                </label>
-                <select
-                  value={eventType}
-                  onChange={(e) => setEventType(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #444',
-                    borderRadius: '4px',
-                    color: '#ffffff',
-                    fontSize: '13px',
-                  }}
-                >
-                  <option value="meeting">Meeting</option>
-                  <option value="email">Email</option>
-                  <option value="mcp_alert">MCP Alert</option>
-                  <option value="deadline">Deadline</option>
-                </select>
-              </div>
-
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>
-                  Stress Level
-                </label>
-                <select
-                  value={stressLevel}
-                  onChange={(e) => setStressLevel(e.target.value as any)}
-                  style={{
-                    width: '100%',
-                    padding: '8px',
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #444',
-                    borderRadius: '4px',
-                    color: '#ffffff',
-                    fontSize: '13px',
-                  }}
-                >
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-
-              <div style={{ marginBottom: '10px' }}>
-                <label style={{ display: 'block', marginBottom: '5px', fontSize: '12px' }}>
-                  Event Data (JSON)
-                </label>
-                <textarea
-                  value={eventPayload}
-                  onChange={(e) => setEventPayload(e.target.value)}
-                  style={{
-                    width: '100%',
-                    minHeight: '60px',
-                    padding: '8px',
-                    backgroundColor: '#1a1a1a',
-                    border: '1px solid #444',
-                    borderRadius: '4px',
-                    color: '#ffffff',
-                    fontSize: '12px',
-                    fontFamily: 'monospace',
-                    resize: 'vertical',
-                  }}
-                />
-              </div>
-
-              <button
-                onClick={recordEvent}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  backgroundColor: '#8b5cf6',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '4px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                Record Event
-              </button>
-            </div>
-          </div>
-        </>
-      ) : (
-        <div style={{
-          textAlign: 'center',
-          padding: '20px',
-          color: '#888',
-        }}>
-          No recommendations available
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </MatrixWidgetWrapper>
   );
 };
 

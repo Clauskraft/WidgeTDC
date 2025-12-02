@@ -55,12 +55,26 @@ export class MemoryRepository {
   ingestEntity(input: MemoryEntityInput): number {
     const importance = input.importance || 3;
 
-    const result = this.db.prepare(`
+    const stmt = this.db.prepare(`
       INSERT INTO memory_entities (org_id, user_id, entity_type, content, importance)
       VALUES (?, ?, ?, ?, ?)
-    `).run(input.orgId, input.userId || null, input.entityType, input.content, importance);
+    `);
+    
+    let result: any;
+    if (stmt.run.length === 1) { // sql.js run takes 1 arg (array/object)
+         stmt.run([input.orgId, input.userId || null, input.entityType, input.content, importance]);
+    } else { // better-sqlite3 run takes varargs
+         result = stmt.run(input.orgId, input.userId || null, input.entityType, input.content, importance);
+    }
 
-    const entityId = result.lastInsertRowid as number;
+    let entityId: number;
+    if (result && result.lastInsertRowid) {
+        entityId = result.lastInsertRowid as number;
+    } else {
+        // sql.js fallback
+        const res = this.db.exec("SELECT last_insert_rowid()");
+        entityId = res[0].values[0][0];
+    }
 
     // Insert tags if provided
     if (input.tags && input.tags.length > 0) {
@@ -69,7 +83,11 @@ export class MemoryRepository {
       `);
 
       for (const tag of input.tags) {
-        insertTag.run(entityId, tag);
+        if (insertTag.run.length === 1) {
+            insertTag.run([entityId, tag]);
+        } else {
+            insertTag.run(entityId, tag);
+        }
       }
     }
 
@@ -112,7 +130,18 @@ export class MemoryRepository {
 
       // Get keyword-based candidates first
       const keywordSql = sql + ` ORDER BY e.importance DESC, e.created_at DESC LIMIT ?`;
-      candidates = this.db.prepare(keywordSql).all(...params, limit * 2); // Get more candidates for reranking
+      params.push(limit * 2);
+      
+      const stmt = this.db.prepare(keywordSql);
+      if (stmt.all) {
+          candidates = stmt.all(...params);
+      } else {
+          stmt.bind(params);
+          while(stmt.step()) {
+              candidates.push(stmt.getAsObject());
+          }
+          stmt.free();
+      }
 
       // If we have keywords, also do semantic search and combine results
       if (candidates.length > 0) {
@@ -136,7 +165,17 @@ export class MemoryRepository {
     } else {
       sql += ` ORDER BY e.importance DESC, e.created_at DESC LIMIT ?`;
       params.push(limit);
-      candidates = this.db.prepare(sql).all(...params);
+      
+      const stmt = this.db.prepare(sql);
+      if (stmt.all) {
+          candidates = stmt.all(...params);
+      } else {
+          stmt.bind(params);
+          while(stmt.step()) {
+              candidates.push(stmt.getAsObject());
+          }
+          stmt.free();
+      }
     }
 
     return candidates;
@@ -165,19 +204,43 @@ export class MemoryRepository {
   }
 
   getEntityTags(entityId: number): string[] {
-    const rows = this.db.prepare(`
+    const stmt = this.db.prepare(`
       SELECT tag FROM memory_tags WHERE entity_id = ?
-    `).all(entityId);
+    `);
+    
+    let rows: any[];
+    if (stmt.all) {
+        rows = stmt.all(entityId);
+    } else {
+        stmt.bind([entityId]);
+        rows = [];
+        while(stmt.step()) {
+            rows.push(stmt.getAsObject());
+        }
+        stmt.free();
+    }
 
     return rows.map((row: any) => row.tag);
   }
 
   createRelation(orgId: string, sourceId: number, targetId: number, relationType: string): number {
-    const result = this.db.prepare(`
+    const stmt = this.db.prepare(`
       INSERT INTO memory_relations (org_id, source_id, target_id, relation_type)
       VALUES (?, ?, ?, ?)
-    `).run(orgId, sourceId, targetId, relationType);
+    `);
 
-    return result.lastInsertRowid as number;
+    let result: any;
+    if (stmt.run.length === 1) {
+        stmt.run([orgId, sourceId, targetId, relationType]);
+    } else {
+        result = stmt.run(orgId, sourceId, targetId, relationType);
+    }
+
+    if (result && result.lastInsertRowid) {
+        return result.lastInsertRowid as number;
+    } else {
+        const res = this.db.exec("SELECT last_insert_rowid()");
+        return res[0].values[0][0] as number;
+    }
   }
 }

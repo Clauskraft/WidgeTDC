@@ -1,0 +1,677 @@
+
+> widget-tdc-monorepo@1.0.0 dev
+> concurrently "npm run dev:backend" "npm run dev:frontend"
+
+[0] 
+[0] > widget-tdc-monorepo@1.0.0 dev:backend
+[0] > cd apps/backend && npm run dev
+[0] 
+[1] 
+[1] > widget-tdc-monorepo@1.0.0 dev:frontend
+[1] > cd apps/widget-board && npm run dev
+[1] 
+[1] 
+[1] > @widget-tdc/widget-board@0.0.0 dev
+[1] > vite --port 8888 --strictPort
+[1] 
+[0] 
+[0] > @widget-tdc/backend@1.0.0 dev
+[0] > tsx watch src/index.ts
+[0] 
+[1] 
+[1]   [32m[1mVITE[22m v6.4.1[39m  [2mready in [0m[1m395[22m[2m[0m ms[22m
+[1] 
+[1]   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m8888[22m/[39m
+[1]   [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.56.1:[1m8888[22m/[39m
+[1]   [32m➜[39m  [1mNetwork[22m: [36mhttp://10.41.153.231:[1m8888[22m/[39m
+[1]   [32m➜[39m  [1mNetwork[22m: [36mhttp://10.137.209.31:[1m8888[22m/[39m
+[1]   [32m➜[39m  [1mNetwork[22m: [36mhttp://172.27.80.1:[1m8888[22m/[39m
+[1]   [32m➜[39m  [1mNetwork[22m: [36mhttp://172.23.160.1:[1m8888[22m/[39m
+[0] 💾 Using In-Memory Event Bus (development)
+[0] 👥 [AgentTeam] Initialized with 5 role-based agents
+[0] [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[0] [dotenv@17.2.3] injecting env (0) from ..\..\.env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+[0] 
+[0] ═══════════════════════════════════════════════════════════
+[0]   🟢 WIDGETTDC - DEVELOPMENT MODE
+[0]   Neo4j: Local Docker
+[0]   URI: bolt://localhost:7687
+[0] ═══════════════════════════════════════════════════════════
+[0] 
+[0] ✅ Database initialized successfully with sql.js (pure JavaScript)
+[0] 🗄️  SQLite (sql.js) initialized for memory systems
+[0] 2025-12-02 11:12:27 [[33mwarn[39m]: ⚠️  Prisma/PostgreSQL initialization failed: {"service":"widgetdc-backend","error":"Unable to require(`C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node`).\nThe Prisma engines do not seem to be compatible with your system. Please refer to the documentation about Prisma's system requirements: https://pris.ly/d/system-requirements\n\nDetails: \\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node is not a valid Win32 application.\r\n\\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node"}
+[0] 2025-12-02 11:12:27 [[32minfo[39m]:    Continuing with SQLite + Neo4j (fully functional) {"service":"widgetdc-backend"}
+[0] 🐘 PostgreSQL + pgvector initialized via Prisma
+[0] ✅ Neo4j connection established
+[0] 🕸️  Neo4j Graph Database initialized
+[0] ✅ Neo4j connected successfully bolt://localhost:7687
+[0] 🕸️  Neo4j Service connected
+[0] 🔄 Loading embedding model: Xenova/all-MiniLM-L6-v2
+[0] ✅ Embedding model loaded: Xenova/all-MiniLM-L6-v2
+[0] 🧠 Transformers.js Embeddings initialized
+[0] Registered MCP tool: cma.context
+[0] Registered MCP tool: cma.ingest
+[0] Registered MCP tool: cma.memory.store
+[0] Registered MCP tool: cma.memory.retrieve
+[0] Registered MCP tool: srag.query
+[0] Registered MCP tool: srag.governance-check
+[0] Registered MCP tool: evolution.report-run
+[0] Registered MCP tool: evolution.get-prompt
+[0] Registered MCP tool: evolution.analyze-prompts
+[0] Registered MCP tool: pal.event
+[0] Registered MCP tool: pal.board-action
+[0] Registered MCP tool: pal.optimize-workflow
+[0] Registered MCP tool: pal.analyze-sentiment
+[0] Registered MCP tool: notes.list
+[0] Registered MCP tool: notes.create
+[0] Registered MCP tool: notes.update
+[0] Registered MCP tool: notes.delete
+[0] Registered MCP tool: notes.get
+[0] Registered MCP tool: widgets.invoke
+[0] Registered MCP tool: widgets.osint.investigate
+[0] Registered MCP tool: widgets.threat.hunt
+[0] Registered MCP tool: widgets.orchestrator.coordinate
+[0] Registered MCP tool: widgets.update_state
+[0] Registered MCP tool: project.log_event
+[0] Registered MCP tool: project.get_events
+[0] Registered MCP tool: project.add_feature
+[0] Registered MCP tool: project.update_feature
+[0] Registered MCP tool: project.get_features
+[0] Registered MCP tool: ingestion.start
+[0] Registered MCP tool: ingestion.status
+[0] Registered MCP tool: ingestion.configure
+[0] Registered MCP tool: autonomous.graphrag
+[0] Registered MCP tool: autonomous.stategraph
+[0] Registered MCP tool: autonomous.evolve
+[0] Registered MCP tool: autonomous.agentteam
+[0] Registered MCP tool: autonomous.agentteam.coordinate
+[0] Registered MCP tool: vidensarkiv.search
+[0] Registered MCP tool: vidensarkiv.add
+[0] Registered MCP tool: vidensarkiv.batch_add
+[0] Registered MCP tool: vidensarkiv.get_related
+[0] Registered MCP tool: vidensarkiv.list
+[0] Registered MCP tool: vidensarkiv.stats
+[0] Registered MCP tool: taskrecorder.get_suggestions
+[0] Registered MCP tool: taskrecorder.approve
+[0] Registered MCP tool: taskrecorder.reject
+[0] Registered MCP tool: taskrecorder.execute
+[0] Registered MCP tool: taskrecorder.get_patterns
+[0] Registered MCP tool: email.rag
+[0] Registered MCP tool: docgen.powerpoint.create
+[0] Registered MCP tool: docgen.word.create
+[0] Registered MCP tool: docgen.excel.create
+[0] Registered MCP tool: docgen.status
+[0] Registered MCP tool: devtools-status
+[0] Registered MCP tool: devtools-scan
+[0] Registered MCP tool: devtools-validate
+[0] [ORCHESTRATOR] Found 8 agents in registry
+[0] Registered MCP Server: AgentOrchestrator
+[0] 🤖 Agent Orchestrator initialized
+[0] Registered MCP tool: trigger_agent
+[0] Registered MCP tool: start_hanspetter_listener
+[0] Registered MCP tool: update_agent_status
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Unified Memory System initialized
+[0] 📌 Registered source: agents-yaml (file)
+[0] 2025-12-02 11:12:28 [[32minfo[39m]: ⏰ DataScheduler started {"service":"widgetdc-backend"}
+[0] ⏰ Data Ingestion Scheduler started
+[0] 📚 [HansPedder] Querying ProjectMemory for historical context...
+[0] 📚 Found 0 historical events and 0 features
+[0] 🧠 [HansPedder] Ensuring UnifiedMemorySystem is initialized...
+[0] 🤖 Autonomous Agent initialized
+[0] ✅ [HansPedder] Agent created
+[0] 🔗 [HansPedder] Integrating Phase 1 cognitive components in PARALLEL (Turbo Mode)...
+[0]   ✓ UnifiedMemorySystem: 0 recent events
+[0]   ✓ HybridSearchEngine: Ready (test search returned 0 results)
+[0]   ✓ EmotionAwareDecisionEngine: Ready (confidence: 0.665)
+[0] 2025-12-02 11:12:28 [[32minfo[39m]: 🤖 HansPedder Agent Controller started {"service":"widgetdc-backend"}
+[0] 2025-12-02 11:12:28 [[32minfo[39m]:    Mode: Continuous testing + 30min improvement nudges {"service":"widgetdc-backend"}
+[0] 2025-12-02 11:12:28 [[32minfo[39m]:    Priority: Robustness → Usability → Value Creation {"service":"widgetdc-backend"}
+[0] 2025-12-02 11:12:28 [[32minfo[39m]: 🧪 Running HansPedder test suite... {"service":"widgetdc-backend"}
+[0] 🤖 HansPedder Agent Controller started (continuous testing + nudges)
+[1] [2m11.13.41[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.13.41[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.13.51[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.13.51[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.13.58[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.13.58[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.16.22[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.16.22[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.16.28[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.16.28[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.16.56[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[1] [2m11.16.56[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/evolution/graph/stats[39m
+[1] Error: connect ECONNREFUSED 127.0.0.1:3001
+[1]     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+[0] 12.06.47 [tsx] change in ./src\services\ingestion\LocalFileScanner.ts Restarting...
+[0] c💾 Using In-Memory Event Bus (development)
+[0] 👥 [AgentTeam] Initialized with 5 role-based agents
+[0] [dotenv@17.2.3] injecting env (0) from .env -- tip: 🗂️ backup and recover secrets: https://dotenvx.com/ops
+[0] [dotenv@17.2.3] injecting env (0) from ..\..\.env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[0] 
+[0] ═══════════════════════════════════════════════════════════
+[0]   🟢 WIDGETTDC - DEVELOPMENT MODE
+[0]   Neo4j: Local Docker
+[0]   URI: bolt://localhost:7687
+[0] ═══════════════════════════════════════════════════════════
+[0] 
+[0] ✅ Database initialized successfully with sql.js (pure JavaScript)
+[0] 🗄️  SQLite (sql.js) initialized for memory systems
+[0] 2025-12-02 12:06:53 [[33mwarn[39m]: ⚠️  Prisma/PostgreSQL initialization failed: {"service":"widgetdc-backend","error":"Unable to require(`C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node`).\nThe Prisma engines do not seem to be compatible with your system. Please refer to the documentation about Prisma's system requirements: https://pris.ly/d/system-requirements\n\nDetails: \\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node is not a valid Win32 application.\r\n\\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node"}
+[0] 2025-12-02 12:06:53 [[32minfo[39m]:    Continuing with SQLite + Neo4j (fully functional) {"service":"widgetdc-backend"}
+[0] 🐘 PostgreSQL + pgvector initialized via Prisma
+[0] ✅ Neo4j connection established
+[0] 🕸️  Neo4j Graph Database initialized
+[0] ✅ Neo4j connected successfully bolt://localhost:7687
+[0] 🕸️  Neo4j Service connected
+[0] 🔄 Loading embedding model: Xenova/all-MiniLM-L6-v2
+[0] ✅ Embedding model loaded: Xenova/all-MiniLM-L6-v2
+[0] 🧠 Transformers.js Embeddings initialized
+[0] Registered MCP tool: cma.context
+[0] Registered MCP tool: cma.ingest
+[0] Registered MCP tool: cma.memory.store
+[0] Registered MCP tool: cma.memory.retrieve
+[0] Registered MCP tool: srag.query
+[0] Registered MCP tool: srag.governance-check
+[0] Registered MCP tool: evolution.report-run
+[0] Registered MCP tool: evolution.get-prompt
+[0] Registered MCP tool: evolution.analyze-prompts
+[0] Registered MCP tool: pal.event
+[0] Registered MCP tool: pal.board-action
+[0] Registered MCP tool: pal.optimize-workflow
+[0] Registered MCP tool: pal.analyze-sentiment
+[0] Registered MCP tool: notes.list
+[0] Registered MCP tool: notes.create
+[0] Registered MCP tool: notes.update
+[0] Registered MCP tool: notes.delete
+[0] Registered MCP tool: notes.get
+[0] Registered MCP tool: widgets.invoke
+[0] Registered MCP tool: widgets.osint.investigate
+[0] Registered MCP tool: widgets.threat.hunt
+[0] Registered MCP tool: widgets.orchestrator.coordinate
+[0] Registered MCP tool: widgets.update_state
+[0] Registered MCP tool: project.log_event
+[0] Registered MCP tool: project.get_events
+[0] Registered MCP tool: project.add_feature
+[0] Registered MCP tool: project.update_feature
+[0] Registered MCP tool: project.get_features
+[0] Registered MCP tool: ingestion.start
+[0] Registered MCP tool: ingestion.status
+[0] Registered MCP tool: ingestion.configure
+[0] Registered MCP tool: autonomous.graphrag
+[0] Registered MCP tool: autonomous.stategraph
+[0] Registered MCP tool: autonomous.evolve
+[0] Registered MCP tool: autonomous.agentteam
+[0] Registered MCP tool: autonomous.agentteam.coordinate
+[0] Registered MCP tool: vidensarkiv.search
+[0] Registered MCP tool: vidensarkiv.add
+[0] Registered MCP tool: vidensarkiv.batch_add
+[0] Registered MCP tool: vidensarkiv.get_related
+[0] Registered MCP tool: vidensarkiv.list
+[0] Registered MCP tool: vidensarkiv.stats
+[0] Registered MCP tool: taskrecorder.get_suggestions
+[0] Registered MCP tool: taskrecorder.approve
+[0] Registered MCP tool: taskrecorder.reject
+[0] Registered MCP tool: taskrecorder.execute
+[0] Registered MCP tool: taskrecorder.get_patterns
+[0] Registered MCP tool: email.rag
+[0] Registered MCP tool: docgen.powerpoint.create
+[0] Registered MCP tool: docgen.word.create
+[0] Registered MCP tool: docgen.excel.create
+[0] Registered MCP tool: docgen.status
+[0] Registered MCP tool: devtools-status
+[0] Registered MCP tool: devtools-scan
+[0] Registered MCP tool: devtools-validate
+[0] [ORCHESTRATOR] Found 8 agents in registry
+[0] Registered MCP Server: AgentOrchestrator
+[0] 🤖 Agent Orchestrator initialized
+[0] Registered MCP tool: trigger_agent
+[0] Registered MCP tool: start_hanspetter_listener
+[0] Registered MCP tool: update_agent_status
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Unified Memory System initialized
+[0] 📌 Registered source: agents-yaml (file)
+[0] 2025-12-02 12:06:54 [[32minfo[39m]: ⏰ DataScheduler started {"service":"widgetdc-backend"}
+[0] ⏰ Data Ingestion Scheduler started
+[0] 📚 [HansPedder] Querying ProjectMemory for historical context...
+[0] 📚 Found 0 historical events and 0 features
+[0] 🧠 [HansPedder] Ensuring UnifiedMemorySystem is initialized...
+[0] 🤖 Autonomous Agent initialized
+[0] ✅ [HansPedder] Agent created
+[0] 🔗 [HansPedder] Integrating Phase 1 cognitive components in PARALLEL (Turbo Mode)...
+[0]   ✓ UnifiedMemorySystem: 0 recent events
+[0]   ✓ HybridSearchEngine: Ready (test search returned 0 results)
+[0]   ✓ EmotionAwareDecisionEngine: Ready (confidence: 0.665)
+[0] 12.07.18 [tsx] change in ./src\services\ingestion\LocalFileScanner.ts Restarting...
+[0] c💾 Using In-Memory Event Bus (development)
+[0] 👥 [AgentTeam] Initialized with 5 role-based agents
+[0] [dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+[0] [dotenv@17.2.3] injecting env (0) from ..\..\.env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+[0] 
+[0] ═══════════════════════════════════════════════════════════
+[0]   🟢 WIDGETTDC - DEVELOPMENT MODE
+[0]   Neo4j: Local Docker
+[0]   URI: bolt://localhost:7687
+[0] ═══════════════════════════════════════════════════════════
+[0] 
+[0] ✅ Database initialized successfully with sql.js (pure JavaScript)
+[0] 🗄️  SQLite (sql.js) initialized for memory systems
+[0] 2025-12-02 12:07:21 [[33mwarn[39m]: ⚠️  Prisma/PostgreSQL initialization failed: {"service":"widgetdc-backend","error":"Unable to require(`C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node`).\nThe Prisma engines do not seem to be compatible with your system. Please refer to the documentation about Prisma's system requirements: https://pris.ly/d/system-requirements\n\nDetails: \\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node is not a valid Win32 application.\r\n\\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node"}
+[0] 2025-12-02 12:07:21 [[32minfo[39m]:    Continuing with SQLite + Neo4j (fully functional) {"service":"widgetdc-backend"}
+[0] 🐘 PostgreSQL + pgvector initialized via Prisma
+[0] ✅ Neo4j connection established
+[0] 🕸️  Neo4j Graph Database initialized
+[0] ✅ Neo4j connected successfully bolt://localhost:7687
+[0] 🕸️  Neo4j Service connected
+[0] 🔄 Loading embedding model: Xenova/all-MiniLM-L6-v2
+[0] ✅ Embedding model loaded: Xenova/all-MiniLM-L6-v2
+[0] 🧠 Transformers.js Embeddings initialized
+[0] Registered MCP tool: cma.context
+[0] Registered MCP tool: cma.ingest
+[0] Registered MCP tool: cma.memory.store
+[0] Registered MCP tool: cma.memory.retrieve
+[0] Registered MCP tool: srag.query
+[0] Registered MCP tool: srag.governance-check
+[0] Registered MCP tool: evolution.report-run
+[0] Registered MCP tool: evolution.get-prompt
+[0] Registered MCP tool: evolution.analyze-prompts
+[0] Registered MCP tool: pal.event
+[0] Registered MCP tool: pal.board-action
+[0] Registered MCP tool: pal.optimize-workflow
+[0] Registered MCP tool: pal.analyze-sentiment
+[0] Registered MCP tool: notes.list
+[0] Registered MCP tool: notes.create
+[0] Registered MCP tool: notes.update
+[0] Registered MCP tool: notes.delete
+[0] Registered MCP tool: notes.get
+[0] Registered MCP tool: widgets.invoke
+[0] Registered MCP tool: widgets.osint.investigate
+[0] Registered MCP tool: widgets.threat.hunt
+[0] Registered MCP tool: widgets.orchestrator.coordinate
+[0] Registered MCP tool: widgets.update_state
+[0] Registered MCP tool: project.log_event
+[0] Registered MCP tool: project.get_events
+[0] Registered MCP tool: project.add_feature
+[0] Registered MCP tool: project.update_feature
+[0] Registered MCP tool: project.get_features
+[0] Registered MCP tool: ingestion.start
+[0] Registered MCP tool: ingestion.status
+[0] Registered MCP tool: ingestion.configure
+[0] Registered MCP tool: autonomous.graphrag
+[0] Registered MCP tool: autonomous.stategraph
+[0] Registered MCP tool: autonomous.evolve
+[0] Registered MCP tool: autonomous.agentteam
+[0] Registered MCP tool: autonomous.agentteam.coordinate
+[0] Registered MCP tool: vidensarkiv.search
+[0] Registered MCP tool: vidensarkiv.add
+[0] Registered MCP tool: vidensarkiv.batch_add
+[0] Registered MCP tool: vidensarkiv.get_related
+[0] Registered MCP tool: vidensarkiv.list
+[0] Registered MCP tool: vidensarkiv.stats
+[0] Registered MCP tool: taskrecorder.get_suggestions
+[0] Registered MCP tool: taskrecorder.approve
+[0] Registered MCP tool: taskrecorder.reject
+[0] Registered MCP tool: taskrecorder.execute
+[0] Registered MCP tool: taskrecorder.get_patterns
+[0] Registered MCP tool: email.rag
+[0] Registered MCP tool: docgen.powerpoint.create
+[0] Registered MCP tool: docgen.word.create
+[0] Registered MCP tool: docgen.excel.create
+[0] Registered MCP tool: docgen.status
+[0] Registered MCP tool: devtools-status
+[0] Registered MCP tool: devtools-scan
+[0] Registered MCP tool: devtools-validate
+[0] [ORCHESTRATOR] Found 8 agents in registry
+[0] Registered MCP Server: AgentOrchestrator
+[0] 🤖 Agent Orchestrator initialized
+[0] Registered MCP tool: trigger_agent
+[0] Registered MCP tool: start_hanspetter_listener
+[0] Registered MCP tool: update_agent_status
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Unified Memory System initialized
+[0] 📌 Registered source: agents-yaml (file)
+[0] 2025-12-02 12:07:21 [[32minfo[39m]: ⏰ DataScheduler started {"service":"widgetdc-backend"}
+[0] ⏰ Data Ingestion Scheduler started
+[0] 📚 [HansPedder] Querying ProjectMemory for historical context...
+[0] 📚 Found 0 historical events and 0 features
+[0] 🧠 [HansPedder] Ensuring UnifiedMemorySystem is initialized...
+[0] 🤖 Autonomous Agent initialized
+[0] ✅ [HansPedder] Agent created
+[0] 🔗 [HansPedder] Integrating Phase 1 cognitive components in PARALLEL (Turbo Mode)...
+[0]   ✓ UnifiedMemorySystem: 0 recent events
+[0]   ✓ HybridSearchEngine: Ready (test search returned 0 results)
+[0]   ✓ EmotionAwareDecisionEngine: Ready (confidence: 0.665)
+[0] 12.07.50 [tsx] change in ./src\platform\vector\Neo4jVectorStoreAdapter.ts Restarting...
+[0] c💾 Using In-Memory Event Bus (development)
+[0] 👥 [AgentTeam] Initialized with 5 role-based agents
+[0] [dotenv@17.2.3] injecting env (0) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+[0] [dotenv@17.2.3] injecting env (0) from ..\..\.env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[0] 
+[0] ═══════════════════════════════════════════════════════════
+[0]   🟢 WIDGETTDC - DEVELOPMENT MODE
+[0]   Neo4j: Local Docker
+[0]   URI: bolt://localhost:7687
+[0] ═══════════════════════════════════════════════════════════
+[0] 
+[0] ✅ Database initialized successfully with sql.js (pure JavaScript)
+[0] 🗄️  SQLite (sql.js) initialized for memory systems
+[0] 2025-12-02 12:07:52 [[33mwarn[39m]: ⚠️  Prisma/PostgreSQL initialization failed: {"service":"widgetdc-backend","error":"Unable to require(`C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node`).\nThe Prisma engines do not seem to be compatible with your system. Please refer to the documentation about Prisma's system requirements: https://pris.ly/d/system-requirements\n\nDetails: \\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node is not a valid Win32 application.\r\n\\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node"}
+[0] 2025-12-02 12:07:52 [[32minfo[39m]:    Continuing with SQLite + Neo4j (fully functional) {"service":"widgetdc-backend"}
+[0] 🐘 PostgreSQL + pgvector initialized via Prisma
+[0] ✅ Neo4j connection established
+[0] 🕸️  Neo4j Graph Database initialized
+[0] ✅ Neo4j connected successfully bolt://localhost:7687
+[0] 🕸️  Neo4j Service connected
+[0] 🔄 Loading embedding model: Xenova/all-MiniLM-L6-v2
+[0] ✅ Embedding model loaded: Xenova/all-MiniLM-L6-v2
+[0] 🧠 Transformers.js Embeddings initialized
+[0] Registered MCP tool: cma.context
+[0] Registered MCP tool: cma.ingest
+[0] Registered MCP tool: cma.memory.store
+[0] Registered MCP tool: cma.memory.retrieve
+[0] Registered MCP tool: srag.query
+[0] Registered MCP tool: srag.governance-check
+[0] Registered MCP tool: evolution.report-run
+[0] Registered MCP tool: evolution.get-prompt
+[0] Registered MCP tool: evolution.analyze-prompts
+[0] Registered MCP tool: pal.event
+[0] Registered MCP tool: pal.board-action
+[0] Registered MCP tool: pal.optimize-workflow
+[0] Registered MCP tool: pal.analyze-sentiment
+[0] Registered MCP tool: notes.list
+[0] Registered MCP tool: notes.create
+[0] Registered MCP tool: notes.update
+[0] Registered MCP tool: notes.delete
+[0] Registered MCP tool: notes.get
+[0] Registered MCP tool: widgets.invoke
+[0] Registered MCP tool: widgets.osint.investigate
+[0] Registered MCP tool: widgets.threat.hunt
+[0] Registered MCP tool: widgets.orchestrator.coordinate
+[0] Registered MCP tool: widgets.update_state
+[0] Registered MCP tool: project.log_event
+[0] Registered MCP tool: project.get_events
+[0] Registered MCP tool: project.add_feature
+[0] Registered MCP tool: project.update_feature
+[0] Registered MCP tool: project.get_features
+[0] Registered MCP tool: ingestion.start
+[0] Registered MCP tool: ingestion.status
+[0] Registered MCP tool: ingestion.configure
+[0] Registered MCP tool: autonomous.graphrag
+[0] Registered MCP tool: autonomous.stategraph
+[0] Registered MCP tool: autonomous.evolve
+[0] Registered MCP tool: autonomous.agentteam
+[0] Registered MCP tool: autonomous.agentteam.coordinate
+[0] Registered MCP tool: vidensarkiv.search
+[0] Registered MCP tool: vidensarkiv.add
+[0] Registered MCP tool: vidensarkiv.batch_add
+[0] Registered MCP tool: vidensarkiv.get_related
+[0] Registered MCP tool: vidensarkiv.list
+[0] Registered MCP tool: vidensarkiv.stats
+[0] Registered MCP tool: taskrecorder.get_suggestions
+[0] Registered MCP tool: taskrecorder.approve
+[0] Registered MCP tool: taskrecorder.reject
+[0] Registered MCP tool: taskrecorder.execute
+[0] Registered MCP tool: taskrecorder.get_patterns
+[0] Registered MCP tool: email.rag
+[0] Registered MCP tool: docgen.powerpoint.create
+[0] Registered MCP tool: docgen.word.create
+[0] Registered MCP tool: docgen.excel.create
+[0] Registered MCP tool: docgen.status
+[0] Registered MCP tool: devtools-status
+[0] Registered MCP tool: devtools-scan
+[0] Registered MCP tool: devtools-validate
+[0] [ORCHESTRATOR] Found 8 agents in registry
+[0] Registered MCP Server: AgentOrchestrator
+[0] 🤖 Agent Orchestrator initialized
+[0] Registered MCP tool: trigger_agent
+[0] Registered MCP tool: start_hanspetter_listener
+[0] Registered MCP tool: update_agent_status
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Unified Memory System initialized
+[0] 📌 Registered source: agents-yaml (file)
+[0] 2025-12-02 12:07:53 [[32minfo[39m]: ⏰ DataScheduler started {"service":"widgetdc-backend"}
+[0] ⏰ Data Ingestion Scheduler started
+[0] 📚 [HansPedder] Querying ProjectMemory for historical context...
+[0] 📚 Found 0 historical events and 0 features
+[0] 🧠 [HansPedder] Ensuring UnifiedMemorySystem is initialized...
+[0] 🤖 Autonomous Agent initialized
+[0] ✅ [HansPedder] Agent created
+[0] 🔗 [HansPedder] Integrating Phase 1 cognitive components in PARALLEL (Turbo Mode)...
+[0]   ✓ UnifiedMemorySystem: 0 recent events
+[0]   ✓ HybridSearchEngine: Ready (test search returned 0 results)
+[0]   ✓ EmotionAwareDecisionEngine: Ready (confidence: 0.665)
+[0] 12.07.59 [tsx] change in ./src\platform\vector\Neo4jVectorStoreAdapter.ts Restarting...
+[0] c💾 Using In-Memory Event Bus (development)
+[0] 👥 [AgentTeam] Initialized with 5 role-based agents
+[0] [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[0] [dotenv@17.2.3] injecting env (0) from ..\..\.env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+[0] 
+[0] ═══════════════════════════════════════════════════════════
+[0]   🟢 WIDGETTDC - DEVELOPMENT MODE
+[0]   Neo4j: Local Docker
+[0]   URI: bolt://localhost:7687
+[0] ═══════════════════════════════════════════════════════════
+[0] 
+[0] ✅ Database initialized successfully with sql.js (pure JavaScript)
+[0] 🗄️  SQLite (sql.js) initialized for memory systems
+[0] 2025-12-02 12:08:01 [[33mwarn[39m]: ⚠️  Prisma/PostgreSQL initialization failed: {"service":"widgetdc-backend","error":"Unable to require(`C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node`).\nThe Prisma engines do not seem to be compatible with your system. Please refer to the documentation about Prisma's system requirements: https://pris.ly/d/system-requirements\n\nDetails: \\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node is not a valid Win32 application.\r\n\\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node"}
+[0] 2025-12-02 12:08:01 [[32minfo[39m]:    Continuing with SQLite + Neo4j (fully functional) {"service":"widgetdc-backend"}
+[0] 🐘 PostgreSQL + pgvector initialized via Prisma
+[0] ✅ Neo4j connection established
+[0] 🕸️  Neo4j Graph Database initialized
+[0] ✅ Neo4j connected successfully bolt://localhost:7687
+[0] 🕸️  Neo4j Service connected
+[0] 🔄 Loading embedding model: Xenova/all-MiniLM-L6-v2
+[0] ✅ Embedding model loaded: Xenova/all-MiniLM-L6-v2
+[0] 🧠 Transformers.js Embeddings initialized
+[0] Registered MCP tool: cma.context
+[0] Registered MCP tool: cma.ingest
+[0] Registered MCP tool: cma.memory.store
+[0] Registered MCP tool: cma.memory.retrieve
+[0] Registered MCP tool: srag.query
+[0] Registered MCP tool: srag.governance-check
+[0] Registered MCP tool: evolution.report-run
+[0] Registered MCP tool: evolution.get-prompt
+[0] Registered MCP tool: evolution.analyze-prompts
+[0] Registered MCP tool: pal.event
+[0] Registered MCP tool: pal.board-action
+[0] Registered MCP tool: pal.optimize-workflow
+[0] Registered MCP tool: pal.analyze-sentiment
+[0] Registered MCP tool: notes.list
+[0] Registered MCP tool: notes.create
+[0] Registered MCP tool: notes.update
+[0] Registered MCP tool: notes.delete
+[0] Registered MCP tool: notes.get
+[0] Registered MCP tool: widgets.invoke
+[0] Registered MCP tool: widgets.osint.investigate
+[0] Registered MCP tool: widgets.threat.hunt
+[0] Registered MCP tool: widgets.orchestrator.coordinate
+[0] Registered MCP tool: widgets.update_state
+[0] Registered MCP tool: project.log_event
+[0] Registered MCP tool: project.get_events
+[0] Registered MCP tool: project.add_feature
+[0] Registered MCP tool: project.update_feature
+[0] Registered MCP tool: project.get_features
+[0] Registered MCP tool: ingestion.start
+[0] Registered MCP tool: ingestion.status
+[0] Registered MCP tool: ingestion.configure
+[0] Registered MCP tool: autonomous.graphrag
+[0] Registered MCP tool: autonomous.stategraph
+[0] Registered MCP tool: autonomous.evolve
+[0] Registered MCP tool: autonomous.agentteam
+[0] Registered MCP tool: autonomous.agentteam.coordinate
+[0] Registered MCP tool: vidensarkiv.search
+[0] Registered MCP tool: vidensarkiv.add
+[0] Registered MCP tool: vidensarkiv.batch_add
+[0] Registered MCP tool: vidensarkiv.get_related
+[0] Registered MCP tool: vidensarkiv.list
+[0] Registered MCP tool: vidensarkiv.stats
+[0] Registered MCP tool: taskrecorder.get_suggestions
+[0] Registered MCP tool: taskrecorder.approve
+[0] Registered MCP tool: taskrecorder.reject
+[0] Registered MCP tool: taskrecorder.execute
+[0] Registered MCP tool: taskrecorder.get_patterns
+[0] Registered MCP tool: email.rag
+[0] Registered MCP tool: docgen.powerpoint.create
+[0] Registered MCP tool: docgen.word.create
+[0] Registered MCP tool: docgen.excel.create
+[0] Registered MCP tool: docgen.status
+[0] Registered MCP tool: devtools-status
+[0] Registered MCP tool: devtools-scan
+[0] Registered MCP tool: devtools-validate
+[0] [ORCHESTRATOR] Found 8 agents in registry
+[0] Registered MCP Server: AgentOrchestrator
+[0] 🤖 Agent Orchestrator initialized
+[0] Registered MCP tool: trigger_agent
+[0] Registered MCP tool: start_hanspetter_listener
+[0] Registered MCP tool: update_agent_status
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Unified Memory System initialized
+[0] 📌 Registered source: agents-yaml (file)
+[0] 2025-12-02 12:08:01 [[32minfo[39m]: ⏰ DataScheduler started {"service":"widgetdc-backend"}
+[0] ⏰ Data Ingestion Scheduler started
+[0] 📚 [HansPedder] Querying ProjectMemory for historical context...
+[0] 📚 Found 0 historical events and 0 features
+[0] 🧠 [HansPedder] Ensuring UnifiedMemorySystem is initialized...
+[0] 🤖 Autonomous Agent initialized
+[0] ✅ [HansPedder] Agent created
+[0] 🔗 [HansPedder] Integrating Phase 1 cognitive components in PARALLEL (Turbo Mode)...
+[0]   ✓ UnifiedMemorySystem: 0 recent events
+[0]   ✓ HybridSearchEngine: Ready (test search returned 0 results)
+[0]   ✓ EmotionAwareDecisionEngine: Ready (confidence: 0.665)
+[0] 12.08.07 [tsx] change in ./src\platform\vector\Neo4jVectorStoreAdapter.ts Restarting...
+[0] c💾 Using In-Memory Event Bus (development)
+[0] 👥 [AgentTeam] Initialized with 5 role-based agents
+[0] [dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[0] [dotenv@17.2.3] injecting env (0) from ..\..\.env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[0] 
+[0] ═══════════════════════════════════════════════════════════
+[0]   🟢 WIDGETTDC - DEVELOPMENT MODE
+[0]   Neo4j: Local Docker
+[0]   URI: bolt://localhost:7687
+[0] ═══════════════════════════════════════════════════════════
+[0] 
+[0] ✅ Database initialized successfully with sql.js (pure JavaScript)
+[0] 🗄️  SQLite (sql.js) initialized for memory systems
+[0] 2025-12-02 12:08:10 [[33mwarn[39m]: ⚠️  Prisma/PostgreSQL initialization failed: {"service":"widgetdc-backend","error":"Unable to require(`C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node`).\nThe Prisma engines do not seem to be compatible with your system. Please refer to the documentation about Prisma's system requirements: https://pris.ly/d/system-requirements\n\nDetails: \\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node is not a valid Win32 application.\r\n\\\\?\\C:\\Users\\claus\\Projects\\WidgeTDC\\WidgeTDC\\node_modules\\.prisma\\client\\query_engine-windows.dll.node"}
+[0] 2025-12-02 12:08:10 [[32minfo[39m]:    Continuing with SQLite + Neo4j (fully functional) {"service":"widgetdc-backend"}
+[0] 🐘 PostgreSQL + pgvector initialized via Prisma
+[0] ✅ Neo4j connection established
+[0] 🕸️  Neo4j Graph Database initialized
+[0] ✅ Neo4j connected successfully bolt://localhost:7687
+[0] 🕸️  Neo4j Service connected
+[0] 🔄 Loading embedding model: Xenova/all-MiniLM-L6-v2
+[0] ✅ Embedding model loaded: Xenova/all-MiniLM-L6-v2
+[0] 🧠 Transformers.js Embeddings initialized
+[0] Registered MCP tool: cma.context
+[0] Registered MCP tool: cma.ingest
+[0] Registered MCP tool: cma.memory.store
+[0] Registered MCP tool: cma.memory.retrieve
+[0] Registered MCP tool: srag.query
+[0] Registered MCP tool: srag.governance-check
+[0] Registered MCP tool: evolution.report-run
+[0] Registered MCP tool: evolution.get-prompt
+[0] Registered MCP tool: evolution.analyze-prompts
+[0] Registered MCP tool: pal.event
+[0] Registered MCP tool: pal.board-action
+[0] Registered MCP tool: pal.optimize-workflow
+[0] Registered MCP tool: pal.analyze-sentiment
+[0] Registered MCP tool: notes.list
+[0] Registered MCP tool: notes.create
+[0] Registered MCP tool: notes.update
+[0] Registered MCP tool: notes.delete
+[0] Registered MCP tool: notes.get
+[0] Registered MCP tool: widgets.invoke
+[0] Registered MCP tool: widgets.osint.investigate
+[0] Registered MCP tool: widgets.threat.hunt
+[0] Registered MCP tool: widgets.orchestrator.coordinate
+[0] Registered MCP tool: widgets.update_state
+[0] Registered MCP tool: project.log_event
+[0] Registered MCP tool: project.get_events
+[0] Registered MCP tool: project.add_feature
+[0] Registered MCP tool: project.update_feature
+[0] Registered MCP tool: project.get_features
+[0] Registered MCP tool: ingestion.start
+[0] Registered MCP tool: ingestion.status
+[0] Registered MCP tool: ingestion.configure
+[0] Registered MCP tool: autonomous.graphrag
+[0] Registered MCP tool: autonomous.stategraph
+[0] Registered MCP tool: autonomous.evolve
+[0] Registered MCP tool: autonomous.agentteam
+[0] Registered MCP tool: autonomous.agentteam.coordinate
+[0] Registered MCP tool: vidensarkiv.search
+[0] Registered MCP tool: vidensarkiv.add
+[0] Registered MCP tool: vidensarkiv.batch_add
+[0] Registered MCP tool: vidensarkiv.get_related
+[0] Registered MCP tool: vidensarkiv.list
+[0] Registered MCP tool: vidensarkiv.stats
+[0] Registered MCP tool: taskrecorder.get_suggestions
+[0] Registered MCP tool: taskrecorder.approve
+[0] Registered MCP tool: taskrecorder.reject
+[0] Registered MCP tool: taskrecorder.execute
+[0] Registered MCP tool: taskrecorder.get_patterns
+[0] Registered MCP tool: email.rag
+[0] Registered MCP tool: docgen.powerpoint.create
+[0] Registered MCP tool: docgen.word.create
+[0] Registered MCP tool: docgen.excel.create
+[0] Registered MCP tool: docgen.status
+[0] Registered MCP tool: devtools-status
+[0] Registered MCP tool: devtools-scan
+[0] Registered MCP tool: devtools-validate
+[0] [ORCHESTRATOR] Found 8 agents in registry
+[0] Registered MCP Server: AgentOrchestrator
+[0] 🤖 Agent Orchestrator initialized
+[0] Registered MCP tool: trigger_agent
+[0] Registered MCP tool: start_hanspetter_listener
+[0] Registered MCP tool: update_agent_status
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Cognitive Memory initialized
+[0] 🧠 Unified Memory System initialized
+[0] 📌 Registered source: agents-yaml (file)
+[0] 2025-12-02 12:08:10 [[32minfo[39m]: ⏰ DataScheduler started {"service":"widgetdc-backend"}
+[0] ⏰ Data Ingestion Scheduler started
+[0] 📚 [HansPedder] Querying ProjectMemory for historical context...
+[0] 📚 Found 0 historical events and 0 features
+[0] 🧠 [HansPedder] Ensuring UnifiedMemorySystem is initialized...
+[0] 🤖 Autonomous Agent initialized
+[0] ✅ [HansPedder] Agent created
+[0] 🔗 [HansPedder] Integrating Phase 1 cognitive components in PARALLEL (Turbo Mode)...
+[0]   ✓ UnifiedMemorySystem: 0 recent events
+[0]   ✓ HybridSearchEngine: Ready (test search returned 0 results)
+[0]   ✓ EmotionAwareDecisionEngine: Ready (confidence: 0.665)
+[1] npm error Lifecycle script `dev` failed with error:
+[1] npm error code 1
+[1] npm error path C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board
+[1] npm error workspace @widget-tdc/widget-board@0.0.0
+[1] npm error location C:\Users\claus\Projects\WidgeTDC\WidgeTDC\apps\widget-board
+[1] npm error command failed
+[1] npm error command C:\Windows\system32\cmd.exe /d /s /c vite --port 8888 --strictPort
+[1] npm run dev:frontend exited with code 1

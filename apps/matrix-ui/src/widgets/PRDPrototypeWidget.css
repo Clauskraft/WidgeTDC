@@ -1,0 +1,582 @@
+/**
+ * ╔═══════════════════════════════════════════════════════════════════════════╗
+ * ║              PRD PROTOTYPE WIDGET STYLES - ENHANCED                       ║
+ * ╠═══════════════════════════════════════════════════════════════════════════╣
+ * ║  Dark theme aligned with WidgetTDC design system                          ║
+ * ║  TDC Brand colors: Magenta #E20074, Navy #1A1F36                          ║
+ * ╚═══════════════════════════════════════════════════════════════════════════╝
+ */
+
+.prd-widget {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 600px;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 12px;
+  color: #e4e4e7;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Header */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.prd-widget__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.prd-widget__header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.prd-widget__connection {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  transition: all 0.3s;
+}
+
+.status-dot.connected {
+  background: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Tabs */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.prd-widget__tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1rem;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.prd-widget__tabs .tab {
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.875rem;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.prd-widget__tabs .tab:hover {
+  color: #e4e4e7;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.prd-widget__tabs .tab.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Content Area */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.prd-widget__content {
+  flex: 0 0 auto;
+  min-height: 180px;
+  max-height: 250px;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+/* Upload Zone */
+.upload-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed rgba(96, 165, 250, 0.3);
+  border-radius: 12px;
+  background: rgba(96, 165, 250, 0.05);
+  cursor: pointer;
+  transition: all 0.3s;
+  min-height: 140px;
+}
+
+.upload-zone:hover,
+.upload-zone.drag-over {
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.1);
+}
+
+.upload-zone.has-content {
+  cursor: default;
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.upload-zone p {
+  margin: 0.25rem 0;
+  color: #e4e4e7;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: #9ca3af !important;
+}
+
+.upload-formats {
+  font-size: 0.75rem;
+  color: #6b7280 !important;
+  margin-top: 0.75rem !important;
+}
+
+/* Uploaded File Display */
+.uploaded-file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.file-preview {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-preview .file-icon {
+  font-size: 2rem;
+}
+
+.file-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-details .file-name {
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.file-details .file-size {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.clear-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.clear-btn:hover {
+  background: rgba(239, 68, 68, 0.4);
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* File Lists */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.vidensarkiv-list,
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.file-item,
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.file-item:hover,
+.history-item:hover {
+  background: rgba(96, 165, 250, 0.15);
+}
+
+.history-item.selected {
+  background: rgba(96, 165, 250, 0.25);
+  border: 1px solid rgba(96, 165, 250, 0.4);
+}
+
+.file-icon {
+  font-size: 1.25rem;
+}
+
+.file-name,
+.proto-name {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-size {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.proto-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.proto-meta {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.delete-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+}
+
+.history-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.refresh-btn {
+  margin-top: 0.75rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #9ca3af;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e4e4e7;
+}
+
+.empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 2rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Controls */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.prd-widget__controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.style-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.style-selector label {
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.style-selector select {
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #e4e4e7;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.style-selector select:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+
+.generate-btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.generate-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+}
+
+.generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Error Message */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.error-message {
+  margin: 0 1rem 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.875rem;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Preview Section */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.preview-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 350px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.preview-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.preview-header h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  color: #9ca3af;
+}
+
+.generation-time {
+  font-size: 0.75rem;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.15);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.preview-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.5rem 0.875rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 6px;
+  color: #e4e4e7;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.preview-container {
+  flex: 1;
+  background: #ffffff;
+  margin: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 300px;
+}
+
+.preview-container iframe {
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  border: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Generating Indicator */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.generating-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 300px;
+  background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.pulse-ring {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.7;
+  }
+}
+
+.generating-indicator p {
+  margin-top: 1.5rem;
+  color: #e4e4e7;
+  font-weight: 500;
+}
+
+.generating-indicator .hint {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+.progress-bar {
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-top: 1.5rem;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 30%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  border-radius: 2px;
+  animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { width: 0%; margin-left: 0; }
+  50% { width: 60%; margin-left: 20%; }
+  100% { width: 0%; margin-left: 100%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* Scrollbar */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.prd-widget__content::-webkit-scrollbar,
+.history-list::-webkit-scrollbar,
+.vidensarkiv-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.prd-widget__content::-webkit-scrollbar-track,
+.history-list::-webkit-scrollbar-track,
+.vidensarkiv-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.prd-widget__content::-webkit-scrollbar-thumb,
+.history-list::-webkit-scrollbar-thumb,
+.vidensarkiv-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.prd-widget__content::-webkit-scrollbar-thumb:hover,
+.history-list::-webkit-scrollbar-thumb:hover,
+.vidensarkiv-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

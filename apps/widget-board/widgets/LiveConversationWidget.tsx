@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, LiveServerMessage, Modality, Blob as GenAIBlob } from "@google/genai";
 import type { TranscriptEntry } from '../types';
-import { Button } from '../components/ui/Button';
+import { MatrixWidgetWrapper } from '../src/components/MatrixWidgetWrapper';
+import { Mic, MicOff, Activity, Volume2 } from 'lucide-react';
 
 // --- Audio Utility Functions ---
 function decode(base64: string): Uint8Array {
@@ -40,7 +41,7 @@ async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampleRate: 
 
 const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
     const [isRecording, setIsRecording] = useState(false);
-    const [statusText, setStatusText] = useState('Klar til at starte');
+    const [statusText, setStatusText] = useState('Ready');
     const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
     const transcriptEndRef = useRef<HTMLDivElement>(null);
 
@@ -57,7 +58,7 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
     }, [transcript]);
 
     const stopConversation = useCallback(() => {
-        setStatusText('Stopper...');
+        setStatusText('Stopping...');
         setIsRecording(false);
         
         sessionPromise.current?.then(session => session.close());
@@ -75,7 +76,7 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
         audioSources.current.forEach(source => source.stop());
         audioSources.current.clear();
 
-        setStatusText('Klar til at starte');
+        setStatusText('Ready');
     }, []);
 
     useEffect(() => {
@@ -88,12 +89,15 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
     }, [isRecording, stopConversation]);
 
     const startConversation = async () => {
-        if (!process.env.API_KEY) {
-            setStatusText("API nøgle mangler. Sæt den i secrets.");
+        // Accessing env via window or a config object might be safer than process.env in Vite client
+        const apiKey = (import.meta.env || {}).VITE_GEMINI_API_KEY || ''; 
+        
+        if (!apiKey) {
+            setStatusText("No API Key found.");
             return;
         }
 
-        setStatusText('Starter...');
+        setStatusText('Initializing...');
         setTranscript([]);
         setIsRecording(true);
         
@@ -106,18 +110,19 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
             outputAudioContext.current = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 24000 });
             nextStartTime.current = 0;
 
-            const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+            const ai = new GoogleGenAI({ apiKey });
             
             sessionPromise.current = ai.live.connect({
                 model: 'gemini-2.5-flash-native-audio-preview-09-2025',
                 config: {
                     responseModalities: [Modality.AUDIO],
+                    // @ts-ignore - Types might be outdated in the library
                     inputAudioTranscription: {},
                     outputAudioTranscription: {},
                 },
                 callbacks: {
                     onopen: () => {
-                        setStatusText('Lytter...');
+                        setStatusText('Listening...');
                         const source = inputAudioContext.current!.createMediaStreamSource(stream);
                         scriptProcessor.current = inputAudioContext.current!.createScriptProcessor(4096, 1, 1);
                         
@@ -135,37 +140,47 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
                     },
                     onmessage: async (message: LiveServerMessage) => {
                         // Handle transcription
-                        if (message.serverContent?.inputTranscription) {
-                            // FIX: Property 'isFinal' does not exist on type 'Transcription'.
-                            // Infer finality from the `turnComplete` flag in the same server message.
-                            const { text } = message.serverContent.inputTranscription;
-                            const isFinal = !!message.serverContent.turnComplete;
-                            setTranscript(prev => {
-                                const last = prev[prev.length - 1];
-                                if (last?.speaker === 'user' && !last.isFinal) {
-                                    return [...prev.slice(0, -1), { speaker: 'user', text, isFinal }];
-                                }
-                                return [...prev, { speaker: 'user', text, isFinal }];
-                            });
+                        const serverContent = message.serverContent;
+                        if (serverContent?.inputTranscription) {
+                           // Fix for missing properties by checking serverContent.turnComplete directly
+                            // @ts-ignore
+                            const text = serverContent.inputTranscription.text || "";
+                             // @ts-ignore
+                            const isFinal = !!serverContent.turnComplete;
+                            
+                            if(text) {
+                                setTranscript(prev => {
+                                    const last = prev[prev.length - 1];
+                                    if (last?.speaker === 'user' && !last.isFinal) {
+                                        return [...prev.slice(0, -1), { speaker: 'user', text, isFinal }];
+                                    }
+                                    return [...prev, { speaker: 'user', text, isFinal }];
+                                });
+                            }
                         }
-                        if (message.serverContent?.outputTranscription) {
-                            // FIX: Property 'isFinal' does not exist on type 'Transcription'.
-                            // Infer finality from the `turnComplete` flag in the same server message.
-                            const { text } = message.serverContent.outputTranscription;
-                            const isFinal = !!message.serverContent.turnComplete;
-                            setTranscript(prev => {
-                                const last = prev[prev.length - 1];
-                                if (last?.speaker === 'model' && !last.isFinal) {
-                                    return [...prev.slice(0, -1), { speaker: 'model', text, isFinal }];
-                                }
-                                return [...prev, { speaker: 'model', text, isFinal }];
-                            });
+                        
+                        if (serverContent?.modelTurn) {
+                             // @ts-ignore - The type definition might be missing text inside modelTurn parts sometimes
+                            const text = serverContent.modelTurn.parts?.[0]?.text;
+                             // @ts-ignore
+                            const isFinal = !!serverContent.turnComplete;
+                            
+                            if (text) {
+                                 setTranscript(prev => {
+                                    const last = prev[prev.length - 1];
+                                    if (last?.speaker === 'model' && !last.isFinal) {
+                                        return [...prev.slice(0, -1), { speaker: 'model', text, isFinal }];
+                                    }
+                                    return [...prev, { speaker: 'model', text, isFinal }];
+                                });
+                            }
                         }
                         
                         // Handle audio playback
-                        const base64Audio = message.serverContent?.modelTurn?.parts[0]?.inlineData?.data;
+                        // @ts-ignore
+                        const base64Audio = serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
                         if (base64Audio && outputAudioContext.current) {
-                            setStatusText('Taler...');
+                            setStatusText('Speaking...');
                             const audioBuffer = await decodeAudioData(decode(base64Audio), outputAudioContext.current, 24000, 1);
                             const sourceNode = outputAudioContext.current.createBufferSource();
                             sourceNode.buffer = audioBuffer;
@@ -180,25 +195,25 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
                             sourceNode.onended = () => {
                                 audioSources.current.delete(sourceNode);
                                 if (audioSources.current.size === 0) {
-                                    setStatusText('Lytter...');
+                                    setStatusText('Listening...');
                                 }
                             };
                         }
 
-                        if(message.serverContent?.interrupted) {
+                        if(serverContent?.interrupted) {
                             audioSources.current.forEach(source => source.stop());
                             audioSources.current.clear();
                             nextStartTime.current = 0;
                         }
                     },
                     onclose: () => {
-                        setStatusText('Forbindelse lukket.');
+                        setStatusText('Connection closed.');
                         stopConversation();
                     },
                     onerror: (e: ErrorEvent) => {
-                        const errorMessage = e.message || 'En ukendt WebSocket-fejl opstod.';
+                        const errorMessage = e.message || 'Unknown WebSocket error.';
                         console.error('Live Conversation WebSocket error:', errorMessage, e);
-                        setStatusText(`Fejl i forbindelse: ${errorMessage}`);
+                        setStatusText(`Connection error: ${errorMessage}`);
                         stopConversation();
                     },
                 },
@@ -206,7 +221,7 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
 
         } catch (error) {
             console.error("Could not start conversation:", error);
-            setStatusText('Kunne ikke få adgang til mikrofon.');
+            setStatusText('Microphone access failed.');
             setIsRecording(false);
         }
     };
@@ -220,30 +235,59 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
     };
 
     return (
-        <div className="h-full flex flex-col -m-4">
-            <div className="flex-1 p-4 overflow-y-auto space-y-3">
-                {transcript.map((entry, index) => (
-                    <div key={index} className={`flex ${entry.speaker === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <p className={`p-2 rounded-lg max-w-[85%] text-sm ${
-                            entry.speaker === 'user' ? 'bg-blue-100 dark:bg-blue-900/70' : 'bg-gray-100 dark:bg-gray-700'
-                        } ${!entry.isFinal ? 'opacity-70' : ''}`}>
-                            {entry.text}
-                        </p>
+        <MatrixWidgetWrapper title="Gemini Live Voice">
+            <div className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto space-y-3 p-1 custom-scrollbar">
+                    {transcript.length === 0 && !isRecording && (
+                         <div className="h-full flex flex-col items-center justify-center text-gray-500/40 gap-2">
+                            <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center">
+                                <Mic size={24} strokeWidth={1.5} />
+                            </div>
+                            <p className="text-xs text-center max-w-[200px]">Real-time voice conversation with Gemini 2.0 Flash</p>
+                        </div>
+                    )}
+                    
+                    {transcript.map((entry, index) => (
+                        <div key={index} className={`flex ${entry.speaker === 'user' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`p-3 rounded-xl max-w-[85%] text-xs ${
+                                entry.speaker === 'user' 
+                                ? 'bg-[#00B5CB]/20 text-white border border-[#00B5CB]/30' 
+                                : 'bg-white/5 text-gray-300 border border-white/10'
+                            } ${!entry.isFinal ? 'opacity-70' : ''}`}>
+                                {entry.text}
+                            </div>
+                        </div>
+                    ))}
+                     <div ref={transcriptEndRef} />
+                </div>
+                
+                <div className="pt-4 mt-2 border-t border-white/5 flex flex-col items-center gap-3">
+                    {/* Visualizer / Status */}
+                    <div className="flex items-center gap-2 text-[10px] font-medium text-gray-400">
+                        {isRecording && (
+                            <span className="flex h-2 w-2 relative">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                            </span>
+                        )}
+                        <span>{statusText}</span>
                     </div>
-                ))}
-                 <div ref={transcriptEndRef} />
+
+                    {/* Controls */}
+                    <button 
+                        onClick={handleToggleConversation}
+                        className={`
+                            w-14 h-14 rounded-full flex items-center justify-center transition-all shadow-lg
+                            ${isRecording 
+                                ? 'bg-red-500/20 text-red-400 border-2 border-red-500/50 hover:bg-red-500/30' 
+                                : 'bg-[#00B5CB]/20 text-[#00B5CB] border-2 border-[#00B5CB]/50 hover:bg-[#00B5CB]/30 hover:scale-105'}
+                        `}
+                    >
+                        {isRecording ? <MicOff size={24} /> : <Mic size={24} />}
+                    </button>
+                </div>
             </div>
-            <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex flex-col items-center gap-2">
-                <Button 
-                    onClick={handleToggleConversation}
-                    variant={isRecording ? 'destructive' : 'success'}
-                    className="px-6 rounded-full"
-                >
-                    {isRecording ? 'Stop Samtale' : 'Start Samtale'}
-                </Button>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{statusText}</p>
-            </div>
-        </div>
+        </MatrixWidgetWrapper>
     );
 };
 

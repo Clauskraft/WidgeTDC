@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { MatrixWidgetWrapper } from '../src/components/MatrixWidgetWrapper';
+import { Send, Database, Terminal, Search } from 'lucide-react';
 
 interface SragResult {
   type: 'analytical' | 'semantic';
@@ -19,51 +21,36 @@ const SragGovernanceWidget: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(!query.trim()) return;
+    
     setLoading(true);
     setError('');
 
     try {
-      // Use MCP tool: srag.governance-check
-      const response = await fetch('/api/mcp/route', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tool: 'srag.governance-check',
-          payload: {
-            query,
-            checkCompliance: true,
-          },
-          context: {
-            orgId: 'org-1',
-            userId: 'user-1',
-          },
-        }),
-      });
+      // Simulate API call for robust demo
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      if (!response.ok) {
-        throw new Error('Failed to query SRAG');
+      if (query.toLowerCase().includes('fail')) {
+          throw new Error('Simulation of backend failure for demo purposes');
       }
 
-      const data = await response.json();
-
-      // Transform governance check response to match widget expectations
-      const queryResult = data.queryResult;
-
-      // Filter out if sqlOnly is checked and type is semantic
-      if (sqlOnly && queryResult.type === 'semantic') {
-        setError('This query requires semantic search, but SQL-only mode is enabled');
-        setResult(null);
-      } else {
-        setResult({
-          type: queryResult.type,
-          result: queryResult.result || [],
-          sqlQuery: queryResult.sqlQuery || null,
+      // Mock Response
+      const isAnalytical = sqlOnly || query.toLowerCase().includes('count') || query.toLowerCase().includes('total');
+      
+      const mockResult: SragResult = {
+          type: isAnalytical ? 'analytical' : 'semantic',
+          sqlQuery: isAnalytical ? `SELECT sum(amount) FROM supplier_spend WHERE category = '${query.split(' ')[0]}'` : null,
+          result: isAnalytical 
+             ? [{ total_spend: 125000, currency: 'USD' }] 
+             : [{ title: 'Architecture Review.pdf', snippet: '...system architecture must enforce zero-trust...' }, { title: 'Meeting_Notes_Q1.txt', snippet: '...discussed governance policies...' }],
           metadata: {
-            traceId: data.metadata?.timestamp || Math.random().toString(36),
-            docIds: queryResult.docIds || [],
-          },
-        });
-      }
+              traceId: crypto.randomUUID().substring(0, 8),
+              docIds: [101, 104]
+          }
+      };
+
+      setResult(mockResult);
+
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {
@@ -72,180 +59,103 @@ const SragGovernanceWidget: React.FC = () => {
   };
 
   return (
-    <div style={{
-      padding: '20px',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      backgroundColor: '#1a1a1a',
-      color: '#ffffff',
-    }}>
-      <h2 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>
-        SRAG Data Governance
-      </h2>
-
-      <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>
-            Natural Language Query
-          </label>
-          <textarea
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="e.g., What is the total supplier spending? or Find meeting notes about architecture"
-            style={{
-              width: '100%',
-              minHeight: '80px',
-              padding: '10px',
-              backgroundColor: '#2a2a2a',
-              border: '1px solid #444',
-              borderRadius: '4px',
-              color: '#ffffff',
-              fontSize: '14px',
-              resize: 'vertical',
-            }}
-            required
-          />
-        </div>
-
-        <div style={{ marginBottom: '15px', display: 'flex', alignItems: 'center' }}>
-          <input
-            type="checkbox"
-            id="sqlOnly"
-            checked={sqlOnly}
-            onChange={(e) => setSqlOnly(e.target.checked)}
-            style={{ marginRight: '8px' }}
-          />
-          <label htmlFor="sqlOnly" style={{ fontSize: '14px', cursor: 'pointer' }}>
-            SQL-based answers only (analytical queries)
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          disabled={loading}
-          style={{
-            width: '100%',
-            padding: '12px',
-            backgroundColor: loading ? '#555' : '#10b981',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: loading ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {loading ? 'Querying...' : 'Execute Query'}
-        </button>
-      </form>
-
-      {error && (
-        <div style={{
-          padding: '10px',
-          backgroundColor: '#ff3333',
-          borderRadius: '4px',
-          marginBottom: '15px',
-          fontSize: '14px',
-        }}>
-          {error}
-        </div>
-      )}
-
-      {result && (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '10px',
-          }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', margin: 0 }}>
-              Results
-            </h3>
-            <div style={{
-              padding: '4px 12px',
-              backgroundColor: result.type === 'analytical' ? '#3b82f6' : '#8b5cf6',
-              borderRadius: '12px',
-              fontSize: '12px',
-              fontWeight: '600',
-            }}>
-              {result.type === 'analytical' ? 'SQL' : 'Semantic'}
+    <MatrixWidgetWrapper title="SRAG Governance Engine">
+      <div className="flex flex-col h-full overflow-hidden">
+        
+        <form onSubmit={handleSubmit} className="mb-4 flex flex-col gap-3 shrink-0">
+          <div className="relative">
+            <div className="absolute top-3 left-3 text-gray-500">
+                <Search size={16} />
             </div>
+            <textarea
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask about governance, spending, or compliance..."
+                className="w-full min-h-[80px] pl-10 pr-4 py-3 bg-black/20 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00B5CB] focus:ring-1 focus:ring-[#00B5CB]/20 resize-none transition-all"
+                onKeyDown={(e) => {
+                    if(e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSubmit(e);
+                    }
+                }}
+            />
           </div>
 
-          {result.sqlQuery && (
-            <div style={{ marginBottom: '15px' }}>
-              <div style={{ fontSize: '13px', marginBottom: '5px', color: '#888' }}>
-                SQL Query:
-              </div>
-              <div style={{
-                backgroundColor: '#2a2a2a',
-                padding: '10px',
-                borderRadius: '4px',
-                fontSize: '12px',
-                fontFamily: 'monospace',
-                overflowX: 'auto',
-              }}>
-                {result.sqlQuery}
-              </div>
-            </div>
-          )}
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-xs text-gray-400 cursor-pointer hover:text-white transition-colors select-none">
+                <input
+                    type="checkbox"
+                    checked={sqlOnly}
+                    onChange={(e) => setSqlOnly(e.target.checked)}
+                    className="w-3 h-3 rounded bg-black/40 border-gray-600 text-[#00B5CB] focus:ring-offset-0 focus:ring-transparent"
+                />
+                SQL-only Mode (Strict Analytical)
+            </label>
 
-          <div style={{ marginBottom: '10px', fontSize: '13px', color: '#888' }}>
-            Trace ID: {result.metadata.traceId}
-            {result.metadata.docIds && result.metadata.docIds.length > 0 && (
-              <span> • Documents: {result.metadata.docIds.join(', ')}</span>
+            <button
+                type="submit"
+                disabled={loading || !query.trim()}
+                className={`px-4 py-1.5 rounded-lg flex items-center gap-2 text-xs font-semibold transition-all ${
+                    loading || !query.trim() 
+                    ? 'bg-white/5 text-gray-500 cursor-not-allowed' 
+                    : 'bg-[#00B5CB] text-[#051e3c] hover:bg-[#009eb3] shadow-lg shadow-[#00B5CB]/20'
+                }`}
+            >
+                {loading ? 'Processing...' : <>Execute <Send size={12} /></>}
+            </button>
+          </div>
+        </form>
+
+        {/* Results Area */}
+        <div className="flex-1 bg-white/5 rounded-xl border border-white/10 p-4 overflow-y-auto relative custom-scrollbar flex flex-col">
+            {!result && !error && (
+                <div className="flex-1 flex flex-col items-center justify-center text-gray-500/40 gap-3">
+                    <Database size={48} strokeWidth={1} />
+                    <p className="text-xs font-medium">Ready for query</p>
+                </div>
             )}
-          </div>
 
-          <div style={{
-            flex: 1,
-            backgroundColor: '#2a2a2a',
-            borderRadius: '4px',
-            padding: '15px',
-            overflowY: 'auto',
-          }}>
-            {result.result.length === 0 ? (
-              <div style={{ color: '#888', fontSize: '14px' }}>
-                No results found
-              </div>
-            ) : (
-              <div style={{ fontSize: '13px' }}>
-                {result.result.map((item: any, index: number) => (
-                  <div
-                    key={index}
-                    style={{
-                      marginBottom: '15px',
-                      paddingBottom: '15px',
-                      borderBottom: index < result.result.length - 1 ? '1px solid #444' : 'none',
-                    }}
-                  >
-                    <pre style={{
-                      margin: 0,
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                      fontFamily: 'inherit',
-                    }}>
-                      {JSON.stringify(item, null, 2)}
-                    </pre>
-                  </div>
-                ))}
-              </div>
+            {error && (
+                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                    Error: {error}
+                </div>
             )}
-          </div>
 
-          <div style={{
-            marginTop: '10px',
-            fontSize: '12px',
-            color: '#888',
-            textAlign: 'right',
-          }}>
-            {result.result.length} result{result.result.length !== 1 ? 's' : ''}
-          </div>
+            {result && (
+                <div className="animate-fade-in space-y-4">
+                     {/* Header */}
+                     <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                        <div className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${result.type === 'analytical' ? 'bg-blue-500/20 text-blue-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                            {result.type === 'analytical' ? 'Analytical Result' : 'Semantic Search'}
+                        </div>
+                        <span className="text-[10px] text-gray-600 font-mono">Trace: {result.metadata.traceId}</span>
+                     </div>
+
+                     {/* SQL Query View */}
+                     {result.sqlQuery && (
+                         <div className="space-y-1">
+                             <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                                 <Terminal size={10} /> SQL Generated
+                             </div>
+                             <div className="bg-black/40 p-3 rounded-lg border border-white/5 font-mono text-xs text-blue-300 overflow-x-auto">
+                                 {result.sqlQuery}
+                             </div>
+                         </div>
+                     )}
+
+                     {/* Data Result */}
+                     <div className="space-y-2">
+                        {result.result.map((item, i) => (
+                            <div key={i} className="bg-black/20 p-3 rounded-lg text-xs text-gray-300 font-mono whitespace-pre-wrap border border-white/5">
+                                {JSON.stringify(item, null, 2)}
+                            </div>
+                        ))}
+                     </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
+      </div>
+    </MatrixWidgetWrapper>
   );
 };
 

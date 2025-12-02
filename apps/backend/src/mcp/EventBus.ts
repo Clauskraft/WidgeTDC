@@ -33,6 +33,7 @@ export type EventType =
     // Data ingestion events
     | 'ingestion:emails'
     | 'ingestion:news'
+    | 'ingestion:documents'
     | 'ingestion:assets'
     | 'threat:detected'
     | 'system:heartbeat'

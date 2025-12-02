@@ -1,3 +1,65 @@
+// Load environment variables FIRST - before any other imports
+import { config } from 'dotenv';
+import { resolve } from 'path';
+import { fileURLToPath } from 'url';
+
+// Polyfills for PDF parsing environment (pdfjs-dist v4+ compatibility)
+// @ts-ignore
+if (typeof global.DOMMatrix === 'undefined') {
+    // @ts-ignore
+    global.DOMMatrix = class DOMMatrix {
+        a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+        constructor() {}
+    };
+}
+// @ts-ignore
+if (typeof global.ImageData === 'undefined') {
+    // @ts-ignore
+    global.ImageData = class ImageData {
+        data: Uint8ClampedArray;
+        width: number;
+        height: number;
+        constructor(width: number, height: number) {
+            this.width = width;
+            this.height = height;
+            this.data = new Uint8ClampedArray(width * height * 4);
+        }
+    };
+}
+// @ts-ignore
+if (typeof global.Path2D === 'undefined') {
+    // @ts-ignore
+    global.Path2D = class Path2D {};
+}
+
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+// Load .env from backend directory, or root if not found
+config({ path: resolve(__dirname, '../.env') });
+config({ path: resolve(__dirname, '../../../.env') });
+
+// --- SAFETY CHECK: VISUAL CONFIRMATION ---
+const ENV_MODE = process.env.NODE_ENV || 'unknown';
+const DB_HOST = process.env.POSTGRES_HOST || 'unknown';
+const NEO_URI = process.env.NEO4J_URI || 'unknown';
+
+console.log('\n\n');
+if (ENV_MODE === 'production') {
+    console.error('╔══════════════════════════════════════════════════════════════╗');
+    console.error('║                    WARNING: PRODUCTION MODE                  ║');
+    console.error('║   You are running against LIVE DATA. Use extreme caution.    ║');
+    console.error('╚══════════════════════════════════════════════════════════════╝');
+} else {
+    console.log('╔══════════════════════════════════════════════════════════════╗');
+    console.log('║                 SAFE MODE: LOCAL DEVELOPMENT                 ║');
+    console.log('║                                                              ║');
+    console.log(`║  • Environment: ${ENV_MODE.padEnd(28)} ║`);
+    console.log(`║  • Postgres:    ${DB_HOST.padEnd(28)} ║`);
+    console.log(`║  • Neo4j:       ${NEO_URI.padEnd(28)} ║`);
+    console.log('╚══════════════════════════════════════════════════════════════╝');
+}
+console.log('\n');
+// -----------------------------------------
+
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
@@ -47,7 +109,7 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: '*' })); // Allow all origins for development
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimitingMiddleware);
 app.use(inputValidationMiddleware);
@@ -56,6 +118,28 @@ app.use(csrfProtectionMiddleware);
 // CRITICAL: Start server only after database is initialized
 async function startServer() {
   try {
+    // Show environment banner
+    const isProd = process.env.NODE_ENV === 'production';
+    const neo4jUri = process.env.NEO4J_URI || 'bolt://localhost:7687';
+    const isAuraDB = neo4jUri.includes('neo4j.io') || neo4jUri.startsWith('neo4j+s://');
+
+    console.log('');
+    console.log('═══════════════════════════════════════════════════════════');
+    if (isProd || isAuraDB) {
+      console.log('  🔴 WIDGETTDC - PRODUCTION MODE');
+      console.log('  Neo4j: AuraDB Cloud');
+    } else {
+      console.log('  🟢 WIDGETTDC - DEVELOPMENT MODE');
+      console.log('  Neo4j: Local Docker');
+    }
+    console.log(`  URI: ${neo4jUri}`);
+    console.log('═══════════════════════════════════════════════════════════');
+    console.log('');
+
+    // Step 0: Always initialize sql.js (used by CognitiveMemory, etc)
+    await initializeDatabase();
+    console.log('🗄️  SQLite (sql.js) initialized for memory systems');
+
     // Step 1: Initialize Prisma (PostgreSQL + pgvector) - Primary database
     try {
       const { getDatabaseAdapter } = await import('./platform/db/PrismaDatabaseAdapter.js');
@@ -63,10 +147,8 @@ async function startServer() {
       await prismaAdapter.initialize();
       console.log('🐘 PostgreSQL + pgvector initialized via Prisma');
     } catch (prismaError) {
-      console.warn('⚠️  Prisma/PostgreSQL not available, falling back to sql.js:', prismaError);
-      // Fallback to sql.js for development without Docker
-      await initializeDatabase();
-      console.log('🗄️  SQLite (sql.js) initialized as fallback');
+      console.warn('⚠️  Prisma/PostgreSQL not available:', prismaError);
+      console.log('   Using SQLite (sql.js) as fallback for all storage');
     }
 
     // Step 1.5: Initialize Neo4j Graph Database
@@ -271,39 +353,52 @@ async function startServer() {
       }
     });
 
-    // Step 3.6: Initialize MCP → Autonomous Integration
-    const { initializeAutonomousSources } = await import('./mcp/autonomous/MCPIntegration.js');
-    await initializeAutonomousSources();
-    console.log('🔗 MCP tools registered as autonomous sources');
+    // Step 3.6: Initialize MCP → Autonomous Integration (non-blocking with timeout)
+    const autonomousInitPromise = (async () => {
+      try {
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Autonomous init timeout')), 5000)
+        );
+        const { initializeAutonomousSources } = await import('./mcp/autonomous/MCPIntegration.js');
+        await Promise.race([initializeAutonomousSources(), timeoutPromise]);
+        console.log('🔗 MCP tools registered as autonomous sources');
 
-    const agent = initAutonomousAgent();
-    console.log('🤖 Autonomous Agent initialized');
+        const agent = initAutonomousAgent();
+        console.log('🤖 Autonomous Agent initialized');
 
-    // Start learning loop (every 5 minutes)
-    startAutonomousLearning(agent, 300000);
-    console.log('🔄 Autonomous learning started (5min intervals)');
+        startAutonomousLearning(agent, 300000);
+        console.log('🔄 Autonomous learning started (5min intervals)');
+      } catch (err: any) {
+        console.warn('⚠️ Autonomous sources initialization skipped:', err.message);
+      }
+    })();
+    // Don't await - let it run in background
 
-    // Step 3.7: Start HansPedder orchestrator
-    try {
-      const { startHansPedder } = await import('./orchestrator/hansPedder.js');
-      await startHansPedder();
-      console.log('👔 HansPedder orchestrator started');
-    } catch (err) {
-      console.error('⚠️ Failed to start HansPedder:', err);
-    }
+    // Step 3.7: Start HansPedder orchestrator (non-blocking)
+    (async () => {
+      try {
+        const { startHansPedder } = await import('./orchestrator/hansPedder.js');
+        await startHansPedder();
+        console.log('👔 HansPedder orchestrator started');
+      } catch (err) {
+        console.error('⚠️ Failed to start HansPedder:', err);
+      }
+    })();
 
     // Step 3.8: Start Data Ingestion Scheduler
     dataScheduler.start();
     console.log('⏰ Data Ingestion Scheduler started');
 
-    // Step 3.9: Start HansPedder Agent Controller (continuous testing)
-    try {
-      const { hansPedderAgent } = await import('./services/agent/HansPedderAgentController.js');
-      hansPedderAgent.start();
-      console.log('🤖 HansPedder Agent Controller started (continuous testing + nudges)');
-    } catch (err) {
-      console.error('⚠️ Failed to start HansPedder Agent Controller:', err);
-    }
+    // Step 3.9: Start HansPedder Agent Controller (non-blocking)
+    (async () => {
+      try {
+        const { hansPedderAgent } = await import('./services/agent/HansPedderAgentController.js');
+        hansPedderAgent.start();
+        console.log('🤖 HansPedder Agent Controller started (continuous testing + nudges)');
+      } catch (err) {
+        console.error('⚠️ Failed to start HansPedder Agent Controller:', err);
+      }
+    })();
 
     // Step 4: Setup routes
     app.use('/api/mcp', mcpRouter);
@@ -317,6 +412,38 @@ async function startServer() {
     // HansPedder Agent Controller routes
     const hanspedderRoutes = (await import('./routes/hanspedderRoutes.js')).default;
     app.use('/api/hanspedder', hanspedderRoutes);
+
+    // Prototype Generation routes (PRD to Prototype)
+    const prototypeRoutes = (await import('./routes/prototype.js')).default;
+    app.use('/api/prototype', prototypeRoutes);
+
+    // ═══════════════════════════════════════════════════════════════════
+    // EARLY SERVER START - Start accepting connections ASAP
+    // All additional route handlers are registered below
+    // ═══════════════════════════════════════════════════════════════════
+    const server = createServer(app);
+    const wsServer = new MCPWebSocketServer(server);
+
+    // Start server IMMEDIATELY - don't wait for additional setup
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Backend server running on http://0.0.0.0:${PORT}`);
+      console.log(`📡 MCP WebSocket available at ws://0.0.0.0:${PORT}/mcp/ws`);
+      console.log(`🔧 Registered MCP tools:`, mcpRegistry.getRegisteredTools());
+    });
+
+    // Wire up WebSocket and orchestrator in background (non-blocking)
+    (async () => {
+      try {
+        const { setWebSocketServer } = await import('./mcp/autonomousRouter.js');
+        setWebSocketServer(wsServer);
+        orchestrator.setBroadcaster((message) => {
+          wsServer.sendToAll(message);
+        });
+        console.log('📡 WebSocket server wired to orchestrator');
+      } catch (err) {
+        console.warn('⚠️ WebSocket setup deferred:', err);
+      }
+    })();
 
     // Health check endpoint - comprehensive system health
     app.get('/health', async (req, res) => {
@@ -869,6 +996,85 @@ async function startServer() {
     });
 
     /**
+     * GET /api/evolution/graph/stats
+     * Get Neo4j graph statistics for 3D visualization
+     * 🔗 NEURAL LINK ENDPOINT
+     */
+    app.get('/api/evolution/graph/stats', async (_req, res) => {
+      try {
+        const { neo4jService } = await import('./database/Neo4jService.js');
+
+        // 1. Fetch Stats
+        const statsQuery = `
+          MATCH (n) 
+          OPTIONAL MATCH ()-[r]->() 
+          RETURN count(DISTINCT n) as nodes, count(DISTINCT r) as relationships
+        `;
+        const statsResult = await neo4jService.runQuery(statsQuery);
+        const stats = {
+          nodes: statsResult[0]?.nodes?.toNumber ? statsResult[0].nodes.toNumber() : (statsResult[0]?.nodes || 0),
+          relationships: statsResult[0]?.relationships?.toNumber ? statsResult[0].relationships.toNumber() : (statsResult[0]?.relationships || 0)
+        };
+
+        // 2. Fetch Sample Nodes for Visualization
+        const vizQuery = `
+          MATCH (n) 
+          RETURN n, labels(n) as labels 
+          LIMIT 100
+        `;
+        const vizResult = await neo4jService.runQuery(vizQuery);
+        
+        // Map Neo4j structure to clean JSON for Frontend
+        const visualNodes = vizResult.map(row => {
+          const node = row.n;
+          return {
+            id: node.elementId, // v6: use elementId instead of identity
+            name: node.properties.name || node.properties.title || `Node ${node.elementId}`,
+            labels: row.labels || node.labels,
+            type: (row.labels && row.labels.includes('Directory')) ? 'directory' : 'file', // Simple heuristic
+            properties: node.properties
+          };
+        });
+
+        // 3. Fetch Sample Relationships
+        const relQuery = `
+          MATCH (n)-[r]->(m)
+          RETURN r, elementId(n) as source, elementId(m) as target
+          LIMIT 200
+        `;
+        const relResult = await neo4jService.runQuery(relQuery);
+        
+        const visualLinks = relResult.map(row => ({
+          source: row.source, // elementId is string
+          target: row.target, // elementId is string
+          type: row.r.type,
+          id: row.r.elementId // v6: use elementId
+        }));
+
+        // 4. Send Combined Payload
+        res.json({
+          timestamp: new Date().toISOString(),
+          stats: stats,
+          nodes: visualNodes,
+          links: visualLinks,
+          // Backwards compatibility fields
+          totalNodes: stats.nodes,
+          totalRelationships: stats.relationships,
+          importGraph: visualLinks.map(l => ({ from: l.source, to: l.target }))
+        });
+
+      } catch (error: any) {
+        console.error('❌ API Error in /graph/stats:', error);
+        res.status(500).json({ 
+          error: 'Failed to retrieve neural link data',
+          details: error.message,
+          nodes: [],
+          links: [] 
+        });
+      }
+    });
+
+    /**
      * GET /api/codex/status
      * Get Codex Symbiosis status
      */
@@ -897,35 +1103,59 @@ async function startServer() {
       }
     });
 
-    // Step 5: Create HTTP server
-    const server = createServer(app);
+    // Graceful shutdown handler
+    const gracefulShutdown = async (signal: string) => {
+      console.log(`\n🛑 ${signal} received: starting graceful shutdown...`);
 
-    // Step 6: Initialize WebSocket server for MCP
-    const wsServer = new MCPWebSocketServer(server);
-
-    // Step 6.5: Wire WebSocket server to autonomous router for real-time events
-    const { setWebSocketServer } = await import('./mcp/autonomousRouter.js');
-    setWebSocketServer(wsServer);
-
-    // Step 7: Wire up orchestrator broadcasting
-    orchestrator.setBroadcaster((message) => {
-      wsServer.sendToAll(message);
-    });
-
-    // Step 8: Start server
-    server.listen(PORT, () => {
-      console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-      console.log(`📡 MCP WebSocket available at ws://localhost:${PORT}/mcp/ws`);
-      console.log(`🔧 Registered MCP tools:`, mcpRegistry.getRegisteredTools());
-    });
-
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
-      console.log('SIGTERM signal received: closing HTTP server');
-      dataScheduler.stop();
+      // Stop accepting new connections
       server.close(() => {
-        console.log('HTTP server closed');
+        console.log('  ✓ HTTP server closed');
       });
+
+      // Stop scheduled tasks
+      try {
+        dataScheduler.stop();
+        console.log('  ✓ Data scheduler stopped');
+      } catch { /* ignore */ }
+
+      // Stop HansPedder agent
+      try {
+        const { hansPedderAgent } = await import('./services/agent/HansPedderAgentController.js');
+        hansPedderAgent.stop();
+        console.log('  ✓ HansPedder agent stopped');
+      } catch { /* ignore */ }
+
+      // Close Neo4j connections
+      try {
+        const { neo4jService } = await import('./database/Neo4jService.js');
+        await neo4jService.close();
+        console.log('  ✓ Neo4j connection closed');
+      } catch { /* ignore */ }
+
+      // Close SQLite database
+      try {
+        const { closeDatabase } = await import('./database/index.js');
+        closeDatabase();
+        console.log('  ✓ SQLite database closed');
+      } catch { /* ignore */ }
+
+      console.log('✅ Graceful shutdown complete');
+      process.exit(0);
+    };
+
+    // Handle shutdown signals
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+    // Handle uncaught errors gracefully
+    process.on('uncaughtException', (error) => {
+      console.error('💥 Uncaught Exception:', error);
+      gracefulShutdown('uncaughtException');
+    });
+
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason);
+      // Don't exit on unhandled rejections, just log
     });
 
   } catch (error) {

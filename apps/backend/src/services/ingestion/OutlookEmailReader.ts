@@ -1,6 +1,7 @@
 import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 import { logger } from '../../utils/logger.js';
+import { DataSourceAdapter, IngestedEntity } from './DataIngestionEngine.js';
 
 export interface EmailMessage {
     id: string;
@@ -11,7 +12,9 @@ export interface EmailMessage {
     metadata: Record<string, any>;
 }
 
-export class OutlookEmailReader {
+export class OutlookEmailReader implements DataSourceAdapter {
+    name = 'Outlook Email Reader';
+    type = 'outlook_mail' as const;
     private config: Imap.Config;
 
     constructor() {
@@ -24,6 +27,30 @@ export class OutlookEmailReader {
             tlsOptions: { rejectUnauthorized: false }, // Tillad self-signed certs hvis nødvendigt
             authTimeout: 10000
         };
+    }
+
+    async isAvailable(): Promise<boolean> {
+        return !!(this.config.user && this.config.password);
+    }
+
+    async fetch(): Promise<EmailMessage[]> {
+        return this.readData();
+    }
+
+    async transform(data: EmailMessage[]): Promise<IngestedEntity[]> {
+        return data.map(email => ({
+            id: email.id,
+            type: 'email',
+            source: this.name,
+            title: email.subject,
+            content: email.content,
+            metadata: {
+                sender: email.sender,
+                timestamp: email.timestamp,
+                ...email.metadata
+            },
+            timestamp: new Date(email.timestamp)
+        }));
     }
 
     async readData(): Promise<EmailMessage[]> {

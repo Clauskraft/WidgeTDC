@@ -1,7 +1,8 @@
-
 import React from 'react';
 import { useWidgetRegistry } from '../contexts/WidgetRegistryContext';
 import { useGlobalState } from '../contexts/GlobalStateContext';
+import { MatrixWidgetWrapper } from '../src/components/MatrixWidgetWrapper';
+import { CheckCircle2, AlertTriangle, Info } from 'lucide-react';
 
 const StatusWidget: React.FC<{ widgetId: string }> = () => {
   const { availableWidgets } = useWidgetRegistry();
@@ -13,65 +14,77 @@ const StatusWidget: React.FC<{ widgetId: string }> = () => {
     status = 'info' 
   }) => {
     const statusColors = {
-      success: 'text-green-600 dark:text-green-400',
-      warning: 'text-yellow-600 dark:text-yellow-400',
-      info: 'text-blue-600 dark:text-blue-400'
+      success: 'text-green-400',
+      warning: 'text-yellow-400',
+      info: 'text-[#00B5CB]'
     };
+    
+    const StatusIcon = {
+      success: CheckCircle2,
+      warning: AlertTriangle,
+      info: Info
+    }[status];
 
     return (
-      <div className="flex justify-between items-center py-2 border-b border-gray-200 dark:border-gray-700 last:border-0">
-        <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
-        <span className={`text-sm font-medium ${statusColors[status]}`}>{value}</span>
+      <div className="flex justify-between items-center py-2.5 border-b border-white/5 last:border-0 group hover:bg-white/5 px-2 rounded transition-colors">
+        <span className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{label}</span>
+        <div className="flex items-center gap-2">
+           <span className={`text-xs font-mono font-medium ${statusColors[status]}`}>{value}</span>
+           <StatusIcon size={12} className={`${statusColors[status]} opacity-70`} />
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="h-full flex flex-col -m-4">
-      <div className="p-4 space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-          <h3 className="text-lg font-semibold">System Status</h3>
+    <MatrixWidgetWrapper title="System Status">
+      <div className="space-y-4">
+        {/* Header Banner */}
+        <div className="bg-green-500/10 border border-green-500/20 rounded-lg p-3 flex items-center gap-3">
+           <div className="relative">
+             <div className="w-2 h-2 rounded-full bg-green-400" />
+             <div className="absolute inset-0 w-2 h-2 rounded-full bg-green-400 animate-ping opacity-75" />
+           </div>
+           <div>
+             <h4 className="text-sm font-medium text-green-300 leading-none">All Systems Operational</h4>
+             <p className="text-[10px] text-green-400/70 mt-1">Core services running smoothly</p>
+           </div>
         </div>
         
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-1">
+        {/* Status Grid */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-1">
           <StatusItem 
-            label="Application" 
-            value="WidgetBoard" 
+            label="Environment" 
+            value="Production" 
             status="success" 
           />
           <StatusItem 
             label="Version" 
-            value="0.0.0" 
+            value="2.0.0 (Matrix)" 
             status="info" 
           />
           <StatusItem 
-            label="Theme" 
-            value={state.theme === 'dark' ? 'Mørk' : 'Lys'} 
+            label="Active Theme" 
+            value={state.theme === 'dark' ? 'Dark Nebula' : 'Light'} 
             status="info" 
           />
           <StatusItem 
-            label="Tilgængelige widgets" 
+            label="Loaded Widgets" 
             value={availableWidgets.length} 
             status={availableWidgets.length > 0 ? 'success' : 'warning'} 
           />
           <StatusItem 
-            label="Reducer bevægelse" 
-            value={state.reduceMotion ? 'Aktiveret' : 'Deaktiveret'} 
+            label="Motion Effects" 
+            value={state.reduceMotion ? 'Reduced' : 'Full'} 
             status="info" 
-          />
-          <StatusItem 
-            label="Status" 
-            value="Kørende" 
-            status="success" 
           />
         </div>
 
-        <div className="text-xs text-gray-500 dark:text-gray-400 text-center pt-2">
-          Sidst opdateret: {new Date().toLocaleString('da-DK')}
+        <div className="text-[9px] text-gray-600 text-center font-mono">
+          LAST SYNC: {new Date().toLocaleTimeString('da-DK')}
         </div>
       </div>
-    </div>
+    </MatrixWidgetWrapper>
   );
 };
 

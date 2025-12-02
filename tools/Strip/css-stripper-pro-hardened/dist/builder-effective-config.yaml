@@ -1,0 +1,26 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.example.cssstripper.hardened
+productName: CSS Stripper Pro
+files:
+  - filter:
+      - main.mjs
+      - preload.cjs
+      - index.html
+      - renderer.js
+      - src/**/*
+      - package.json
+asar: true
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  artifactName: css-stripper-pro-${version}-Setup.${ext}
+nsis:
+  oneClick: true
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: false
+electronVersion: 30.5.1

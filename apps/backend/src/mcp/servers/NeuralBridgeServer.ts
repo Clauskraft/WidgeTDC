@@ -26,7 +26,7 @@ import { z } from 'zod';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
-import { neo4jAdapter } from '../adapters/Neo4jAdapter.js';
+import { neo4jAdapter } from '../../adapters/Neo4jAdapter.js';
 import { ingestRepository } from '../../services/GraphIngestor.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1050,7 +1050,7 @@ class NeuralBridgeServer {
 
     private async updateSystemHealth(): Promise<void> {
         // Check Neo4j health
-        const neo4jHealth = await neo4jAdapter.healthCheck().catch(() => ({
+        const neo4jHealth: any = await neo4jAdapter.healthCheck().catch(() => ({
             connected: false,
             lastCheck: new Date().toISOString()
         }));
@@ -1064,9 +1064,9 @@ class NeuralBridgeServer {
             { 
                 name: 'Neo4j Database', 
                 healthy: neo4jHealth.connected, 
-                latency: neo4jHealth.latencyMs,
+                latency: neo4jHealth.latencyMs || 0,
                 message: neo4jHealth.connected 
-                    ? `${neo4jHealth.nodeCount} nodes, ${neo4jHealth.relationshipCount} relationships`
+                    ? `${neo4jHealth.nodeCount || 0} nodes, ${neo4jHealth.relationshipCount || 0} relationships`
                     : 'Connection failed'
             },
             { 

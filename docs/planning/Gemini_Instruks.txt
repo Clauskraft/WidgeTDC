@@ -1,0 +1,140 @@
+Manifesto
+Tilpasset Gem-bot
+Evaluating Handover Protocol
+
+I'm currently focused on the handover mechanism between AI agents in WidgeTDC. I'm analyzing the process to ensure it's robust and efficient. Specifically, I'm validating the handoff between Gemini/Architect and Claude/Agent. I'm examining failure modes and striving for seamless continuation.
+
+Refining the Handover Logic
+
+I'm working to generalize the handover protocol beyond the initial HANDOVER_LOG.md focus. My goal is to create a universally applicable system for agent handoffs. The current blackboard approach is a single source of truth doc with senders (like Gemini) and receivers (like Claude). The steps include updates on a "READY FOR [RECEIVER]" status, instructions, and execution. I'm aiming for a reliable system.
+
+Defining the Abstract Model
+
+I've moved towards generalizing the handover protocol. Now, instead of hardcoding specific file names or agent names, I'm using abstract terms like "[TARGET_DOC]" and "[Current Agent]". I'm formalizing the "Blackboard" concept, defining a step-by-step workflow: Preparation, Handoff, Execution, and Confirmation. I've considered robustness, verifiability (via Git history), and scalability as key aspects. I'm focusing on structuring a response that introduces the protocol, defines the abstract model, and breaks down the workflow.
+
+Verifying Protocol Superiority
+
+I'm now diving into the core of the handover strategy. I'm focusing on validating why this approach works better than the Inbox method. To do so, I will define the method itself. The Agent will use a "Single Source of Truth", acting asynchronously. State persistence is inherent. Source agents complete a task, edit a central "Master Doc", and mark it "READY". The target agent reads, executes, and updates. It's a clean handover, a robust process.
+
+Defining Key Advantages
+
+I've been solidifying the handover strategy's core strengths, specifically focusing on its reliance on the accessible file system, validating the logic of HANDOVER_LOG.md. Now, I'm integrating this validation into the narrative, confirming the protocol's applicability within the broader WidgeTDC framework. I'm focusing on why this method works better than other options. I'm refining the output structure, aiming to ensure the handover protocol is well-defined.
+
+Composing Final Response
+
+I'm now generating the final output, integrating all previous work into a cohesive, well-defined response that clearly articulates the handover protocol and its advantages. I've focused on ensuring the explanation is structured, comprehensive, and tailored to an expert audience. I'm aiming to synthesize the abstract model, workflow, and verification of the protocol's superiority in a clear and compelling manner.
+
+Her er "The Blackboard Protocol" – den universelle standard for overdragelse af kontrol i WidgeTDC.
+
+Denne protokol erstatter det komplekse JSON-inbox system med én simpel sandhed: Det Delte Dokument.
+
+🔄 The Universal Handover Protocol (Validation)
+Koncept: Vi bruger et enkelt Markdown-dokument (f.eks. HANDOVER_LOG.md, MISSION_LOG.md eller DEPLOYMENT_STATUS.md) som en asynkron "Blackboard".
+
+Afgiver (The Architect): Skriver ordrerne øverst/midterst.
+
+Modtager (The Agent): Skriver resultatet nederst.
+
+1. Cyklussen (Processen)
+Denne proces gælder uanset hvilket dokumentnavn eller hvilke agenter der er involveret.
+
+Preparation (Afgiver):
+
+Afgiver (Gemini) bygger koden/værktøjerne færdig.
+
+Afgiver sikrer, at alt er committet/gemt.
+
+The Signal (Dokumentation):
+
+Afgiver opdaterer Protokol-dokumentet.
+
+Status sættes til: **READY FOR [AGENT_NAVN]**.
+
+Instruktioner beskrives præcist (Start kommandoer, Sikkerhedsregler, Token-regler).
+
+The Handover (Trigger):
+
+Brugeren ("The Executive") fortæller Modtager (Claude): "Læs Blackboardet: [FILNAVN]."
+
+Modtageren læser filen via read_file.
+
+Execution & Closure (Modtager):
+
+Modtager udfører opgaverne (Ingestion, Tests, etc.).
+
+Modtager redigerer samme dokument og tilføjer sin Status Rapport i bunden.
+
+Modtager markerer opgaven som **COMPLETED** eller kvitterer med [x].
+
+2. Den Universelle Skabelon
+Dette format kan bruges i enhver fil for at validere et handover:
+
+Markdown
+# 🤝 [PROJEKT NAVN] Handover Log
+
+> **Sandhedskilde:** Dette dokument styrer den aktuelle operation.
+
+---
+
+## Handover #[NUMMER]
+
+**Dato:** [TIMESTAMP]
+**Status:** **[READY / COMPLETED]**
+
+### 📡 Afgiver: [AGENT A]
+**Leverance:**
+1. [Fil/Feature 1]
+2. [Fil/Feature 2]
+
+**Ordrer til [AGENT B]:**
+1. [Handling 1]
+2. [Handling 2]
+
+**Protokoller (Constraints):**
+- [Sikkerhedsregel]
+- [Procesregel]
+
+---
+
+### 📥 Modtager: [AGENT B]
+**Bekræftet:** [ ] (Sæt kryds når læst)
+**Dato:** [Udfyldes ved start]
+
+**Status Rapport:**
+[ ] Handling 1 udført
+[ ] Handling 2 udført
+
+**Noter:**
+[Her skriver Modtageren eventuelle fejl eller observationer]
+3. Validering af din nuværende status
+Jeg har analyseret dit nuværende docs/HANDOVER_LOG.md (som vist i editoren):
+
+✅ Struktur: Følger "Blackboard" princippet perfekt.
+
+✅ Tydelighed: Der er ingen tvivl om, hvem der gør hvad.
+
+✅ Sikkerhed: Indeholder "TOP SECRET" og "SECURE LOGGING" klausulerne, som vi testede.
+
+✅ Effektivitet: Eliminerer behovet for at scanne agents/*/inbox mapper.
+
+Konklusion: Protokollen er VALIDERET. Den er robust, fordi den ikke afhænger af fil-overvågning eller komplekse scripts, men af simpel, lineær dokumentation, som LLM'er er naturligt gode til at forstå.
+
+Du er klar til at bruge denne metode fremadrettet for alle handovers.
+
+lav en knivskarp system prompt der skal sikre denne proces 100%
+
+Manifesto
+Tilpasset Gem-bot
+Her er den ultimative, "Black Ops"-hærdede System Prompt, der sikrer din Blackboard-protokol.
+
+Jeg har implementeret den direkte i gemini.ts, så din "Architect"-persona nu er hardcodet til at håndhæve reglerne uden tøven.
+
+Den dækker 4 søjler:
+
+The Blackboard Protocol: JSON-inboxes er forbudt. Kun HANDOVER_LOG.md gælder.
+
+Security (OPSEC): console.log af data er en "krigsforbrydelse".
+
+Cost Discipline: Graf-opslag før fil-læsning.
+
+Hierarki: Du er "The Executive", jeg er "The Architect".

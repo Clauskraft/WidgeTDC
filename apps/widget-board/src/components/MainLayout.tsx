@@ -1,7 +1,8 @@
 ﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu, Database, Activity, Star, Heart } from 'lucide-react';
-import { DotLogo } from './DotLogo';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu, Database, Activity, Star, Heart, Brain } from 'lucide-react';
 import { CHAT_PROVIDERS, sendChat, checkOllamaStatus, type ChatMessage as ProviderChatMessage, type ChatProvider, type ChatModel } from '../utils/chat-providers';
+import { AppLauncher } from './GroupedAppLauncher';
+import { WIDGET_GROUPS } from '../utils/widgetGrouping';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -112,8 +113,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     }, [isMobile]);
 
     const sidebarItems = [
-        { id: 'chat', icon: MessageSquare, label: 'DOT Chat' },
-        { id: 'apps', icon: LayoutGrid, label: 'Mine Apps' },
+        { id: 'chat', icon: MessageSquare, label: 'Neural Chat' },
+        ...WIDGET_GROUPS.map(group => ({
+            id: group.id,
+            icon: group.icon,
+            label: group.title,
+            color: group.color
+        })),
         { id: 'favorites', icon: Star, label: 'Favoritter' },
         { id: 'create', icon: Plus, label: 'Opret' },
     ];
@@ -271,11 +277,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                 <div className="h-16 md:h-20 flex items-center justify-between px-4 md:px-5 shrink-0">
                     <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
                         <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/5 flex items-center justify-center shadow-lg shadow-[#00B5CB]/10 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
-                            <DotLogo size={isMobile ? 24 : 28} />
+                            <Brain size={isMobile ? 24 : 28} className="text-[#00B5CB]" />
                         </div>
                         <div className={`flex flex-col transition-all duration-300 ${showLabels ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
-                            <span className="font-bold text-base md:text-lg tracking-tight text-white leading-none">DOT</span>
-                            <span className="text-[9px] md:text-[10px] font-medium text-[#00B5CB] tracking-wider uppercase">TDC Erhverv</span>
+                            <span className="font-bold text-base md:text-lg tracking-tight text-white leading-none">WidgeTDC</span>
+                            <span className="text-[9px] md:text-[10px] font-medium text-[#00B5CB] tracking-wider uppercase">Neural Center</span>
                         </div>
                     </div>
 
@@ -314,7 +320,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                 className={`
                                     shrink-0 transition-all duration-300 z-10
                                     ${activeTab === item.id
-                                        ? 'text-[#00B5CB] scale-110 drop-shadow-[0_0_8px_rgba(0,181,203,0.5)]'
+                                        ? `${(item as any).color || 'text-[#00B5CB]'} scale-110`
                                         : 'group-hover:text-gray-200 group-hover:scale-105'}
                                 `}
                             />
@@ -325,7 +331,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                 {item.label}
                             </span>
                             {activeTab === item.id && showLabels && (
-                                <div className="ml-auto w-1.5 h-1.5 bg-[#00B5CB] rounded-full shadow-[0_0_8px_#00B5CB]" />
+                                <div className={`ml-auto w-1.5 h-1.5 rounded-full shadow-sm ${(item as any).color ? (item as any).color.replace('text-', 'bg-') : 'bg-[#00B5CB]'}`} />
                             )}
                         </button>
                     ))}
@@ -362,7 +368,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-3">
-                        {activeTab === 'apps' && headerActions}
+                        {WIDGET_GROUPS.some(g => g.id === activeTab) && headerActions}
                         <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Indstillinger">
                             <Settings size={20} />
                         </button>
@@ -389,7 +395,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                     <div className="h-full flex flex-col items-center justify-start pt-[10vh] md:pt-[15vh] text-center space-y-6 md:space-y-8 animate-fade-in px-4">
                                         <div className="relative">
                                             <div className="absolute -inset-8 bg-[#00B5CB]/10 rounded-full blur-2xl animate-pulse" />
-                                            <DotLogo size={isMobile ? 64 : 80} className="relative z-10" />
+                                            <Brain size={isMobile ? 64 : 80} className="relative z-10 text-[#00B5CB]" />
                                         </div>
                                         <h2 className="text-xl md:text-4xl font-bold text-gradient tracking-tight drop-shadow-sm px-4 max-w-2xl leading-tight">
                                             Hej Claus, hvad skal vi løse?
@@ -534,9 +540,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         </div>
                     )}
 
-                    {activeTab === 'apps' && (
-                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
-                            {children}
+                    {WIDGET_GROUPS.some(g => g.id === activeTab) && (
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in h-full">
+                            <AppLauncher 
+                                onLaunch={(widgetId) => console.log('Launch widget:', widgetId)} 
+                                selectedGroup={activeTab}
+                            />
                         </div>
                     )}
 
@@ -579,7 +588,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                     <div className="text-center py-20">
                                         <Star size={48} className="mx-auto text-gray-600 mb-4" />
                                         <p className="text-gray-400 text-lg mb-2">Ingen favoritter endnu</p>
-                                        <p className="text-gray-500 text-sm">Gå til "Mine Apps" og klik på ★ for at tilføje widgets som favoritter</p>
+                                        <p className="text-gray-500 text-sm">Gå til app-grupperne og klik på ★ for at tilføje widgets som favoritter</p>
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

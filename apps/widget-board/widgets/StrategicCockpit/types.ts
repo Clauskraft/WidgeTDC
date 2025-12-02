@@ -190,6 +190,7 @@ export interface CockpitState {
   // UI State
   showAgentCouncil: boolean;
   showNeuralStream: boolean;
+  showMarketRadar: boolean;
   isConnecting: boolean;
   connectionSource: string | null;
   

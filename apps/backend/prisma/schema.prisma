@@ -4,6 +4,7 @@
 generator client {
   provider = "prisma-client-js"
   previewFeatures = ["postgresqlExtensions"]
+  binaryTargets = ["native"]
 }
 
 datasource db {
@@ -223,4 +224,28 @@ model AgentPrompt {
 
   @@unique([agentId, version])
   @@map("agent_prompts")
+}
+
+// ============================================
+// PRD Prototypes
+// ============================================
+
+model Prototype {
+  id            String   @id @default(uuid())
+  name          String   
+  htmlContent   String
+  prdId         String?
+  version       Int      @default(1)
+  style         String   @default("modern")
+  status        String   @default("complete") // generating, complete, error
+  metadata      Json?
+  userId        String   @default("system")
+  orgId         String   @default("default")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([name, userId, orgId])
+  @@index([userId, orgId])
+  @@index([prdId])
+  @@map("prototypes")
 }

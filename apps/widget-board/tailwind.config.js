@@ -7,49 +7,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        'cyber-black': '#0a0a0f',
-        'cyber-dark': '#0d1117',
-        'cyber-gray': '#161b22',
-        'neon-green': '#00ff41',
-        'neon-cyan': '#00d4ff',
-        'neon-purple': '#a855f7',
-        'alert-red': '#ff0040',
-        'alert-yellow': '#ffcc00',
-        'matrix-green': '#003b00',
+        matrix: {
+          base: '#0D0D0D',     // Deep black background
+          crust: '#121212',    // Panel backgrounds
+          primary: '#00FF41',  // Classic Matrix Green
+          dim: '#008F11',      // Dimmed green
+          glow: '#003B00',     // Glow effects
+          alert: '#FF0000',    // Critical alert
+          warning: '#FFB300',  // Warning
+        }
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'monospace'],
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        mono: ['"Fira Code"', '"Source Code Pro"', 'monospace'],
+      },
+      boxShadow: {
+        'matrix-glow': '0 0 15px rgba(0, 255, 65, 0.1)',
+        'matrix-glow-intense': '0 0 20px rgba(0, 255, 65, 0.4)',
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'glow': 'glow 2s ease-in-out infinite alternate',
-        'scan': 'scan 2s linear infinite',
-        'flicker': 'flicker 0.15s infinite',
-        'typing': 'typing 3.5s steps(40, end)',
       },
       keyframes: {
         glow: {
-          '0%': { boxShadow: '0 0 5px currentColor, 0 0 10px currentColor' },
-          '100%': { boxShadow: '0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor' },
-        },
-        scan: {
-          '0%': { transform: 'translateY(-100%)' },
-          '100%': { transform: 'translateY(100%)' },
-        },
-        flicker: {
-          '0%, 100%': { opacity: 1 },
-          '50%': { opacity: 0.8 },
-        },
-        typing: {
-          '0%': { width: '0' },
-          '100%': { width: '100%' },
-        },
-      },
-      boxShadow: {
-        'neon': '0 0 5px theme(colors.neon-green), 0 0 20px theme(colors.neon-green)',
-        'neon-cyan': '0 0 5px theme(colors.neon-cyan), 0 0 20px theme(colors.neon-cyan)',
-        'neon-red': '0 0 5px theme(colors.alert-red), 0 0 20px theme(colors.alert-red)',
-      },
+          '0%': { textShadow: '0 0 5px #00FF41' },
+          '100%': { textShadow: '0 0 20px #00FF41, 0 0 30px #00FF41' },
+        }
+      }
     },
   },
   plugins: [],

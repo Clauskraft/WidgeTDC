@@ -44,7 +44,8 @@ export class Neo4jGraphAdapter {
 
     constructor() {
         this.uri = process.env.NEO4J_URI || 'bolt://localhost:7687';
-        this.username = process.env.NEO4J_USERNAME || 'neo4j';
+        // Support both NEO4J_USER and NEO4J_USERNAME for compatibility
+        this.username = process.env.NEO4J_USER || process.env.NEO4J_USERNAME || 'neo4j';
         this.password = process.env.NEO4J_PASSWORD || 'password';
         this.database = process.env.NEO4J_DATABASE || 'neo4j';
     }

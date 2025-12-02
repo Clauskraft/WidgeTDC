@@ -1,0 +1,11 @@
+import React from 'react';
+import StrategicCockpit from './widgets/StrategicCockpit';
+
+/**
+ * Main application component.
+ * This now renders only the StrategicCockpit as the primary interface,
+ * based on the directive to restore the "matrix look" GUI as the application core.
+ */
+export default function App() {
+  return <StrategicCockpit />;
+}

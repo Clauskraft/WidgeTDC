@@ -10,17 +10,9 @@ import { stateGraphRouter } from './cognitive/StateGraphRouter.js';
 import { patternEvolutionEngine } from './cognitive/PatternEvolutionEngine.js';
 import { agentTeam } from './cognitive/AgentTeam.js';
 import { unifiedMemorySystem } from './cognitive/UnifiedMemorySystem.js';
-// import { getNeo4jVectorStore } from '../platform/vector/Neo4jVectorStoreAdapter.js';
+import { getNeo4jVectorStore } from '../platform/vector/Neo4jVectorStoreAdapter.js';
 import { logger } from '../utils/logger.js';
 import { hyperLog } from '../services/hyper-log.js';
-
-// EMERGENCY BYPASS: Mock Vector Store to allow server start
-const getNeo4jVectorStore = () => ({
-    search: async () => [],
-    upsert: async () => {},
-    batchUpsert: async () => {},
-    getStatistics: async () => ({ totalRecords: 0, namespaces: [], perNamespace: {} })
-});
 
 // Vector types for Neo4jVectorStoreAdapter
 type VectorRecord = {
@@ -178,7 +170,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 [SYSTEM SELF-AWARENESS]
 - Active Agents: ${metrics.activeAgents}
 - Thoughts Processed: ${metrics.totalThoughts}
-- Intelligence Tool Usage: ${(metrics.toolUsageRate * 100).toFixed(1)}%
+- Intelligence Tool Usage: ${(Number(metrics.toolUsageRate) * 100).toFixed(1)}%
 - Platform Status: ONLINE
 `;
 

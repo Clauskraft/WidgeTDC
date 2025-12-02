@@ -19,21 +19,22 @@ export default defineConfig(({ mode }) => {
             vendor: ['react', 'react-dom'],
             ui: ['framer-motion', '@headlessui/react', 'lucide-react'],
             grid: ['react-grid-layout'],
+            graph: ['three', 'react-force-graph-3d'],
           },
         },
       },
     },
     server: {
-      port: 8888,
+      port: 5173,
       host: '0.0.0.0',
       proxy: {
         '/api': {
-          target: env.VITE_API_URL || 'http://localhost:3001',
+          target: env.VITE_API_URL || 'http://127.0.0.1:3001',
           changeOrigin: true,
           secure: false,
         },
         '/ws': {
-          target: env.VITE_WS_URL || 'ws://localhost:3001',
+          target: env.VITE_WS_URL || 'ws://127.0.0.1:3001',
           ws: true,
           changeOrigin: true,
         },

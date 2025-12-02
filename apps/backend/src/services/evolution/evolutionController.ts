@@ -1,159 +1,62 @@
-import { Router } from 'express';
-import { EvolutionRepository } from './evolutionRepository.js';
-import { AgentRunReport } from '@widget-tdc/mcp-types';
+import { Request, Response, Router } from 'express';
+import { OmniHarvester } from './OmniHarvester.js';
+import path from 'path';
 
-export const evolutionRouter = Router();
-const evolutionRepo = new EvolutionRepository();
+const router = Router();
+const harvester = new OmniHarvester(path.resolve(process.cwd(), '../../')); // Scan project root
 
-// Report an agent run
-evolutionRouter.post('/report-run', (req, res) => {
+router.get('/graph', async (req: Request, res: Response) => {
   try {
-    const report: AgentRunReport = req.body;
+    // In a real implementation, this would query Neo4j.
+    // For the prototype, we scan the file system live and return a tree structure
+    // which the frontend can visualize as a graph.
+    const nodes = await harvester.scan();
     
-    if (!report.agentId || !report.promptVersion || !report.kpiName) {
-      return res.status(400).json({
-        error: 'Missing required fields: agentId, promptVersion, kpiName',
-      });
+    // Flatten the tree for the 3D graph (simplified)
+    // This maps the recursive structure to a flat node/link list
+    const graphData = {
+        nodes: [] as any[],
+        links: [] as any[]
+    };
+
+    let idCounter = 0;
+    function processNode(node: any, parentId: number | null = null) {
+        const currentId = idCounter++;
+        const isDir = node.type === 'directory';
+        
+        graphData.nodes.push({
+            id: currentId,
+            name: node.name,
+            type: node.type,
+            val: isDir ? 5 : 1, // Size for visualizer
+            color: isDir ? '#ff00ff' : '#00B5CB'
+        });
+
+        if (parentId !== null) {
+            graphData.links.push({
+                source: parentId,
+                target: currentId
+            });
+        }
+
+        if (node.children) {
+            node.children.forEach((child: any) => processNode(child, currentId));
+        }
     }
 
-    const runId = evolutionRepo.recordRun(report);
-    
-    // Check if refinement is needed
-    const avgDelta = evolutionRepo.getAverageKpiDelta(report.agentId, 10);
-    const threshold = 0.0; // If average KPI delta is negative, consider refinement
-    
-    const needsRefinement = avgDelta < threshold;
+    // Only process first level depth for performance in this mocked version if it's huge
+    nodes.forEach(node => processNode(node, null));
 
-    res.json({
-      success: true,
-      runId,
-      evaluation: {
-        agentId: report.agentId,
-        needsRefinement,
-        averageKpiDelta: avgDelta,
-        reason: needsRefinement 
-          ? 'Average KPI delta is below threshold, consider prompt refinement'
-          : 'Performance is acceptable',
-      },
-    });
+    res.json(graphData);
   } catch (error: any) {
-    console.error('Evolution report error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+    console.error("Evolution Graph Error:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
-// Get latest prompt for an agent
-evolutionRouter.get('/prompt/:agentId', (req, res) => {
-  try {
-    const { agentId } = req.params;
-    const prompt = evolutionRepo.getLatestPrompt(agentId);
-    
-    if (!prompt) {
-      return res.status(404).json({
-        error: 'No prompt found for agent',
-      });
-    }
-
-    res.json({
-      success: true,
-      prompt: {
-        agentId: prompt.agent_id,
-        version: prompt.version,
-        promptText: prompt.prompt_text,
-        createdAt: prompt.created_at,
-        createdBy: prompt.created_by,
-      },
-    });
-  } catch (error: any) {
-    console.error('Get prompt error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
+router.post('/evolve', async (req: Request, res: Response) => {
+    // Placeholder for self-modification endpoint
+    res.json({ message: "Evolution request received. Analysis started." });
 });
 
-// Get all prompts for an agent
-evolutionRouter.get('/prompts/:agentId', (req, res) => {
-  try {
-    const { agentId } = req.params;
-    const prompts = evolutionRepo.getAllPrompts(agentId);
-    
-    res.json({
-      success: true,
-      prompts: prompts.map(p => ({
-        agentId: p.agent_id,
-        version: p.version,
-        promptText: p.prompt_text,
-        createdAt: p.created_at,
-        createdBy: p.created_by,
-      })),
-      count: prompts.length,
-    });
-  } catch (error: any) {
-    console.error('Get prompts error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-// Create a new prompt version
-evolutionRouter.post('/prompt', (req, res) => {
-  try {
-    const { agentId, promptText, createdBy } = req.body;
-    
-    if (!agentId || !promptText) {
-      return res.status(400).json({
-        error: 'Missing required fields: agentId, promptText',
-      });
-    }
-
-    const promptId = evolutionRepo.createPrompt(agentId, promptText, createdBy);
-    const newPrompt = evolutionRepo.getLatestPrompt(agentId);
-    
-    res.json({
-      success: true,
-      promptId,
-      version: newPrompt.version,
-    });
-  } catch (error: any) {
-    console.error('Create prompt error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-// Get recent runs for an agent
-evolutionRouter.get('/runs/:agentId', (req, res) => {
-  try {
-    const { agentId } = req.params;
-    if (!agentId) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing agentId parameter',
-      });
-    }
-    const limit = parseInt(req.query.limit as string) || 10;
-    
-    const runs = evolutionRepo.getRecentRuns(agentId, limit);
-    
-    res.json({
-      success: true,
-      runs,
-      count: runs.length,
-    });
-  } catch (error: any) {
-    console.error('Get runs error:', error);
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
+export const evolutionRouter = router;
