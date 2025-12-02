@@ -1,34 +1,69 @@
 # WidgeTDC Frontend - Production Dockerfile
-FROM node:20-alpine AS builder
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files for workspaces
 COPY package*.json ./
+COPY apps/widget-board/package*.json ./apps/widget-board/
+COPY packages/domain-types/package*.json ./packages/domain-types/
+COPY packages/mcp-types/package*.json ./packages/mcp-types/
 
-# Install dependencies (use npm install for flexibility with lock file)
-RUN npm install --legacy-peer-deps
+# Install dependencies
+RUN npm ci --include=dev
 
 # Copy source code
-COPY . .
+COPY packages/ ./packages/
+COPY apps/widget-board/ ./apps/widget-board/
 
-# Build for production
+# Build shared packages (for types if needed)
+RUN npm run build:domain-types || true
+RUN npm run build:mcp-types || true
+
+# Build frontend
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
+
+WORKDIR /app/apps/widget-board
 RUN npm run build
 
-# Production stage - nginx
-FROM nginx:alpine
+# Production stage with Nginx
+FROM nginx:alpine AS production
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy built frontend
+COPY --from=build /app/apps/widget-board/dist /usr/share/nginx/html
 
-# Copy built files
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Nginx configuration for SPA routing and API proxy
+RUN cat > /etc/nginx/conf.d/default.conf << 'EOF'
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
 
-# Expose port
+    # Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # SPA fallback - serve index.html for all routes
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+
+    # Health check
+    location /health {
+        return 200 'OK';
+        add_header Content-Type text/plain;
+    }
+}
+EOF
+
 EXPOSE 80
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
