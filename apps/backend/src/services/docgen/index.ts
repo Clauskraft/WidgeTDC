@@ -3,12 +3,18 @@
  * Exports for PowerPoint, Word, and Excel generation
  */
 
-export { 
-  MCPPowerPointBackend, 
-  getMCPPowerPointBackend 
+export {
+  MCPPowerPointBackend,
+  getMCPPowerPointBackend
 } from './MCPPowerPointBackend.js';
 
-export { 
+export {
   default as DocumentGenerationService,
-  getDocumentGenerationService 
+  getDocumentGenerationService
 } from './DocumentGenerationService.js';
+
+export {
+  ShowpadBrandIntegration,
+  getShowpadBrandIntegration
+} from './ShowpadBrandIntegration.js';
+export type { BrandedPresentationConfig, BrandedTheme } from './ShowpadBrandIntegration.js';

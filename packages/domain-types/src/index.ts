@@ -20,3 +20,4 @@ export * from './memory';
 export * from './srag';
 export * from './evolution';
 export * from './pal';
+export * from './showpad';
