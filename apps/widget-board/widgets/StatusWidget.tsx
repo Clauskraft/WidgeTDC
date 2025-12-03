@@ -8,34 +8,6 @@ const StatusWidget: React.FC<{ widgetId: string }> = () => {
   const { availableWidgets } = useWidgetRegistry();
   const { state } = useGlobalState();
 
-  const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
-    label, 
-    value, 
-    status = 'info' 
-  }) => {
-    const statusColors = {
-      success: 'text-green-400',
-      warning: 'text-yellow-400',
-      info: 'text-[#00B5CB]'
-    };
-    
-    const StatusIcon = {
-      success: CheckCircle2,
-      warning: AlertTriangle,
-      info: Info
-    }[status];
-
-    return (
-      <div className="flex justify-between items-center py-2.5 border-b border-white/5 last:border-0 group hover:bg-white/5 px-2 rounded transition-colors">
-        <span className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{label}</span>
-        <div className="flex items-center gap-2">
-           <span className={`text-xs font-mono font-medium ${statusColors[status]}`}>{value}</span>
-           <StatusIcon size={12} className={`${statusColors[status]} opacity-70`} />
-        </div>
-      </div>
-    );
-  };
-
   return (
     <MatrixWidgetWrapper title="System Status">
       <div className="space-y-4">
@@ -85,6 +57,34 @@ const StatusWidget: React.FC<{ widgetId: string }> = () => {
         </div>
       </div>
     </MatrixWidgetWrapper>
+  );
+};
+
+const StatusItem: React.FC<{ label: string; value: string | number; status?: 'success' | 'warning' | 'info' }> = ({ 
+  label, 
+  value, 
+  status = 'info' 
+}) => {
+  const statusColors = {
+    success: 'text-green-400',
+    warning: 'text-yellow-400',
+    info: 'text-[#00B5CB]'
+  };
+  
+  const StatusIcon = {
+    success: CheckCircle2,
+    warning: AlertTriangle,
+    info: Info
+  }[status];
+
+  return (
+    <div className="flex justify-between items-center py-2.5 border-b border-white/5 last:border-0 group hover:bg-white/5 px-2 rounded transition-colors">
+      <span className="text-xs text-gray-400 group-hover:text-gray-200 transition-colors">{label}</span>
+      <div className="flex items-center gap-2">
+         <span className={`text-xs font-mono font-medium ${statusColors[status]}`}>{value}</span>
+         <StatusIcon size={12} className={`${statusColors[status]} opacity-70`} />
+      </div>
+    </div>
   );
 };
 
