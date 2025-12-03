@@ -2,7 +2,7 @@
  * Styled Input Component
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { 
   View, 
   TextInput, 
@@ -34,35 +34,47 @@ export function Input({
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
+  const handleFocus = useCallback(() => setIsFocused(true), []);
+  const handleBlur = useCallback(() => setIsFocused(false), []);
+
+  const inputContainerStyle = useMemo(() => [
+    styles.inputContainer,
+    isFocused && styles.inputFocused,
+    error && styles.inputError,
+  ], [isFocused, error]);
+
+  const inputStyle = useMemo(() => [
+    styles.input,
+    leftIcon && styles.inputWithLeftIcon,
+    rightIcon && styles.inputWithRightIcon,
+    style,
+  ], [leftIcon, rightIcon, style]);
+
+  const helperText = useMemo(() => {
+    if (error) return <Text style={styles.error}>{error}</Text>;
+    if (helper) return <Text style={styles.helper}>{helper}</Text>;
+    return null;
+  }, [error, helper]);
+
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
       
-      <View style={[
-        styles.inputContainer,
-        isFocused && styles.inputFocused,
-        error && styles.inputError,
-      ]}>
+      <View style={inputContainerStyle}>
         {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
         
         <TextInput
-          style={[
-            styles.input,
-            leftIcon && styles.inputWithLeftIcon,
-            rightIcon && styles.inputWithRightIcon,
-            style,
-          ]}
+          style={inputStyle}
           placeholderTextColor={colors.neutral[500]}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           {...props}
         />
         
         {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
       </View>
       
-      {error && <Text style={styles.error}>{error}</Text>}
-      {helper && !error && <Text style={styles.helper}>{helper}</Text>}
+      {helperText}
     </View>
   );
 }
@@ -121,4 +133,3 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
-
