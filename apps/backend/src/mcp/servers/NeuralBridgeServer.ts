@@ -375,6 +375,62 @@ class NeuralBridgeServer {
                         },
                         required: ['to', 'type', 'subject', 'body']
                     }
+                },
+                // ═══════════════════════════════════════════════════════════════
+                // PRD to Prototype Tools
+                // ═══════════════════════════════════════════════════════════════
+                {
+                    name: 'generate_prototype',
+                    description: 'Generate an HTML prototype from a PRD document. Returns complete functional HTML code.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            prdContent: {
+                                type: 'string',
+                                description: 'The PRD content (text, markdown, or [PDF:base64] prefixed base64 data)'
+                            },
+                            style: {
+                                type: 'string',
+                                enum: ['modern', 'minimal', 'corporate', 'tdc-brand'],
+                                description: 'Visual style for the prototype (default: modern)'
+                            },
+                            locale: {
+                                type: 'string',
+                                description: 'Locale for UI text (default: da-DK)'
+                            }
+                        },
+                        required: ['prdContent']
+                    }
+                },
+                {
+                    name: 'save_prototype',
+                    description: 'Save a generated prototype to the database and Neo4j knowledge graph',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            name: {
+                                type: 'string',
+                                description: 'Name for the prototype'
+                            },
+                            htmlContent: {
+                                type: 'string',
+                                description: 'The HTML content of the prototype'
+                            },
+                            prdId: {
+                                type: 'string',
+                                description: 'Optional ID of the source PRD document'
+                            }
+                        },
+                        required: ['name', 'htmlContent']
+                    }
+                },
+                {
+                    name: 'list_prototypes',
+                    description: 'List all saved prototypes',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {}
+                    }
                 }
             ]
         }));

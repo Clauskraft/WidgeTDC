@@ -1,77 +1,45 @@
 {
-    "name": "widgetdc-desktop",
-    "version": "1.0.0",
-    "description": "WidgeTDC Desktop Application - Enterprise AI Dashboard",
-    "homepage": "https://github.com/Clauskraft/WidgeTDC",
-    "main": "main.js",
-    "scripts": {
-        "start": "electron .",
-        "start:dev": "NODE_ENV=development electron .",
-        "prebuild": "npm run copy-frontend",
-        "build": "electron-builder",
-        "build:win": "npm run prebuild && electron-builder --win",
-        "build:mac": "npm run prebuild && electron-builder --mac",
-        "build:linux": "npm run prebuild && electron-builder --linux",
-        "copy-frontend": "node scripts/copy-frontend.js"
+  "name": "widget-tdc-desktop",
+  "version": "1.0.0",
+  "description": "WidgeTDC Neural Command Center - Desktop Client",
+  "main": "main.js",
+  "author": "Clauskraft",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.widgettdc.desktop",
+    "productName": "WidgeTDC Command Center",
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
     },
-    "build": {
-        "appId": "com.widgetdc.desktop",
-        "productName": "WidgeTDC",
-        "directories": {
-            "output": "dist"
-        },
-        "files": [
-            "main.js",
-            "preload.js",
-            "renderer/**/*",
-            "assets/**/*"
-        ],
-        "extraResources": [
-            {
-                "from": "renderer/dist",
-                "to": "app/renderer/dist",
-                "filter": ["**/*"]
-            }
-        ],
-        "win": {
-            "target": [
-                "nsis",
-                "portable"
-            ],
-            "icon": "assets/icon.ico"
-        },
-        "mac": {
-            "target": "dmg",
-            "icon": "assets/icon.icns",
-            "category": "public.app-category.productivity"
-        },
-        "linux": {
-            "target": [
-                "AppImage",
-                "deb"
-            ],
-            "icon": "assets/icon.png",
-            "category": "Utility",
-            "maintainer": "WidgeTDC Team <team@widgetdc.com>"
-        },
-        "nsis": {
-            "oneClick": false,
-            "allowToChangeInstallationDirectory": true,
-            "createDesktopShortcut": true,
-            "createStartMenuShortcut": true,
-            "shortcutName": "WidgeTDC"
-        }
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     },
-    "dependencies": {
-        "electron-store": "^8.1.0"
-    },
-    "devDependencies": {
-        "electron": "^28.0.0",
-        "electron-builder": "^24.9.1"
-    },
-    "author": {
-        "name": "WidgeTDC Team",
-        "email": "team@widgetdc.com"
-    },
-    "license": "MIT"
+    "files": [
+      "main.js",
+      "preload.js",
+      "error.html",
+      "package.json",
+      "!node_modules",
+      "!dist"
+    ],
+    "asarUnpack": [
+      "**/*.node"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "widget-tdc-monorepo": "file:.."
+  }
 }
