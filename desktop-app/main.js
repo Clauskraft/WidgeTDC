@@ -1,245 +1,156 @@
-const { app, BrowserWindow, ipcMain, Menu } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, Menu, shell, dialog, ipcMain } = require('electron');
 const Store = require('electron-store');
+const path = require('path');
 
 const store = new Store();
 
-// Default backend URL (for API calls from the frontend)
-const DEFAULT_BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
-
-// Determine if we're in development mode
-const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+// Default configurations
+const DEFAULTS = {
+    local: 'http://localhost:8888',
+    prod: 'https://widgetdc.up.railway.app/'
+};
 
 let mainWindow;
 
 function createWindow() {
-    const fs = require('fs');
-    const iconPath = path.join(__dirname, 'assets', 'icon.png');
-    const iconConfig = fs.existsSync(iconPath) ? { icon: iconPath } : {};
+    // Hent sidst brugte URL
+    let lastUrl = store.get('lastUrl') || DEFAULTS.local;
 
     mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
-        minWidth: 768,  // Support tablet-sized screens (responsive)
-        minHeight: 600, // Reduced for better flexibility
+        title: 'WidgeTDC Neural Command Center',
+        backgroundColor: '#000000',
         webPreferences: {
-            preload: path.join(__dirname, 'preload.js'),
-            contextIsolation: true,
             nodeIntegration: false,
-            webSecurity: !isDev, // Disable web security in dev for local API calls
-        },
-        ...iconConfig,
-        title: 'WidgeTDC - Enterprise AI Dashboard',
-        backgroundColor: '#051e3c', // Match the app's background color
-        titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-        frame: true,
-        show: false, // Don't show until ready to prevent flash
-    });
-
-    // Show window when ready to prevent white flash
-    mainWindow.once('ready-to-show', () => {
-        mainWindow.show();
-    });
-
-    // Get backend URL from settings or use default
-    const backendUrl = store.get('backendUrl', DEFAULT_BACKEND_URL);
-
-    if (isDev) {
-        // In development, load from Vite dev server
-        const devUrl = process.env.VITE_DEV_SERVER_URL || 'http://localhost:8888';
-        console.log('Loading from dev server:', devUrl);
-        mainWindow.loadURL(devUrl);
-        mainWindow.webContents.openDevTools();
-    } else {
-        // In production, load the built React app
-        // First check if the built files exist in the app's resources
-        const prodPath = path.join(__dirname, 'renderer', 'dist', 'index.html');
-        const fallbackPath = path.join(__dirname, '..', 'dist', 'index.html');
-
-        if (fs.existsSync(prodPath)) {
-            console.log('Loading production build from:', prodPath);
-            mainWindow.loadFile(prodPath);
-        } else if (fs.existsSync(fallbackPath)) {
-            console.log('Loading production build from:', fallbackPath);
-            mainWindow.loadFile(fallbackPath);
-        } else {
-            // Final fallback: load the welcome screen
-            console.log('Built files not found, loading welcome screen');
-            mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+            contextIsolation: true,
+            preload: path.join(__dirname, 'preload.js') // Vi skal bruge preload til at injicere status bar
         }
+    });
+
+    // Indlæs URL
+    loadUrl(lastUrl);
+
+    // Håndter eksterne links
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        shell.openExternal(url);
+        return { action: 'deny' };
+    });
+
+    buildMenu();
+}
+
+function loadUrl(url) {
+    console.log(`Connecting to: ${url}`);
+    
+    // Opdater titel baseret på miljø
+    const isLocal = url.includes('localhost') || url.includes('127.0.0.1');
+    const envName = isLocal ? '🟢 LOCAL (DEV)' : '🔴 PRODUCTION';
+    
+    mainWindow.setTitle(`WidgeTDC - ${envName}`);
+    
+    // Gem URL hvis det ikke er fejlsiden
+    if (!url.includes('error.html')) {
+        store.set('lastUrl', url);
     }
 
-    // Set backend URL in renderer once loaded
-    mainWindow.webContents.on('did-finish-load', () => {
-        mainWindow.webContents.send('backend-url', backendUrl);
-        // Also set it in the window for the React app to use
-        mainWindow.webContents.executeJavaScript(`
-            window.ELECTRON_BACKEND_URL = "${backendUrl}";
-        `);
-    });
-
-    // Handle navigation
-    mainWindow.webContents.on('will-navigate', (event, url) => {
-        // Allow navigation within the app
-        const allowedOrigins = ['http://localhost:8888', 'http://localhost:3001', 'file://'];
-        const isAllowed = allowedOrigins.some(origin => url.startsWith(origin));
-        if (!isAllowed && !url.startsWith('file://')) {
-            console.log('Blocked navigation to:', url);
-            event.preventDefault();
-        }
-    });
-
-    // Create menu
-    createMenu();
-
-    // Handle window close
-    mainWindow.on('closed', () => {
-        mainWindow = null;
+    mainWindow.loadURL(url).then(() => {
+        // Inject CSS for at vise status overlay
+        const color = isLocal ? '#00ff00' : '#ff0000';
+        const css = `
+            const div = document.createElement('div');
+            div.style.position = 'fixed';
+            div.style.top = '0';
+            div.style.left = '0';
+            div.style.width = '100%';
+            div.style.height = '4px';
+            div.style.backgroundColor = '${color}';
+            div.style.zIndex = '99999';
+            div.style.pointerEvents = 'none';
+            document.body.appendChild(div);
+        `;
+        mainWindow.webContents.executeJavaScript(css).catch(() => {});
+    }).catch(err => {
+        console.error('Failed to load:', err);
+        mainWindow.loadFile('error.html');
     });
 }
 
-function createMenu() {
+function buildMenu() {
     const template = [
         {
-            label: 'File',
+            label: 'Neural Network',
             submenu: [
                 {
-                    label: 'Settings',
-                    accelerator: 'CmdOrCtrl+,',
-                    click: () => {
-                        mainWindow.webContents.send('open-settings');
-                    },
+                    label: '🟢 Connect to LOCAL (Dev)',
+                    accelerator: 'CmdOrCtrl+1',
+                    click: () => loadUrl(DEFAULTS.local)
+                },
+                {
+                    label: '🔴 Connect to PRODUCTION',
+                    accelerator: 'CmdOrCtrl+2',
+                    click: () => loadUrl(DEFAULTS.prod)
                 },
                 { type: 'separator' },
                 {
-                    label: 'Exit',
-                    accelerator: 'CmdOrCtrl+Q',
-                    click: () => {
-                        app.quit();
-                    },
+                    label: '⚙️ Configure Production URL...',
+                    click: () => configureProdUrl()
                 },
-            ],
+                { type: 'separator' },
+                { role: 'reload', label: '🔄 Refresh Signal' },
+                { role: 'quit' }
+            ]
         },
         {
             label: 'View',
             submenu: [
-                { role: 'reload' },
-                { role: 'forceReload' },
-                { role: 'toggleDevTools' },
-                { type: 'separator' },
-                { role: 'resetZoom' },
-                { role: 'zoomIn' },
-                { role: 'zoomOut' },
-                { type: 'separator' },
                 { role: 'togglefullscreen' },
-            ],
-        },
-        {
-            label: 'Window',
-            submenu: [
-                { role: 'minimize' },
-                { role: 'zoom' },
-                { type: 'separator' },
-                { role: 'close' },
-            ],
-        },
-        {
-            label: 'Help',
-            submenu: [
-                {
-                    label: 'Documentation',
-                    click: async () => {
-                        const { shell } = require('electron');
-                        await shell.openExternal('https://docs.widgetdc.com');
-                    },
-                },
-                {
-                    label: 'About',
-                    click: () => {
-                        const { dialog } = require('electron');
-                        dialog.showMessageBox(mainWindow, {
-                            type: 'info',
-                            title: 'About WidgeTDC',
-                            message: 'WidgeTDC Desktop',
-                            detail: `Version: ${app.getVersion()}\nElectron: ${process.versions.electron}\nChrome: ${process.versions.chrome}\nNode.js: ${process.versions.node}\n\nEnterprise-grade AI-powered dashboard platform.`,
-                        });
-                    },
-                },
-            ],
-        },
+                { role: 'toggledevtools' }
+            ]
+        }
     ];
 
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
 }
 
-// IPC Handlers
-ipcMain.handle('get-backend-url', () => {
-    return store.get('backendUrl', DEFAULT_BACKEND_URL);
-});
-
-ipcMain.handle('set-backend-url', (event, url) => {
-    store.set('backendUrl', url);
-    return true;
-});
-
-ipcMain.handle('get-settings', () => {
-    return {
-        backendUrl: store.get('backendUrl', DEFAULT_BACKEND_URL),
-        theme: store.get('theme', 'dark'),
-        notifications: store.get('notifications', true),
-    };
-});
-
-ipcMain.handle('save-settings', (event, settings) => {
-    Object.keys(settings).forEach(key => {
-        store.set(key, settings[key]);
+async function configureProdUrl() {
+    // På Windows virker prompt() ikke godt i Electron.
+    // Vi bruger en lille workaround: Vi antager brugeren vil indtaste det i konsollen eller config filen,
+    // ELLER vi åbner en lille input dialog html.
+    
+    // Simpel løsning: Clipboard
+    const { clipboard } = require('electron');
+    const text = clipboard.readText();
+    
+    const { response } = await dialog.showMessageBox(mainWindow, {
+        type: 'question',
+        buttons: ['Use Clipboard URL', 'Cancel', 'Clear Config'],
+        title: 'Production Configuration',
+        message: 'Please copy your Production URL to clipboard and click "Use Clipboard URL".',
+        detail: `Current Clipboard: ${text}\n\nCurrent Config: ${store.get('prodUrl') || 'Not Set'}`
     });
-    return true;
-});
 
-ipcMain.handle('get-app-info', () => {
-    return {
-        version: app.getVersion(),
-        electron: process.versions.electron,
-        chrome: process.versions.chrome,
-        node: process.versions.node,
-        platform: process.platform,
-        isDev: isDev,
-    };
-});
+    if (response === 0) {
+        if (text.startsWith('http')) {
+            store.set('prodUrl', text);
+            loadUrl(text);
+        } else {
+            dialog.showErrorBox('Invalid URL', 'The clipboard text does not look like a valid URL (must start with http/https).');
+        }
+    } else if (response === 2) {
+        store.delete('prodUrl');
+    }
+}
 
-// App lifecycle
 app.whenReady().then(() => {
     createWindow();
 
     app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow();
-        }
+        if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 });
 
 app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
-});
-
-// Handle app startup
-app.on('ready', () => {
-    console.log('WidgeTDC Desktop App Ready');
-    console.log('Mode:', isDev ? 'Development' : 'Production');
-    console.log('Backend URL:', store.get('backendUrl', DEFAULT_BACKEND_URL));
-});
-
-// Security: Handle certificate errors in development
-app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
-    if (isDev) {
-        // In development, allow self-signed certificates
-        event.preventDefault();
-        callback(true);
-    } else {
-        callback(false);
-    }
+    if (process.platform !== 'darwin') app.quit();
 });
