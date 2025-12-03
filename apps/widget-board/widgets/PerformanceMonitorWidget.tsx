@@ -216,48 +216,6 @@ const PerformanceMonitorWidget: React.FC<{ widgetId: string }> = () => {
   const currentMetrics = metrics[metrics.length - 1] || { cpu_percent: 0, memory_percent: 0, api_response_time: 0 };
 
 
-  
-
-
-  const MetricDisplay: React.FC<{ label: string; value: number; unit: string; icon: any; color: string }> = ({
-
-
-      label, value, unit, icon: Icon, color 
-
-
-  }) => (
-
-
-      <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-white/5 border border-white/10 relative overflow-hidden">
-
-
-          <div className={`absolute top-0 right-0 p-1 opacity-20 ${color}`}>
-
-
-              <Icon size={32} />
-
-
-          </div>
-
-
-          <div className={`text-xl font-bold text-white z-10 ${color.replace('bg-', 'text-').replace('/20', '')}`}>
-
-
-              {value.toFixed(1)}<span className="text-xs text-gray-500 ml-0.5">{unit}</span>
-
-
-          </div>
-
-
-          <div className="text-[10px] uppercase tracking-wider text-gray-400 z-10 mt-1">{label}</div>
-
-
-      </div>
-
-
-  );
-
-
 
 
 
@@ -339,9 +297,6 @@ const PerformanceMonitorWidget: React.FC<{ widgetId: string }> = () => {
                     // Map 40 bars to the 60 data points (approximate)
 
 
-                    const dataIndex = Math.floor(i * (metrics.length / 40));
-
-
                     const metric = metrics[metrics.length - 40 + i]; // Show last 40
 
 
@@ -421,6 +376,40 @@ const PerformanceMonitorWidget: React.FC<{ widgetId: string }> = () => {
 
 
 
+const MetricDisplay: React.FC<{ label: string; value: number; unit: string; icon: any; color: string }> = ({
 
 
-export default PerformanceMonitorWidget;
+    label, value, unit, icon: Icon, color 
+
+
+}) => (
+
+
+    <div className="flex flex-col items-center justify-center p-3 rounded-xl bg-white/5 border border-white/10 relative overflow-hidden">
+
+
+        <div className={`absolute top-0 right-0 p-1 opacity-20 ${color}`}>
+
+
+            <Icon size={32} />
+
+
+        </div>
+
+
+        <div className={`text-xl font-bold text-white z-10 ${color.replace('bg-', 'text-').replace('/20', '')}`}>
+
+
+            {value.toFixed(1)}<span className="text-xs text-gray-500 ml-0.5">{unit}</span>
+
+
+        </div>
+
+
+        <div className="text-[10px] uppercase tracking-wider text-gray-400 z-10 mt-1">{label}</div>
+
+
+    </div>
+
+
+);

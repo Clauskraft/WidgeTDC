@@ -174,22 +174,20 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
 
   const selectedCard = cards.find((c) => c.id === selectedCardId);
 
-  const Controls = () => (
-    <div className="flex items-center gap-2">
-        <div className="flex items-center bg-white/5 rounded-lg p-0.5">
-            <button onClick={toggleMindmap} className={`p-1 rounded transition-colors ${showMindmap ? 'text-purple-400 bg-purple-500/20' : 'text-gray-400 hover:text-white'}`} title="Mindmap"><Network size={14} /></button>
-            <button onClick={toggleNeuralStream} className={`p-1 rounded transition-colors ${showNeuralStream ? 'text-cyan-400 bg-cyan-500/20' : 'text-gray-400 hover:text-white'}`} title="Neural Stream"><Sparkles size={14} /></button>
-            <button onClick={toggleMarketRadar} className={`p-1 rounded transition-colors ${showMarketRadar ? 'text-amber-400 bg-amber-500/20' : 'text-gray-400 hover:text-white'}`} title="Market Radar"><Target size={14} /></button>
-        </div>
-        <div className="w-px h-4 bg-white/10 mx-1" />
-        <button onClick={() => setZoom(viewport.zoom - 0.2)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomOut size={14} /></button>
-        <button onClick={() => setZoom(viewport.zoom + 0.2)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomIn size={14} /></button>
-        <button onClick={resetToDefault} className="p-1 hover:text-[#00B5CB] text-gray-400"><RefreshCw size={14} /></button>
-    </div>
-  );
-
   return (
-    <MatrixWidgetWrapper title="Strategic Cockpit" controls={<Controls />} className="relative">
+    <MatrixWidgetWrapper title="Strategic Cockpit" controls={
+      <Controls 
+        showMindmap={showMindmap}
+        showNeuralStream={showNeuralStream}
+        showMarketRadar={showMarketRadar}
+        viewport={viewport}
+        onToggleMindmap={toggleMindmap}
+        onToggleNeuralStream={toggleNeuralStream}
+        onToggleMarketRadar={toggleMarketRadar}
+        setZoom={setZoom}
+        resetToDefault={resetToDefault}
+      />
+    } className="relative">
       <div
         ref={canvasRef}
         className="absolute inset-0 top-0 overflow-hidden bg-[#020617]"
@@ -325,3 +323,37 @@ export const StrategicCockpitWidget: React.FC<StrategicCockpitWidgetProps> = ({
 };
 
 export default StrategicCockpitWidget;
+
+const Controls: React.FC<{
+    showMindmap: boolean;
+    showNeuralStream: boolean;
+    showMarketRadar: boolean;
+    viewport: { zoom: number };
+    onToggleMindmap: () => void;
+    onToggleNeuralStream: () => void;
+    onToggleMarketRadar: () => void;
+    setZoom: (zoom: number) => void;
+    resetToDefault: () => void;
+}> = ({
+    showMindmap,
+    showNeuralStream,
+    showMarketRadar,
+    viewport,
+    onToggleMindmap,
+    onToggleNeuralStream,
+    onToggleMarketRadar,
+    setZoom,
+    resetToDefault
+}) => (
+    <div className="flex items-center gap-2">
+        <div className="flex items-center bg-white/5 rounded-lg p-0.5">
+            <button onClick={onToggleMindmap} className={`p-1 rounded transition-colors ${showMindmap ? 'text-purple-400 bg-purple-500/20' : 'text-gray-400 hover:text-white'}`} title="Mindmap"><Network size={14} /></button>
+            <button onClick={onToggleNeuralStream} className={`p-1 rounded transition-colors ${showNeuralStream ? 'text-cyan-400 bg-cyan-500/20' : 'text-gray-400 hover:text-white'}`} title="Neural Stream"><Sparkles size={14} /></button>
+            <button onClick={onToggleMarketRadar} className={`p-1 rounded transition-colors ${showMarketRadar ? 'text-amber-400 bg-amber-500/20' : 'text-gray-400 hover:text-white'}`} title="Market Radar"><Target size={14} /></button>
+        </div>
+        <div className="w-px h-4 bg-white/10 mx-1" />
+        <button onClick={() => setZoom(viewport.zoom - 0.2)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomOut size={14} /></button>
+        <button onClick={() => setZoom(viewport.zoom + 0.2)} className="p-1 hover:text-[#00B5CB] text-gray-400"><ZoomIn size={14} /></button>
+        <button onClick={resetToDefault} className="p-1 hover:text-[#00B5CB] text-gray-400"><RefreshCw size={14} /></button>
+    </div>
+);
