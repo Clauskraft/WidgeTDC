@@ -11,10 +11,9 @@
  * ╚═══════════════════════════════════════════════════════════════════════════╝
  */
 
-import Anthropic from '@anthropic-ai/sdk';
-import { getDatabase } from '../database/index.js';
+import { prisma } from '../database/prisma.js';
 import { neo4jAdapter } from '../adapters/Neo4jAdapter.js';
-import { eventBus } from '../mcp/EventBus.js';
+import { eventBus, type EventType } from '../mcp/EventBus.js';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -82,7 +81,7 @@ const STYLE_PROMPTS: Record<string, string> = {
 function buildSystemPrompt(options: PrototypeGenerationOptions): string {
   const styleGuide = STYLE_PROMPTS[options.style || 'modern'];
   const locale = options.locale || 'en-US';
-  
+
   return `You are an expert UI/UX developer and prototype generator. Your task is to transform Product Requirements Documents (PRDs) into fully functional HTML prototypes.
 
 CRITICAL INSTRUCTIONS:
@@ -113,14 +112,23 @@ Generate a production-quality prototype that could be used for user testing.`;
 // ═══════════════════════════════════════════════════════════════════════════
 
 class PrototypeService {
-  private anthropic: Anthropic | null = null;
+  private anthropic: any = null;
 
   constructor() {
     // Initialize Anthropic client if API key available
+    this.initAnthropicClient();
+  }
+
+  private async initAnthropicClient(): Promise<void> {
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (apiKey) {
-      this.anthropic = new Anthropic({ apiKey });
-      console.log('✅ PrototypeService: Anthropic client initialized');
+      try {
+        const Anthropic = (await import('@anthropic-ai/sdk')).default;
+        this.anthropic = new Anthropic({ apiKey });
+        console.log('✅ PrototypeService: Anthropic client initialized');
+      } catch (error) {
+        console.warn('⚠️ PrototypeService: Anthropic SDK not available:', error);
+      }
     } else {
       console.warn('⚠️ PrototypeService: No ANTHROPIC_API_KEY found');
     }
@@ -134,14 +142,20 @@ class PrototypeService {
     options: PrototypeGenerationOptions = {}
   ): Promise<{ html: string; status: string }> {
     if (!this.anthropic) {
-      throw new Error('Anthropic API key not configured. Set ANTHROPIC_API_KEY environment variable.');
+      await this.initAnthropicClient();
+      if (!this.anthropic) {
+        throw new Error('Anthropic API key not configured. Set ANTHROPIC_API_KEY environment variable.');
+      }
     }
 
     const systemPrompt = buildSystemPrompt(options);
     const isPDF = prdContent.startsWith('[PDF:base64]');
 
     try {
-      eventBus.emit('prototype.generation.started', { options });
+      eventBus.emit('mcp.tool.call' as EventType, {
+        tool: 'prototype.generate',
+        args: { options, isPDF }
+      });
 
       let response;
 
@@ -184,19 +198,23 @@ class PrototypeService {
       }
 
       // Extract HTML from response
-      const htmlContent = response.content[0].type === 'text' 
-        ? response.content[0].text 
+      const htmlContent = response.content[0].type === 'text'
+        ? response.content[0].text
         : '';
 
-      eventBus.emit('prototype.generation.completed', { 
-        length: htmlContent.length,
-        options 
+      eventBus.emit('mcp.tool.result' as EventType, {
+        tool: 'prototype.generate',
+        success: true,
+        length: htmlContent.length
       });
 
       return { html: htmlContent, status: 'complete' };
 
     } catch (error: any) {
-      eventBus.emit('prototype.generation.error', { error: error.message });
+      eventBus.emit('mcp.tool.error' as EventType, {
+        tool: 'prototype.generate',
+        error: error.message
+      });
       throw error;
     }
   }
@@ -205,28 +223,32 @@ class PrototypeService {
    * Save prototype to database
    */
   async save(name: string, htmlContent: string, prdId?: string): Promise<{ id: string; created: boolean }> {
-    const db = getDatabase();
-    
     // Check if exists
-    const existing = await db.prototype.findFirst({
+    const existing = await prisma.prototype.findFirst({
       where: { name }
     });
 
     if (existing) {
       // Update version
-      const updated = await db.prototype.update({
+      const updated = await prisma.prototype.update({
         where: { id: existing.id },
         data: {
           htmlContent,
           version: existing.version + 1,
-          updatedAt: new Date()
         }
       });
+
+      eventBus.emit('mcp.tool.result' as EventType, {
+        tool: 'prototype.save',
+        id: updated.id,
+        created: false
+      });
+
       return { id: updated.id, created: false };
     }
 
     // Create new
-    const created = await db.prototype.create({
+    const created = await prisma.prototype.create({
       data: {
         name,
         htmlContent,
@@ -237,7 +259,7 @@ class PrototypeService {
 
     // Also save to Neo4j if connected
     try {
-      if (neo4jAdapter && await neo4jAdapter.isConnected()) {
+      if (neo4jAdapter && neo4jAdapter.connected) {
         await neo4jAdapter.createNode('Prototype', {
           id: created.id,
           name,
@@ -258,6 +280,12 @@ class PrototypeService {
       console.warn('Failed to save prototype to Neo4j:', graphError);
     }
 
+    eventBus.emit('mcp.tool.result' as EventType, {
+      tool: 'prototype.save',
+      id: created.id,
+      created: true
+    });
+
     return { id: created.id, created: true };
   }
 
@@ -265,9 +293,7 @@ class PrototypeService {
    * List all prototypes
    */
   async list(): Promise<PrototypeListItem[]> {
-    const db = getDatabase();
-    
-    const prototypes = await db.prototype.findMany({
+    const prototypes = await prisma.prototype.findMany({
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
@@ -289,9 +315,7 @@ class PrototypeService {
    * Get prototype by ID
    */
   async getById(id: string): Promise<GeneratedPrototype | null> {
-    const db = getDatabase();
-    
-    const prototype = await db.prototype.findUnique({
+    const prototype = await prisma.prototype.findUnique({
       where: { id }
     });
 
@@ -312,19 +336,23 @@ class PrototypeService {
    * Delete prototype
    */
   async delete(id: string): Promise<boolean> {
-    const db = getDatabase();
-    
     try {
-      await db.prototype.delete({ where: { id } });
-      
+      await prisma.prototype.delete({ where: { id } });
+
       // Also remove from Neo4j
       try {
-        if (neo4jAdapter && await neo4jAdapter.isConnected()) {
+        if (neo4jAdapter && neo4jAdapter.connected) {
           await neo4jAdapter.deleteNode(id);
         }
       } catch (graphError) {
         console.warn('Failed to delete prototype from Neo4j:', graphError);
       }
+
+      eventBus.emit('mcp.tool.result' as EventType, {
+        tool: 'prototype.delete',
+        id,
+        success: true
+      });
 
       return true;
     } catch {

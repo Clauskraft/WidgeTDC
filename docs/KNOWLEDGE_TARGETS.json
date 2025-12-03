@@ -1,0 +1,72 @@
+{
+  "meta": {
+    "version": "1.0",
+    "mission": "Operation Cognitive Awakening",
+    "target_cortex": ["Technologica", "Juridica", "Mercatoria", "Identitas", "Externa"]
+  },
+  "targets": [
+    {
+      "cortex": "Technologica",
+      "description": "Hard Skills & Architecture",
+      "sources": [
+        { "id": "T01", "name": "React 19 Official Docs", "url": "https://react.dev/blog/2024/02/15/react-labs-what-we-have-been-working-on-february-2024" },
+        { "id": "T02", "name": "Neo4j Data Modeling Guide", "url": "https://neo4j.com/docs/getting-started/data-modeling/guide-data-modeling/" },
+        { "id": "T03", "name": "PostgreSQL Performance Tuning", "url": "https://wiki.postgresql.org/wiki/Performance_Optimization" },
+        { "id": "T04", "name": "Microservices Patterns (Saga/CQRS)", "url": "https://microservices.io/patterns/data/saga.html" },
+        { "id": "T05", "name": "Docker Security Cheat Sheet", "url": "https://cheatsheetseries.owasp.org/cheatsheets/Docker_Security_Cheat_Sheet.html" },
+        { "id": "T06", "name": "Redis Eviction Policies", "url": "https://redis.io/docs/reference/eviction/" },
+        { "id": "T07", "name": "OWASP Top 10 (2024)", "url": "https://owasp.org/www-project-top-10/" },
+        { "id": "T08", "name": "Playwright Best Practices", "url": "https://playwright.dev/docs/best-practices" },
+        { "id": "T09", "name": "GitHub Actions CI/CD", "url": "https://docs.github.com/en/actions" },
+        { "id": "T10", "name": "Refactoring Guru (Design Patterns)", "url": "https://refactoring.guru/design-patterns" }
+      ]
+    },
+    {
+      "cortex": "Juridica",
+      "description": "Legal & Compliance",
+      "sources": [
+        { "id": "J01", "name": "GDPR Official Text", "url": "https://gdpr-info.eu/" },
+        { "id": "J02", "name": "EU AI Act", "url": "https://artificialintelligenceact.eu/" },
+        { "id": "J03", "name": "NIS2 Directive", "url": "https://digital-strategy.ec.europa.eu/en/policies/nis2-directive" },
+        { "id": "J04", "name": "ISO 27001 Summary", "url": "https://www.iso.org/standard/27001" },
+        { "id": "J05", "name": "Schrems II Guidance", "url": "https://edpb.europa.eu/sites/default/files/consultation/edpb_recommendations_202001_supplementary_measures_for_transfer_tools_en.pdf" },
+        { "id": "J06", "name": "EU Whistleblower Directive", "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32019L1937" },
+        { "id": "J07", "name": "Open Source Licensing (ChooseALicense)", "url": "https://choosealicense.com/licenses/" },
+        { "id": "J08", "name": "ePrivacy Directive (Cookie Law)", "url": "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX%3A32002L0058" }
+      ]
+    },
+    {
+      "cortex": "Mercatoria",
+      "description": "Business Process & Strategy",
+      "sources": [
+        { "id": "M01", "name": "BPMN 2.0 Poster/Spec", "url": "https://www.bpmn.org/" },
+        { "id": "M02", "name": "SAFe 6.0 Framework", "url": "https://scaledagileframework.com/" },
+        { "id": "M03", "name": "TOGAF Standard", "url": "https://www.opengroup.org/togaf" },
+        { "id": "M04", "name": "ADKAR Change Management", "url": "https://www.prosci.com/adkar" },
+        { "id": "M05", "name": "Product Discovery Guide", "url": "https://www.productboard.com/blog/product-discovery-101/" },
+        { "id": "M06", "name": "KPI vs OKR Guide", "url": "https://www.whatmatters.com/faqs/okr-vs-kpi" }
+      ]
+    },
+    {
+      "cortex": "Identitas",
+      "description": "Brand DNA & Design",
+      "sources": [
+        { "id": "I01", "name": "Nuuday Design Guide (Mothership)", "url": "https://design.nuuday.dk/" },
+        { "id": "I02", "name": "Nuuday Media/Templates", "url": "https://design.nuuday.dk/media/" },
+        { "id": "I03", "name": "Atomic Design Methodology", "url": "https://atomicdesign.bradfrost.com/chapter-2/" },
+        { "id": "I04", "name": "WCAG 2.1 Checklist", "url": "https://www.w3.org/WAI/WCAG21/quickref/" },
+        { "id": "I05", "name": "Showpad Help Center", "url": "https://help.showpad.com/" }
+      ]
+    },
+    {
+      "cortex": "Externa",
+      "description": "Global Context & Trends",
+      "sources": [
+        { "id": "E01", "name": "Gartner Hype Cycle 2024", "url": "https://www.gartner.com/en/articles/hype-cycle-for-emerging-technologies" },
+        { "id": "E02", "name": "Stack Overflow Survey 2024", "url": "https://survey.stackoverflow.co/2024/" },
+        { "id": "E03", "name": "GitHub Octoverse 2024", "url": "https://github.blog/2024-01-25-ai-on-github-2024/" },
+        { "id": "E04", "name": "Green IT (SCI Specification)", "url": "https://sci.greensoftware.foundation/" }
+      ]
+    }
+  ]
+}

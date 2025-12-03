@@ -12,6 +12,7 @@
     "neural-bridge:build": "tsc && node dist/mcp/servers/NeuralBridgeServer.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.0",
     "@google/generative-ai": "^0.4.0",
     "@huggingface/inference": "^4.13.3",
     "@modelcontextprotocol/sdk": "^1.23.0",

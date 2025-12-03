@@ -42,7 +42,7 @@ describe('useMCP hook', () => {
     });
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
-      '/api/mcp/route',
+      expect.stringMatching(/\/api\/mcp\/route$/),
       expect.objectContaining({
         method: 'POST',
       }),

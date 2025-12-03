@@ -1,4 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback
+} from 'react';
+import { getEnvConfig } from '../utils/env-validation';
+import type { SecurityFeedsPayload } from '../utils/securityApi';
 
 // Types
 export interface SystemStatus {
@@ -46,6 +55,74 @@ const initialState: AppContextType = {
 
 const AppContext = createContext<AppContextType>(initialState);
 
+const envConfig = getEnvConfig();
+const API_BASE_URL = (envConfig.API_BASE_URL || '/api').replace(/\/$/, '');
+const USE_MOCK_DATA = envConfig.USE_MOCK_DATA;
+
+const buildApiUrl = (path: string) => `${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`;
+
+async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(buildApiUrl(path), init);
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+  return response.json() as Promise<T>;
+}
+
+const FALLBACK_STATUS: SystemStatus = {
+  status: 'online',
+  timestamp: Date.now(),
+  nodeCount: 1250,
+  relationshipCount: 1800
+};
+
+const FALLBACK_TENDERS: TenderOpportunity[] = [
+  {
+    id: 'FALLBACK-1',
+    title: 'Etablering af SOC og beredskab til Region Hovedstaden',
+    buyer: 'Region Hovedstaden',
+    score: 100,
+    matches: ['Threat Intelligence', 'SOC', 'Log Management'],
+    deadline: '2025-04-01',
+    isUpscale: false,
+    rationale: 'Strategic fit'
+  }
+];
+
+const FALLBACK_THREATS: ThreatIntel = {
+  activeGroups: [
+    { name: 'RagnarLocker', victimCount: 33 },
+    { name: 'Lorenz', victimCount: 11 },
+    { name: 'XingLocker', victimCount: 5 }
+  ],
+  lastUpdate: new Date().toISOString()
+};
+
+const mapTenders = (opportunities: any[]): TenderOpportunity[] =>
+  opportunities.map((opp, index) => ({
+    id: opp.id || opp.url || `TENDER-${index}`,
+    title: opp.title || 'Untitled opportunity',
+    buyer: opp.buyer || 'Unknown buyer',
+    score: typeof opp.score === 'number' ? opp.score : 0,
+    matches: Array.isArray(opp.capabilities) ? opp.capabilities : [],
+    deadline: opp.deadline || opp.closeDate,
+    isUpscale: Boolean(opp.isUpscale),
+    url: opp.url,
+    rationale: opp.rationale || opp.reason
+  }));
+
+const deriveThreatIntel = (payload: SecurityFeedsPayload): ThreatIntel => {
+  const activeGroups = payload.feeds.slice(0, 5).map(feed => ({
+    name: feed.name,
+    victimCount: feed.documentsPerHour ?? 0
+  }));
+
+  return {
+    activeGroups,
+    lastUpdate: new Date().toISOString()
+  };
+};
+
 // Provider Component
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(initialState.systemStatus);
@@ -55,71 +132,74 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [error, setError] = useState<string | null>(null);
 
   // Fetch Data Logic
-  const refreshData = async () => {
-    try {
-      setError(null);
-      
-      // 1. Fetch System Health (Mocked for now until API is reachable via proxy)
-      const mockStatus: SystemStatus = {
-        status: 'online',
-        timestamp: Date.now(),
-        nodeCount: 1250,
-        relationshipCount: 1800
-      };
-      setSystemStatus(mockStatus);
+  const refreshData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
 
-      // 2. Fetch Tenders from Real API
+    const loadSystemStatus = async () => {
       try {
-        const res = await fetch('http://localhost:3001/api/market/opportunities');
-        if (!res.ok) throw new Error('Market API unavailable');
-        
-        const data = await res.json();
-        
-        if (data && Array.isArray(data.opportunities)) {
-          const realTenders: TenderOpportunity[] = data.opportunities.map((opp: any, index: number) => ({
-            id: opp.url ? `TENDER-${index}` : `MOCK-${index}`, // Simple ID generation
-            title: opp.title,
-            buyer: opp.buyer,
-            score: opp.score,
-            matches: opp.capabilities || [],
-            deadline: '2025-04-01', // Placeholder as it's not in the graph yet
-            isUpscale: opp.isUpscale,
-            url: opp.url,
-            rationale: opp.rationale
-          }));
-          setTenders(realTenders);
+        const graphData = await fetchJson<{ stats?: { nodes?: number; relationships?: number }; totalNodes?: number; totalRelationships?: number }>('/evolution/graph/stats');
+        const stats = graphData?.stats || {};
+        setSystemStatus({
+          status: 'online',
+          timestamp: Date.now(),
+          nodeCount: stats.nodes ?? graphData.totalNodes ?? 0,
+          relationshipCount: stats.relationships ?? graphData.totalRelationships ?? 0
+        });
+      } catch (err) {
+        if (USE_MOCK_DATA) {
+          setSystemStatus({ ...FALLBACK_STATUS, timestamp: Date.now() });
+          return;
         }
-      } catch (apiError) {
-        console.warn('Market API failed, falling back to cache/mock', apiError);
-        // Fallback / Keep existing if any or use partial mock
+        throw err;
       }
+    };
 
-      // 3. Fetch Threats (Mocked from Dark Sentry output)
-      const mockThreats: ThreatIntel = {
-        activeGroups: [
-          { name: 'RagnarLocker', victimCount: 33 },
-          { name: 'Lorenz', victimCount: 11 },
-          { name: 'XingLocker', victimCount: 5 }
-        ],
-        lastUpdate: new Date().toISOString()
-      };
-      setThreats(mockThreats);
+    const loadTenders = async () => {
+      try {
+        const data = await fetchJson<{ opportunities?: any[] }>('/market/opportunities');
+        if (Array.isArray(data?.opportunities)) {
+          setTenders(mapTenders(data.opportunities));
+        }
+      } catch (err) {
+        if (USE_MOCK_DATA) {
+          setTenders(FALLBACK_TENDERS);
+          return;
+        }
+        throw err;
+      }
+    };
 
+    const loadThreats = async () => {
+      try {
+        const data = await fetchJson<SecurityFeedsPayload>('/security/feeds');
+        setThreats(deriveThreatIntel(data));
+      } catch (err) {
+        if (USE_MOCK_DATA) {
+          setThreats({ ...FALLBACK_THREATS, lastUpdate: new Date().toISOString() });
+          return;
+        }
+        throw err;
+      }
+    };
+
+    try {
+      await Promise.all([loadSystemStatus(), loadTenders(), loadThreats()]);
     } catch (err) {
       console.error('Data fetch failed:', err);
       setSystemStatus(prev => ({ ...prev, status: 'error' }));
-      setError('Failed to connect to Neural Core');
+      setError(err instanceof Error ? err.message : 'Failed to connect to Neural Core');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   // Initial Fetch & Polling
   useEffect(() => {
     refreshData();
     const interval = setInterval(refreshData, 30000); // Poll every 30s
     return () => clearInterval(interval);
-  }, []);
+  }, [refreshData]);
 
   return (
     <AppContext.Provider value={{ systemStatus, tenders, threats, isLoading, error, refreshData }}>

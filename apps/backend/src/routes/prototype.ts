@@ -282,9 +282,7 @@ router.post('/save', async (req: Request, res: Response) => {
 
     // Save to Neo4j graph if available
     try {
-      if (neo4jAdapter) {
-        const connected = await neo4jAdapter.isConnected?.();
-        if (connected) {
+      if (neo4jAdapter && neo4jAdapter.connected) {
           await neo4jAdapter.query(`
             MERGE (p:Prototype {id: $id})
             SET p.name = $name,
@@ -303,7 +301,6 @@ router.post('/save', async (req: Request, res: Response) => {
           }
           
           console.log('✅ Prototype saved to Neo4j graph');
-        }
       }
     } catch (graphError) {
       console.warn('⚠️ Neo4j save skipped:', graphError);

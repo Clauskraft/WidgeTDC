@@ -1,8 +1,8 @@
 # WidgeTDC Backend - Production Dockerfile
 FROM node:20-alpine AS base
 
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++ git
+# Install dependencies for native modules and openssl for Prisma
+RUN apk add --no-cache python3 make g++ git openssl openssl-dev
 
 WORKDIR /app
 
@@ -23,11 +23,17 @@ COPY apps/backend/ ./apps/backend/
 RUN npm run build:domain-types
 RUN npm run build:mcp-types
 
+# Generate Prisma client
+RUN cd apps/backend && npx prisma generate
+
 # Build backend
 RUN cd apps/backend && npm run build
 
 # Production stage
 FROM node:20-alpine AS production
+
+# Install openssl for Prisma runtime
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -39,6 +45,11 @@ COPY packages/mcp-types/package*.json ./packages/mcp-types/
 
 # Install production dependencies only
 RUN npm ci --omit=dev --ignore-scripts
+
+# Copy Prisma schema and client
+COPY --from=base /app/apps/backend/prisma ./apps/backend/prisma
+COPY --from=base /app/apps/backend/node_modules/.prisma ./apps/backend/node_modules/.prisma
+COPY --from=base /app/node_modules/.prisma ./node_modules/.prisma
 
 # Copy built artifacts
 COPY --from=base /app/packages/domain-types/dist ./packages/domain-types/dist
@@ -57,4 +68,5 @@ EXPOSE 3001
 
 WORKDIR /app/apps/backend
 
-CMD ["node", "dist/index.js"]
+# Run migrations and start server
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]

@@ -4,7 +4,7 @@
  * PRODUCTION VERSION - NO MOCK DATA
  */
 
-import { getPgVectorStore } from '../../platform/vector/PgVectorStoreAdapter';
+import { getVectorStore } from '../../platform/vector/index.js';
 import { getEmbeddingService } from '../../services/embeddings/EmbeddingService';
 
 export interface MultiModalEmbedding {
@@ -97,7 +97,7 @@ export class MultiModalProcessor {
         }
 
         // Search in vector database
-        const vectorStore = getPgVectorStore();
+        const vectorStore = await getVectorStore();
         const results = await vectorStore.search({
             vector: queryEmbedding,
             namespace: `multimodal_${targetModality}`,

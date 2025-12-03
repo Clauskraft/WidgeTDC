@@ -1,6 +1,6 @@
-import { logger } from '../utils/logger';
-import { MetricsService } from './MetricsService'; 
-import { HyperLog } from './HyperLog'; 
+import { logger } from '../utils/logger.js';
+import { MetricsService } from './MetricsService.js';
+import { HyperLog } from './HyperLog.js'; 
 
 interface HealingStrategy {
   errorCode: string;

@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # PPTAgent Service
+  pptagent:
+    image: forceless/pptagent:latest
+    container_name: widgetdc-pptagent
+    ports:
+      - "9297:9297"  # API
+      - "8088:8088"  # UI
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - LANGUAGE_MODEL=Qwen2.5-72B-Instruct
+      - VISION_MODEL=gpt-4o-2024-08-06
+      - TEXT_MODEL=text-embedding-3-small
+    volumes:
+      - ${USERPROFILE}:/root
+      - pptagent-data:/data
+    restart: unless-stopped
+    networks:
+      - widgetdc-network
+
+  # MultiAgentPPT - Outline Service
+  multiagent-outline:
+    build:
+      context: ./multiagent
+      dockerfile: Dockerfile
+    container_name: widgetdc-outline
+    ports:
+      - "10001:10001"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SERVICE_TYPE=outline
+    volumes:
+      - multiagent-data:/app/data
+    restart: unless-stopped
+    networks:
+      - widgetdc-network
+
+  # MultiAgentPPT - Slides Service  
+  multiagent-slides:
+    build:
+      context: ./multiagent
+      dockerfile: Dockerfile
+    container_name: widgetdc-slides
+    ports:
+      - "10011:10011"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SERVICE_TYPE=slides
+    volumes:
+      - multiagent-data:/app/data
+    restart: unless-stopped
+    networks:
+      - widgetdc-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: widgetdc-postgres-ppt
+    ports:
+      - "5433:5432"  # Using 5433 to avoid conflict with main WidgeTDC DB
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=welcome
+      - POSTGRES_DB=widgetdc_ppt
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - widgetdc-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: widgetdc-redis-ppt
+    ports:
+      - "6380:6379"  # Using 6380 to avoid conflict
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - widgetdc-network
+
+  # Template Service
+  template-service:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.template
+    container_name: widgetdc-template-service
+    ports:
+      - "3010:3010"
+    environment:
+      - DATABASE_URL=postgresql://postgres:welcome@postgres:5432/widgetdc_ppt
+      - REDIS_URL=redis://redis:6379
+      - ZENODO10K_PATH=/data/Zenodo10K
+    volumes:
+      - C:\Users\claus\Projects\WidgeTDC\training-data\Zenodo10K:/data/Zenodo10K:ro
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - widgetdc-network
+
+volumes:
+  pptagent-data:
+  multiagent-data:
+  postgres-data:
+  redis-data:
+
+networks:
+  widgetdc-network:
+    driver: bridge

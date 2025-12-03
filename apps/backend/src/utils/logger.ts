@@ -1,5 +1,7 @@
 import winston from 'winston';
 import path from 'path';
+import { Writable } from 'stream';
+import { logStream } from '../services/logging/logStream.js';
 
 const logDir = path.join(process.cwd(), 'logs');
 
@@ -45,6 +47,27 @@ export const logger = winston.createLogger({
         }),
     ],
 });
+
+const streamTransport = new Writable({
+    objectMode: true,
+    write(info, _encoding, callback) {
+        try {
+            const source = (info.source || info.service || info.module || 'backend') as string;
+            logStream.push({
+                level: (info.level || 'info') as 'info' | 'warn' | 'error' | 'debug',
+                source,
+                message: info.message,
+                meta: info,
+                timestamp: info.timestamp,
+            });
+        } catch (err) {
+            console.error('Log stream transport error:', err);
+        }
+        callback();
+    }
+});
+
+logger.add(new winston.transports.Stream({ stream: streamTransport }));
 
 // Add console transport in development
 if (process.env.NODE_ENV !== 'production') {

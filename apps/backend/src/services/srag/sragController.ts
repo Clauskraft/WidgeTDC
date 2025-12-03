@@ -74,7 +74,7 @@ function classifyQueryType(query: string): { type: 'analytical' | 'semantic'; co
 }
 
 // Query endpoint - determines if query is analytical or semantic
-sragRouter.post('/query', (req, res) => {
+sragRouter.post('/query', async (req, res) => {
   try {
     const request: SragQueryRequest = req.body;
 
@@ -92,7 +92,7 @@ sragRouter.post('/query', (req, res) => {
 
     if (isAnalytical) {
       // For analytical queries, query structured facts
-      const facts = sragRepo.queryFacts(request.orgId);
+      const facts = await sragRepo.queryFacts(request.orgId);
 
       res.json({
         type: 'analytical',
@@ -108,7 +108,7 @@ sragRouter.post('/query', (req, res) => {
       // For semantic queries, search documents
       const keywords = request.naturalLanguageQuery.split(' ').filter((w: string) => w.length > 3);
       const documents = keywords.length > 0
-        ? sragRepo.searchDocuments(request.orgId, keywords[0])
+        ? await sragRepo.searchDocuments(request.orgId, keywords[0])
         : [];
 
       res.json({
@@ -132,10 +132,10 @@ sragRouter.post('/query', (req, res) => {
 });
 
 // Ingest document
-sragRouter.post('/ingest/document', (req, res) => {
+sragRouter.post('/ingest/document', async (req, res) => {
   try {
     const input = req.body;
-    const docId = sragRepo.ingestDocument(input);
+    const docId = await sragRepo.ingestDocument(input);
 
     res.json({
       success: true,
@@ -151,10 +151,10 @@ sragRouter.post('/ingest/document', (req, res) => {
 });
 
 // Ingest structured fact
-sragRouter.post('/ingest/fact', (req, res) => {
+sragRouter.post('/ingest/fact', async (req, res) => {
   try {
     const input = req.body;
-    const factId = sragRepo.ingestFact(input);
+    const factId = await sragRepo.ingestFact(input);
 
     res.json({
       success: true,

@@ -17,15 +17,24 @@ function createWindow() {
     let lastUrl = store.get('lastUrl') || DEFAULTS.local;
 
     mainWindow = new BrowserWindow({
-        width: 1400,
+        width: 1600,
         height: 900,
         title: 'WidgeTDC Neural Command Center',
-        backgroundColor: '#000000',
+        backgroundColor: '#051e3c', // Matcher app-baggrunden
+        frame: false, // MATRIX MODE: Ingen Windows-ramme
+        titleBarStyle: 'hidden',
+        show: false, // Venter med at vise til den er klar (undgår hvidt flash)
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js') // Vi skal bruge preload til at injicere status bar
+            preload: path.join(__dirname, 'preload.js')
         }
+    });
+
+    // Vis først når klar
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+        mainWindow.focus();
     });
 
     // Indlæs URL
@@ -37,110 +46,36 @@ function createWindow() {
         return { action: 'deny' };
     });
 
-    buildMenu();
+    // IPC Handlers for Custom Title Bar
+    ipcMain.handle('window-minimize', () => mainWindow.minimize());
+    ipcMain.handle('window-maximize', () => {
+        if (mainWindow.isMaximized()) {
+            mainWindow.unmaximize();
+        } else {
+            mainWindow.maximize();
+        }
+    });
+    ipcMain.handle('window-close', () => mainWindow.close());
+
+    // buildMenu(); // Skjuler menuen helt for Matrix look (kan aktiveres via Alt hvis nødvendigt)
+    Menu.setApplicationMenu(null); 
 }
 
 function loadUrl(url) {
     console.log(`Connecting to: ${url}`);
-    
-    // Opdater titel baseret på miljø
-    const isLocal = url.includes('localhost') || url.includes('127.0.0.1');
-    const envName = isLocal ? '🟢 LOCAL (DEV)' : '🔴 PRODUCTION';
-    
-    mainWindow.setTitle(`WidgeTDC - ${envName}`);
     
     // Gem URL hvis det ikke er fejlsiden
     if (!url.includes('error.html')) {
         store.set('lastUrl', url);
     }
 
-    mainWindow.loadURL(url).then(() => {
-        // Inject CSS for at vise status overlay
-        const color = isLocal ? '#00ff00' : '#ff0000';
-        const css = `
-            const div = document.createElement('div');
-            div.style.position = 'fixed';
-            div.style.top = '0';
-            div.style.left = '0';
-            div.style.width = '100%';
-            div.style.height = '4px';
-            div.style.backgroundColor = '${color}';
-            div.style.zIndex = '99999';
-            div.style.pointerEvents = 'none';
-            document.body.appendChild(div);
-        `;
-        mainWindow.webContents.executeJavaScript(css).catch(() => {});
-    }).catch(err => {
+    mainWindow.loadURL(url).catch(err => {
         console.error('Failed to load:', err);
-        mainWindow.loadFile('error.html');
+        // Hvis dev server ikke kører, vent og prøv igen eller vis fejl
+        setTimeout(() => {
+             mainWindow.loadFile('error.html');
+        }, 1000);
     });
-}
-
-function buildMenu() {
-    const template = [
-        {
-            label: 'Neural Network',
-            submenu: [
-                {
-                    label: '🟢 Connect to LOCAL (Dev)',
-                    accelerator: 'CmdOrCtrl+1',
-                    click: () => loadUrl(DEFAULTS.local)
-                },
-                {
-                    label: '🔴 Connect to PRODUCTION',
-                    accelerator: 'CmdOrCtrl+2',
-                    click: () => loadUrl(DEFAULTS.prod)
-                },
-                { type: 'separator' },
-                {
-                    label: '⚙️ Configure Production URL...',
-                    click: () => configureProdUrl()
-                },
-                { type: 'separator' },
-                { role: 'reload', label: '🔄 Refresh Signal' },
-                { role: 'quit' }
-            ]
-        },
-        {
-            label: 'View',
-            submenu: [
-                { role: 'togglefullscreen' },
-                { role: 'toggledevtools' }
-            ]
-        }
-    ];
-
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
-}
-
-async function configureProdUrl() {
-    // På Windows virker prompt() ikke godt i Electron.
-    // Vi bruger en lille workaround: Vi antager brugeren vil indtaste det i konsollen eller config filen,
-    // ELLER vi åbner en lille input dialog html.
-    
-    // Simpel løsning: Clipboard
-    const { clipboard } = require('electron');
-    const text = clipboard.readText();
-    
-    const { response } = await dialog.showMessageBox(mainWindow, {
-        type: 'question',
-        buttons: ['Use Clipboard URL', 'Cancel', 'Clear Config'],
-        title: 'Production Configuration',
-        message: 'Please copy your Production URL to clipboard and click "Use Clipboard URL".',
-        detail: `Current Clipboard: ${text}\n\nCurrent Config: ${store.get('prodUrl') || 'Not Set'}`
-    });
-
-    if (response === 0) {
-        if (text.startsWith('http')) {
-            store.set('prodUrl', text);
-            loadUrl(text);
-        } else {
-            dialog.showErrorBox('Invalid URL', 'The clipboard text does not look like a valid URL (must start with http/https).');
-        }
-    } else if (response === 2) {
-        store.delete('prodUrl');
-    }
 }
 
 app.whenReady().then(() => {

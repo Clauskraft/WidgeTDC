@@ -134,4 +134,56 @@ router.get('/gpu', async (req, res) => {
   }
 });
 
+// Get Real Security Anomalies (No Mock)
+router.get('/security/anomalies', async (req, res) => {
+  try {
+    const [processes, connections] = await Promise.all([
+      si.processes(),
+      si.networkConnections()
+    ]);
+
+    const anomalies = [];
+
+    // 1. High Resource Processes (Potential Crypto Miners / Runaway scripts)
+    const heavyProcs = processes.list.filter(p => p.cpu > 50 || p.mem > 10); // >50% CPU or >10% Mem
+    heavyProcs.forEach(p => {
+      anomalies.push({
+        id: `PROC-${p.pid}`,
+        type: 'RESOURCE_ANOMALY',
+        severity: p.cpu > 80 ? 'CRITICAL' : 'HIGH',
+        source: p.name,
+        details: `PID: ${p.pid} | CPU: ${p.cpu.toFixed(1)}% | MEM: ${p.mem.toFixed(1)}%`,
+        path: p.path,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    // 2. Exposed Ports (Listening on 0.0.0.0)
+    const listeningPorts = connections.filter(c => c.state === 'LISTEN' && (c.localAddress === '0.0.0.0' || c.localAddress === '::'));
+    listeningPorts.forEach(c => {
+        // Filter out standard safe ports if needed, but show all for visibility
+        anomalies.push({
+            id: `NET-${c.localPort}`,
+            type: 'OPEN_PORT',
+            severity: 'MEDIUM',
+            source: c.process || `Port ${c.localPort}`,
+            details: `Listening on ${c.localAddress}:${c.localPort} (${c.protocol})`,
+            path: 'NETWORK',
+            timestamp: new Date().toISOString()
+        });
+    });
+
+    res.json({
+        count: anomalies.length,
+        critical: anomalies.filter(a => a.severity === 'CRITICAL').length,
+        high: anomalies.filter(a => a.severity === 'HIGH').length,
+        anomalies
+    });
+
+  } catch (error) {
+    console.error('Error scanning anomalies:', error);
+    res.status(500).json({ error: 'Failed to scan system anomalies' });
+  }
+});
+
 export default router;

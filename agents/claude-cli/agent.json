@@ -1,0 +1,22 @@
+{
+  "agent": "claude-cli",
+  "role": "Terminal-based AI Agent",
+  "joined": "2025-12-03T15:45:00.000Z",
+  "status": "active",
+  "description": "Claude CLI operates from the terminal with direct file system access and command execution capabilities",
+  "capabilities": [
+    "Direct file manipulation",
+    "Command execution",
+    "Git operations",
+    "Code generation",
+    "Rapid prototyping",
+    "Build/test automation"
+  ],
+  "communication": {
+    "inbox": "agents/claude-cli/inbox/",
+    "team_chat": "agents/team-chat.json",
+    "protocol": "blackboard"
+  },
+  "workspace": "Full project access via terminal",
+  "notes": "Claude CLI is a sibling to Claude Desktop - same model, different interface. Can work in parallel on different tasks."
+}

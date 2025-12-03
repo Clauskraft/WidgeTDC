@@ -10,14 +10,18 @@ import { hitlSystem } from '../platform/HumanInTheLoop';
 import { pluginManager } from '../platform/PluginSystem';
 import { observabilitySystem } from '../mcp/cognitive/ObservabilitySystem';
 
+const shouldRunNeo4jTests = process.env.RUN_NEO4J_TESTS === 'true';
+const describeWithNeo4j = shouldRunNeo4jTests ? describe : describe.skip;
 let neo4jAvailable = false;
 
 describe('System Integration Tests', () => {
     beforeAll(async () => {
         // Try to connect to Neo4j - graceful if not available
         try {
-            await neo4jService.connect();
-            neo4jAvailable = await neo4jService.healthCheck();
+            if (shouldRunNeo4jTests) {
+                await neo4jService.connect();
+                neo4jAvailable = await neo4jService.healthCheck();
+            }
         } catch {
             neo4jAvailable = false;
             console.log('⚠️ Neo4j not available - graph tests will be skipped');
@@ -30,7 +34,7 @@ describe('System Integration Tests', () => {
         }
     });
 
-    describe('Neo4j Integration', () => {
+    describeWithNeo4j('Neo4j Integration', () => {
         test('should connect to Neo4j when available', async () => {
             if (!neo4jAvailable) {
                 expect(true).toBe(true); // Pass - graceful skip

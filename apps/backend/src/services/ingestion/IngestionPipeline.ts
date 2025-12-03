@@ -1,16 +1,16 @@
 import { eventBus } from '../../mcp/EventBus.js';
-import { getPgVectorStore } from '../../platform/vector/PgVectorStoreAdapter.js';
+import { getVectorStore, IVectorStore } from '../../platform/vector/index.js';
 import { IngestedEntity } from './DataIngestionEngine.js';
 import { unifiedMemorySystem } from '../../mcp/cognitive/UnifiedMemorySystem.js';
 
 /**
  * IngestionPipeline
- * 
+ *
  * The bridge between Data Ingestion (Senses) and Vector Store (Memory).
  * Listens for new data, vectorizes it, and stores it in the Knowledge Archive.
  */
 export class IngestionPipeline {
-    private vectorStore = getPgVectorStore();
+    private vectorStore: IVectorStore | null = null;
     private isProcessing = false;
 
     constructor() {
@@ -38,7 +38,9 @@ export class IngestionPipeline {
 
         try {
             // Initialize vector store if needed
-            await this.vectorStore.initialize();
+            if (!this.vectorStore) {
+                this.vectorStore = await getVectorStore();
+            }
 
             for (const entity of entities) {
                 try {

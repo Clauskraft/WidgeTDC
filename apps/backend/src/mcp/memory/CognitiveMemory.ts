@@ -1,11 +1,11 @@
 /**
- * Cognitive Memory - Central Intelligence System
- * 
+ * Cognitive Memory - Central Intelligence System (In-Memory)
+ *
  * Combines pattern learning and failure memory to provide
  * autonomous decision-making capabilities
  */
 
-import { PatternMemory, QueryPattern, UsagePattern } from './PatternMemory.js';
+import { PatternMemory, UsagePattern } from './PatternMemory.js';
 import { FailureMemory, Failure, RecoveryPath } from './FailureMemory.js';
 
 export interface HealthMetrics {
@@ -32,14 +32,15 @@ export interface UserContext {
 export class CognitiveMemory {
     private patternMemory: PatternMemory;
     private failureMemory: FailureMemory;
-    private db: any;
+    private healthHistory: Map<string, HealthMetrics[]> = new Map();
+    private readonly MAX_HEALTH_RECORDS = 1000;
 
-    constructor(database: any) {
-        this.db = database;
-        this.patternMemory = new PatternMemory(database);
-        this.failureMemory = new FailureMemory(database);
+    constructor(_database?: any) {
+        // Database parameter ignored - using in-memory storage
+        this.patternMemory = new PatternMemory();
+        this.failureMemory = new FailureMemory();
 
-        console.log('🧠 Cognitive Memory initialized');
+        console.log('🧠 Cognitive Memory initialized (in-memory mode)');
     }
 
     // ========================================================================
@@ -157,30 +158,18 @@ export class CognitiveMemory {
      * Record health metrics for a source
      */
     async recordHealthMetrics(metrics: HealthMetrics): Promise<void> {
-        try {
-            const sql = `
-        INSERT INTO mcp_source_health 
-        (id, source_name, health_score, latency_p50, latency_p95, latency_p99,
-         success_rate, request_count, error_count, timestamp)
-        VALUES ($id, $sourceName, $healthScore, $p50, $p95, $p99, $successRate, $requestCount, $errorCount, $timestamp)
-      `;
+        const sourceName = metrics.sourceName;
 
-            const id = `${metrics.sourceName}-${Date.now()}`;
+        if (!this.healthHistory.has(sourceName)) {
+            this.healthHistory.set(sourceName, []);
+        }
 
-            this.db.prepare(sql).run({
-                $id: id,
-                $sourceName: metrics.sourceName,
-                $healthScore: metrics.healthScore,
-                $p50: metrics.latency.p50,
-                $p95: metrics.latency.p95,
-                $p99: metrics.latency.p99,
-                $successRate: metrics.successRate,
-                $requestCount: metrics.requestCount,
-                $errorCount: metrics.errorCount,
-                $timestamp: metrics.timestamp.toISOString()
-            } as any);
-        } catch (error) {
-            console.error('Failed to record health metrics:', error);
+        const history = this.healthHistory.get(sourceName)!;
+        history.unshift(metrics);
+
+        // Trim old records
+        if (history.length > this.MAX_HEALTH_RECORDS) {
+            this.healthHistory.set(sourceName, history.slice(0, this.MAX_HEALTH_RECORDS));
         }
     }
 
@@ -191,71 +180,16 @@ export class CognitiveMemory {
         sourceName: string,
         limit: number = 100
     ): Promise<HealthMetrics[]> {
-        try {
-            const sql = `
-        SELECT * FROM mcp_source_health
-        WHERE source_name = ?
-        ORDER BY timestamp DESC
-        LIMIT ?
-      `;
-
-            let results: any[];
-            // Check if db.prepare exists (it does for both)
-            if (this.db.prepare) {
-                const stmt = this.db.prepare(sql);
-                // Check if the statement itself supports .all() (better-sqlite3)
-                if (stmt.all) {
-                    results = stmt.all(sourceName, limit);
-                } else {
-                    // Fallback for sql.js using step()
-                    stmt.bind([sourceName, limit]);
-                    results = [];
-                    while (stmt.step()) {
-                        results.push(stmt.getAsObject());
-                    }
-                    stmt.free();
-                }
-            } else {
-                // Fallback if db.prepare doesn't exist (unlikely but safe)
-                const stmt = this.db.prepare(sql);
-                stmt.bind([sourceName, limit]);
-                results = [];
-                while (stmt.step()) {
-                    results.push(stmt.getAsObject());
-                }
-                stmt.free();
-            }
-
-            return results.map(r => ({
-                sourceName: r.source_name,
-                healthScore: r.health_score,
-                latency: {
-                    p50: r.latency_p50,
-                    p95: r.latency_p95,
-                    p99: r.latency_p99
-                },
-                successRate: r.success_rate,
-                requestCount: r.request_count,
-                errorCount: r.error_count,
-                timestamp: new Date(r.timestamp)
-            }));
-        } catch (error) {
-            console.error('Failed to get health history:', error);
-            return [];
-        }
+        const history = this.healthHistory.get(sourceName) || [];
+        return history.slice(0, limit);
     }
 
     /**
      * Get source health metrics
      */
     async getSourceHealth(sourceName: string): Promise<HealthMetrics | null> {
-        try {
-            const history = await this.getHealthHistory(sourceName, 1);
-            return history.length > 0 ? history[0] : null;
-        } catch (error) {
-            console.error('Failed to get source health:', error);
-            return null;
-        }
+        const history = await this.getHealthHistory(sourceName, 1);
+        return history.length > 0 ? history[0] : null;
     }
 
     // ========================================================================
@@ -312,43 +246,19 @@ export class CognitiveMemory {
     }
 
     /**
-     * Clean old data (maintenance)
+     * Clean old data (maintenance) - no-op for in-memory storage
      */
-    async cleanup(retentionDays: number = 30): Promise<void> {
-        console.log(`🧹 Cleaning cognitive memory older than ${retentionDays} days...`);
-
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
-
-        try {
-            // Clean old patterns
-            const sql1 = `DELETE FROM mcp_query_patterns WHERE timestamp < ?`;
-            const sql2 = `DELETE FROM mcp_failure_memory WHERE occurred_at < ?`;
-            const sql3 = `DELETE FROM mcp_source_health WHERE timestamp < ?`;
-
-            if (this.db.prepare) {
-                this.db.prepare(sql1).run(cutoffDate.toISOString());
-                this.db.prepare(sql2).run(cutoffDate.toISOString());
-                this.db.prepare(sql3).run(cutoffDate.toISOString());
-            } else {
-                this.db.run(sql1, [cutoffDate.toISOString()]);
-                this.db.run(sql2, [cutoffDate.toISOString()]);
-                this.db.run(sql3, [cutoffDate.toISOString()]);
-            }
-
-            console.log('✅ Cleanup complete');
-        } catch (error) {
-            console.error('Failed to cleanup old data:', error);
-        }
+    async cleanup(_retentionDays: number = 30): Promise<void> {
+        console.log('🧹 Cognitive memory cleanup (in-memory - automatic via limits)');
     }
 }
 
 // Singleton instance
 let instance: CognitiveMemory | null = null;
 
-export function initCognitiveMemory(database: any): CognitiveMemory {
+export function initCognitiveMemory(_database?: any): CognitiveMemory {
     if (!instance) {
-        instance = new CognitiveMemory(database);
+        instance = new CognitiveMemory();
     }
     return instance;
 }

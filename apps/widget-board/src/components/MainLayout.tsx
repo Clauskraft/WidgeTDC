@@ -1,8 +1,11 @@
-﻿import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu, Database, Activity, Star, Heart, Brain } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Menu, X, Settings, MessageSquare, MoreHorizontal, Mic, Send, Plus, LayoutGrid, FileText, Mail, Calendar, ArrowRight, Sparkles, Bot, User, ChevronLeft, Paperclip, Image, Check, Zap, Server, Cloud, Cpu, Database, Activity, Star, Heart } from 'lucide-react';
+import { ClausLogo } from './ClausLogo';
 import { CHAT_PROVIDERS, sendChat, checkOllamaStatus, type ChatMessage as ProviderChatMessage, type ChatProvider, type ChatModel } from '../utils/chat-providers';
-import { AppLauncher } from './GroupedAppLauncher';
-import { WIDGET_GROUPS } from '../utils/widgetGrouping';
+import { WordView } from './apps/WordView';
+import { OutlookView } from './apps/OutlookView';
+import { CalendarView } from './apps/CalendarView';
+import { TitleBar } from './TitleBar';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -54,10 +57,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    const [favoriteWidgets, setFavoriteWidgets] = useState<string[]>(() => {
-        const saved = localStorage.getItem('favorite_widgets');
-        return saved ? JSON.parse(saved) : [];
-    });
     const [selectedProvider, setSelectedProvider] = useState<string>(() => {
         return localStorage.getItem('selected_provider') || 'deepseek';
     });
@@ -91,11 +90,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
         localStorage.setItem('api_keys', JSON.stringify(apiKeys));
     }, [apiKeys]);
 
-    // Save favorite widgets
-    useEffect(() => {
-        localStorage.setItem('favorite_widgets', JSON.stringify(favoriteWidgets));
-    }, [favoriteWidgets]);
-
     // Auto-collapse sidebar on mobile
     useEffect(() => {
         if (isMobile) {
@@ -113,15 +107,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     }, [isMobile]);
 
     const sidebarItems = [
-        { id: 'chat', icon: MessageSquare, label: 'Neural Chat' },
-        ...WIDGET_GROUPS.map(group => ({
-            id: group.id,
-            icon: group.icon,
-            label: group.title,
-            color: group.color
-        })),
-        { id: 'favorites', icon: Star, label: 'Favoritter' },
+        { id: 'chat', icon: MessageSquare, label: 'DOT Chat' },
+        { id: 'apps', icon: LayoutGrid, label: 'Mine Apps' },
         { id: 'create', icon: Plus, label: 'Opret' },
+        { id: 'word', icon: FileText, label: 'Word' },
+        { id: 'outlook', icon: Mail, label: 'Outlook' },
+        { id: 'calendar', icon: Calendar, label: 'Kalender' },
     ];
 
     const scrollToBottom = () => {
@@ -135,7 +126,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
     const handleSendMessage = async () => {
         if (!chatInput.trim() && attachments.length === 0) return;
 
-        const userContent = chatInput + (attachments.length > 0 ? `\n\nðŸ“Ž ${attachments.map(f => f.name).join(', ')}` : '');
+        const userContent = chatInput + (attachments.length > 0 ? `\n\n📎 ${attachments.map(f => f.name).join(', ')}` : '');
         
         const userMsg: ChatMessage = {
             id: crypto.randomUUID(),
@@ -232,15 +223,19 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
 
     // Determine sidebar width based on state and device
     const getSidebarWidth = () => {
-        if (isMobile) return '240px';
-        if (isTablet) return isSidebarOpen ? '240px' : '64px';
-        return isSidebarOpen ? '240px' : '64px';
+        if (isMobile) return '280px';
+        if (isTablet) return isSidebarOpen ? '280px' : '70px';
+        return isSidebarOpen ? '280px' : '70px';
     };
 
     const showLabels = isMobile || (isSidebarOpen && !isMobile);
 
     return (
-        <div className="h-dvh w-full overflow-hidden flex font-sans bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
+        <div className="h-dvh w-full overflow-hidden flex flex-col font-sans bg-[#051e3c] text-white selection:bg-[#00B5CB]/30 relative">
+            {/* Custom Electron TitleBar */}
+            <TitleBar />
+            
+            <div className="flex-1 flex overflow-hidden">
             {/* Hidden file inputs */}
             <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} multiple />
             <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} multiple />
@@ -276,12 +271,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                 {/* Header / Logo */}
                 <div className="h-16 md:h-20 flex items-center justify-between px-4 md:px-5 shrink-0">
                     <div className="flex items-center gap-3 md:gap-4 overflow-hidden">
-                        <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-white/5 flex items-center justify-center shadow-lg shadow-[#00B5CB]/10 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
-                            <Brain size={isMobile ? 24 : 28} className="text-[#00B5CB]" />
+                        <div className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-[#00B5CB] to-[#00677F] flex items-center justify-center shadow-lg shadow-[#00B5CB]/20 ring-1 ring-white/10 group cursor-pointer hover:scale-105 transition-transform">
+                            <ClausLogo size={isMobile ? 20 : 24} />
                         </div>
                         <div className={`flex flex-col transition-all duration-300 ${showLabels ? 'opacity-100 w-auto' : 'opacity-0 w-0 overflow-hidden'}`}>
-                            <span className="font-bold text-base md:text-lg tracking-tight text-white leading-none">WidgeTDC</span>
-                            <span className="text-[9px] md:text-[10px] font-medium text-[#00B5CB] tracking-wider uppercase">Neural Center</span>
+                            <span className="font-bold text-base md:text-lg tracking-tight text-white leading-none">DOT</span>
+                            <span className="text-[9px] md:text-[10px] font-medium text-[#00B5CB] tracking-wider uppercase">TDC Erhverv</span>
                         </div>
                     </div>
 
@@ -320,7 +315,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                 className={`
                                     shrink-0 transition-all duration-300 z-10
                                     ${activeTab === item.id
-                                        ? `${(item as any).color || 'text-[#00B5CB]'} scale-110`
+                                        ? 'text-[#00B5CB] scale-110 drop-shadow-[0_0_8px_rgba(0,181,203,0.5)]'
                                         : 'group-hover:text-gray-200 group-hover:scale-105'}
                                 `}
                             />
@@ -331,7 +326,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                 {item.label}
                             </span>
                             {activeTab === item.id && showLabels && (
-                                <div className={`ml-auto w-1.5 h-1.5 rounded-full shadow-sm ${(item as any).color ? (item as any).color.replace('text-', 'bg-') : 'bg-[#00B5CB]'}`} />
+                                <div className="ml-auto w-1.5 h-1.5 bg-[#00B5CB] rounded-full shadow-[0_0_8px_#00B5CB]" />
                             )}
                         </button>
                     ))}
@@ -368,7 +363,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                     </div>
 
                     <div className="flex items-center gap-2 md:gap-3">
-                        {WIDGET_GROUPS.some(g => g.id === activeTab) && headerActions}
+                        {activeTab === 'apps' && headerActions}
                         <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors" title="Indstillinger">
                             <Settings size={20} />
                         </button>
@@ -392,18 +387,18 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                             {/* Chat History */}
                             <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4 md:space-y-6 scrollbar-hide">
                                 {messages.length === 0 ? (
-                                    <div className="h-full flex flex-col items-center justify-start pt-[10vh] md:pt-[15vh] text-center space-y-6 md:space-y-8 animate-fade-in px-4">
+                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-6 md:space-y-10 animate-fade-in px-4">
                                         <div className="relative">
-                                            <div className="absolute -inset-8 bg-[#00B5CB]/10 rounded-full blur-2xl animate-pulse" />
-                                            <Brain size={isMobile ? 64 : 80} className="relative z-10 text-[#00B5CB]" />
+                                            <div className="absolute -inset-4 bg-[#00B5CB]/20 rounded-full blur-xl animate-pulse" />
+                                            <ClausLogo size={isMobile ? 48 : 64} className="relative z-10 drop-shadow-[0_0_15px_rgba(0,181,203,0.5)]" />
                                         </div>
-                                        <h2 className="text-xl md:text-4xl font-bold text-gradient tracking-tight drop-shadow-sm px-4 max-w-2xl leading-tight">
+                                        <h2 className="text-2xl md:text-5xl font-bold text-gradient tracking-tight drop-shadow-sm px-4">
                                             Hej Claus, hvad skal vi løse?
                                         </h2>
 
                                         {/* Suggestion Cards - Responsive Grid */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 w-full max-w-3xl px-2">
-                                            {[
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5 w-full max-w-4xl px-2">
+                                            {[ 
                                                 { title: 'Møde Opsummering', sub: 'Generer referat fra Teams', icon: FileText, color: 'text-blue-400' },
                                                 { title: 'Data Analyse', sub: 'Analyser Q1 salgstal', icon: LayoutGrid, color: 'text-teal-400' },
                                                 { title: 'Kunde Email', sub: 'Udkast til opfølgning', icon: Mail, color: 'text-purple-400' }
@@ -411,14 +406,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                                 <button
                                                     key={i}
                                                     onClick={() => setChatInput(card.title + " ")}
-                                                    className="text-left p-3 md:p-4 rounded-xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10 touch-target"
+                                                    className="text-left p-4 md:p-5 rounded-2xl bg-[#0B3E6F]/30 hover:bg-[#0B3E6F]/50 border border-white/5 hover:border-[#00B5CB]/30 transition-all duration-300 group active:scale-95 backdrop-blur-md shadow-lg hover:shadow-[#00B5CB]/10 touch-target"
                                                 >
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <card.icon size={isMobile ? 18 : 20} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
-                                                        <ArrowRight size={14} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
+                                                    <div className="flex justify-between items-start mb-2 md:mb-3">
+                                                        <card.icon size={isMobile ? 20 : 24} className={`${card.color} group-hover:scale-110 transition-transform duration-300`} />
+                                                        <ArrowRight size={16} className="text-gray-500 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300" />
                                                     </div>
-                                                    <div className="font-semibold text-xs md:text-sm text-gray-100 mb-0.5">{card.title}</div>
-                                                    <div className="text-[10px] md:text-xs text-gray-400 font-medium">{card.sub}</div>
+                                                    <div className="font-semibold text-sm md:text-base text-gray-100 mb-1">{card.title}</div>
+                                                    <div className="text-xs text-gray-400 font-medium">{card.sub}</div>
                                                 </button>
                                             ))}
                                         </div>
@@ -485,38 +480,36 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                         </div>
                                     )}
 
-                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-1 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative flex items-end p-2">
-                                        <div className="flex gap-1 pb-2 pl-2">
-                                            <button onClick={handleFileAttach} className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
-                                                <Paperclip size={isMobile ? 18 : 20} />
-                                            </button>
-                                        </div>
+                                    <div className="bg-[#0B3E6F]/40 backdrop-blur-2xl rounded-2xl md:rounded-[2rem] border border-white/10 shadow-2xl focus-within:border-[#00B5CB]/50 focus-within:ring-2 focus-within:ring-[#00B5CB]/20 transition-all duration-300 overflow-hidden group relative">
                                         <textarea
                                             value={chatInput}
-                                            onChange={(e) => {
-                                                setChatInput(e.target.value);
-                                                e.target.style.height = 'auto';
-                                                e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
-                                            }}
+                                            onChange={(e) => setChatInput(e.target.value)}
                                             onKeyDown={handleKeyDown}
                                             placeholder="Spørg DOT om hvad som helst..."
-                                            className="flex-1 bg-transparent border-none text-sm md:text-base text-white placeholder-gray-400/60 py-3 px-3 max-h-[150px] resize-none focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none font-light scrollbar-hide min-h-[44px]"
+                                            className="w-full bg-transparent border-none text-base md:text-lg text-white placeholder-gray-400/60 p-4 md:p-6 pr-14 min-h-[60px] md:min-h-[70px] max-h-[150px] md:max-h-[200px] resize-none focus:ring-0 outline-none font-light scrollbar-hide"
                                             rows={1}
-                                            style={{ height: '44px' }}
                                         />
-                                        <div className="flex gap-1 pb-1.5 pr-1.5">
-                                            {!chatInput.trim() && (
-                                                <button className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95 touch-target" title="Tale">
-                                                    <Mic size={isMobile ? 18 : 20} />
+                                        <div className="flex items-center justify-between px-3 md:px-5 pb-3 md:pb-5">
+                                            <div className="flex gap-1 md:gap-2">
+                                                <button onClick={handleFileAttach} className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target" title="Vedhæft fil">
+                                                    <Paperclip size={isMobile ? 18 : 20} />
                                                 </button>
-                                            )}
-                                            <button
-                                                onClick={handleSendMessage}
-                                                disabled={(!chatInput.trim() && attachments.length === 0) || isProcessing}
-                                                className={`p-2 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${(chatInput.trim() || attachments.length > 0) ? 'bg-[#00B5CB] text-[#051e3c] shadow-lg shadow-[#00B5CB]/20' : 'bg-white/5 text-gray-600 cursor-not-allowed'}`}
-                                            >
-                                                <Send size={isMobile ? 16 : 18} className={(chatInput.trim() || attachments.length > 0) ? 'ml-0.5' : ''} />
-                                            </button>
+                                                <button onClick={handleImageAttach} className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-[#00B5CB] transition-colors active:scale-95 touch-target hidden sm:flex" title="Vedhæft billede">
+                                                    <Image size={isMobile ? 18 : 20} />
+                                                </button>
+                                            </div>
+                                            <div className="flex gap-2 md:gap-3">
+                                                <button className="p-2 md:p-2.5 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors active:scale-95 touch-target" title="Tale">
+                                                    <Mic size={isMobile ? 18 : 22} />
+                                                </button>
+                                                <button
+                                                    onClick={handleSendMessage}
+                                                    disabled={(!chatInput.trim() && attachments.length === 0) || isProcessing}
+                                                    className={`p-2 md:p-2.5 rounded-full transition-all duration-300 active:scale-95 flex items-center justify-center touch-target ${(chatInput.trim() || attachments.length > 0) ? 'bg-[#00B5CB] text-[#051e3c] shadow-[0_0_15px_rgba(0,181,203,0.4)] rotate-0' : 'bg-white/5 text-gray-600 rotate-90 cursor-not-allowed'}`}
+                                                >
+                                                    <Send size={isMobile ? 18 : 20} className={(chatInput.trim() || attachments.length > 0) ? 'ml-0.5' : ''} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex justify-center mt-3 md:mt-4 gap-4 items-center">
@@ -540,12 +533,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         </div>
                     )}
 
-                    {WIDGET_GROUPS.some(g => g.id === activeTab) && (
-                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in h-full">
-                            <AppLauncher 
-                                onLaunch={(widgetId) => console.log('Launch widget:', widgetId)} 
-                                selectedGroup={activeTab}
-                            />
+                    {activeTab === 'apps' && (
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
+                            {children}
                         </div>
                     )}
 
@@ -553,14 +543,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
                             <div className="max-w-6xl mx-auto">
                                 <h2 className="text-2xl md:text-3xl font-light text-white mb-2">Opret nyt indhold</h2>
-                                <p className="text-gray-400 mb-6 md:mb-10 font-light text-sm md:text-base">VÃ¦lg en skabelon eller start fra bunden med DOT AI.</p>
+                                <p className="text-gray-400 mb-6 md:mb-10 font-light text-sm md:text-base">Vælg en skabelon eller start fra bunden med DOT AI.</p>
 
                                 <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
-                                    {[
+                                    {[ 
                                         { title: 'Dokument', sub: 'Rapporter, notater og artikler', icon: FileText, color: 'bg-blue-500/20 text-blue-400' },
-                                        { title: 'PrÃ¦sentation', sub: 'Slides og visuelle overblik', icon: LayoutGrid, color: 'bg-orange-500/20 text-orange-400' },
+                                        { title: 'Præsentation', sub: 'Slides og visuelle overblik', icon: LayoutGrid, color: 'bg-orange-500/20 text-orange-400' },
                                         { title: 'Email', sub: 'Nyhedsbreve og kampagner', icon: Mail, color: 'bg-purple-500/20 text-purple-400' },
-                                        { title: 'Begivenhed', sub: 'MÃ¸der og workshops', icon: Calendar, color: 'bg-teal-500/20 text-teal-400' }
+                                        { title: 'Begivenhed', sub: 'Møder og workshops', icon: Calendar, color: 'bg-teal-500/20 text-teal-400' }
                                     ].map((card, i) => (
                                         <button key={i} className="group relative p-4 md:p-6 rounded-2xl md:rounded-3xl bg-[#0B3E6F]/20 border border-white/5 hover:bg-[#0B3E6F]/40 hover:border-[#00B5CB]/30 transition-all duration-300 text-left overflow-hidden touch-target">
                                             <div className="absolute inset-0 bg-gradient-to-br from-[#00B5CB]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -577,39 +567,21 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                         </div>
                     )}
 
-                    {activeTab === 'favorites' && (
-                        <div className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in">
-                            <div className="max-w-6xl mx-auto">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <Star size={28} className="text-yellow-400" />
-                                    <h2 className="text-2xl md:text-3xl font-light text-white">Mine Favoritter</h2>
-                                </div>
-                                {favoriteWidgets.length === 0 ? (
-                                    <div className="text-center py-20">
-                                        <Star size={48} className="mx-auto text-gray-600 mb-4" />
-                                        <p className="text-gray-400 text-lg mb-2">Ingen favoritter endnu</p>
-                                        <p className="text-gray-500 text-sm">Gå til app-grupperne og klik på ★ for at tilføje widgets som favoritter</p>
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                        {favoriteWidgets.map((widgetId) => (
-                                            <div key={widgetId} className="p-4 rounded-xl bg-[#0B3E6F]/30 border border-white/10 hover:border-yellow-400/30 transition-all group">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <span className="text-white font-medium truncate">{widgetId}</span>
-                                                    <button
-                                                        onClick={() => setFavoriteWidgets(prev => prev.filter(id => id !== widgetId))}
-                                                        className="p-1 hover:bg-white/10 rounded text-yellow-400 hover:text-yellow-300"
-                                                        title="Fjern fra favoritter"
-                                                    >
-                                                        <Star size={16} fill="currentColor" />
-                                                    </button>
-                                                </div>
-                                                <p className="text-xs text-gray-500">Klik for at åbne</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                    {activeTab === 'word' && (
+                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
+                            <WordView />
+                        </div>
+                    )}
+
+                    {activeTab === 'outlook' && (
+                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
+                            <OutlookView />
+                        </div>
+                    )}
+
+                    {activeTab === 'calendar' && (
+                        <div className="flex-1 overflow-hidden p-4 md:p-6 animate-fade-in">
+                            <CalendarView />
                         </div>
                     )}
                 </div>
@@ -678,7 +650,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children, title = "Widge
                                                         key={model.id}
                                                         onClick={() => !isDisabled && handleSelectModel(provider.id, model.id)}
                                                         disabled={isDisabled}
-                                                        className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                                                        className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${ 
                                                             isSelected ? 'bg-[#00B5CB]/20 border border-[#00B5CB]/50' : 
                                                             isDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/5 border border-transparent'
                                                         }`}
@@ -729,6 +701,7 @@ ollama pull qwen2.5     # Qwen 2.5 7B`}
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 };

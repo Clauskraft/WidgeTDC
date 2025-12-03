@@ -11,11 +11,13 @@ import {
   Menu,
   Cpu,
   Share2,
-  MessageSquare
+  MessageSquare,
+  Eye
 } from 'lucide-react';
 import NeuralGraph3D from '../views/NeuralGraph3D';
 import { ChatWidget } from '../ChatWidget';
 import CyberOpsView from '../CyberOpsView';
+import VisionaryWidget from '../../../widgets/VisionaryWidget';
 
 // ==========================================
 // UI COMPONENTS (The "Matrix Executive" Design System)
@@ -198,6 +200,13 @@ export default function MatrixFigmaLayout() {
           >
             {sidebarOpen && "Cyber Ops"}
           </MatrixButton>
+          <MatrixButton 
+            active={activeTab === 'visionary'} 
+            onClick={() => setActiveTab('visionary')} 
+            icon={Eye}
+          >
+            {sidebarOpen && "The Visionary"}
+          </MatrixButton>
         </nav>
 
         {/* Bottom Actions */}
@@ -250,9 +259,10 @@ export default function MatrixFigmaLayout() {
           {activeTab === 'graph' && <div className="h-full w-full"><NeuralGraph3D /></div>}
           {activeTab === 'chat' && <div className="h-full w-full p-4"><ChatWidget /></div>}
           {activeTab === 'cyber' && <div className="h-full w-full"><CyberOpsView /></div>}
+          {activeTab === 'visionary' && <div className="h-full w-full p-4"><VisionaryWidget /></div>}
           
           {/* Placeholder for other tabs */}
-          {!['dashboard', 'graph', 'chat', 'cyber'].includes(activeTab) && (
+          {!['dashboard', 'graph', 'chat', 'cyber', 'visionary'].includes(activeTab) && (
             <div className="h-full flex items-center justify-center flex-col text-matrix-dim/50">
               <Activity className="w-16 h-16 mb-4 opacity-20 animate-pulse" />
               <p className="font-mono uppercase tracking-widest text-sm">Module Under Construction</p>

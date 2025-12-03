@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { buildApiUrl } from '../../utils/api';
 
 // Typer for vores data (matcher Backend API)
 interface MarketOpportunity {
@@ -56,7 +57,7 @@ const MarketRadar: React.FC = () => {
     const fetchData = async () => {
       try {
         // NOTE: The dev container forwards port 3001, so we can call it directly.
-        const res = await fetch('http://localhost:3001/api/market/opportunities');
+        const res = await fetch(buildApiUrl('/market/opportunities'));
         if (!res.ok) throw new Error("Connection failed");
         
         const data = await res.json();

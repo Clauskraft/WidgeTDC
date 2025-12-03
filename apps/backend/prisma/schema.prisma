@@ -3,15 +3,17 @@
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
   binaryTargets = ["native"]
+  engineType = "binary"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  extensions = [vector]
 }
+
+// NOTE: Vector embeddings are stored in Neo4j, not PostgreSQL
+// This schema handles relational data only
 
 // ============================================
 // UI State & Configuration
@@ -46,67 +48,138 @@ model Layout {
 // ============================================
 
 model MemoryEntity {
-  id            String   @id @default(uuid())
-  type          String
-  label         String
-  properties    Json?
-  userId        String
-  orgId         String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  orgId         String   @map("org_id")
+  userId        String?  @map("user_id")
+  entityType    String   @map("entity_type")
+  content       String
+  importance    Int      @default(3)
+  createdAt     DateTime @default(now()) @map("created_at")
 
-  relationsFrom MemoryRelation[] @relation("FromEntity")
-  relationsTo   MemoryRelation[] @relation("ToEntity")
   tags          MemoryTag[]
+  relationsFrom MemoryRelation[] @relation("SourceEntity")
+  relationsTo   MemoryRelation[] @relation("TargetEntity")
 
-  @@index([userId, orgId])
-  @@index([type])
+  @@index([orgId, userId])
+  @@index([entityType])
   @@map("memory_entities")
 }
 
 model MemoryRelation {
-  id            String   @id @default(uuid())
-  fromId        String
-  toId          String
-  relationType  String
-  weight        Float    @default(1.0)
-  properties    Json?
-  userId        String
-  orgId         String
-  createdAt     DateTime @default(now())
+  id            Int      @id @default(autoincrement())
+  orgId         String   @map("org_id")
+  sourceId      Int      @map("source_id")
+  targetId      Int      @map("target_id")
+  relationType  String   @map("relation_type")
+  createdAt     DateTime @default(now()) @map("created_at")
 
-  from          MemoryEntity @relation("FromEntity", fields: [fromId], references: [id], onDelete: Cascade)
-  to            MemoryEntity @relation("ToEntity", fields: [toId], references: [id], onDelete: Cascade)
+  source        MemoryEntity @relation("SourceEntity", fields: [sourceId], references: [id], onDelete: Cascade)
+  target        MemoryEntity @relation("TargetEntity", fields: [targetId], references: [id], onDelete: Cascade)
 
-  @@index([fromId])
-  @@index([toId])
-  @@index([userId, orgId])
+  @@index([sourceId])
+  @@index([targetId])
+  @@index([orgId])
   @@map("memory_relations")
 }
 
 model MemoryTag {
-  id            String   @id @default(uuid())
-  entityId      String
+  id            Int      @id @default(autoincrement())
+  entityId      Int      @map("entity_id")
   tag           String
-  userId        String
-  orgId         String
-  createdAt     DateTime @default(now())
+  createdAt     DateTime @default(now()) @map("created_at")
 
   entity        MemoryEntity @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
   @@index([tag])
-  @@index([userId, orgId])
+  @@index([entityId])
   @@map("memory_tags")
 }
 
 // ============================================
-// Vector Store (pgvector)
+// PAL (Personal Assistant Layer)
+// ============================================
+
+model PalUserProfile {
+  id              Int      @id @default(autoincrement())
+  userId          String   @map("user_id")
+  orgId           String   @map("org_id")
+  preferenceTone  String   @default("neutral") @map("preference_tone")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@unique([userId, orgId])
+  @@map("pal_user_profiles")
+}
+
+model PalFocusWindow {
+  id            Int      @id @default(autoincrement())
+  userId        String   @map("user_id")
+  orgId         String   @map("org_id")
+  weekday       Int
+  startHour     Int      @map("start_hour")
+  endHour       Int      @map("end_hour")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([userId, orgId])
+  @@map("pal_focus_windows")
+}
+
+model PalEvent {
+  id                  Int      @id @default(autoincrement())
+  userId              String   @map("user_id")
+  orgId               String   @map("org_id")
+  eventType           String   @map("event_type")
+  payload             Json
+  detectedStressLevel Int?     @map("detected_stress_level")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@index([userId, orgId])
+  @@index([eventType])
+  @@map("pal_events")
+}
+
+// ============================================
+// SRAG (Structured RAG)
+// ============================================
+
+model RawDocument {
+  id            Int      @id @default(autoincrement())
+  orgId         String   @map("org_id")
+  sourceType    String   @map("source_type")
+  sourcePath    String   @map("source_path")
+  content       String
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  facts         StructuredFact[]
+
+  @@index([orgId])
+  @@map("raw_documents")
+}
+
+model StructuredFact {
+  id            Int       @id @default(autoincrement())
+  orgId         String    @map("org_id")
+  docId         Int?      @map("doc_id")
+  factType      String    @map("fact_type")
+  jsonPayload   Json      @map("json_payload")
+  occurredAt    DateTime? @map("occurred_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  document      RawDocument? @relation(fields: [docId], references: [id], onDelete: SetNull)
+
+  @@index([orgId])
+  @@index([factType])
+  @@map("structured_facts")
+}
+
+// ============================================
+// Document Metadata (vectors stored in Neo4j)
 // ============================================
 
 model VectorDocument {
   id            String                 @id @default(uuid())
   content       String
-  embedding     Unsupported("vector(768)")?  // HuggingFace embeddings are typically 768-dim
+  // NOTE: Embeddings are stored in Neo4j, not here
   metadata      Json?
   namespace     String                 @default("default")
   userId        String

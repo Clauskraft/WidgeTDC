@@ -43,7 +43,23 @@ export type EventType =
     | 'ws:disconnected'
     // HansPedder agent events
     | 'hanspedder:test-results'
-    | 'hanspedder:nudge';
+    | 'hanspedder:nudge'
+    // Prototype generation events
+    | 'prototype.generation.started'
+    | 'prototype.generation.completed'
+    | 'prototype.generation.error'
+    | 'prototype.saved'
+    | 'prototype.deleted'
+    // MCP tool events
+    | 'mcp.tool.call'
+    | 'mcp.tool.result'
+    | 'mcp.tool.error'
+    // NudgeService events
+    | 'nudge.system_metrics'
+    | 'nudge.cycle_complete'
+    | 'agent.ping'
+    | 'system.activity'
+    | 'data.push';
 
 export interface BaseEvent {
     type: EventType;

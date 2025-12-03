@@ -7,10 +7,16 @@ import { describe, test, expect, beforeAll, afterAll } from 'vitest';
 import { neo4jService } from '../database/Neo4jService';
 import { graphMemoryService } from '../memory/GraphMemoryService';
 
+const shouldRunNeo4jTests = process.env.RUN_NEO4J_TESTS === 'true';
+const describeNeo4j = shouldRunNeo4jTests ? describe : describe.skip;
 let neo4jAvailable = false;
 
-describe('Neo4j Smoke Tests', () => {
+describeNeo4j('Neo4j Smoke Tests', () => {
     beforeAll(async () => {
+        if (!shouldRunNeo4jTests) {
+            neo4jAvailable = false;
+            return;
+        }
         try {
             await neo4jService.connect();
             neo4jAvailable = await neo4jService.healthCheck();
@@ -27,19 +33,11 @@ describe('Neo4j Smoke Tests', () => {
     });
 
     test('should connect and pass health check', async () => {
-        if (!neo4jAvailable) {
-            expect(true).toBe(true); // Skip gracefully
-            return;
-        }
         const isHealthy = await neo4jService.healthCheck();
         expect(isHealthy).toBe(true);
     });
 
     test('should create and retrieve entity', async () => {
-        if (!neo4jAvailable) {
-            expect(true).toBe(true); // Skip gracefully
-            return;
-        }
 
         const entity = await graphMemoryService.createEntity('Person', 'Test User', {
             email: 'test@example.com',
@@ -53,10 +51,6 @@ describe('Neo4j Smoke Tests', () => {
     });
 
     test('should create and manage relations', async () => {
-        if (!neo4jAvailable) {
-            expect(true).toBe(true); // Skip gracefully
-            return;
-        }
 
         const entity1 = await graphMemoryService.createEntity('Person', 'Alice', {});
         const entity2 = await graphMemoryService.createEntity('Project', 'Project X', {});
@@ -80,10 +74,6 @@ describe('Neo4j Smoke Tests', () => {
     });
 
     test('should search entities', async () => {
-        if (!neo4jAvailable) {
-            expect(true).toBe(true); // Skip gracefully
-            return;
-        }
 
         const entity = await graphMemoryService.createEntity('Person', 'Searchable User', {});
 
@@ -95,10 +85,6 @@ describe('Neo4j Smoke Tests', () => {
     });
 
     test('should get graph statistics', async () => {
-        if (!neo4jAvailable) {
-            expect(true).toBe(true); // Skip gracefully
-            return;
-        }
 
         const stats = await graphMemoryService.getStatistics();
         expect(stats).toBeDefined();

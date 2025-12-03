@@ -1,11 +1,11 @@
-import initSqlJs from 'sql.js';
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+/**
+ * Database initialization using Prisma
+ * Migrated from sql.js to Prisma for production-ready PostgreSQL support
+ */
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { prisma } from './prisma.js';
 
+// Legacy interface for backward compatibility
 export interface DatabaseStatement<P = any[], R = any> {
   all: (...params: P extends any[] ? P : any[]) => R[];
   get: (...params: P extends any[] ? P : any[]) => R | undefined;
@@ -19,54 +19,53 @@ export interface Database {
   close: () => void;
 }
 
-let dbInstance: Database | null = null;
-let SQL: any = null;
-let isInitializing = false;
-let initPromise: Promise<void> | null = null;
+let isInitialized = false;
 
-// Initialize database asynchronously - MUST be called before any repository usage
+/**
+ * Initialize database connection via Prisma
+ * No need for schema.sql - Prisma handles migrations
+ */
 export async function initializeDatabase(): Promise<void> {
-  if (dbInstance) return;
+  if (isInitialized) return;
 
-  if (isInitializing) {
-    await initPromise;
-    return;
+  try {
+    // Test Prisma connection
+    await prisma.$connect();
+    console.log('✅ Prisma database connected successfully');
+    isInitialized = true;
+  } catch (error) {
+    console.error('❌ Failed to connect to database:', error);
+    throw error;
   }
-
-  isInitializing = true;
-  initPromise = (async () => {
-    try {
-      // Initialize sql.js
-      SQL = await initSqlJs();
-      dbInstance = new SQL.Database();
-
-      // Initialize schema
-      const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf-8');
-      dbInstance.run(schema);
-
-      console.log('✅ Database initialized successfully with sql.js (pure JavaScript)');
-    } catch (error) {
-      console.error('❌ Failed to initialize database:', error);
-      throw error;
-    } finally {
-      isInitializing = false;
-    }
-  })();
-
-  await initPromise;
 }
 
-// Get database synchronously - throws if not initialized
+/**
+ * Get database - throws if not initialized
+ * @deprecated Use Prisma client directly instead of getDatabase()
+ */
 export function getDatabase(): Database {
-  if (!dbInstance) {
+  if (!isInitialized) {
     throw new Error('Database not initialized! Call initializeDatabase() first.');
   }
-  return dbInstance;
+
+  // Return a stub that throws - code should use Prisma directly
+  return {
+    prepare: () => {
+      throw new Error('getDatabase() is deprecated. Use Prisma client directly.');
+    },
+    run: () => {
+      throw new Error('getDatabase() is deprecated. Use Prisma client directly.');
+    },
+    close: () => {
+      prisma.$disconnect();
+    }
+  };
 }
 
-export function closeDatabase(): void {
-  if (dbInstance) {
-    dbInstance.close();
-    dbInstance = null;
-  }
+export async function closeDatabase(): Promise<void> {
+  await prisma.$disconnect();
+  isInitialized = false;
 }
+
+// Re-export prisma for convenience
+export { prisma } from './prisma.js';

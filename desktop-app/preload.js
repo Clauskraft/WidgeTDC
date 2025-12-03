@@ -1,4 +1,8 @@
-// Preload script
-window.addEventListener('DOMContentLoaded', () => {
-    // Kan bruges til IPC bridge senere
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    minimize: () => ipcRenderer.invoke('window-minimize'),
+    maximize: () => ipcRenderer.invoke('window-maximize'),
+    close: () => ipcRenderer.invoke('window-close'),
+    isDesktop: true
 });

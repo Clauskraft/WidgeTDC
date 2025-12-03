@@ -22,6 +22,7 @@ import {
   Zap,
   TrendingUp,
 } from 'lucide-react';
+import { buildApiUrl } from '../utils/api';
 
 // ============================================
 // TYPES
@@ -298,7 +299,7 @@ export const HarvestControlPanel = () => {
   // Fetch harvest status
   const fetchStatus = useCallback(async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/harvest/status');
+      const res = await fetch(buildApiUrl('/harvest/status'));
       if (res.ok) {
         const data = await res.json();
         setHarvestStatus(data);
@@ -321,7 +322,7 @@ export const HarvestControlPanel = () => {
   // Apply throttle to backend
   const applyThrottle = async (newConfig: ResourceConfig) => {
     try {
-      const res = await fetch('http://localhost:3001/api/harvest/config', {
+      const res = await fetch(buildApiUrl('/harvest/config'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newConfig),
@@ -353,7 +354,7 @@ export const HarvestControlPanel = () => {
   // Emergency stop
   const handleEmergencyStop = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/harvest/abort', {
+      const res = await fetch(buildApiUrl('/harvest/abort'), {
         method: 'POST',
       });
       
@@ -372,7 +373,7 @@ export const HarvestControlPanel = () => {
   // Start harvest
   const handleStartHarvest = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/harvest/start', {
+      const res = await fetch(buildApiUrl('/harvest/start'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ config: resourceConfig }),

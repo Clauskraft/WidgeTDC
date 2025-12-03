@@ -45,8 +45,13 @@ export interface HealthStatus {
 class Neo4jAdapter {
     private static instance: Neo4jAdapter;
     private driver: Driver | null = null;
-    private isConnected: boolean = false;
+    private _isConnected: boolean = false;
     private lastHealthCheck: HealthStatus | null = null;
+
+    // Public getter for connection status
+    public get connected(): boolean {
+        return this._isConnected;
+    }
 
     // Circuit breaker state
     private failureCount: number = 0;
@@ -61,7 +66,7 @@ class Neo4jAdapter {
         this.config = {
             uri: process.env.NEO4J_URI || 'bolt://localhost:7687',
             user: process.env.NEO4J_USER || 'neo4j',
-            password: process.env.NEO4J_PASSWORD || 'kodeord',
+            password: process.env.NEO4J_PASSWORD || 'password',
             database: process.env.NEO4J_DATABASE || 'neo4j'
         };
 
@@ -85,7 +90,7 @@ class Neo4jAdapter {
 
     private async connect(): Promise<boolean> {
         try {
-            console.log(`[Neo4jAdapter] 🧠 Establishing synaptic link to ${this.config.uri}...`);
+            console.error(`[Neo4jAdapter] 🧠 Establishing synaptic link to ${this.config.uri}...`);
 
             this.driver = neo4j.driver(
                 this.config.uri,
@@ -99,15 +104,15 @@ class Neo4jAdapter {
 
             // Verify connectivity
             await this.driver.verifyConnectivity();
-            this.isConnected = true;
+            this._isConnected = true;
             this.failureCount = 0;
 
-            console.log('[Neo4jAdapter] ✅ Synaptic link ESTABLISHED. Cortex is online.');
+            console.error('[Neo4jAdapter] ✅ Synaptic link ESTABLISHED. Cortex is online.');
             return true;
 
         } catch (error: any) {
             console.error('[Neo4jAdapter] ❌ CONNECTION FAILURE:', error.message);
-            this.isConnected = false;
+            this._isConnected = false;
             this.failureCount++;
             this.lastFailureTime = Date.now();
             return false;
@@ -125,7 +130,7 @@ class Neo4jAdapter {
             this.failureCount = 0;
         }
 
-        if (!this.driver || !this.isConnected) {
+        if (!this.driver || !this._isConnected) {
             const connected = await this.connect();
             if (!connected) {
                 throw new Error('Neo4j Cortex Unreachable - connection failed');
@@ -155,7 +160,7 @@ class Neo4jAdapter {
             const result: QueryResult = await session.run(cypher, params);
             const latency = Date.now() - startTime;
 
-            console.log(`[Neo4jAdapter] ⚡ Query executed in ${latency}ms (${result.records.length} records)`);
+            console.error(`[Neo4jAdapter] ⚡ Query executed in ${latency}ms (${result.records.length} records)`);
 
             return result.records.map((record: Neo4jRecord) => this.recordToObject(record));
 
@@ -305,6 +310,41 @@ class Neo4jAdapter {
         return results[0];
     }
 
+    /**
+     * Delete a node by ID
+     */
+    public async deleteNode(nodeId: string): Promise<boolean> {
+        const cypher = `
+            MATCH (n)
+            WHERE n.id = $nodeId OR elementId(n) = $nodeId
+            DETACH DELETE n
+            RETURN count(n) as deleted
+        `;
+
+        const results = await this.writeQuery(cypher, { nodeId });
+        return (results[0]?.deleted || 0) > 0;
+    }
+
+    /**
+     * Alias for executeQuery - for compatibility
+     */
+    public async runQuery(
+        cypher: string,
+        params: Record<string, any> = {}
+    ): Promise<any[]> {
+        return this.executeQuery(cypher, params);
+    }
+
+    /**
+     * Alias for executeQuery - for compatibility
+     */
+    public async query(
+        cypher: string,
+        params: Record<string, any> = {}
+    ): Promise<any[]> {
+        return this.executeQuery(cypher, params);
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // Health & Monitoring
     // ═══════════════════════════════════════════════════════════════════════
@@ -347,7 +387,7 @@ class Neo4jAdapter {
     }
 
     public isHealthy(): boolean {
-        return this.isConnected && this.failureCount < this.failureThreshold;
+        return this._isConnected && this.failureCount < this.failureThreshold;
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -357,8 +397,8 @@ class Neo4jAdapter {
     public async close(): Promise<void> {
         if (this.driver) {
             await this.driver.close();
-            this.isConnected = false;
-            console.log('[Neo4jAdapter] 🔌 Synaptic link severed.');
+            this._isConnected = false;
+            console.error('[Neo4jAdapter] 🔌 Synaptic link severed.');
         }
     }
 

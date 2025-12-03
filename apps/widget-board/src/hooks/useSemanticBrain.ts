@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '../utils/api';
 
 /**
  * Semantic Brain Hook - Widget Telepathy
@@ -54,7 +55,7 @@ export type HyperEventType =
   | 'PATTERN_RECOGNIZED'
   | 'SYSTEM_ERROR';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE = API_BASE_URL.replace(/\/api$/, '');
 
 export const useSemanticBrain = (widgetName?: string) => {
   const [thoughts, setThoughts] = useState<RelatedThought[]>([]);

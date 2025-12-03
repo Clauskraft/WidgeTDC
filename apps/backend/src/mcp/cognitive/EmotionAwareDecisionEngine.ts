@@ -125,12 +125,12 @@ export class EmotionAwareDecisionEngine {
                 }
 
                 // Check focus windows
-                const focusWindows = this.palRepo.getFocusWindows(userId, orgId);
+                const focusWindows = await this.palRepo.getFocusWindows(userId, orgId);
                 const now = new Date();
                 const currentHour = now.getHours();
                 const currentDay = now.getDay();
 
-                const inFocusWindow = focusWindows.some((fw: any) => 
+                const inFocusWindow = focusWindows.some((fw: any) =>
                     fw.weekday === currentDay &&
                     currentHour >= fw.start_hour &&
                     currentHour < fw.end_hour

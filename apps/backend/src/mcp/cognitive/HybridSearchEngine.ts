@@ -66,7 +66,7 @@ export class HybridSearchEngine {
 
         try {
             // Search memory entities
-            const memoryResults = this.memoryRepo.searchEntities({
+            const memoryResults = await this.memoryRepo.searchEntities({
                 orgId: ctx.orgId,
                 userId: ctx.userId,
                 keywords: query.split(/\s+/).filter(w => w.length > 2),
@@ -84,7 +84,7 @@ export class HybridSearchEngine {
             });
 
             // Search SRAG documents
-            const sragResults = this.sragRepo.searchDocuments(ctx.orgId, query);
+            const sragResults = await this.sragRepo.searchDocuments(ctx.orgId, query);
             sragResults.forEach((doc: any, index: number) => {
                 results.push({
                     id: `srag-${doc.id}`,
@@ -113,7 +113,7 @@ export class HybridSearchEngine {
 
         try {
             // Use MemoryRepository's vector search
-            const memoryResults = this.memoryRepo.searchEntities({
+            const memoryResults = await this.memoryRepo.searchEntities({
                 orgId: ctx.orgId,
                 userId: ctx.userId,
                 keywords: query ? [query] : [], // Use query as keyword for semantic search

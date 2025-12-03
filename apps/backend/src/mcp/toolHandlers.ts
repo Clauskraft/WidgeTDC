@@ -42,7 +42,7 @@ const notesRepo = new NotesRepository();
 // CMA tool handlers
 export async function cmaContextHandler(payload: any, _ctx: McpContext): Promise<any> {
   const ctx = _ctx;
-  const memories = memoryRepo.searchEntities({
+  const memories = await memoryRepo.searchEntities({
     orgId: ctx.orgId,
     userId: ctx.userId,
     keywords: payload.keywords || [],
@@ -84,7 +84,7 @@ ${payload.widgetData || 'None'}
 
 export async function cmaIngestHandler(payload: any, _ctx: McpContext): Promise<any> {
   const ctx = _ctx;
-  const entityId = memoryRepo.ingestEntity({
+  const entityId = await memoryRepo.ingestEntity({
     orgId: ctx.orgId,
     userId: ctx.userId,
     entityType: payload.entityType,
@@ -104,7 +104,7 @@ export async function cmaMemoryStoreHandler(payload: any, ctx: McpContext): Prom
     throw new Error('Content is required for memory storage');
   }
 
-  const entityId = memoryRepo.ingestEntity({
+  const entityId = await memoryRepo.ingestEntity({
     orgId: ctx.orgId,
     userId: ctx.userId,
     entityType: entityType || 'note',
@@ -124,7 +124,7 @@ export async function cmaMemoryStoreHandler(payload: any, ctx: McpContext): Prom
 export async function cmaMemoryRetrieveHandler(payload: any, ctx: McpContext): Promise<any> {
   const { keywords, limit, entityType } = payload;
 
-  const memories = memoryRepo.searchEntities({
+  const memories = await memoryRepo.searchEntities({
     orgId: ctx.orgId,
     userId: ctx.userId,
     keywords: keywords || [],
@@ -176,7 +176,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
 
     if (isAnalytical) {
       console.log('📊 Processing as analytical query');
-      const facts = sragRepo.queryFacts(ctx.orgId);
+      const facts = await sragRepo.queryFacts(ctx.orgId);
 
       // Generate LLM response for analytical query
       const llmService = getLlmService();
@@ -206,7 +206,7 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
       console.log('📚 Processing as semantic query');
       const keywords = query.split(' ').filter((w: string) => w.length > 3);
       const documents = keywords.length > 0
-        ? sragRepo.searchDocuments(ctx.orgId, keywords[0])
+        ? await sragRepo.searchDocuments(ctx.orgId, keywords[0])
         : [];
 
       console.log(`📄 Found ${documents.length} documents`);
@@ -242,16 +242,16 @@ export async function sragQueryHandler(payload: any, ctx: McpContext): Promise<a
   }
 }
 
-export async function sragGovernanceCheckHandler(payload: any, ctx: McpContext): Promise<any> {
+export async function sragGovernanceCheckHandler(payload: any, _ctx: McpContext): Promise<any> {
   const { docId } = payload;
-  const doc = sragRepo.getDocumentById(parseInt(docId, 10));
+  const doc = await sragRepo.getDocumentById(parseInt(docId, 10));
 
   if (!doc) {
     return { compliant: false, reason: 'Document not found' };
   }
 
   // Simple governance check
-  const hasMetadata = doc.metadata && Object.keys(doc.metadata).length > 0;
+  const hasMetadata = doc.metadata && Object.keys(doc.metadata as object).length > 0;
   const hasClassification = doc.classification && doc.classification.length > 0;
 
   return {
@@ -321,7 +321,7 @@ export async function evolutionAnalyzePromptsHandler(payload: any, _ctx: McpCont
 // PAL tool handlers
 export async function palEventHandler(payload: any, ctx: McpContext): Promise<any> {
   const { eventType, detectedStressLevel, payload: eventPayload } = payload;
-  palRepo.recordEvent({
+  await palRepo.recordEvent({
     orgId: ctx.orgId,
     userId: ctx.userId,
     eventType,
@@ -335,7 +335,7 @@ export async function palEventHandler(payload: any, ctx: McpContext): Promise<an
 export async function palBoardActionHandler(payload: any, ctx: McpContext): Promise<any> {
   const { actionType, widgetId } = payload;
   // Record board action as a PAL event
-  palRepo.recordEvent({
+  await palRepo.recordEvent({
     userId: ctx.userId,
     orgId: ctx.orgId,
     eventType: 'board_action',
@@ -347,7 +347,7 @@ export async function palBoardActionHandler(payload: any, ctx: McpContext): Prom
 
 export async function palOptimizeWorkflowHandler(payload: any, ctx: McpContext): Promise<any> {
   // Get focus windows as workflow recommendations
-  const focusWindows = palRepo.getFocusWindows(ctx.userId, ctx.orgId);
+  const focusWindows = await palRepo.getFocusWindows(ctx.userId, ctx.orgId);
   const recommendations = focusWindows.map(fw => ({
     day: fw.weekday,
     startHour: fw.start_hour,
@@ -1260,5 +1260,73 @@ export async function widgetsImageAnalyzeHandler(payload: any, ctx: McpContext):
   return {
     success: true,
     analysis
+  };
+}
+
+// ---------------------------------------------------
+// Visionary Diagram Generator Handler
+// ---------------------------------------------------
+export async function visionaryGenerateHandler(payload: any, ctx: McpContext): Promise<any> {
+  const { prompt, diagramType, memories } = payload;
+
+  if (!prompt) {
+    throw new Error('Prompt is required for diagram generation');
+  }
+
+  const llmService = getLlmService();
+  
+  const systemContext = `
+You are The Visionary, an expert system architect and visualization specialist.
+Your goal is to generate valid Mermaid.js diagram code based on user requests.
+
+RULES:
+1. Return ONLY the raw Mermaid.js code. Do not use markdown code blocks (no \`\`\`mermaid).
+2. Ensure syntax is strictly valid for the requested diagram type.
+3. Use the "dark" theme compatible styling (e.g., avoid light colors on light backgrounds if possible, but Mermaid handles themes mostly).
+4. Be concise but comprehensive.
+5. If the user provides "memories", incorporate those preferences or patterns.
+
+Supported Types: flowchart, sequence, class, state, erDiagram, gantt, pie, mindmap
+Requested Type: ${diagramType || 'flowchart'}
+  `.trim();
+
+  const userPrompt = `
+Request: ${prompt}
+
+Context/Memories:
+${(memories || []).join('\n')}
+  `.trim();
+
+  // Use a model capable of code generation (e.g., Gemini Pro or GPT-4)
+  // We'll let the service pick the default if not specified
+  const mermaidCode = await llmService.generateContextualResponse(
+    systemContext,
+    userPrompt,
+    "Generate the Mermaid.js code now.",
+    payload.model
+  );
+
+  // Clean up potential markdown formatting if the LLM adds it despite instructions
+  const cleanCode = mermaidCode
+    .replace(/```mermaid/g, '')
+    .replace(/```/g, '')
+    .trim();
+
+  // Log to ProjectMemory
+  projectMemory.logLifecycleEvent({
+    eventType: 'other',
+    status: 'success',
+    details: {
+      component: 'visionary',
+      action: 'generate',
+      diagramType: diagramType || 'flowchart',
+      userId: ctx.userId
+    }
+  });
+
+  return {
+    success: true,
+    code: cleanCode,
+    diagramType: diagramType || 'flowchart'
   };
 }

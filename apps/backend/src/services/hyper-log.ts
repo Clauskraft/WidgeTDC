@@ -54,6 +54,10 @@ class HyperLogService extends EventEmitter {
     return this.eventLog.slice(-limit);
   }
 
+  getRecentEvents(limit = 100): HyperEvent[] {
+    return this.getHistory(limit);
+  }
+
   // Analyse: Beregn "Intelligens-Score" (Simuleret KPI)
   getMetrics() {
     const total = this.eventLog.length;
@@ -63,6 +67,21 @@ class HyperLogService extends EventEmitter {
       toolUsageRate: total > 0 ? (tools / total).toFixed(2) : 0,
       activeAgents: [...new Set(this.eventLog.map(e => e.agent))].length
     };
+  }
+
+  exportForAnalysis(): { events: HyperEvent[]; summary: Record<string, number> } {
+    const summary: Record<string, number> = {};
+    for (const event of this.eventLog) {
+      summary[event.type] = (summary[event.type] || 0) + 1;
+    }
+    return {
+      events: [...this.eventLog],
+      summary,
+    };
+  }
+
+  getHealingHistory(): HyperEvent[] {
+    return this.eventLog.filter(event => event.type.startsWith('HEALING'));
   }
 
   // New methods to support Semantic Bus

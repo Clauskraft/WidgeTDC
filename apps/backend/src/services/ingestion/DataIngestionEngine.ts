@@ -98,8 +98,8 @@ export class DataIngestionEngine {
 
                 // Auto-add to Vidensarkiv (Knowledge Archive) for continuous learning
                 try {
-                    const { getPgVectorStore } = await import('../../platform/vector/PgVectorStoreAdapter.js');
-                    const vectorStore = getPgVectorStore();
+                    const { getVectorStore } = await import('../../platform/vector/index.js');
+                    const vectorStore = await getVectorStore();
 
                     // Batch add entities to vidensarkiv
                     const vectorRecords = entities.map(entity => ({

@@ -8,6 +8,7 @@
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
+import { buildApiUrl } from '../utils/api';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -43,7 +44,7 @@ export const CognitiveNode: React.FC = () => {
 
     const fetchStatus = useCallback(async () => {
         try {
-            const resp = await fetch('http://localhost:3001/api/cortex/status');
+            const resp = await fetch(buildApiUrl('/cortex/status'));
             if (!resp.ok) {
                 throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
             }

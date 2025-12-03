@@ -1,14 +1,10 @@
-import { getDatabase } from '../../database/index.js';
+import { prisma } from '../../database/prisma.js';
 import { MemoryEntityInput, MemorySearchQuery } from '@widget-tdc/mcp-types';
-// Note: In production, integrate with vector database like Pinecone or Weaviate
 
 export class MemoryRepository {
-  private get db() {
-    return getDatabase();
-  }
-  private vectorCache = new Map<string, number[]>(); // Simple cache for vectors
+  private vectorCache = new Map<string, number[]>();
 
-  // Simple tokenization (placeholder - gpt-3-encoder alternative)
+  // Simple tokenization (placeholder - for semantic search)
   private simpleTokenize(text: string): string[] {
     return text.toLowerCase().split(/\s+/).filter(t => t.length > 0);
   }
@@ -16,16 +12,16 @@ export class MemoryRepository {
   // Simple vectorization using token frequencies (placeholder for real embeddings)
   private vectorizeText(text: string): number[] {
     const tokens = this.simpleTokenize(text);
-    const vector = new Array(768).fill(0); // 768 dimensions like text-embedding-ada-002
+    const vector = new Array(768).fill(0);
 
-    tokens.forEach((token, index) => {
+    tokens.forEach((token) => {
       const hash = this.simpleHash(token);
       vector[hash % 768] += 1;
     });
 
     // Normalize
     const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-    return vector.map(val => val / magnitude);
+    return magnitude > 0 ? vector.map(val => val / magnitude) : vector;
   }
 
   private simpleHash(str: string): number {
@@ -33,7 +29,7 @@ export class MemoryRepository {
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
       hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32bit integer
+      hash = hash & hash;
     }
     return Math.abs(hash);
   }
@@ -49,136 +45,8 @@ export class MemoryRepository {
       normB += vecB[i] * vecB[i];
     }
 
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-  }
-
-  ingestEntity(input: MemoryEntityInput): number {
-    const importance = input.importance || 3;
-
-    const stmt = this.db.prepare(`
-      INSERT INTO memory_entities (org_id, user_id, entity_type, content, importance)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    
-    let result: any;
-    if (stmt.run.length === 1) { // sql.js run takes 1 arg (array/object)
-         stmt.run([input.orgId, input.userId || null, input.entityType, input.content, importance]);
-    } else { // better-sqlite3 run takes varargs
-         result = stmt.run(input.orgId, input.userId || null, input.entityType, input.content, importance);
-    }
-
-    let entityId: number;
-    if (result && result.lastInsertRowid) {
-        entityId = result.lastInsertRowid as number;
-    } else {
-        // sql.js fallback
-        const res = this.db.exec("SELECT last_insert_rowid()");
-        entityId = res[0].values[0][0];
-    }
-
-    // Insert tags if provided
-    if (input.tags && input.tags.length > 0) {
-      const insertTag = this.db.prepare(`
-        INSERT INTO memory_tags (entity_id, tag) VALUES (?, ?)
-      `);
-
-      for (const tag of input.tags) {
-        if (insertTag.run.length === 1) {
-            insertTag.run([entityId, tag]);
-        } else {
-            insertTag.run(entityId, tag);
-        }
-      }
-    }
-
-    return entityId;
-  }
-
-  searchEntities(query: MemorySearchQuery): any[] {
-    const limit = query.limit || 10;
-    let sql = `
-      SELECT DISTINCT e.id, e.org_id, e.user_id, e.entity_type, e.content, e.importance, e.created_at
-      FROM memory_entities e
-      WHERE e.org_id = ?
-    `;
-    const params: any[] = [query.orgId];
-
-    if (query.userId) {
-      sql += ` AND (e.user_id = ? OR e.user_id IS NULL)`;
-      params.push(query.userId);
-    }
-
-    if (query.entityTypes && query.entityTypes.length > 0) {
-      const placeholders = query.entityTypes.map(() => '?').join(',');
-      sql += ` AND e.entity_type IN (${placeholders})`;
-      params.push(...query.entityTypes);
-    }
-
-    let candidates: any[] = [];
-
-    if (query.keywords && query.keywords.length > 0) {
-      // Enhanced hybrid search: keyword + semantic
-      const keywordConditions = query.keywords.map(() => {
-        return `(e.content LIKE ? OR e.id IN (SELECT entity_id FROM memory_tags WHERE tag LIKE ?))`;
-      }).join(' OR ');
-
-      sql += ` AND (${keywordConditions})`;
-
-      for (const keyword of query.keywords) {
-        params.push(`%${keyword}%`, `%${keyword}%`);
-      }
-
-      // Get keyword-based candidates first
-      const keywordSql = sql + ` ORDER BY e.importance DESC, e.created_at DESC LIMIT ?`;
-      params.push(limit * 2);
-      
-      const stmt = this.db.prepare(keywordSql);
-      if (stmt.all) {
-          candidates = stmt.all(...params);
-      } else {
-          stmt.bind(params);
-          while(stmt.step()) {
-              candidates.push(stmt.getAsObject());
-          }
-          stmt.free();
-      }
-
-      // If we have keywords, also do semantic search and combine results
-      if (candidates.length > 0) {
-        const queryText = query.keywords.join(' ');
-        const queryVector = this.vectorizeText(queryText);
-
-        // Score candidates by semantic similarity
-        const scoredCandidates = candidates.map(candidate => {
-          const contentVector = this.getCachedVector(candidate.content);
-          const semanticScore = this.cosineSimilarity(queryVector, contentVector);
-          const keywordScore = candidate.content.toLowerCase().includes(queryText.toLowerCase()) ? 1 : 0;
-          const combinedScore = 0.7 * semanticScore + 0.3 * keywordScore;
-
-          return { ...candidate, semanticScore, combinedScore };
-        });
-
-        // Sort by combined score and take top results
-        scoredCandidates.sort((a, b) => b.combinedScore - a.combinedScore);
-        candidates = scoredCandidates.slice(0, limit);
-      }
-    } else {
-      sql += ` ORDER BY e.importance DESC, e.created_at DESC LIMIT ?`;
-      params.push(limit);
-      
-      const stmt = this.db.prepare(sql);
-      if (stmt.all) {
-          candidates = stmt.all(...params);
-      } else {
-          stmt.bind(params);
-          while(stmt.step()) {
-              candidates.push(stmt.getAsObject());
-          }
-          stmt.free();
-      }
-    }
-
-    return candidates;
+    const denominator = Math.sqrt(normA) * Math.sqrt(normB);
+    return denominator > 0 ? dotProduct / denominator : 0;
   }
 
   private getCachedVector(text: string): number[] {
@@ -197,50 +65,152 @@ export class MemoryRepository {
     return vector;
   }
 
-  getEntityById(id: number): any {
-    return this.db.prepare(`
-      SELECT * FROM memory_entities WHERE id = ?
-    `).get(id);
+  async ingestEntity(input: MemoryEntityInput): Promise<number> {
+    const importance = input.importance || 3;
+
+    const entity = await prisma.memoryEntity.create({
+      data: {
+        orgId: input.orgId,
+        userId: input.userId || null,
+        entityType: input.entityType,
+        content: input.content,
+        importance,
+      },
+    });
+
+    // Insert tags if provided
+    if (input.tags && input.tags.length > 0) {
+      await prisma.memoryTag.createMany({
+        data: input.tags.map(tag => ({
+          entityId: entity.id,
+          tag,
+        })),
+      });
+    }
+
+    return entity.id;
   }
 
-  getEntityTags(entityId: number): string[] {
-    const stmt = this.db.prepare(`
-      SELECT tag FROM memory_tags WHERE entity_id = ?
-    `);
-    
-    let rows: any[];
-    if (stmt.all) {
-        rows = stmt.all(entityId);
-    } else {
-        stmt.bind([entityId]);
-        rows = [];
-        while(stmt.step()) {
-            rows.push(stmt.getAsObject());
-        }
-        stmt.free();
+  async searchEntities(query: MemorySearchQuery): Promise<any[]> {
+    const limit = query.limit || 10;
+
+    // Build where clause
+    const where: any = {
+      orgId: query.orgId,
+    };
+
+    if (query.userId) {
+      where.OR = [
+        { userId: query.userId },
+        { userId: null },
+      ];
     }
 
-    return rows.map((row: any) => row.tag);
+    if (query.entityTypes && query.entityTypes.length > 0) {
+      where.entityType = { in: query.entityTypes };
+    }
+
+    // Keyword search with tags
+    if (query.keywords && query.keywords.length > 0) {
+      const keywordConditions = query.keywords.map(keyword => ({
+        OR: [
+          { content: { contains: keyword, mode: 'insensitive' as const } },
+          { tags: { some: { tag: { contains: keyword, mode: 'insensitive' as const } } } },
+        ],
+      }));
+      where.OR = keywordConditions;
+    }
+
+    let candidates = await prisma.memoryEntity.findMany({
+      where,
+      orderBy: [
+        { importance: 'desc' },
+        { createdAt: 'desc' },
+      ],
+      take: query.keywords && query.keywords.length > 0 ? limit * 2 : limit,
+      include: {
+        tags: true,
+      },
+    });
+
+    // If we have keywords, apply semantic scoring
+    if (query.keywords && query.keywords.length > 0 && candidates.length > 0) {
+      const queryText = query.keywords.join(' ');
+      const queryVector = this.vectorizeText(queryText);
+
+      const scoredCandidates = candidates.map(candidate => {
+        const contentVector = this.getCachedVector(candidate.content);
+        const semanticScore = this.cosineSimilarity(queryVector, contentVector);
+        const keywordScore = candidate.content.toLowerCase().includes(queryText.toLowerCase()) ? 1 : 0;
+        const combinedScore = 0.7 * semanticScore + 0.3 * keywordScore;
+
+        return {
+          id: candidate.id,
+          org_id: candidate.orgId,
+          user_id: candidate.userId,
+          entity_type: candidate.entityType,
+          content: candidate.content,
+          importance: candidate.importance,
+          created_at: candidate.createdAt,
+          semanticScore,
+          combinedScore,
+        };
+      });
+
+      scoredCandidates.sort((a, b) => b.combinedScore - a.combinedScore);
+      return scoredCandidates.slice(0, limit);
+    }
+
+    // Transform to snake_case for compatibility
+    return candidates.map(c => ({
+      id: c.id,
+      org_id: c.orgId,
+      user_id: c.userId,
+      entity_type: c.entityType,
+      content: c.content,
+      importance: c.importance,
+      created_at: c.createdAt,
+    }));
   }
 
-  createRelation(orgId: string, sourceId: number, targetId: number, relationType: string): number {
-    const stmt = this.db.prepare(`
-      INSERT INTO memory_relations (org_id, source_id, target_id, relation_type)
-      VALUES (?, ?, ?, ?)
-    `);
+  async getEntityById(id: number): Promise<any | null> {
+    const entity = await prisma.memoryEntity.findUnique({
+      where: { id },
+      include: { tags: true },
+    });
 
-    let result: any;
-    if (stmt.run.length === 1) {
-        stmt.run([orgId, sourceId, targetId, relationType]);
-    } else {
-        result = stmt.run(orgId, sourceId, targetId, relationType);
-    }
+    if (!entity) return null;
 
-    if (result && result.lastInsertRowid) {
-        return result.lastInsertRowid as number;
-    } else {
-        const res = this.db.exec("SELECT last_insert_rowid()");
-        return res[0].values[0][0] as number;
-    }
+    return {
+      id: entity.id,
+      org_id: entity.orgId,
+      user_id: entity.userId,
+      entity_type: entity.entityType,
+      content: entity.content,
+      importance: entity.importance,
+      created_at: entity.createdAt,
+    };
+  }
+
+  async getEntityTags(entityId: number): Promise<string[]> {
+    const tags = await prisma.memoryTag.findMany({
+      where: { entityId },
+      select: { tag: true },
+    });
+
+    return tags.map(t => t.tag);
+  }
+
+  async createRelation(orgId: string, sourceId: number, targetId: number, relationType: string): Promise<number> {
+    const relation = await prisma.memoryRelation.create({
+      data: {
+        orgId,
+        sourceId,
+        targetId,
+        relationType,
+      },
+    });
+
+    return relation.id;
   }
 }

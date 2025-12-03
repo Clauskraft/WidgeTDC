@@ -18,12 +18,26 @@ const REPORT_PATH = path.resolve(__dirname, '../../../../market_fit_report.json'
 const SCRIPT_PATH = path.resolve(__dirname, '../scripts/market_fit_analysis.ts');
 
 const router = Router();
+const REPORT_MAX_AGE_MINUTES = parseInt(process.env.MARKET_REPORT_MAX_AGE_MINUTES || '15', 10);
+const REPORT_MAX_AGE_MS = Math.max(REPORT_MAX_AGE_MINUTES, 1) * 60 * 1000;
+
+const isReportStale = () => {
+  try {
+    const stats = fs.statSync(REPORT_PATH);
+    return Date.now() - stats.mtimeMs > REPORT_MAX_AGE_MS;
+  } catch {
+    return true;
+  }
+};
 
 router.get('/opportunities', async (req: Request, res: Response) => {
   try {
     // 1. Tjek om rapporten findes
-    if (!fs.existsSync(REPORT_PATH)) {
-      console.warn('[MarketAPI] Report missing. Triggering analysis...');
+    const reportMissing = !fs.existsSync(REPORT_PATH);
+    const reportStale = !reportMissing && isReportStale();
+
+    if (reportMissing || reportStale) {
+      console.warn('[MarketAPI] Report missing or stale. Triggering analysis...');
       
       // 2. Self-Healing: Kør scriptet hvis filen mangler
       // Bemærk: Dette kan tage tid, så i prod ville vi bruge en cache/job queue

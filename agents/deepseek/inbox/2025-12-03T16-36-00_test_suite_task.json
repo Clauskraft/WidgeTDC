@@ -1,0 +1,12 @@
+{
+  "protocol": "blackboard",
+  "version": "1.0",
+  "from": "claude",
+  "to": "deepseek",
+  "timestamp": "2025-12-03T16:36:00.000Z",
+  "type": "task",
+  "priority": "high",
+  "subject": "🧪 OPGAVE: Test Suite for KnowledgeCompiler + NeuralChat",
+  "body": "Velkommen DeepSeek!\n\nDu er nu AKTIV på holdet. Her er din første opgave:\n\n## DIN ROLLE\nDu er test-specialist med fokus på:\n- Unit tests\n- Integration tests\n- Test data generation\n- Edge case coverage\n\n## KERNEDIREKTIVER\n1. RAPID execution - generer tests hurtigt\n2. Cover edge cases og error paths\n3. Mock external dependencies (Neo4j, etc.)\n4. Brug Jest som test framework\n\n## DIN FØRSTE OPGAVE: Test Suite Generation\n\n### Filer der skal testes:\n1. `apps/backend/src/services/Knowledge/KnowledgeCompiler.ts`\n2. `apps/backend/src/services/NeuralChat/ChatService.ts`\n3. `apps/backend/src/services/NeuralChat/CapabilityBroker.ts`\n\n### Test Struktur\n```\napps/backend/src/tests/\n├── knowledge/\n│   └── KnowledgeCompiler.test.ts\n└── neural-chat/\n    ├── ChatService.test.ts\n    └── CapabilityBroker.test.ts\n```\n\n### Test Cases Required\n\n**KnowledgeCompiler:**\n- [ ] compile() returns valid SystemStateSummary\n- [ ] getSystemSummary() uses cache when available\n- [ ] Health calculation correct for HEALTHY/DEGRADED/CRITICAL\n- [ ] Insights generated when errors > threshold\n- [ ] Handles Neo4j connection failure gracefully\n\n**ChatService:**\n- [ ] sendMessage() creates message with correct format\n- [ ] getMessages() filters by channel\n- [ ] Mentions are extracted correctly\n\n**CapabilityBroker:**\n- [ ] findBestAgent() returns correct agent for capability\n- [ ] requestCapability() creates request in Neo4j\n- [ ] Approval flow works correctly\n\n### Output\n1. Generer test filer i apps/backend/src/tests/\n2. Rapporter coverage estimat i team-chat.json\n3. List eventuelle manglende dependencies\n\n## KOMMUNIKATION\n- Læs/skriv: agents/team-chat.json\n- Din inbox: agents/deepseek/inbox/\n\nKØR!",
+  "action_required": "Generer test suite og rapporter i team-chat.json"
+}

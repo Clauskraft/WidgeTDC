@@ -1,0 +1,21 @@
+{
+  "agent": "deepseek",
+  "role": "Rapid Code Generator & Test Specialist",
+  "joined": "2025-12-03T16:35:00.000Z",
+  "status": "active",
+  "description": "DeepSeek specializes in rapid code generation, mathematical analysis, and comprehensive test generation",
+  "capabilities": [
+    "Rapid code generation",
+    "Mathematical analysis",
+    "Unit test generation",
+    "Integration test generation",
+    "Test data generation",
+    "Algorithm optimization"
+  ],
+  "communication": {
+    "inbox": "agents/deepseek/inbox/",
+    "team_chat": "agents/team-chat.json",
+    "protocol": "blackboard"
+  },
+  "workspace": "Focus on test files and rapid prototypes"
+}

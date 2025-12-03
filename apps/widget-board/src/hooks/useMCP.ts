@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { buildApiUrl } from '../utils/api';
 
 export interface MCPMessage {
   id: string;
@@ -40,7 +41,9 @@ export const useMCP = () => {
         // We can check if we are in a test environment or if window.location.origin is available
         if (typeof window !== 'undefined' && window.location.origin === 'null') {
           // Fallback for JSDOM if origin is null
-          route = `http://localhost:3001${route}`;
+          route = buildApiUrl(route);
+        } else if (route.startsWith('/')) {
+          route = buildApiUrl(route);
         }
 
         const response = await fetch(route, {

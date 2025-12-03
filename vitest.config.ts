@@ -2,6 +2,9 @@ import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
+const resolveModule = (pkg: string, entry: string = 'index.js') =>
+  path.resolve(__dirname, 'node_modules', pkg, entry);
+
 export default defineConfig({
   plugins: [react()],
   test: {
@@ -21,6 +24,8 @@ export default defineConfig({
       'tests/unit/**',
       'tests/integration/**',
       'apps/widget-board/tests/**',
+      'apps/widget-board/widgets/__tests__/**',
+      'apps/widget-board/src/components/Dashboard/**/*.test.tsx',
     ],
     coverage: {
       provider: 'v8',
@@ -45,6 +50,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
+      react: resolveModule('react'),
+      'react/jsx-runtime': resolveModule('react', 'jsx-runtime.js'),
+      'react/jsx-dev-runtime': resolveModule('react', 'jsx-dev-runtime.js'),
+      'react-dom': resolveModule('react-dom'),
+      'react-dom/client': resolveModule('react-dom', 'client.js'),
+      'react-dom/test-utils': resolveModule('react-dom', 'test-utils.js'),
     },
   },
 });

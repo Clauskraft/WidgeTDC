@@ -60,7 +60,7 @@ const LOG_STYLES: Record<LogLevel, { color: string; icon: React.ReactNode; bg: s
 // ============================================
 // API SERVICE - Real Data Integration
 // ============================================
-const API_BASE = 'http://localhost:3001';
+import { buildApiUrl, buildWsUrl } from '../utils/api';
 
 async function fetchSystemLogs(options?: { 
   level?: LogLevel | 'all'; 
@@ -73,7 +73,7 @@ async function fetchSystemLogs(options?: {
     if (options?.source && options.source !== 'all') params.set('source', options.source);
     if (options?.limit) params.set('limit', options.limit.toString());
     
-    const url = `${API_BASE}/api/logs${params.toString() ? `?${params}` : ''}`;
+    const url = buildApiUrl(`/logs${params.toString() ? `?${params}` : ''}`);
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -93,7 +93,7 @@ async function fetchSystemLogs(options?: {
 
 async function fetchLogSources(): Promise<string[]> {
   try {
-    const response = await fetch(`${API_BASE}/api/logs/sources`);
+    const response = await fetch(buildApiUrl('/logs/sources'));
     if (!response.ok) throw new Error(`API error: ${response.status}`);
     return await response.json() || [];
   } catch (error) {
@@ -114,7 +114,7 @@ function useLogWebSocket(onLog: (log: LogEntry) => void, enabled: boolean = true
     
     const connect = () => {
       try {
-        const ws = new WebSocket('ws://localhost:3001/api/logs/stream');
+        const ws = new WebSocket(buildWsUrl('/api/logs/stream'));
         
         ws.onopen = () => {
           console.log('[SystemLogs] WebSocket connected');

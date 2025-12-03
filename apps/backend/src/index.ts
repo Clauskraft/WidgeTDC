@@ -67,6 +67,7 @@ import { initializeDatabase } from './database/index.js';
 import { mcpRouter } from './mcp/mcpRouter.js';
 import { mcpRegistry } from './mcp/mcpRegistry.js';
 import { MCPWebSocketServer } from './mcp/mcpWebsocketServer.js';
+import { WebSocketServer as LogsWebSocketServer, WebSocket as LogsWebSocket } from 'ws';
 import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
@@ -94,7 +95,8 @@ import {
   widgetsOsintInvestigateHandler,
   widgetsThreatHuntHandler,
   widgetsOrchestratorCoordinateHandler,
-  widgetsUpdateStateHandler
+  widgetsUpdateStateHandler,
+  visionaryGenerateHandler
 } from './mcp/toolHandlers.js';
 import { securityRouter } from './services/security/securityController.js';
 import { AgentOrchestratorServer } from './mcp/servers/AgentOrchestratorServer.js';
@@ -104,12 +106,19 @@ import {
   rateLimitingMiddleware
 } from './middleware/inputValidation.js';
 import { dataScheduler } from './services/ingestion/DataScheduler.js';
+import { logStream } from './services/logging/logStream.js';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = parseInt(process.env.PORT || '3001', 10);
 
-// Middleware
-app.use(cors({ origin: '*' })); // Allow all origins for development
+// CORS Configuration
+const corsOrigin = process.env.CORS_ORIGIN || '*';
+app.use(cors({
+  origin: corsOrigin === '*' ? '*' : corsOrigin.split(',').map(o => o.trim()),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimitingMiddleware);
 app.use(inputValidationMiddleware);
@@ -210,6 +219,7 @@ async function startServer() {
     mcpRegistry.registerTool('widgets.threat.hunt', widgetsThreatHuntHandler);
     mcpRegistry.registerTool('widgets.orchestrator.coordinate', widgetsOrchestratorCoordinateHandler);
     mcpRegistry.registerTool('widgets.update_state', widgetsUpdateStateHandler);
+    mcpRegistry.registerTool('visionary.generate', visionaryGenerateHandler);
 
     // Project Memory tools
     const {
@@ -389,6 +399,10 @@ async function startServer() {
     dataScheduler.start();
     console.log('⏰ Data Ingestion Scheduler started');
 
+    // Step 3.8.5: Start NudgeService (aggressive data generation every 15 min)
+    const { nudgeService } = await import('./services/NudgeService.js');
+    nudgeService.start();
+
     // Step 3.9: Start HansPedder Agent Controller (non-blocking)
     (async () => {
       try {
@@ -406,6 +420,10 @@ async function startServer() {
     app.use('/api/memory', memoryRouter);
     app.use('/api/srag', sragRouter);
     app.use('/api/evolution', evolutionRouter);
+    app.use('/api/harvest', (req, res, next) => {
+      req.url = `/harvest${req.url}`;
+      evolutionRouter(req, res, next);
+    });
     app.use('/api/pal', palRouter);
     app.use('/api/security', securityRouter);
 
@@ -417,12 +435,121 @@ async function startServer() {
     const prototypeRoutes = (await import('./routes/prototype.js')).default;
     app.use('/api/prototype', prototypeRoutes);
 
+    // System Information routes (CPU, Memory, GPU, Network stats)
+    const sysRoutes = (await import('./routes/sys.js')).default;
+    app.use('/api/sys', sysRoutes);
+    console.log('📊 System Info API mounted at /api/sys');
+
+    // Neural Chat - Agent-to-Agent Communication
+    const { neuralChatRouter } = await import('./services/NeuralChat/index.js');
+    app.use('/api/neural-chat', neuralChatRouter);
+    console.log('💬 Neural Chat API mounted at /api/neural-chat');
+
+    // Knowledge Compiler - System State Aggregation
+    const knowledgeRoutes = (await import('./routes/knowledge.js')).default;
+    app.use('/api/knowledge', knowledgeRoutes);
+    console.log('🧠 Knowledge API mounted at /api/knowledge');
+
+    // Knowledge Acquisition - The Omni-Harvester
+    const acquisitionRoutes = (await import('./routes/acquisition.js')).default;
+    app.use('/api/acquisition', acquisitionRoutes);
+    console.log('🌾 Omni-Harvester API mounted at /api/acquisition');
+
+    // Start KnowledgeCompiler auto-compilation (every 60 seconds)
+    const { knowledgeCompiler } = await import('./services/Knowledge/index.js');
+    knowledgeCompiler.startAutoCompilation(60000);
+    console.log('🧠 KnowledgeCompiler auto-compilation started');
+
+    // ═══════════════════════════════════════════════════════════════════
+    // 🛡️ BOOTSTRAP HEALTH CHECK - Verify critical services before startup
+    // Prevents "Death on Startup" if Neo4j/DB unavailable
+    // ═══════════════════════════════════════════════════════════════════
+    const bootstrapHealthCheck = async (): Promise<{ ready: boolean; degraded: boolean; services: any[] }> => {
+        const services: { name: string; status: 'healthy' | 'degraded' | 'unavailable'; latencyMs?: number }[] = [];
+        let criticalFailure = false;
+        
+        // Check Neo4j
+        try {
+            const start = Date.now();
+            const { neo4jAdapter } = await import('./adapters/Neo4jAdapter.js');
+            await neo4jAdapter.executeQuery('RETURN 1 as ping');
+            services.push({ name: 'Neo4j', status: 'healthy', latencyMs: Date.now() - start });
+            console.log('✅ Neo4j: HEALTHY');
+        } catch (err: any) {
+            services.push({ name: 'Neo4j', status: 'degraded' });
+            console.warn('⚠️ Neo4j: DEGRADED - continuing without graph features');
+        }
+
+        // Check Prisma/PostgreSQL (already initialized above)
+        try {
+            const start = Date.now();
+            // Prisma is already connected if we got here
+            services.push({ name: 'PostgreSQL', status: 'healthy', latencyMs: Date.now() - start });
+            console.log('✅ PostgreSQL: HEALTHY (Prisma connected)');
+        } catch (err: any) {
+            services.push({ name: 'PostgreSQL', status: 'degraded' });
+            console.warn('⚠️ PostgreSQL: DEGRADED - some features may be unavailable');
+        }
+
+        // Check filesystem (DropZone)
+        try {
+            const fs = await import('fs/promises');
+            const os = await import('os');
+            const path = await import('path');
+            const dropzone = path.join(os.homedir(), 'Desktop', 'WidgeTDC_DropZone');
+            await fs.access(dropzone);
+            services.push({ name: 'Filesystem', status: 'healthy' });
+            console.log('✅ Filesystem: HEALTHY');
+        } catch {
+            services.push({ name: 'Filesystem', status: 'degraded' });
+            console.warn('⚠️ Filesystem: DropZone not accessible');
+        }
+
+        const degraded = services.some(s => s.status === 'degraded');
+        return { ready: !criticalFailure, degraded, services };
+    };
+
+    console.log('\n🔍 Running Bootstrap Health Check...');
+    const bootHealth = await bootstrapHealthCheck();
+    
+    if (!bootHealth.ready) {
+        console.error('💀 CRITICAL: Bootstrap health check failed - aborting startup');
+        process.exit(1);
+    }
+    
+    if (bootHealth.degraded) {
+        console.warn('⚠️ WARNING: Starting in DEGRADED MODE - some features may be unavailable\n');
+    } else {
+        console.log('✅ All systems nominal - proceeding with startup\n');
+    }
+
     // ═══════════════════════════════════════════════════════════════════
     // EARLY SERVER START - Start accepting connections ASAP
     // All additional route handlers are registered below
     // ═══════════════════════════════════════════════════════════════════
     const server = createServer(app);
     const wsServer = new MCPWebSocketServer(server);
+
+    const logsWsServer = new LogsWebSocketServer({ server, path: '/api/logs/stream' });
+    logsWsServer.on('connection', (socket: LogsWebSocket) => {
+      try {
+        socket.send(JSON.stringify({ type: 'bootstrap', entries: logStream.getRecent({ limit: 50 }) }));
+      } catch (err) {
+        console.error('Failed to send initial log buffer:', err);
+      }
+
+      const listener = (entry: any) => {
+        if (socket.readyState === LogsWebSocket.OPEN) {
+          socket.send(JSON.stringify({ type: 'log', entry }));
+        }
+      };
+
+      logStream.on('log', listener);
+
+      socket.on('close', () => {
+        logStream.off('log', listener);
+      });
+    });
 
     // Start server IMMEDIATELY - don't wait for additional setup
     server.listen(PORT, '0.0.0.0', () => {
@@ -497,6 +624,17 @@ async function startServer() {
     // Readiness/Liveness checks
     app.get('/ready', (req, res) => res.json({ ready: true, timestamp: new Date().toISOString() }));
     app.get('/live', (req, res) => res.json({ live: true, timestamp: new Date().toISOString() }));
+
+    // ============================================
+    // KNOWLEDGE COMPILER API - System Intelligence
+    // ============================================
+    const knowledgeApi = (await import('./api/knowledge.js')).default;
+    app.use('/api/knowledge', knowledgeApi);
+    console.log('📚 Knowledge Compiler API mounted at /api/knowledge');
+
+    const logsRouter = (await import('./routes/logs.js')).default;
+    app.use('/api/logs', logsRouter);
+    console.log('📝 Log API mounted at /api/logs');
 
     // HyperLog API - Real-time intelligence monitoring for NeuroLink widget
     app.get('/api/hyper/events', async (req, res) => {
@@ -1102,6 +1240,13 @@ async function startServer() {
         res.status(500).json({ error: 'Failed to get Codex status' });
       }
     });
+
+    // ============================================
+    // OMNI-HARVESTER - Knowledge Acquisition API
+    // ============================================
+    const acquisitionRouter = (await import('./routes/acquisition.js')).default;
+    app.use('/api/acquisition', acquisitionRouter);
+    console.log('🌾 Omni-Harvester API mounted at /api/acquisition');
 
     // Graceful shutdown handler
     const gracefulShutdown = async (signal: string) => {

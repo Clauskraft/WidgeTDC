@@ -250,6 +250,11 @@ export const rateLimitingMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
+  // Skip rate limiting in development mode
+  if (process.env.NODE_ENV === 'development') {
+    return next();
+  }
+
   const clientIp = req.ip || req.socket.remoteAddress || '';
   const now = Date.now();
   const windowMs = 15 * 60 * 1000; // 15 minutes

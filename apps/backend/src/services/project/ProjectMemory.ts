@@ -1,4 +1,10 @@
-import { getDatabase } from '../../database/index.js';
+/**
+ * ProjectMemory - In-memory project lifecycle tracking
+ *
+ * Uses in-memory storage for development.
+ * In production, events are also sent to Neo4j via EventBus.
+ */
+
 import { eventBus } from '../../mcp/EventBus.js';
 
 export interface LifecycleEvent {
@@ -19,8 +25,14 @@ export interface ProjectFeature {
 }
 
 class ProjectMemoryService {
+    private events: LifecycleEvent[] = [];
+    private features: Map<string, ProjectFeature> = new Map();
+    private eventIdCounter = 1;
+    private featureIdCounter = 1;
+
     constructor() {
         this.setupEventListeners();
+        console.log('📚 ProjectMemory initialized (in-memory mode)');
     }
 
     private setupEventListeners() {
@@ -35,135 +47,60 @@ class ProjectMemoryService {
     }
 
     public logLifecycleEvent(event: LifecycleEvent): void {
-        const db = getDatabase();
-        try {
-            const eventType = event.eventType || 'unknown';
-            const status = event.status || 'unknown';
-            const details = JSON.stringify(event.details || {});
+        const now = new Date().toISOString();
+        const newEvent: LifecycleEvent = {
+            ...event,
+            id: this.eventIdCounter++,
+            createdAt: now
+        };
 
-            // Use named parameters for sql.js compatibility
-            db.prepare(`
-        INSERT INTO project_lifecycle_events (event_type, status, details)
-        VALUES ($eventType, $status, $details)
-        `).run({ $eventType: eventType, $status: status, $details: details } as any);
+        this.events.unshift(newEvent); // Add to front for newest-first ordering
 
-            console.log(`[ProjectMemory] Logged event: ${event.eventType} - ${event.status}`);
-        } catch (error) {
-            console.error('[ProjectMemory] Failed to log event:', error);
+        // Keep only last 1000 events in memory
+        if (this.events.length > 1000) {
+            this.events = this.events.slice(0, 1000);
         }
+
+        console.log(`[ProjectMemory] Logged event: ${event.eventType} - ${event.status}`);
     }
 
     public getLifecycleEvents(limit = 50): LifecycleEvent[] {
-        const db = getDatabase();
-        try {
-            // Handle sql.js compatibility using exec
-            if (!(db as any).prepare('SELECT 1').all) {
-                const result = (db as any).exec(`SELECT * FROM project_lifecycle_events ORDER BY created_at DESC LIMIT ${limit}`);
-                
-                if (!result || result.length === 0) {
-                    return [];
-                }
-
-                const columns = result[0].columns;
-                const values = result[0].values;
-
-                return values.map((row: any[]) => {
-                    const obj: any = {};
-                    columns.forEach((col: string, idx: number) => {
-                        obj[col] = row[idx];
-                    });
-                    return {
-                        id: obj.id,
-                        eventType: obj.event_type,
-                        status: obj.status,
-                        details: JSON.parse(obj.details || '{}'),
-                        createdAt: obj.created_at
-                    };
-                });
-            } else {
-                // Fallback for better-sqlite3 if available
-                const rows = db.prepare(`
-            SELECT * FROM project_lifecycle_events ORDER BY created_at DESC LIMIT $limit
-            `).all({ $limit: limit } as any) as any[];
-
-                return rows.map(row => ({
-                    id: row.id,
-                    eventType: row.event_type,
-                    status: row.status,
-                    details: JSON.parse(row.details || '{}'),
-                    createdAt: row.created_at
-                }));
-            }
-        } catch (error) {
-            console.error('[ProjectMemory] Failed to get events:', error);
-            return [];
-        }
+        return this.events.slice(0, limit);
     }
 
     public addFeature(feature: ProjectFeature): void {
-        const db = getDatabase();
-        try {
-            db.prepare(`
-        INSERT INTO project_features (name, description, status)
-        VALUES ($name, $description, $status)
-        `).run({ $name: feature.name, $description: feature.description, $status: feature.status } as any);
-        } catch (error) {
-            console.error('[ProjectMemory] Failed to add feature:', error);
-        }
+        const now = new Date().toISOString();
+        const newFeature: ProjectFeature = {
+            ...feature,
+            id: this.featureIdCounter++,
+            createdAt: now,
+            updatedAt: now
+        };
+
+        this.features.set(feature.name, newFeature);
+        console.log(`[ProjectMemory] Added feature: ${feature.name}`);
     }
 
     public getFeatures(): ProjectFeature[] {
-        const db = getDatabase();
-        try {
-            // sql.js .all() doesn't work the same way - use exec instead
-            const result = (db as any).exec(`SELECT * FROM project_features ORDER BY updated_at DESC`);
-
-            if (!result || result.length === 0) {
-                return [];
-            }
-
-            const columns = result[0].columns;
-            const values = result[0].values;
-
-            return values.map((row: any[]) => {
-                const obj: any = {};
-                columns.forEach((col: string, idx: number) => {
-                    obj[col] = row[idx];
-                });
-                return {
-                    id: obj.id,
-                    name: obj.name,
-                    description: obj.description,
-                    status: obj.status,
-                    createdAt: obj.created_at,
-                    updatedAt: obj.updated_at
-                };
-            });
-        } catch (error) {
-            console.error('[ProjectMemory] Failed to get features:', error);
-            return [];
-        }
+        return Array.from(this.features.values())
+            .sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
     }
 
     public updateFeatureStatus(name: string, status: ProjectFeature['status']): void {
-        const db = getDatabase();
-        try {
-            // First, check if feature exists
-            const existing = db.prepare(`SELECT id FROM project_features WHERE name = $name`).get({ $name: name } as any);
+        const existing = this.features.get(name);
 
-            if (existing) {
-                // Update existing
-                db.prepare(`UPDATE project_features SET status = $status WHERE name = $name`).run({ $status: status, $name: name } as any);
-            } else {
-                // Insert new feature with minimal data
-                db.prepare(`
-                    INSERT INTO project_features (name, description, status)
-                    VALUES ($name, $description, $status)
-                `).run({ $name: name, $description: name, $status: status } as any);
-            }
-        } catch (error) {
-            console.error('[ProjectMemory] Failed to update feature:', error);
+        if (existing) {
+            existing.status = status;
+            existing.updatedAt = new Date().toISOString();
+        } else {
+            this.addFeature({
+                name,
+                description: name,
+                status
+            });
         }
+
+        console.log(`[ProjectMemory] Updated feature ${name} to ${status}`);
     }
 }
 

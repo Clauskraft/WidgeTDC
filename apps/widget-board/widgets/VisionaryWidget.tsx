@@ -190,7 +190,7 @@ Generate valid Mermaid.js code for the requested diagram. Apply any relevant pat
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tool: 'visionary.generate',
-          params: {
+          payload: {
             prompt: enrichedPrompt,
             diagramType,
             memories: thoughts.map(t => t.content),

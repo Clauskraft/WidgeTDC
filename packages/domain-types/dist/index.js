@@ -20,3 +20,4 @@ __exportStar(require("./memory"), exports);
 __exportStar(require("./srag"), exports);
 __exportStar(require("./evolution"), exports);
 __exportStar(require("./pal"), exports);
+__exportStar(require("./showpad"), exports);
