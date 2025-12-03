@@ -9,19 +9,18 @@ const router = Router();
  */
 router.get('/health', async (req, res) => {
     const health = {
-        status: 'healthy',
+        status: 'healthy' as 'healthy' | 'degraded',
         timestamp: new Date().toISOString(),
         services: {
-            database: 'unknown',
-            neo4j: 'unknown',
-            redis: 'unknown',
+            database: 'unknown' as 'unknown' | 'healthy' | 'unhealthy',
+            neo4j: 'unknown' as 'unknown' | 'healthy' | 'unhealthy',
+            redis: 'unknown' as 'unknown' | 'configured_but_client_unavailable' | 'not_configured',
         },
         uptime: process.uptime(),
         memory: process.memoryUsage(),
     };
 
     try {
-        // Check PostgreSQL/SQLite
         const db = getDatabase();
         db.prepare('SELECT 1').get();
         health.services.database = 'healthy';
@@ -31,7 +30,6 @@ router.get('/health', async (req, res) => {
     }
 
     try {
-        // Check Neo4j
         await neo4jService.connect();
         const neo4jHealthy = await neo4jService.healthCheck();
         health.services.neo4j = neo4jHealthy ? 'healthy' : 'unhealthy';
@@ -45,14 +43,9 @@ router.get('/health', async (req, res) => {
         health.status = 'degraded';
     }
 
-    // Check Redis
-    if (process.env.REDIS_URL) {
-        // Redis URL is configured but ioredis client is not yet installed
-        // Once ioredis is installed, this can be updated to perform actual health check
-        health.services.redis = 'configured_but_client_unavailable';
-    } else {
-        health.services.redis = 'not_configured';
-    }
+    health.services.redis = process.env.REDIS_URL
+        ? 'configured_but_client_unavailable'
+        : 'not_configured';
 
     const statusCode = health.status === 'healthy' ? 200 : 503;
     res.status(statusCode).json(health);
@@ -64,11 +57,8 @@ router.get('/health', async (req, res) => {
 router.get('/health/database', async (req, res) => {
     try {
         const db = getDatabase();
-        const result = db.prepare('SELECT 1 as test').get() as any;
-
-        const tables = db.prepare(`
-      SELECT name FROM sqlite_master WHERE type='table'
-    `).all() as any[];
+        const result = db.prepare('SELECT 1 as test').get() as { test: number };
+        const tables = db.prepare(`SELECT name FROM sqlite_master WHERE type='table'`).all() as { name: string }[];
 
         res.json({
             status: 'healthy',
@@ -79,7 +69,7 @@ router.get('/health/database', async (req, res) => {
     } catch (error) {
         res.status(503).json({
             status: 'unhealthy',
-            error: String(error),
+            error: error instanceof Error ? error.message : String(error),
         });
     }
 });
@@ -92,23 +82,23 @@ router.get('/health/neo4j', async (req, res) => {
         await neo4jService.connect();
         const healthy = await neo4jService.healthCheck();
 
-        if (healthy) {
-            const stats = await neo4jService.runQuery('MATCH (n) RETURN count(n) as nodeCount');
-            await neo4jService.disconnect();
-
-            res.json({
-                status: 'healthy',
-                connected: true,
-                nodeCount: stats[0]?.nodeCount || 0,
-            });
-        } else {
+        if (!healthy) {
             throw new Error('Health check failed');
         }
+
+        const stats = await neo4jService.runQuery('MATCH (n) RETURN count(n) as nodeCount');
+        await neo4jService.disconnect();
+
+        res.json({
+            status: 'healthy',
+            connected: true,
+            nodeCount: stats[0]?.nodeCount || 0,
+        });
     } catch (error) {
         res.status(503).json({
             status: 'unhealthy',
             connected: false,
-            error: String(error),
+            error: error instanceof Error ? error.message : String(error),
         });
     }
 });
@@ -128,7 +118,7 @@ router.get('/ready', async (req, res) => {
     } catch (error) {
         res.status(503).json({
             status: 'not_ready',
-            error: String(error),
+            error: error instanceof Error ? error.message : String(error),
         });
     }
 });
