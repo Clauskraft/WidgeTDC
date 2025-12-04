@@ -3,7 +3,7 @@ import { PalRepository } from './palRepository.js';
 export const palRouter = Router();
 const palRepo = new PalRepository();
 // Record an event
-palRouter.post('/event', (req, res) => {
+palRouter.post('/event', async (req, res) => {
     try {
         const event = req.body;
         if (!event.userId || !event.orgId || !event.eventType) {
@@ -11,7 +11,7 @@ palRouter.post('/event', (req, res) => {
                 error: 'Missing required fields: userId, orgId, eventType',
             });
         }
-        const eventId = palRepo.recordEvent(event);
+        const eventId = await palRepo.recordEvent(event);
         res.json({
             success: true,
             eventId,
@@ -26,7 +26,7 @@ palRouter.post('/event', (req, res) => {
     }
 });
 // Get recommendations
-palRouter.get('/recommendations', (req, res) => {
+palRouter.get('/recommendations', async (req, res) => {
     try {
         const { userId, orgId } = req.query;
         if (!userId || !orgId) {
@@ -35,20 +35,21 @@ palRouter.get('/recommendations', (req, res) => {
             });
         }
         // Get user profile
-        let profile = palRepo.getUserProfile(userId, orgId);
+        let profile = await palRepo.getUserProfile(userId, orgId);
         if (!profile) {
             // Create default profile
-            palRepo.createUserProfile(userId, orgId);
-            profile = palRepo.getUserProfile(userId, orgId);
+            await palRepo.createUserProfile(userId, orgId);
+            profile = await palRepo.getUserProfile(userId, orgId);
         }
         // Get focus windows
-        const focusWindows = palRepo.getFocusWindows(userId, orgId);
+        const focusWindows = await palRepo.getFocusWindows(userId, orgId);
         // Get recent events
-        const recentEvents = palRepo.getRecentEvents(userId, orgId, 10);
+        const recentEvents = await palRepo.getRecentEvents(userId, orgId, 10);
         // Get stress level distribution
-        const stressDistribution = palRepo.getStressLevelDistribution(userId, orgId, 24);
+        const stressDistribution = await palRepo.getStressLevelDistribution(userId, orgId, 24);
         // Simple heuristic: if high stress events in last 24h, suggest muting
-        const highStressCount = stressDistribution.find((d) => d.detected_stress_level === 'high')?.count || 0;
+        const highStressEntry = stressDistribution.find((d) => d.detected_stress_level >= 7);
+        const highStressCount = highStressEntry?.count || 0;
         const boardAdjustments = [];
         const reminders = [];
         if (highStressCount > 3) {
@@ -83,7 +84,7 @@ palRouter.get('/recommendations', (req, res) => {
             reminders,
             focusWindow: currentFocusWindow || null,
             profile: {
-                preferenceTone: profile.preference_tone,
+                preferenceTone: profile?.preference_tone || 'neutral',
             },
         });
     }
@@ -96,7 +97,7 @@ palRouter.get('/recommendations', (req, res) => {
     }
 });
 // Get user profile
-palRouter.get('/profile', (req, res) => {
+palRouter.get('/profile', async (req, res) => {
     try {
         const { userId, orgId } = req.query;
         if (!userId || !orgId) {
@@ -104,11 +105,11 @@ palRouter.get('/profile', (req, res) => {
                 error: 'Missing required query params: userId, orgId',
             });
         }
-        let profile = palRepo.getUserProfile(userId, orgId);
+        let profile = await palRepo.getUserProfile(userId, orgId);
         if (!profile) {
             // Create default profile
-            palRepo.createUserProfile(userId, orgId);
-            profile = palRepo.getUserProfile(userId, orgId);
+            await palRepo.createUserProfile(userId, orgId);
+            profile = await palRepo.getUserProfile(userId, orgId);
         }
         res.json({
             success: true,
@@ -124,7 +125,7 @@ palRouter.get('/profile', (req, res) => {
     }
 });
 // Update user profile
-palRouter.put('/profile', (req, res) => {
+palRouter.put('/profile', async (req, res) => {
     try {
         const { userId, orgId, preferenceTone } = req.body;
         if (!userId || !orgId || !preferenceTone) {
@@ -132,7 +133,7 @@ palRouter.put('/profile', (req, res) => {
                 error: 'Missing required fields: userId, orgId, preferenceTone',
             });
         }
-        palRepo.updateUserProfile(userId, orgId, preferenceTone);
+        await palRepo.updateUserProfile(userId, orgId, preferenceTone);
         res.json({
             success: true,
         });
@@ -146,7 +147,7 @@ palRouter.put('/profile', (req, res) => {
     }
 });
 // Add focus window
-palRouter.post('/focus-window', (req, res) => {
+palRouter.post('/focus-window', async (req, res) => {
     try {
         const { userId, orgId, weekday, startHour, endHour } = req.body;
         if (!userId || !orgId || weekday === undefined || startHour === undefined || endHour === undefined) {
@@ -154,7 +155,7 @@ palRouter.post('/focus-window', (req, res) => {
                 error: 'Missing required fields: userId, orgId, weekday, startHour, endHour',
             });
         }
-        const windowId = palRepo.addFocusWindow(userId, orgId, weekday, startHour, endHour);
+        const windowId = await palRepo.addFocusWindow(userId, orgId, weekday, startHour, endHour);
         res.json({
             success: true,
             windowId,

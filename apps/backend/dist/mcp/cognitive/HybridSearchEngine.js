@@ -35,7 +35,7 @@ export class HybridSearchEngine {
         const results = [];
         try {
             // Search memory entities
-            const memoryResults = this.memoryRepo.searchEntities({
+            const memoryResults = await this.memoryRepo.searchEntities({
                 orgId: ctx.orgId,
                 userId: ctx.userId,
                 keywords: query.split(/\s+/).filter(w => w.length > 2),
@@ -51,7 +51,7 @@ export class HybridSearchEngine {
                 });
             });
             // Search SRAG documents
-            const sragResults = this.sragRepo.searchDocuments(ctx.orgId, query);
+            const sragResults = await this.sragRepo.searchDocuments(ctx.orgId, query);
             sragResults.forEach((doc, index) => {
                 results.push({
                     id: `srag-${doc.id}`,
@@ -74,7 +74,7 @@ export class HybridSearchEngine {
         const results = [];
         try {
             // Use MemoryRepository's vector search
-            const memoryResults = this.memoryRepo.searchEntities({
+            const memoryResults = await this.memoryRepo.searchEntities({
                 orgId: ctx.orgId,
                 userId: ctx.userId,
                 keywords: query ? [query] : [], // Use query as keyword for semantic search
@@ -103,21 +103,23 @@ export class HybridSearchEngine {
         try {
             // Use UnifiedMemorySystem to find holographic patterns
             const patterns = await unifiedMemorySystem.findHolographicPatterns(ctx);
-            patterns.forEach((pattern, index) => {
-                // Check if pattern matches query keywords
-                const queryWords = query.toLowerCase().split(/\s+/);
-                const patternText = JSON.stringify(pattern).toLowerCase();
-                const matchCount = queryWords.filter(word => patternText.includes(word)).length;
-                if (matchCount > 0) {
-                    results.push({
-                        id: `pattern-${pattern.keyword || index}`,
-                        type: 'pattern',
-                        score: (matchCount / queryWords.length) * pattern.frequency,
-                        content: pattern,
-                        source: 'graph_traversal'
-                    });
-                }
-            });
+            if (Array.isArray(patterns)) {
+                patterns.forEach((pattern, index) => {
+                    // Check if pattern matches query keywords
+                    const queryWords = query.toLowerCase().split(/\s+/);
+                    const patternText = JSON.stringify(pattern).toLowerCase();
+                    const matchCount = queryWords.filter(word => patternText.includes(word)).length;
+                    if (matchCount > 0) {
+                        results.push({
+                            id: `pattern-${pattern.keyword || index}`,
+                            type: 'pattern',
+                            score: (matchCount / queryWords.length) * (pattern.frequency || 0.5),
+                            content: pattern,
+                            source: 'graph_traversal'
+                        });
+                    }
+                });
+            }
         }
         catch (error) {
             console.warn('Graph traversal error:', error);

@@ -331,6 +331,255 @@ class NeuralBridgeServer {
                         },
                         required: ['to', 'type', 'subject', 'body']
                     }
+                },
+                // ═══════════════════════════════════════════════════════════════
+                // PRD to Prototype Tools
+                // ═══════════════════════════════════════════════════════════════
+                {
+                    name: 'generate_prototype',
+                    description: 'Generate an HTML prototype from a PRD document. Returns complete functional HTML code.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            prdContent: {
+                                type: 'string',
+                                description: 'The PRD content (text, markdown, or [PDF:base64] prefixed base64 data)'
+                            },
+                            style: {
+                                type: 'string',
+                                enum: ['modern', 'minimal', 'corporate', 'tdc-brand'],
+                                description: 'Visual style for the prototype (default: modern)'
+                            },
+                            locale: {
+                                type: 'string',
+                                description: 'Locale for UI text (default: da-DK)'
+                            }
+                        },
+                        required: ['prdContent']
+                    }
+                },
+                {
+                    name: 'save_prototype',
+                    description: 'Save a generated prototype to the database and Neo4j knowledge graph',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            name: {
+                                type: 'string',
+                                description: 'Name for the prototype'
+                            },
+                            htmlContent: {
+                                type: 'string',
+                                description: 'The HTML content of the prototype'
+                            },
+                            prdId: {
+                                type: 'string',
+                                description: 'Optional ID of the source PRD document'
+                            }
+                        },
+                        required: ['name', 'htmlContent']
+                    }
+                },
+                {
+                    name: 'list_prototypes',
+                    description: 'List all saved prototypes',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {}
+                    }
+                },
+                // ═══════════════════════════════════════════════════════════════
+                // Neural Chat Tools - Real-time Agent Communication
+                // ═══════════════════════════════════════════════════════════════
+                {
+                    name: 'neural_chat_send',
+                    description: 'Send a message to a Neural Chat channel for real-time agent communication',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            channel: {
+                                type: 'string',
+                                description: 'Channel to send to (core-dev, standup, alerts)'
+                            },
+                            body: {
+                                type: 'string',
+                                description: 'Message content'
+                            },
+                            from: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak', 'system'],
+                                description: 'Sender agent'
+                            },
+                            priority: {
+                                type: 'string',
+                                enum: ['low', 'normal', 'high', 'critical'],
+                                description: 'Message priority'
+                            },
+                            type: {
+                                type: 'string',
+                                enum: ['chat', 'task', 'status', 'alert', 'handover', 'response'],
+                                description: 'Message type'
+                            }
+                        },
+                        required: ['channel', 'body', 'from']
+                    }
+                },
+                {
+                    name: 'neural_chat_read',
+                    description: 'Read messages from Neural Chat channels',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            channel: {
+                                type: 'string',
+                                description: 'Channel to read from (optional, reads all if not specified)'
+                            },
+                            limit: {
+                                type: 'number',
+                                description: 'Max messages to return (default: 20)'
+                            },
+                            since: {
+                                type: 'string',
+                                description: 'ISO timestamp to read messages since'
+                            }
+                        }
+                    }
+                },
+                {
+                    name: 'neural_chat_channels',
+                    description: 'List all Neural Chat channels',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {}
+                    }
+                },
+                // ═══════════════════════════════════════════════════════════════
+                // Capability Broker Tools - Cross-Agent Task Delegation
+                // ═══════════════════════════════════════════════════════════════
+                {
+                    name: 'list_agent_capabilities',
+                    description: 'List capabilities of agents (what each agent is good at)',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            agent: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak'],
+                                description: 'Specific agent to list capabilities for (optional)'
+                            }
+                        }
+                    }
+                },
+                {
+                    name: 'request_capability',
+                    description: 'Request another agent to perform a task based on their capabilities',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            toAgent: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak'],
+                                description: 'Agent to request capability from'
+                            },
+                            capability: {
+                                type: 'string',
+                                description: 'Capability ID or name to request'
+                            },
+                            params: {
+                                type: 'object',
+                                description: 'Parameters for the capability request'
+                            },
+                            priority: {
+                                type: 'string',
+                                enum: ['low', 'normal', 'high', 'critical'],
+                                description: 'Request priority'
+                            }
+                        },
+                        required: ['toAgent', 'capability']
+                    }
+                },
+                {
+                    name: 'get_pending_requests',
+                    description: 'Get pending capability requests assigned to an agent',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            agent: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak'],
+                                description: 'Agent to check pending requests for'
+                            }
+                        },
+                        required: ['agent']
+                    }
+                },
+                {
+                    name: 'smart_route_task',
+                    description: 'Find the best agent for a task based on capability matching',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            task: {
+                                type: 'string',
+                                description: 'Description of the task to route'
+                            },
+                            context: {
+                                type: 'string',
+                                description: 'Additional context for routing decision'
+                            }
+                        },
+                        required: ['task']
+                    }
+                },
+                // ═══════════════════════════════════════════════════════════════
+                // 🧠 COGNITIVE SENSES - Neural Bridge v2.2
+                // ═══════════════════════════════════════════════════════════════
+                {
+                    name: 'activate_associative_memory',
+                    description: 'The Cortical Flash: Simulates brain-wide activation. Combines semantic search with graph traversal for full contextual memory recall.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            concept: {
+                                type: 'string',
+                                description: 'The core concept to activate (e.g., "GDPR", "Showpad", "Authentication")'
+                            },
+                            depth: {
+                                type: 'number',
+                                description: 'Graph traversal depth (default: 2)'
+                            }
+                        },
+                        required: ['concept']
+                    }
+                },
+                {
+                    name: 'sense_molecular_state',
+                    description: 'The Olfactory Sense: Calculates file integrity (MD5 hash) and compares with Graph Memory to detect mutations/changes.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            path: {
+                                type: 'string',
+                                description: 'Absolute path to the file to sense'
+                            }
+                        },
+                        required: ['path']
+                    }
+                },
+                {
+                    name: 'emit_sonar_pulse',
+                    description: 'The Sonar Pulse: Active echolocation to measure service distance (latency) and health quality.',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            target: {
+                                type: 'string',
+                                enum: ['neo4j', 'postgres', 'internet', 'filesystem', 'backend'],
+                                description: 'Target to ping'
+                            }
+                        },
+                        required: ['target']
+                    }
                 }
             ]
         }));
@@ -369,6 +618,35 @@ class NeuralBridgeServer {
                         return await this.handleReadAgentMessages(args);
                     case 'send_agent_message':
                         return await this.handleSendAgentMessage(args);
+                    // ═══════════════════════════════════════════════════════════
+                    // Neural Chat Handlers
+                    // ═══════════════════════════════════════════════════════════
+                    case 'neural_chat_send':
+                        return await this.handleNeuralChatSend(args);
+                    case 'neural_chat_read':
+                        return await this.handleNeuralChatRead(args);
+                    case 'neural_chat_channels':
+                        return await this.handleNeuralChatChannels(args);
+                    // ═══════════════════════════════════════════════════════════
+                    // Capability Broker Handlers
+                    // ═══════════════════════════════════════════════════════════
+                    case 'list_agent_capabilities':
+                        return await this.handleListAgentCapabilities(args);
+                    case 'request_capability':
+                        return await this.handleRequestCapability(args);
+                    case 'get_pending_requests':
+                        return await this.handleGetPendingRequests(args);
+                    case 'smart_route_task':
+                        return await this.handleSmartRouteTask(args);
+                    // ═══════════════════════════════════════════════════════════
+                    // 🧠 Cognitive Sense Handlers
+                    // ═══════════════════════════════════════════════════════════
+                    case 'activate_associative_memory':
+                        return await this.handleAssociativeMemory(args);
+                    case 'sense_molecular_state':
+                        return await this.handleMolecularSense(args);
+                    case 'emit_sonar_pulse':
+                        return await this.handleSonarPulse(args);
                     default:
                         throw new Error(`Unknown tool: ${name}`);
                 }
@@ -1084,6 +1362,404 @@ class NeuralBridgeServer {
                         sentTo: to,
                         filename: filename,
                         message: `Message sent to ${to}`
+                    }, null, 2)
+                }]
+        };
+    }
+    // ═══════════════════════════════════════════════════════════════════════
+    // Neural Chat Handlers
+    // ═══════════════════════════════════════════════════════════════════════
+    async handleNeuralChatSend(args) {
+        const { channel, body, from, priority, type } = args;
+        // Dynamic import to avoid circular dependency
+        const { neuralChatService } = await import('../../services/NeuralChat/index.js');
+        const message = await neuralChatService.sendMessage({
+            channel: channel || 'core-dev',
+            body,
+            from: from || 'claude',
+            priority: priority || 'normal',
+            type: type || 'chat'
+        });
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: true,
+                        message
+                    }, null, 2)
+                }]
+        };
+    }
+    async handleNeuralChatRead(args) {
+        const { channel, limit, since } = args;
+        const { neuralChatService } = await import('../../services/NeuralChat/index.js');
+        const messages = await neuralChatService.getMessages({
+            channel,
+            limit: limit || 20,
+            since
+        });
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        channel: channel || 'all',
+                        count: messages.length,
+                        messages
+                    }, null, 2)
+                }]
+        };
+    }
+    async handleNeuralChatChannels(args) {
+        const { neuralChatService } = await import('../../services/NeuralChat/index.js');
+        const channels = neuralChatService.getChannels();
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        count: channels.length,
+                        channels
+                    }, null, 2)
+                }]
+        };
+    }
+    // ═══════════════════════════════════════════════════════════════════════
+    // Capability Broker Handlers
+    // ═══════════════════════════════════════════════════════════════════════
+    async handleListAgentCapabilities(args) {
+        const { agent } = args;
+        const { capabilityBroker, AGENT_CAPABILITIES } = await import('../../services/NeuralChat/CapabilityBroker.js');
+        if (agent) {
+            const capabilities = capabilityBroker.getAgentCapabilities(agent);
+            return {
+                content: [{
+                        type: 'text',
+                        text: JSON.stringify({ agent, capabilities }, null, 2)
+                    }]
+            };
+        }
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        agents: Object.keys(AGENT_CAPABILITIES),
+                        capabilities: AGENT_CAPABILITIES
+                    }, null, 2)
+                }]
+        };
+    }
+    async handleRequestCapability(args) {
+        const { toAgent, capability, params, priority } = args;
+        const { capabilityBroker } = await import('../../services/NeuralChat/CapabilityBroker.js');
+        const request = await capabilityBroker.requestCapability({
+            fromAgent: 'claude',
+            toAgent,
+            capability,
+            params: params || {},
+            priority: priority || 'normal'
+        });
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: true,
+                        request,
+                        message: `Capability request sent to ${toAgent}`
+                    }, null, 2)
+                }]
+        };
+    }
+    async handleGetPendingRequests(args) {
+        const { agent } = args;
+        const { capabilityBroker } = await import('../../services/NeuralChat/CapabilityBroker.js');
+        const requests = await capabilityBroker.getPendingRequests(agent);
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        agent,
+                        pending: requests.length,
+                        requests
+                    }, null, 2)
+                }]
+        };
+    }
+    async handleSmartRouteTask(args) {
+        const { task, context } = args;
+        const { capabilityBroker } = await import('../../services/NeuralChat/CapabilityBroker.js');
+        const result = await capabilityBroker.smartRoute({
+            task,
+            context,
+            fromAgent: 'claude'
+        });
+        if (result) {
+            return {
+                content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            success: true,
+                            recommendation: {
+                                agent: result.agent,
+                                capability: result.capability.name,
+                                confidence: `${(result.confidence * 100).toFixed(0)}%`,
+                                description: result.capability.description
+                            },
+                            message: `Best match: ${result.agent} for "${result.capability.name}"`
+                        }, null, 2)
+                    }]
+            };
+        }
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: false,
+                        message: 'No suitable agent found for this task'
+                    }, null, 2)
+                }]
+        };
+    }
+    // ═══════════════════════════════════════════════════════════════════════
+    // 🧠 COGNITIVE SENSE HANDLERS - Neural Bridge v2.2
+    // ═══════════════════════════════════════════════════════════════════════
+    /**
+     * The Cortical Flash (Hukommelse)
+     * Aktiverer "hele hjernen" ved at kombinere semantisk søgning med graf-relationer
+     */
+    async handleAssociativeMemory(args) {
+        const { concept, depth = 2 } = args;
+        const memoryTrace = {
+            concept,
+            activationTime: new Date().toISOString(),
+            semanticHits: [],
+            graphContext: [],
+            associatedConcepts: []
+        };
+        try {
+            // Phase 1: Direct concept search in graph
+            const directHits = await neo4jAdapter.executeQuery(`
+                MATCH (n)
+                WHERE n.name CONTAINS $concept OR n.description CONTAINS $concept
+                RETURN n.name as name, labels(n) as labels, n.description as description
+                LIMIT 10
+            `, { concept });
+            memoryTrace.semanticHits = directHits;
+            // Phase 2: Graph traversal - expand activation
+            const graphExpansion = await neo4jAdapter.executeQuery(`
+                MATCH (center)-[r*1..${depth}]-(related)
+                WHERE center.name CONTAINS $concept
+                RETURN DISTINCT related.name as name, 
+                       labels(related) as labels,
+                       type(r[0]) as relationshipType
+                LIMIT 20
+            `, { concept });
+            memoryTrace.graphContext = graphExpansion;
+            // Phase 3: Find associated concepts (co-occurrence)
+            const associations = await neo4jAdapter.executeQuery(`
+                MATCH (n)-[r]->(m)
+                WHERE n.name CONTAINS $concept
+                RETURN DISTINCT m.name as associated, type(r) as via, count(*) as strength
+                ORDER BY strength DESC
+                LIMIT 10
+            `, { concept });
+            memoryTrace.associatedConcepts = associations;
+            return {
+                content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            success: true,
+                            sense: 'CORTICAL_FLASH',
+                            memoryTrace,
+                            summary: {
+                                directHits: directHits.length,
+                                expandedContext: graphExpansion.length,
+                                associations: associations.length,
+                                traversalDepth: depth
+                            }
+                        }, null, 2)
+                    }]
+            };
+        }
+        catch (error) {
+            return {
+                content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            success: false,
+                            sense: 'CORTICAL_FLASH',
+                            error: error.message,
+                            concept
+                        }, null, 2)
+                    }]
+            };
+        }
+    }
+    /**
+     * The Olfactory Sense (Integritet)
+     * "Lugter" til filer via MD5 Hash for at opdage mutationer
+     */
+    async handleMolecularSense(args) {
+        const { path: filePath } = args;
+        const crypto = await import('crypto');
+        try {
+            // Read file and calculate hash
+            const fileBuffer = await fs.readFile(filePath);
+            const olfactoryHash = crypto.createHash('md5').update(fileBuffer).digest('hex');
+            const stats = await fs.stat(filePath);
+            // Check if we have a stored hash in Neo4j
+            const storedState = await neo4jAdapter.executeQuery(`
+                MATCH (f:File {path: $path})
+                RETURN f.hash as storedHash, f.lastSeen as lastSeen
+            `, { path: filePath });
+            let status = 'NEW_ENTITY';
+            let mutation = null;
+            if (storedState.length > 0) {
+                const { storedHash, lastSeen } = storedState[0];
+                if (storedHash === olfactoryHash) {
+                    status = 'STASIS';
+                }
+                else {
+                    status = 'MUTATION';
+                    mutation = {
+                        previousHash: storedHash,
+                        currentHash: olfactoryHash,
+                        lastSeen
+                    };
+                }
+            }
+            // Update or create file node with new hash
+            await neo4jAdapter.executeQuery(`
+                MERGE (f:File {path: $path})
+                SET f.hash = $hash, 
+                    f.lastSeen = datetime(),
+                    f.size = $size,
+                    f.modified = $modified
+            `, {
+                path: filePath,
+                hash: olfactoryHash,
+                size: stats.size,
+                modified: stats.mtime.toISOString()
+            });
+            return {
+                content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            success: true,
+                            sense: 'OLFACTORY',
+                            status,
+                            olfactoryHash,
+                            mutation,
+                            file: {
+                                path: filePath,
+                                size: stats.size,
+                                modified: stats.mtime.toISOString()
+                            }
+                        }, null, 2)
+                    }]
+            };
+        }
+        catch (error) {
+            return {
+                content: [{
+                        type: 'text',
+                        text: JSON.stringify({
+                            success: false,
+                            sense: 'OLFACTORY',
+                            error: error.message,
+                            path: filePath
+                        }, null, 2)
+                    }]
+            };
+        }
+    }
+    /**
+     * The Sonar Pulse (Ekkolod)
+     * Måler afstand (latency) og "tekstur" (health) af services
+     */
+    async handleSonarPulse(args) {
+        const { target } = args;
+        const sonarEcho = {
+            target,
+            pulseTime: new Date().toISOString(),
+            latencyMs: 0,
+            quality: 'UNKNOWN',
+            field: 'UNKNOWN'
+        };
+        const start = process.hrtime.bigint();
+        let success = false;
+        try {
+            switch (target) {
+                case 'neo4j':
+                    await neo4jAdapter.executeQuery('RETURN 1 as ping');
+                    success = true;
+                    break;
+                case 'postgres':
+                    // Vector store health check (uses configured provider)
+                    const { getVectorStore } = await import('../../platform/vector/index.js');
+                    const vectorStore = await getVectorStore();
+                    const stats = await vectorStore.getStatistics();
+                    success = stats && stats.initialized;
+                    break;
+                case 'filesystem':
+                    await fs.access(SAFE_DESKTOP_PATH);
+                    success = true;
+                    break;
+                case 'internet':
+                    const response = await fetch('https://www.google.com', {
+                        method: 'HEAD',
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    success = response.ok;
+                    break;
+                case 'backend':
+                    const backendResponse = await fetch('http://localhost:3001/api/health', {
+                        signal: AbortSignal.timeout(5000)
+                    });
+                    success = backendResponse.ok;
+                    break;
+            }
+        }
+        catch (error) {
+            sonarEcho.error = error.message;
+        }
+        const end = process.hrtime.bigint();
+        sonarEcho.latencyMs = Number(end - start) / 1000000;
+        // Interpret distance/quality
+        if (success) {
+            if (sonarEcho.latencyMs < 10) {
+                sonarEcho.field = 'ULTRA_NEAR';
+                sonarEcho.quality = 'EXCELLENT';
+            }
+            else if (sonarEcho.latencyMs < 50) {
+                sonarEcho.field = 'NEAR_FIELD';
+                sonarEcho.quality = 'GOOD';
+            }
+            else if (sonarEcho.latencyMs < 100) {
+                sonarEcho.field = 'MID_FIELD';
+                sonarEcho.quality = 'ACCEPTABLE';
+            }
+            else if (sonarEcho.latencyMs < 500) {
+                sonarEcho.field = 'FAR_FIELD';
+                sonarEcho.quality = 'DEGRADED';
+            }
+            else {
+                sonarEcho.field = 'HORIZON';
+                sonarEcho.quality = 'CRITICAL';
+            }
+        }
+        else {
+            sonarEcho.field = 'NO_ECHO';
+            sonarEcho.quality = 'UNREACHABLE';
+        }
+        return {
+            content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success,
+                        sense: 'SONAR',
+                        sonarEcho,
+                        interpretation: success
+                            ? `${target} responded in ${sonarEcho.latencyMs.toFixed(2)}ms (${sonarEcho.field})`
+                            : `${target} is unreachable`
                     }, null, 2)
                 }]
         };

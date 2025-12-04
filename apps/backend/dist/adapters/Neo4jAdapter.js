@@ -15,9 +15,13 @@ import neo4j from 'neo4j-driver';
 // Neo4j Adapter - Singleton Pattern
 // ═══════════════════════════════════════════════════════════════════════════
 class Neo4jAdapter {
+    // Public getter for connection status
+    get connected() {
+        return this._isConnected;
+    }
     constructor() {
         this.driver = null;
-        this.isConnected = false;
+        this._isConnected = false;
         this.lastHealthCheck = null;
         // Circuit breaker state
         this.failureCount = 0;
@@ -27,7 +31,7 @@ class Neo4jAdapter {
         this.config = {
             uri: process.env.NEO4J_URI || 'bolt://localhost:7687',
             user: process.env.NEO4J_USER || 'neo4j',
-            password: process.env.NEO4J_PASSWORD || 'kodeord',
+            password: process.env.NEO4J_PASSWORD || 'password',
             database: process.env.NEO4J_DATABASE || 'neo4j'
         };
         this.connect();
@@ -46,7 +50,7 @@ class Neo4jAdapter {
     // ═══════════════════════════════════════════════════════════════════════
     async connect() {
         try {
-            console.log(`[Neo4jAdapter] 🧠 Establishing synaptic link to ${this.config.uri}...`);
+            console.error(`[Neo4jAdapter] 🧠 Establishing synaptic link to ${this.config.uri}...`);
             this.driver = neo4j.driver(this.config.uri, neo4j.auth.basic(this.config.user, this.config.password), {
                 maxConnectionPoolSize: 50,
                 connectionAcquisitionTimeout: 30000,
@@ -54,14 +58,14 @@ class Neo4jAdapter {
             });
             // Verify connectivity
             await this.driver.verifyConnectivity();
-            this.isConnected = true;
+            this._isConnected = true;
             this.failureCount = 0;
-            console.log('[Neo4jAdapter] ✅ Synaptic link ESTABLISHED. Cortex is online.');
+            console.error('[Neo4jAdapter] ✅ Synaptic link ESTABLISHED. Cortex is online.');
             return true;
         }
         catch (error) {
             console.error('[Neo4jAdapter] ❌ CONNECTION FAILURE:', error.message);
-            this.isConnected = false;
+            this._isConnected = false;
             this.failureCount++;
             this.lastFailureTime = Date.now();
             return false;
@@ -77,7 +81,7 @@ class Neo4jAdapter {
             // Reset and try again
             this.failureCount = 0;
         }
-        if (!this.driver || !this.isConnected) {
+        if (!this.driver || !this._isConnected) {
             const connected = await this.connect();
             if (!connected) {
                 throw new Error('Neo4j Cortex Unreachable - connection failed');
@@ -97,7 +101,7 @@ class Neo4jAdapter {
         try {
             const result = await session.run(cypher, params);
             const latency = Date.now() - startTime;
-            console.log(`[Neo4jAdapter] ⚡ Query executed in ${latency}ms (${result.records.length} records)`);
+            console.error(`[Neo4jAdapter] ⚡ Query executed in ${latency}ms (${result.records.length} records)`);
             return result.records.map((record) => this.recordToObject(record));
         }
         catch (error) {
@@ -209,6 +213,31 @@ class Neo4jAdapter {
         const results = await this.writeQuery(cypher, { fromId, toId, properties });
         return results[0];
     }
+    /**
+     * Delete a node by ID
+     */
+    async deleteNode(nodeId) {
+        const cypher = `
+            MATCH (n)
+            WHERE n.id = $nodeId OR elementId(n) = $nodeId
+            DETACH DELETE n
+            RETURN count(n) as deleted
+        `;
+        const results = await this.writeQuery(cypher, { nodeId });
+        return (results[0]?.deleted || 0) > 0;
+    }
+    /**
+     * Alias for executeQuery - for compatibility
+     */
+    async runQuery(cypher, params = {}) {
+        return this.executeQuery(cypher, params);
+    }
+    /**
+     * Alias for executeQuery - for compatibility
+     */
+    async query(cypher, params = {}) {
+        return this.executeQuery(cypher, params);
+    }
     // ═══════════════════════════════════════════════════════════════════════
     // Health & Monitoring
     // ═══════════════════════════════════════════════════════════════════════
@@ -243,7 +272,7 @@ class Neo4jAdapter {
         return this.lastHealthCheck;
     }
     isHealthy() {
-        return this.isConnected && this.failureCount < this.failureThreshold;
+        return this._isConnected && this.failureCount < this.failureThreshold;
     }
     // ═══════════════════════════════════════════════════════════════════════
     // Cleanup
@@ -251,8 +280,8 @@ class Neo4jAdapter {
     async close() {
         if (this.driver) {
             await this.driver.close();
-            this.isConnected = false;
-            console.log('[Neo4jAdapter] 🔌 Synaptic link severed.');
+            this._isConnected = false;
+            console.error('[Neo4jAdapter] 🔌 Synaptic link severed.');
         }
     }
     // ═══════════════════════════════════════════════════════════════════════

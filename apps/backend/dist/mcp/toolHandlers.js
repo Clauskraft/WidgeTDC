@@ -23,7 +23,7 @@ const notesRepo = new NotesRepository();
 // CMA tool handlers
 export async function cmaContextHandler(payload, _ctx) {
     const ctx = _ctx;
-    const memories = memoryRepo.searchEntities({
+    const memories = await memoryRepo.searchEntities({
         orgId: ctx.orgId,
         userId: ctx.userId,
         keywords: payload.keywords || [],
@@ -52,7 +52,7 @@ ${payload.widgetData || 'None'}
 }
 export async function cmaIngestHandler(payload, _ctx) {
     const ctx = _ctx;
-    const entityId = memoryRepo.ingestEntity({
+    const entityId = await memoryRepo.ingestEntity({
         orgId: ctx.orgId,
         userId: ctx.userId,
         entityType: payload.entityType,
@@ -68,7 +68,7 @@ export async function cmaMemoryStoreHandler(payload, ctx) {
     if (!content) {
         throw new Error('Content is required for memory storage');
     }
-    const entityId = memoryRepo.ingestEntity({
+    const entityId = await memoryRepo.ingestEntity({
         orgId: ctx.orgId,
         userId: ctx.userId,
         entityType: entityType || 'note',
@@ -85,7 +85,7 @@ export async function cmaMemoryStoreHandler(payload, ctx) {
 // CMA Memory Retrieve handler
 export async function cmaMemoryRetrieveHandler(payload, ctx) {
     const { keywords, limit, entityType } = payload;
-    const memories = memoryRepo.searchEntities({
+    const memories = await memoryRepo.searchEntities({
         orgId: ctx.orgId,
         userId: ctx.userId,
         keywords: keywords || [],
@@ -130,7 +130,7 @@ export async function sragQueryHandler(payload, ctx) {
 `;
         if (isAnalytical) {
             console.log('📊 Processing as analytical query');
-            const facts = sragRepo.queryFacts(ctx.orgId);
+            const facts = await sragRepo.queryFacts(ctx.orgId);
             // Generate LLM response for analytical query
             const llmService = getLlmService();
             const systemContext = `You are a data analyst. Analyze the structured facts and provide insights based on the user's analytical query.\n${selfAwareness}`;
@@ -153,7 +153,7 @@ export async function sragQueryHandler(payload, ctx) {
             console.log('📚 Processing as semantic query');
             const keywords = query.split(' ').filter((w) => w.length > 3);
             const documents = keywords.length > 0
-                ? sragRepo.searchDocuments(ctx.orgId, keywords[0])
+                ? await sragRepo.searchDocuments(ctx.orgId, keywords[0])
                 : [];
             console.log(`📄 Found ${documents.length} documents`);
             // Generate LLM response for semantic query
@@ -180,9 +180,9 @@ export async function sragQueryHandler(payload, ctx) {
         throw error;
     }
 }
-export async function sragGovernanceCheckHandler(payload, ctx) {
+export async function sragGovernanceCheckHandler(payload, _ctx) {
     const { docId } = payload;
-    const doc = sragRepo.getDocumentById(parseInt(docId, 10));
+    const doc = await sragRepo.getDocumentById(parseInt(docId, 10));
     if (!doc) {
         return { compliant: false, reason: 'Document not found' };
     }
@@ -238,7 +238,7 @@ export async function evolutionAnalyzePromptsHandler(payload, _ctx) {
 // PAL tool handlers
 export async function palEventHandler(payload, ctx) {
     const { eventType, detectedStressLevel, payload: eventPayload } = payload;
-    palRepo.recordEvent({
+    await palRepo.recordEvent({
         orgId: ctx.orgId,
         userId: ctx.userId,
         eventType,
@@ -250,7 +250,7 @@ export async function palEventHandler(payload, ctx) {
 export async function palBoardActionHandler(payload, ctx) {
     const { actionType, widgetId } = payload;
     // Record board action as a PAL event
-    palRepo.recordEvent({
+    await palRepo.recordEvent({
         userId: ctx.userId,
         orgId: ctx.orgId,
         eventType: 'board_action',
@@ -260,7 +260,7 @@ export async function palBoardActionHandler(payload, ctx) {
 }
 export async function palOptimizeWorkflowHandler(payload, ctx) {
     // Get focus windows as workflow recommendations
-    const focusWindows = palRepo.getFocusWindows(ctx.userId, ctx.orgId);
+    const focusWindows = await palRepo.getFocusWindows(ctx.userId, ctx.orgId);
     const recommendations = focusWindows.map(fw => ({
         day: fw.weekday,
         startHour: fw.start_hour,
@@ -1036,5 +1036,59 @@ export async function widgetsImageAnalyzeHandler(payload, ctx) {
     return {
         success: true,
         analysis
+    };
+}
+// ---------------------------------------------------
+// Visionary Diagram Generator Handler
+// ---------------------------------------------------
+export async function visionaryGenerateHandler(payload, ctx) {
+    const { prompt, diagramType, memories } = payload;
+    if (!prompt) {
+        throw new Error('Prompt is required for diagram generation');
+    }
+    const llmService = getLlmService();
+    const systemContext = `
+You are The Visionary, an expert system architect and visualization specialist.
+Your goal is to generate valid Mermaid.js diagram code based on user requests.
+
+RULES:
+1. Return ONLY the raw Mermaid.js code. Do not use markdown code blocks (no \`\`\`mermaid).
+2. Ensure syntax is strictly valid for the requested diagram type.
+3. Use the "dark" theme compatible styling (e.g., avoid light colors on light backgrounds if possible, but Mermaid handles themes mostly).
+4. Be concise but comprehensive.
+5. If the user provides "memories", incorporate those preferences or patterns.
+
+Supported Types: flowchart, sequence, class, state, erDiagram, gantt, pie, mindmap
+Requested Type: ${diagramType || 'flowchart'}
+  `.trim();
+    const userPrompt = `
+Request: ${prompt}
+
+Context/Memories:
+${(memories || []).join('\n')}
+  `.trim();
+    // Use a model capable of code generation (e.g., Gemini Pro or GPT-4)
+    // We'll let the service pick the default if not specified
+    const mermaidCode = await llmService.generateContextualResponse(systemContext, userPrompt, "Generate the Mermaid.js code now.", payload.model);
+    // Clean up potential markdown formatting if the LLM adds it despite instructions
+    const cleanCode = mermaidCode
+        .replace(/```mermaid/g, '')
+        .replace(/```/g, '')
+        .trim();
+    // Log to ProjectMemory
+    projectMemory.logLifecycleEvent({
+        eventType: 'other',
+        status: 'success',
+        details: {
+            component: 'visionary',
+            action: 'generate',
+            diagramType: diagramType || 'flowchart',
+            userId: ctx.userId
+        }
+    });
+    return {
+        success: true,
+        code: cleanCode,
+        diagramType: diagramType || 'flowchart'
     };
 }

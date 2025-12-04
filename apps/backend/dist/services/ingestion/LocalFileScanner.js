@@ -1,7 +1,6 @@
 // LocalFileScanner – Scans local file system for documents and data
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import pdf from 'pdf-parse';
 export class LocalFileScanner {
     constructor(config) {
         this.name = 'Local File Scanner';
@@ -104,9 +103,12 @@ export class LocalFileScanner {
                 else if (file.extension === '.pdf') {
                     try {
                         const dataBuffer = await fs.readFile(file.path);
-                        // Cast to any to bypass type definition issues with pdf-parse import
-                        const data = await pdf(dataBuffer);
-                        content = data.text;
+                        // pdf-parse v2.x uses a class-based API
+                        const { PDFParse } = await import('pdf-parse');
+                        const parser = new PDFParse({ data: dataBuffer });
+                        const textResult = await parser.getText();
+                        content = textResult.text;
+                        await parser.destroy();
                     }
                     catch (e) {
                         console.warn(`Failed to parse PDF ${file.path}:`, e);
@@ -127,7 +129,10 @@ export class LocalFileScanner {
                         path: file.path,
                         size: file.size,
                         extension: file.extension,
-                        modifiedAt: file.modifiedAt,
+                        // Convert Date to ISO string for Neo4j compatibility
+                        modifiedAt: file.modifiedAt instanceof Date
+                            ? file.modifiedAt.toISOString()
+                            : String(file.modifiedAt),
                     },
                     timestamp: new Date()
                 });

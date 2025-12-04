@@ -141,9 +141,13 @@ export class UnifiedMemorySystem {
         const patterns = [];
         // Simple correlation: find common keywords/topics across systems
         const allKeywords = new Map();
+        if (!Array.isArray(systems))
+            return [];
         systems.forEach((system, idx) => {
             if (Array.isArray(system)) {
                 system.forEach((item) => {
+                    if (!item)
+                        return;
                     const text = JSON.stringify(item).toLowerCase();
                     const words = text.match(/\b\w{4,}\b/g) || [];
                     words.forEach(word => {
@@ -200,6 +204,14 @@ export class UnifiedMemorySystem {
     }
     async componentHealth(component) {
         try {
+            if (!this.cognitive || !this.cognitive.getSourceHealth) {
+                return {
+                    name: component,
+                    healthScore: 0.8, // Default optimistic
+                    latency: 0,
+                    successRate: 0.9
+                };
+            }
             const health = await this.cognitive.getSourceHealth(component);
             return {
                 name: component,

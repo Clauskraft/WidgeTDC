@@ -1,65 +1,79 @@
-import { getDatabase } from '../../database/index.js';
+import { prisma } from '../../database/prisma.js';
 export class SragRepository {
-    get db() {
-        return getDatabase();
-    }
-    ingestDocument(input) {
-        const result = this.db.prepare(`
-      INSERT INTO raw_documents (org_id, source_type, source_path, content)
-      VALUES (?, ?, ?, ?)
-    `).run(input.orgId, input.sourceType, input.sourcePath, input.content);
-        return result.lastInsertRowid;
-    }
-    ingestFact(input) {
-        const result = this.db.prepare(`
-      INSERT INTO structured_facts (org_id, doc_id, fact_type, json_payload, occurred_at)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(input.orgId, input.docId || null, input.factType, JSON.stringify(input.jsonPayload), input.occurredAt || null);
-        return result.lastInsertRowid;
-    }
-    queryFacts(orgId, factType, limit = 50) {
-        let sql = `
-      SELECT id, org_id, doc_id, fact_type, json_payload, occurred_at, created_at
-      FROM structured_facts
-      WHERE org_id = ?
-    `;
-        const params = [orgId];
-        if (factType) {
-            sql += ` AND fact_type = ?`;
-            params.push(factType);
-        }
-        sql += ` ORDER BY created_at DESC LIMIT ?`;
-        params.push(limit);
-        const rows = this.db.prepare(sql).all(...params);
-        // Parse JSON payloads
-        return rows.map((row) => {
-            let jsonPayload = {};
-            try {
-                jsonPayload = JSON.parse(row.json_payload);
-            }
-            catch (error) {
-                console.error('Error parsing json_payload JSON:', error);
-                jsonPayload = {};
-            }
-            return {
-                ...row,
-                json_payload: jsonPayload,
-            };
+    async ingestDocument(input) {
+        const doc = await prisma.rawDocument.create({
+            data: {
+                orgId: input.orgId,
+                sourceType: input.sourceType,
+                sourcePath: input.sourcePath,
+                content: input.content,
+            },
         });
+        return doc.id;
     }
-    searchDocuments(orgId, keyword, limit = 10) {
-        const rows = this.db.prepare(`
-      SELECT id, org_id, source_type, source_path, content, created_at
-      FROM raw_documents
-      WHERE org_id = ? AND content LIKE ?
-      ORDER BY created_at DESC
-      LIMIT ?
-    `).all(orgId, `%${keyword}%`, limit);
-        return rows;
+    async ingestFact(input) {
+        const fact = await prisma.structuredFact.create({
+            data: {
+                orgId: input.orgId,
+                docId: input.docId || null,
+                factType: input.factType,
+                jsonPayload: input.jsonPayload,
+                occurredAt: input.occurredAt ? new Date(input.occurredAt) : null,
+            },
+        });
+        return fact.id;
     }
-    getDocumentById(id) {
-        return this.db.prepare(`
-      SELECT * FROM raw_documents WHERE id = ?
-    `).get(id);
+    async queryFacts(orgId, factType, limit = 50) {
+        const where = { orgId };
+        if (factType) {
+            where.factType = factType;
+        }
+        const facts = await prisma.structuredFact.findMany({
+            where,
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+        });
+        return facts.map(f => ({
+            id: f.id,
+            org_id: f.orgId,
+            doc_id: f.docId,
+            fact_type: f.factType,
+            json_payload: f.jsonPayload,
+            occurred_at: f.occurredAt,
+            created_at: f.createdAt,
+        }));
+    }
+    async searchDocuments(orgId, keyword, limit = 10) {
+        const docs = await prisma.rawDocument.findMany({
+            where: {
+                orgId,
+                content: { contains: keyword, mode: 'insensitive' },
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+        });
+        return docs.map(d => ({
+            id: d.id,
+            org_id: d.orgId,
+            source_type: d.sourceType,
+            source_path: d.sourcePath,
+            content: d.content,
+            created_at: d.createdAt,
+        }));
+    }
+    async getDocumentById(id) {
+        const doc = await prisma.rawDocument.findUnique({
+            where: { id },
+        });
+        if (!doc)
+            return null;
+        return {
+            id: doc.id,
+            org_id: doc.orgId,
+            source_type: doc.sourceType,
+            source_path: doc.sourcePath,
+            content: doc.content,
+            created_at: doc.createdAt,
+        };
     }
 }

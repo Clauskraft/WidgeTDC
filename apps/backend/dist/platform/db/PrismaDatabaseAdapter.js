@@ -67,13 +67,15 @@ class PrismaDatabaseAdapterImpl {
             });
             await this.prisma.$connect();
             logger.info('🗄️  Prisma Database connected to PostgreSQL');
-            // Enable pgvector extension if available
+            // Enable pgvector extension if available (optional - we use Neo4j for vectors now)
             try {
                 await this.prisma.$executeRaw `CREATE EXTENSION IF NOT EXISTS vector`;
                 logger.info('🔢 pgvector extension enabled');
             }
             catch (_extError) {
-                // Non-critical - pgvector might not be installed
+                // Non-critical - Railway PostgreSQL doesn't have pgvector
+                // We use Neo4j as primary vector store instead
+                logger.info('ℹ️  pgvector not available (using Neo4j for vector operations)');
             }
             this.isInitialized = true;
         }

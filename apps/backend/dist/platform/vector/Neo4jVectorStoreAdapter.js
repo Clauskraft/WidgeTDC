@@ -2,6 +2,43 @@ import { getNeo4jGraphAdapter } from '../../platform/graph/Neo4jGraphAdapter.js'
 import { logger } from '../../utils/logger.js';
 import { getEmbeddingService } from '../../services/embeddings/EmbeddingService.js';
 /**
+ * Sanitize metadata for Neo4j - only primitive types allowed
+ * Converts Date to ISO string, nested objects/arrays to JSON strings
+ */
+function sanitizeForNeo4j(obj) {
+    const result = {};
+    for (const [key, value] of Object.entries(obj)) {
+        if (value === null || value === undefined) {
+            continue; // Skip null/undefined
+        }
+        else if (value instanceof Date) {
+            result[key] = value.toISOString();
+        }
+        else if (value instanceof Map) {
+            result[key] = JSON.stringify(Object.fromEntries(value));
+        }
+        else if (Array.isArray(value)) {
+            // Neo4j supports arrays of primitives
+            if (value.every(v => typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')) {
+                result[key] = value;
+            }
+            else {
+                result[key] = JSON.stringify(value);
+            }
+        }
+        else if (typeof value === 'object') {
+            result[key] = JSON.stringify(value);
+        }
+        else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+            result[key] = value;
+        }
+        else {
+            result[key] = String(value);
+        }
+    }
+    return result;
+}
+/**
  * Neo4j Vector Store Adapter
  * Uses Neo4j's native vector indexing capabilities.
  */
@@ -71,7 +108,7 @@ export class Neo4jVectorStoreAdapter {
             content: record.content,
             embedding: embedding,
             namespace: record.namespace || 'default',
-            metadata: record.metadata || {}
+            metadata: sanitizeForNeo4j(record.metadata || {})
         });
     }
     /**
@@ -105,7 +142,7 @@ export class Neo4jVectorStoreAdapter {
                     id: r.id,
                     content: r.content,
                     embedding: r.embedding,
-                    metadata: r.metadata || {}
+                    metadata: sanitizeForNeo4j(r.metadata || {})
                 })),
                 namespace: options.namespace || 'default'
             });

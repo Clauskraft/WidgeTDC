@@ -26,7 +26,7 @@ class SimpleCache {
 }
 const contextCache = new SimpleCache();
 // Ingest a memory entity
-memoryRouter.post('/ingest', (req, res) => {
+memoryRouter.post('/ingest', async (req, res) => {
     try {
         const input = req.body;
         if (!input.orgId || !input.entityType || !input.content) {
@@ -34,7 +34,7 @@ memoryRouter.post('/ingest', (req, res) => {
                 error: 'Missing required fields: orgId, entityType, content',
             });
         }
-        const entityId = memoryRepo.ingestEntity(input);
+        const entityId = await memoryRepo.ingestEntity(input);
         // Clear context cache when new memory is added to ensure freshness
         contextCache.clear();
         res.json({
@@ -51,7 +51,7 @@ memoryRouter.post('/ingest', (req, res) => {
     }
 });
 // Get contextual prompt with memories
-memoryRouter.post('/contextual-prompt', (req, res) => {
+memoryRouter.post('/contextual-prompt', async (req, res) => {
     try {
         const request = req.body;
         if (!request.orgId || !request.userId || !request.userQuery) {
@@ -71,7 +71,7 @@ memoryRouter.post('/contextual-prompt', (req, res) => {
             });
         }
         // Search for relevant memories with enhanced semantic search
-        const memories = memoryRepo.searchEntities({
+        const memories = await memoryRepo.searchEntities({
             orgId: request.orgId,
             userId: request.userId,
             keywords: request.keywords || [],
@@ -120,10 +120,10 @@ Please provide a hyper-contextual response considering the semantic relationship
     }
 });
 // Search memories
-memoryRouter.post('/search', (req, res) => {
+memoryRouter.post('/search', async (req, res) => {
     try {
         const query = req.body;
-        const memories = memoryRepo.searchEntities(query);
+        const memories = await memoryRepo.searchEntities(query);
         res.json({
             success: true,
             memories,

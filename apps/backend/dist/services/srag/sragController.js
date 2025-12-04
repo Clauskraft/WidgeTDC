@@ -60,7 +60,7 @@ function classifyQueryType(query) {
     return { type, confidence, features };
 }
 // Query endpoint - determines if query is analytical or semantic
-sragRouter.post('/query', (req, res) => {
+sragRouter.post('/query', async (req, res) => {
     try {
         const request = req.body;
         if (!request.orgId || !request.naturalLanguageQuery) {
@@ -74,7 +74,7 @@ sragRouter.post('/query', (req, res) => {
         const traceId = uuidv4();
         if (isAnalytical) {
             // For analytical queries, query structured facts
-            const facts = sragRepo.queryFacts(request.orgId);
+            const facts = await sragRepo.queryFacts(request.orgId);
             res.json({
                 type: 'analytical',
                 result: facts,
@@ -90,7 +90,7 @@ sragRouter.post('/query', (req, res) => {
             // For semantic queries, search documents
             const keywords = request.naturalLanguageQuery.split(' ').filter((w) => w.length > 3);
             const documents = keywords.length > 0
-                ? sragRepo.searchDocuments(request.orgId, keywords[0])
+                ? await sragRepo.searchDocuments(request.orgId, keywords[0])
                 : [];
             res.json({
                 type: 'semantic',
@@ -113,10 +113,10 @@ sragRouter.post('/query', (req, res) => {
     }
 });
 // Ingest document
-sragRouter.post('/ingest/document', (req, res) => {
+sragRouter.post('/ingest/document', async (req, res) => {
     try {
         const input = req.body;
-        const docId = sragRepo.ingestDocument(input);
+        const docId = await sragRepo.ingestDocument(input);
         res.json({
             success: true,
             docId,
@@ -131,10 +131,10 @@ sragRouter.post('/ingest/document', (req, res) => {
     }
 });
 // Ingest structured fact
-sragRouter.post('/ingest/fact', (req, res) => {
+sragRouter.post('/ingest/fact', async (req, res) => {
     try {
         const input = req.body;
-        const factId = sragRepo.ingestFact(input);
+        const factId = await sragRepo.ingestFact(input);
         res.json({
             success: true,
             factId,

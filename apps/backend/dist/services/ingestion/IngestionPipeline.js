@@ -1,5 +1,5 @@
 import { eventBus } from '../../mcp/EventBus.js';
-import { getPgVectorStore } from '../../platform/vector/PgVectorStoreAdapter.js';
+import { getVectorStore } from '../../platform/vector/index.js';
 import { unifiedMemorySystem } from '../../mcp/cognitive/UnifiedMemorySystem.js';
 /**
  * IngestionPipeline
@@ -9,7 +9,7 @@ import { unifiedMemorySystem } from '../../mcp/cognitive/UnifiedMemorySystem.js'
  */
 export class IngestionPipeline {
     constructor() {
-        this.vectorStore = getPgVectorStore();
+        this.vectorStore = null;
         this.isProcessing = false;
         this.setupListeners();
         console.log('🧠 [IngestionPipeline] Initialized and listening for data...');
@@ -31,7 +31,9 @@ export class IngestionPipeline {
         let processedCount = 0;
         try {
             // Initialize vector store if needed
-            await this.vectorStore.initialize();
+            if (!this.vectorStore) {
+                this.vectorStore = await getVectorStore();
+            }
             for (const entity of entities) {
                 try {
                     // 1. Prepare content for embedding

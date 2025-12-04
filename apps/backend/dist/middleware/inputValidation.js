@@ -216,6 +216,10 @@ export const csrfProtectionMiddleware = (req, res, next) => {
  * Rate limiting to prevent DOS attacks
  */
 export const rateLimitingMiddleware = (req, res, next) => {
+    // Skip rate limiting in development mode
+    if (process.env.NODE_ENV === 'development') {
+        return next();
+    }
     const clientIp = req.ip || req.socket.remoteAddress || '';
     const now = Date.now();
     const windowMs = 15 * 60 * 1000; // 15 minutes

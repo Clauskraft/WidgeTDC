@@ -44,7 +44,7 @@ export class Neo4jService {
             const result = await session.run(`CREATE (n${labelsStr} $properties) RETURN n`, { properties });
             const node = result.records[0].get('n');
             return {
-                id: node.identity.toString(),
+                id: node.elementId,
                 labels: node.labels,
                 properties: node.properties,
             };
@@ -56,16 +56,17 @@ export class Neo4jService {
     async createRelationship(startNodeId, endNodeId, type, properties = {}) {
         const session = this.getSession();
         try {
+            // Use elementId lookup instead of id()
             const result = await session.run(`MATCH (a), (b)
-         WHERE id(a) = $startId AND id(b) = $endId
+         WHERE elementId(a) = $startId AND elementId(b) = $endId
          CREATE (a)-[r:${type} $properties]->(b)
-         RETURN r`, { startId: parseInt(startNodeId), endId: parseInt(endNodeId), properties });
+         RETURN r`, { startId: startNodeId, endId: endNodeId, properties });
             const rel = result.records[0].get('r');
             return {
-                id: rel.identity.toString(),
+                id: rel.elementId,
                 type: rel.type,
-                startNodeId: rel.start.toString(),
-                endNodeId: rel.end.toString(),
+                startNodeId: rel.startNodeElementId,
+                endNodeId: rel.endNodeElementId,
                 properties: rel.properties,
             };
         }
@@ -83,7 +84,7 @@ export class Neo4jService {
             return result.records.map(record => {
                 const node = record.get('n');
                 return {
-                    id: node.identity.toString(),
+                    id: node.elementId,
                     labels: node.labels,
                     properties: node.properties,
                 };
@@ -106,12 +107,12 @@ export class Neo4jService {
     async getNodeById(nodeId) {
         const session = this.getSession();
         try {
-            const result = await session.run('MATCH (n) WHERE id(n) = $id RETURN n', { id: parseInt(nodeId) });
+            const result = await session.run('MATCH (n) WHERE elementId(n) = $id RETURN n', { id: nodeId });
             if (result.records.length === 0)
                 return null;
             const node = result.records[0].get('n');
             return {
-                id: node.identity.toString(),
+                id: node.elementId,
                 labels: node.labels,
                 properties: node.properties,
             };
@@ -123,7 +124,7 @@ export class Neo4jService {
     async deleteNode(nodeId) {
         const session = this.getSession();
         try {
-            await session.run('MATCH (n) WHERE id(n) = $id DETACH DELETE n', { id: parseInt(nodeId) });
+            await session.run('MATCH (n) WHERE elementId(n) = $id DETACH DELETE n', { id: nodeId });
         }
         finally {
             await session.close();
@@ -133,15 +134,15 @@ export class Neo4jService {
         const session = this.getSession();
         try {
             const result = await session.run(`MATCH (n)-[r]-(m) 
-         WHERE id(n) = $id 
-         RETURN r, id(startNode(r)) as startId, id(endNode(r)) as endId`, { id: parseInt(nodeId) });
+         WHERE elementId(n) = $id 
+         RETURN r`, { id: nodeId });
             return result.records.map(record => {
                 const rel = record.get('r');
                 return {
-                    id: rel.identity.toString(),
+                    id: rel.elementId,
                     type: rel.type,
-                    startNodeId: record.get('startId').toString(),
-                    endNodeId: record.get('endId').toString(),
+                    startNodeId: rel.startNodeElementId,
+                    endNodeId: rel.endNodeElementId,
                     properties: rel.properties,
                 };
             });

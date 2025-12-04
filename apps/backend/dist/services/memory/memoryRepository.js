@@ -1,34 +1,30 @@
-import { getDatabase } from '../../database/index.js';
-// Note: In production, integrate with vector database like Pinecone or Weaviate
+import { prisma } from '../../database/prisma.js';
 export class MemoryRepository {
     constructor() {
-        this.vectorCache = new Map(); // Simple cache for vectors
+        this.vectorCache = new Map();
     }
-    get db() {
-        return getDatabase();
-    }
-    // Simple tokenization (placeholder - gpt-3-encoder alternative)
+    // Simple tokenization (placeholder - for semantic search)
     simpleTokenize(text) {
         return text.toLowerCase().split(/\s+/).filter(t => t.length > 0);
     }
     // Simple vectorization using token frequencies (placeholder for real embeddings)
     vectorizeText(text) {
         const tokens = this.simpleTokenize(text);
-        const vector = new Array(768).fill(0); // 768 dimensions like text-embedding-ada-002
-        tokens.forEach((token, index) => {
+        const vector = new Array(768).fill(0);
+        tokens.forEach((token) => {
             const hash = this.simpleHash(token);
             vector[hash % 768] += 1;
         });
         // Normalize
         const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-        return vector.map(val => val / magnitude);
+        return magnitude > 0 ? vector.map(val => val / magnitude) : vector;
     }
     simpleHash(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
             const char = str.charCodeAt(i);
             hash = ((hash << 5) - hash) + char;
-            hash = hash & hash; // Convert to 32bit integer
+            hash = hash & hash;
         }
         return Math.abs(hash);
     }
@@ -41,79 +37,8 @@ export class MemoryRepository {
             normA += vecA[i] * vecA[i];
             normB += vecB[i] * vecB[i];
         }
-        return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
-    }
-    ingestEntity(input) {
-        const importance = input.importance || 3;
-        const result = this.db.prepare(`
-      INSERT INTO memory_entities (org_id, user_id, entity_type, content, importance)
-      VALUES (?, ?, ?, ?, ?)
-    `).run(input.orgId, input.userId || null, input.entityType, input.content, importance);
-        const entityId = result.lastInsertRowid;
-        // Insert tags if provided
-        if (input.tags && input.tags.length > 0) {
-            const insertTag = this.db.prepare(`
-        INSERT INTO memory_tags (entity_id, tag) VALUES (?, ?)
-      `);
-            for (const tag of input.tags) {
-                insertTag.run(entityId, tag);
-            }
-        }
-        return entityId;
-    }
-    searchEntities(query) {
-        const limit = query.limit || 10;
-        let sql = `
-      SELECT DISTINCT e.id, e.org_id, e.user_id, e.entity_type, e.content, e.importance, e.created_at
-      FROM memory_entities e
-      WHERE e.org_id = ?
-    `;
-        const params = [query.orgId];
-        if (query.userId) {
-            sql += ` AND (e.user_id = ? OR e.user_id IS NULL)`;
-            params.push(query.userId);
-        }
-        if (query.entityTypes && query.entityTypes.length > 0) {
-            const placeholders = query.entityTypes.map(() => '?').join(',');
-            sql += ` AND e.entity_type IN (${placeholders})`;
-            params.push(...query.entityTypes);
-        }
-        let candidates = [];
-        if (query.keywords && query.keywords.length > 0) {
-            // Enhanced hybrid search: keyword + semantic
-            const keywordConditions = query.keywords.map(() => {
-                return `(e.content LIKE ? OR e.id IN (SELECT entity_id FROM memory_tags WHERE tag LIKE ?))`;
-            }).join(' OR ');
-            sql += ` AND (${keywordConditions})`;
-            for (const keyword of query.keywords) {
-                params.push(`%${keyword}%`, `%${keyword}%`);
-            }
-            // Get keyword-based candidates first
-            const keywordSql = sql + ` ORDER BY e.importance DESC, e.created_at DESC LIMIT ?`;
-            candidates = this.db.prepare(keywordSql).all(...params, limit * 2); // Get more candidates for reranking
-            // If we have keywords, also do semantic search and combine results
-            if (candidates.length > 0) {
-                const queryText = query.keywords.join(' ');
-                const queryVector = this.vectorizeText(queryText);
-                // Score candidates by semantic similarity
-                const scoredCandidates = candidates.map(candidate => {
-                    const contentVector = this.getCachedVector(candidate.content);
-                    const semanticScore = this.cosineSimilarity(queryVector, contentVector);
-                    const keywordScore = candidate.content.toLowerCase().includes(queryText.toLowerCase()) ? 1 : 0;
-                    const combinedScore = 0.7 * semanticScore + 0.3 * keywordScore;
-                    return { ...candidate, semanticScore, combinedScore };
-                });
-                // Sort by combined score and take top results
-                scoredCandidates.sort((a, b) => b.combinedScore - a.combinedScore);
-                candidates = scoredCandidates.slice(0, limit);
-            }
-        }
-        else {
-            sql += ` ORDER BY e.importance DESC, e.created_at DESC LIMIT ?`;
-            params.push(limit);
-            candidates = this.db.prepare(sql).all(...params);
-        }
-        return candidates;
+        const denominator = Math.sqrt(normA) * Math.sqrt(normB);
+        return denominator > 0 ? dotProduct / denominator : 0;
     }
     getCachedVector(text) {
         if (this.vectorCache.has(text)) {
@@ -127,22 +52,132 @@ export class MemoryRepository {
         }
         return vector;
     }
-    getEntityById(id) {
-        return this.db.prepare(`
-      SELECT * FROM memory_entities WHERE id = ?
-    `).get(id);
+    async ingestEntity(input) {
+        const importance = input.importance || 3;
+        const entity = await prisma.memoryEntity.create({
+            data: {
+                orgId: input.orgId,
+                userId: input.userId || null,
+                entityType: input.entityType,
+                content: input.content,
+                importance,
+            },
+        });
+        // Insert tags if provided
+        if (input.tags && input.tags.length > 0) {
+            await prisma.memoryTag.createMany({
+                data: input.tags.map(tag => ({
+                    entityId: entity.id,
+                    tag,
+                })),
+            });
+        }
+        return entity.id;
     }
-    getEntityTags(entityId) {
-        const rows = this.db.prepare(`
-      SELECT tag FROM memory_tags WHERE entity_id = ?
-    `).all(entityId);
-        return rows.map((row) => row.tag);
+    async searchEntities(query) {
+        const limit = query.limit || 10;
+        // Build where clause
+        const where = {
+            orgId: query.orgId,
+        };
+        if (query.userId) {
+            where.OR = [
+                { userId: query.userId },
+                { userId: null },
+            ];
+        }
+        if (query.entityTypes && query.entityTypes.length > 0) {
+            where.entityType = { in: query.entityTypes };
+        }
+        // Keyword search with tags
+        if (query.keywords && query.keywords.length > 0) {
+            const keywordConditions = query.keywords.map(keyword => ({
+                OR: [
+                    { content: { contains: keyword, mode: 'insensitive' } },
+                    { tags: { some: { tag: { contains: keyword, mode: 'insensitive' } } } },
+                ],
+            }));
+            where.OR = keywordConditions;
+        }
+        let candidates = await prisma.memoryEntity.findMany({
+            where,
+            orderBy: [
+                { importance: 'desc' },
+                { createdAt: 'desc' },
+            ],
+            take: query.keywords && query.keywords.length > 0 ? limit * 2 : limit,
+            include: {
+                tags: true,
+            },
+        });
+        // If we have keywords, apply semantic scoring
+        if (query.keywords && query.keywords.length > 0 && candidates.length > 0) {
+            const queryText = query.keywords.join(' ');
+            const queryVector = this.vectorizeText(queryText);
+            const scoredCandidates = candidates.map(candidate => {
+                const contentVector = this.getCachedVector(candidate.content);
+                const semanticScore = this.cosineSimilarity(queryVector, contentVector);
+                const keywordScore = candidate.content.toLowerCase().includes(queryText.toLowerCase()) ? 1 : 0;
+                const combinedScore = 0.7 * semanticScore + 0.3 * keywordScore;
+                return {
+                    id: candidate.id,
+                    org_id: candidate.orgId,
+                    user_id: candidate.userId,
+                    entity_type: candidate.entityType,
+                    content: candidate.content,
+                    importance: candidate.importance,
+                    created_at: candidate.createdAt,
+                    semanticScore,
+                    combinedScore,
+                };
+            });
+            scoredCandidates.sort((a, b) => b.combinedScore - a.combinedScore);
+            return scoredCandidates.slice(0, limit);
+        }
+        // Transform to snake_case for compatibility
+        return candidates.map(c => ({
+            id: c.id,
+            org_id: c.orgId,
+            user_id: c.userId,
+            entity_type: c.entityType,
+            content: c.content,
+            importance: c.importance,
+            created_at: c.createdAt,
+        }));
     }
-    createRelation(orgId, sourceId, targetId, relationType) {
-        const result = this.db.prepare(`
-      INSERT INTO memory_relations (org_id, source_id, target_id, relation_type)
-      VALUES (?, ?, ?, ?)
-    `).run(orgId, sourceId, targetId, relationType);
-        return result.lastInsertRowid;
+    async getEntityById(id) {
+        const entity = await prisma.memoryEntity.findUnique({
+            where: { id },
+            include: { tags: true },
+        });
+        if (!entity)
+            return null;
+        return {
+            id: entity.id,
+            org_id: entity.orgId,
+            user_id: entity.userId,
+            entity_type: entity.entityType,
+            content: entity.content,
+            importance: entity.importance,
+            created_at: entity.createdAt,
+        };
+    }
+    async getEntityTags(entityId) {
+        const tags = await prisma.memoryTag.findMany({
+            where: { entityId },
+            select: { tag: true },
+        });
+        return tags.map(t => t.tag);
+    }
+    async createRelation(orgId, sourceId, targetId, relationType) {
+        const relation = await prisma.memoryRelation.create({
+            data: {
+                orgId,
+                sourceId,
+                targetId,
+                relationType,
+            },
+        });
+        return relation.id;
     }
 }

@@ -75,7 +75,7 @@ export class EmotionAwareDecisionEngine {
                         stressLevel = 'medium';
                 }
                 // Check focus windows
-                const focusWindows = this.palRepo.getFocusWindows(userId, orgId);
+                const focusWindows = await this.palRepo.getFocusWindows(userId, orgId);
                 const now = new Date();
                 const currentHour = now.getHours();
                 const currentDay = now.getDay();

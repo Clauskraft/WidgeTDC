@@ -2,10 +2,64 @@
 import { config } from 'dotenv';
 import { resolve } from 'path';
 import { fileURLToPath } from 'url';
+// Polyfills for PDF parsing environment (pdfjs-dist v4+ compatibility)
+// @ts-ignore
+if (typeof global.DOMMatrix === 'undefined') {
+    // @ts-ignore
+    global.DOMMatrix = class DOMMatrix {
+        constructor() {
+            this.a = 1;
+            this.b = 0;
+            this.c = 0;
+            this.d = 1;
+            this.e = 0;
+            this.f = 0;
+        }
+    };
+}
+// @ts-ignore
+if (typeof global.ImageData === 'undefined') {
+    // @ts-ignore
+    global.ImageData = class ImageData {
+        constructor(width, height) {
+            this.width = width;
+            this.height = height;
+            this.data = new Uint8ClampedArray(width * height * 4);
+        }
+    };
+}
+// @ts-ignore
+if (typeof global.Path2D === 'undefined') {
+    // @ts-ignore
+    global.Path2D = class Path2D {
+    };
+}
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 // Load .env from backend directory, or root if not found
 config({ path: resolve(__dirname, '../.env') });
 config({ path: resolve(__dirname, '../../../.env') });
+// --- SAFETY CHECK: VISUAL CONFIRMATION ---
+const ENV_MODE = process.env.NODE_ENV || 'unknown';
+const DB_HOST = process.env.POSTGRES_HOST || 'unknown';
+const NEO_URI = process.env.NEO4J_URI || 'unknown';
+console.log('\n\n');
+if (ENV_MODE === 'production') {
+    console.error('╔══════════════════════════════════════════════════════════════╗');
+    console.error('║                    WARNING: PRODUCTION MODE                  ║');
+    console.error('║   You are running against LIVE DATA. Use extreme caution.    ║');
+    console.error('╚══════════════════════════════════════════════════════════════╝');
+}
+else {
+    console.log('╔══════════════════════════════════════════════════════════════╗');
+    console.log('║                 SAFE MODE: LOCAL DEVELOPMENT                 ║');
+    console.log('║                                                              ║');
+    console.log(`║  • Environment: ${ENV_MODE.padEnd(28)} ║`);
+    console.log(`║  • Postgres:    ${DB_HOST.padEnd(28)} ║`);
+    console.log(`║  • Neo4j:       ${NEO_URI.padEnd(28)} ║`);
+    console.log('╚══════════════════════════════════════════════════════════════╝');
+}
+console.log('\n');
+// -----------------------------------------
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
@@ -13,19 +67,27 @@ import { initializeDatabase } from './database/index.js';
 import { mcpRouter } from './mcp/mcpRouter.js';
 import { mcpRegistry } from './mcp/mcpRegistry.js';
 import { MCPWebSocketServer } from './mcp/mcpWebsocketServer.js';
+import { WebSocketServer as LogsWebSocketServer, WebSocket as LogsWebSocket } from 'ws';
 import { memoryRouter } from './services/memory/memoryController.js';
 import { sragRouter } from './services/srag/sragController.js';
 import { evolutionRouter } from './services/evolution/evolutionController.js';
 import { palRouter } from './services/pal/palController.js';
-import { cmaContextHandler, cmaIngestHandler, cmaMemoryStoreHandler, cmaMemoryRetrieveHandler, sragQueryHandler, sragGovernanceCheckHandler, evolutionReportHandler, evolutionGetPromptHandler, evolutionAnalyzePromptsHandler, palEventHandler, palBoardActionHandler, palOptimizeWorkflowHandler, palAnalyzeSentimentHandler, notesListHandler, notesCreateHandler, notesUpdateHandler, notesDeleteHandler, notesGetHandler, widgetsInvokeHandler, widgetsOsintInvestigateHandler, widgetsThreatHuntHandler, widgetsOrchestratorCoordinateHandler, widgetsUpdateStateHandler } from './mcp/toolHandlers.js';
+import { cmaContextHandler, cmaIngestHandler, cmaMemoryStoreHandler, cmaMemoryRetrieveHandler, sragQueryHandler, sragGovernanceCheckHandler, evolutionReportHandler, evolutionGetPromptHandler, evolutionAnalyzePromptsHandler, palEventHandler, palBoardActionHandler, palOptimizeWorkflowHandler, palAnalyzeSentimentHandler, notesListHandler, notesCreateHandler, notesUpdateHandler, notesDeleteHandler, notesGetHandler, widgetsInvokeHandler, widgetsOsintInvestigateHandler, widgetsThreatHuntHandler, widgetsOrchestratorCoordinateHandler, widgetsUpdateStateHandler, visionaryGenerateHandler } from './mcp/toolHandlers.js';
 import { securityRouter } from './services/security/securityController.js';
 import { AgentOrchestratorServer } from './mcp/servers/AgentOrchestratorServer.js';
 import { inputValidationMiddleware, csrfProtectionMiddleware, rateLimitingMiddleware } from './middleware/inputValidation.js';
 import { dataScheduler } from './services/ingestion/DataScheduler.js';
+import { logStream } from './services/logging/logStream.js';
 const app = express();
-const PORT = process.env.PORT || 3001;
-// Middleware
-app.use(cors());
+const PORT = parseInt(process.env.PORT || '3001', 10);
+// CORS Configuration
+const corsOrigin = process.env.CORS_ORIGIN || '*';
+app.use(cors({
+    origin: corsOrigin === '*' ? '*' : corsOrigin.split(',').map(o => o.trim()),
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(rateLimitingMiddleware);
 app.use(inputValidationMiddleware);
@@ -121,6 +183,7 @@ async function startServer() {
         mcpRegistry.registerTool('widgets.threat.hunt', widgetsThreatHuntHandler);
         mcpRegistry.registerTool('widgets.orchestrator.coordinate', widgetsOrchestratorCoordinateHandler);
         mcpRegistry.registerTool('widgets.update_state', widgetsUpdateStateHandler);
+        mcpRegistry.registerTool('visionary.generate', visionaryGenerateHandler);
         // Project Memory tools
         const { projectMemoryLogEventHandler, projectMemoryGetEventsHandler, projectMemoryAddFeatureHandler, projectMemoryUpdateFeatureHandler, projectMemoryGetFeaturesHandler } = await import('./mcp/projectMemoryHandlers.js');
         mcpRegistry.registerTool('project.log_event', projectMemoryLogEventHandler);
@@ -239,6 +302,9 @@ async function startServer() {
         // Step 3.8: Start Data Ingestion Scheduler
         dataScheduler.start();
         console.log('⏰ Data Ingestion Scheduler started');
+        // Step 3.8.5: Start NudgeService (aggressive data generation every 15 min)
+        const { nudgeService } = await import('./services/NudgeService.js');
+        nudgeService.start();
         // Step 3.9: Start HansPedder Agent Controller (non-blocking)
         (async () => {
             try {
@@ -256,21 +322,125 @@ async function startServer() {
         app.use('/api/memory', memoryRouter);
         app.use('/api/srag', sragRouter);
         app.use('/api/evolution', evolutionRouter);
+        app.use('/api/harvest', (req, res, next) => {
+            req.url = `/harvest${req.url}`;
+            evolutionRouter(req, res, next);
+        });
         app.use('/api/pal', palRouter);
         app.use('/api/security', securityRouter);
         // HansPedder Agent Controller routes
         const hanspedderRoutes = (await import('./routes/hanspedderRoutes.js')).default;
         app.use('/api/hanspedder', hanspedderRoutes);
+        // Prototype Generation routes (PRD to Prototype)
+        const prototypeRoutes = (await import('./routes/prototype.js')).default;
+        app.use('/api/prototype', prototypeRoutes);
+        // System Information routes (CPU, Memory, GPU, Network stats)
+        const sysRoutes = (await import('./routes/sys.js')).default;
+        app.use('/api/sys', sysRoutes);
+        console.log('📊 System Info API mounted at /api/sys');
+        // Neural Chat - Agent-to-Agent Communication
+        const { neuralChatRouter } = await import('./services/NeuralChat/index.js');
+        app.use('/api/neural-chat', neuralChatRouter);
+        console.log('💬 Neural Chat API mounted at /api/neural-chat');
+        // Knowledge Compiler - System State Aggregation
+        const knowledgeRoutes = (await import('./routes/knowledge.js')).default;
+        app.use('/api/knowledge', knowledgeRoutes);
+        console.log('🧠 Knowledge API mounted at /api/knowledge');
+        // Knowledge Acquisition - The Omni-Harvester
+        const acquisitionRoutes = (await import('./routes/acquisition.js')).default;
+        app.use('/api/acquisition', acquisitionRoutes);
+        console.log('🌾 Omni-Harvester API mounted at /api/acquisition');
+        // Start KnowledgeCompiler auto-compilation (every 60 seconds)
+        const { knowledgeCompiler } = await import('./services/Knowledge/index.js');
+        knowledgeCompiler.startAutoCompilation(60000);
+        console.log('🧠 KnowledgeCompiler auto-compilation started');
+        // ═══════════════════════════════════════════════════════════════════
+        // 🛡️ BOOTSTRAP HEALTH CHECK - Verify critical services before startup
+        // Prevents "Death on Startup" if Neo4j/DB unavailable
+        // ═══════════════════════════════════════════════════════════════════
+        const bootstrapHealthCheck = async () => {
+            const services = [];
+            let criticalFailure = false;
+            // Check Neo4j
+            try {
+                const start = Date.now();
+                const { neo4jAdapter } = await import('./adapters/Neo4jAdapter.js');
+                await neo4jAdapter.executeQuery('RETURN 1 as ping');
+                services.push({ name: 'Neo4j', status: 'healthy', latencyMs: Date.now() - start });
+                console.log('✅ Neo4j: HEALTHY');
+            }
+            catch (err) {
+                services.push({ name: 'Neo4j', status: 'degraded' });
+                console.warn('⚠️ Neo4j: DEGRADED - continuing without graph features');
+            }
+            // Check Prisma/PostgreSQL (already initialized above)
+            try {
+                const start = Date.now();
+                // Prisma is already connected if we got here
+                services.push({ name: 'PostgreSQL', status: 'healthy', latencyMs: Date.now() - start });
+                console.log('✅ PostgreSQL: HEALTHY (Prisma connected)');
+            }
+            catch (err) {
+                services.push({ name: 'PostgreSQL', status: 'degraded' });
+                console.warn('⚠️ PostgreSQL: DEGRADED - some features may be unavailable');
+            }
+            // Check filesystem (DropZone)
+            try {
+                const fs = await import('fs/promises');
+                const os = await import('os');
+                const path = await import('path');
+                const dropzone = path.join(os.homedir(), 'Desktop', 'WidgeTDC_DropZone');
+                await fs.access(dropzone);
+                services.push({ name: 'Filesystem', status: 'healthy' });
+                console.log('✅ Filesystem: HEALTHY');
+            }
+            catch {
+                services.push({ name: 'Filesystem', status: 'degraded' });
+                console.warn('⚠️ Filesystem: DropZone not accessible');
+            }
+            const degraded = services.some(s => s.status === 'degraded');
+            return { ready: !criticalFailure, degraded, services };
+        };
+        console.log('\n🔍 Running Bootstrap Health Check...');
+        const bootHealth = await bootstrapHealthCheck();
+        if (!bootHealth.ready) {
+            console.error('💀 CRITICAL: Bootstrap health check failed - aborting startup');
+            process.exit(1);
+        }
+        if (bootHealth.degraded) {
+            console.warn('⚠️ WARNING: Starting in DEGRADED MODE - some features may be unavailable\n');
+        }
+        else {
+            console.log('✅ All systems nominal - proceeding with startup\n');
+        }
         // ═══════════════════════════════════════════════════════════════════
         // EARLY SERVER START - Start accepting connections ASAP
         // All additional route handlers are registered below
         // ═══════════════════════════════════════════════════════════════════
         const server = createServer(app);
         const wsServer = new MCPWebSocketServer(server);
+        const logsWsServer = new LogsWebSocketServer({ server, path: '/api/logs/stream' });
+        logsWsServer.on('connection', (socket) => {
+            try {
+                socket.send(JSON.stringify({ type: 'bootstrap', entries: logStream.getRecent({ limit: 50 }) }));
+            }
+            catch (err) {
+                console.error('Failed to send initial log buffer:', err);
+            }
+            const listener = (entry) => {
+                if (socket.readyState === LogsWebSocket.OPEN) {
+                    socket.send(JSON.stringify({ type: 'log', entry }));
+                }
+            };
+            logStream.on('log', listener);
+            socket.on('close', () => {
+                logStream.off('log', listener);
+            });
+        });
         // Start server IMMEDIATELY - don't wait for additional setup
-        server.listen(PORT, () => {
-            console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-            console.log(`📡 MCP WebSocket available at ws://localhost:${PORT}/mcp/ws`);
+        server.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 Backend server running on http://0.0.0.0:${PORT}`);
+            console.log(`📡 MCP WebSocket available at ws://0.0.0.0:${PORT}/mcp/ws`);
             console.log(`🔧 Registered MCP tools:`, mcpRegistry.getRegisteredTools());
         });
         // Wire up WebSocket and orchestrator in background (non-blocking)
@@ -338,6 +508,15 @@ async function startServer() {
         // Readiness/Liveness checks
         app.get('/ready', (req, res) => res.json({ ready: true, timestamp: new Date().toISOString() }));
         app.get('/live', (req, res) => res.json({ live: true, timestamp: new Date().toISOString() }));
+        // ============================================
+        // KNOWLEDGE COMPILER API - System Intelligence
+        // ============================================
+        const knowledgeApi = (await import('./api/knowledge.js')).default;
+        app.use('/api/knowledge', knowledgeApi);
+        console.log('📚 Knowledge Compiler API mounted at /api/knowledge');
+        const logsRouter = (await import('./routes/logs.js')).default;
+        app.use('/api/logs', logsRouter);
+        console.log('📝 Log API mounted at /api/logs');
         // HyperLog API - Real-time intelligence monitoring for NeuroLink widget
         app.get('/api/hyper/events', async (req, res) => {
             try {
@@ -754,81 +933,72 @@ async function startServer() {
         /**
          * GET /api/evolution/graph/stats
          * Get Neo4j graph statistics for 3D visualization
+         * 🔗 NEURAL LINK ENDPOINT
          */
         app.get('/api/evolution/graph/stats', async (_req, res) => {
             try {
-                const { getNeo4jGraphAdapter } = await import('./platform/graph/Neo4jGraphAdapter.js');
-                const neo4jAdapter = getNeo4jGraphAdapter();
-                // Get basic statistics
-                const stats = await neo4jAdapter.getStatistics();
-                // Get sample of nodes and relationships for visualization
-                const graphResult = await neo4jAdapter.query(`
-          MATCH (n)
-          WITH n LIMIT 100
-          OPTIONAL MATCH (n)-[r]->(m)
-          RETURN
-            collect(DISTINCT {
-              from: coalesce(n.name, n.id, toString(id(n))),
-              labels: labels(n)
-            }) as nodes,
-            collect(DISTINCT {
-              from: coalesce(n.name, n.id, toString(id(n))),
-              to: coalesce(m.name, m.id, toString(id(m))),
-              type: type(r)
-            }) as relationships
-        `);
-                // Build import graph from relationships
-                const importGraph = [];
-                const filesByType = {};
-                if (graphResult.records && graphResult.records.length > 0) {
-                    const record = graphResult.records[0];
-                    const relationships = record.relationships || [];
-                    relationships.forEach((rel) => {
-                        if (rel && rel.from && rel.to) {
-                            importGraph.push({ from: rel.from, to: rel.to });
-                        }
-                    });
-                    // Count by label
-                    const nodes = record.nodes || [];
-                    nodes.forEach((node) => {
-                        if (node && node.labels) {
-                            node.labels.forEach((label) => {
-                                filesByType[label] = (filesByType[label] || 0) + 1;
-                            });
-                        }
-                    });
-                }
-                // If empty, create sample data for visualization
-                if (importGraph.length === 0) {
-                    // Create sample nodes based on actual labels in DB
-                    Object.entries(stats.labelCounts).forEach(([label, count]) => {
-                        filesByType[label] = count;
-                        // Create sample connections
-                        for (let i = 0; i < Math.min(count, 10); i++) {
-                            importGraph.push({
-                                from: `${label}_node_${i}`,
-                                to: `${label}_node_${(i + 1) % 10}`
-                            });
-                        }
-                    });
-                }
+                const { neo4jService } = await import('./database/Neo4jService.js');
+                // 1. Fetch Stats
+                const statsQuery = `
+          MATCH (n) 
+          OPTIONAL MATCH ()-[r]->() 
+          RETURN count(DISTINCT n) as nodes, count(DISTINCT r) as relationships
+        `;
+                const statsResult = await neo4jService.runQuery(statsQuery);
+                const stats = {
+                    nodes: statsResult[0]?.nodes?.toNumber ? statsResult[0].nodes.toNumber() : (statsResult[0]?.nodes || 0),
+                    relationships: statsResult[0]?.relationships?.toNumber ? statsResult[0].relationships.toNumber() : (statsResult[0]?.relationships || 0)
+                };
+                // 2. Fetch Sample Nodes for Visualization
+                const vizQuery = `
+          MATCH (n) 
+          RETURN n, labels(n) as labels 
+          LIMIT 100
+        `;
+                const vizResult = await neo4jService.runQuery(vizQuery);
+                // Map Neo4j structure to clean JSON for Frontend
+                const visualNodes = vizResult.map(row => {
+                    const node = row.n;
+                    return {
+                        id: node.elementId, // v6: use elementId instead of identity
+                        name: node.properties.name || node.properties.title || `Node ${node.elementId}`,
+                        labels: row.labels || node.labels,
+                        type: (row.labels && row.labels.includes('Directory')) ? 'directory' : 'file', // Simple heuristic
+                        properties: node.properties
+                    };
+                });
+                // 3. Fetch Sample Relationships
+                const relQuery = `
+          MATCH (n)-[r]->(m)
+          RETURN r, elementId(n) as source, elementId(m) as target
+          LIMIT 200
+        `;
+                const relResult = await neo4jService.runQuery(relQuery);
+                const visualLinks = relResult.map(row => ({
+                    source: row.source, // elementId is string
+                    target: row.target, // elementId is string
+                    type: row.r.type,
+                    id: row.r.elementId // v6: use elementId
+                }));
+                // 4. Send Combined Payload
                 res.json({
-                    totalNodes: stats.nodeCount,
-                    totalRelationships: stats.relationshipCount,
-                    filesByType,
-                    importGraph,
-                    nodesByLabel: stats.labelCounts
+                    timestamp: new Date().toISOString(),
+                    stats: stats,
+                    nodes: visualNodes,
+                    links: visualLinks,
+                    // Backwards compatibility fields
+                    totalNodes: stats.nodes,
+                    totalRelationships: stats.relationships,
+                    importGraph: visualLinks.map(l => ({ from: l.source, to: l.target }))
                 });
             }
             catch (error) {
-                console.error('Graph stats API error:', error);
-                // Return empty but valid data structure
-                res.json({
-                    totalNodes: 0,
-                    totalRelationships: 0,
-                    filesByType: {},
-                    importGraph: [],
-                    nodesByLabel: {}
+                console.error('❌ API Error in /graph/stats:', error);
+                res.status(500).json({
+                    error: 'Failed to retrieve neural link data',
+                    details: error.message,
+                    nodes: [],
+                    links: []
                 });
             }
         });
@@ -859,6 +1029,12 @@ async function startServer() {
                 res.status(500).json({ error: 'Failed to get Codex status' });
             }
         });
+        // ============================================
+        // OMNI-HARVESTER - Knowledge Acquisition API
+        // ============================================
+        const acquisitionRouter = (await import('./routes/acquisition.js')).default;
+        app.use('/api/acquisition', acquisitionRouter);
+        console.log('🌾 Omni-Harvester API mounted at /api/acquisition');
         // Graceful shutdown handler
         const gracefulShutdown = async (signal) => {
             console.log(`\n🛑 ${signal} received: starting graceful shutdown...`);

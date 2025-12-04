@@ -3,7 +3,7 @@ import { getCognitiveMemory } from '../memory/CognitiveMemory.js';
 import { unifiedMemorySystem } from './UnifiedMemorySystem.js';
 import { getLlmService } from '../../services/llm/llmService.js';
 import { MemoryRepository } from '../../services/memory/memoryRepository.js';
-import { getPgVectorStore } from '../../platform/vector/PgVectorStoreAdapter.js';
+import { getVectorStore } from '../../platform/vector/index.js';
 export class UnifiedGraphRAG {
     constructor() {
         this.maxHops = 2;
@@ -111,7 +111,7 @@ export class UnifiedGraphRAG {
         }
         // Strategy 2: Use CMA memory relations (Direct graph edges)
         // Inspired by CgentCore's memory_relations table
-        const relatedMemories = this.memoryRepo.searchEntities({
+        const relatedMemories = await this.memoryRepo.searchEntities({
             orgId: context.orgId,
             userId: context.userId,
             keywords: this.extractKeywords(node.content),
@@ -203,7 +203,7 @@ Provide a comprehensive answer synthesizing the information from the knowledge g
     async computeSemanticSimilarity(query, content) {
         try {
             // Use pgvector for proper vector similarity
-            const vectorStore = getPgVectorStore();
+            const vectorStore = await getVectorStore();
             // For now, use simple text matching as fallback
             // TODO: Generate embeddings for proper vector search
             // const results = await vectorStore.search({
