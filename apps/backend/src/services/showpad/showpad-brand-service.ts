@@ -211,7 +211,7 @@ export class ShowpadBrandService {
     // Try to find theme file (usually at ppt/theme/theme1.xml)
     const themeFile = zip.file(/ppt\/theme\/theme\d+\.xml/);
     
-    if (themeFile.length > 0) {
+    if (themeFile && themeFile.length > 0) {
       const themeXml = await themeFile[0].async('text');
       const parsed = await parseStringPromise(themeXml, { explicitArray: false });
       
@@ -222,6 +222,7 @@ export class ShowpadBrandService {
       
       if (clrScheme) {
         // Extract color values from scheme
+        // DrawingML color scheme elements in standard PPTX theme
         const colorElements = [
           'a:dk1', 'a:lt1', 'a:dk2', 'a:lt2',
           'a:accent1', 'a:accent2', 'a:accent3', 'a:accent4',
@@ -310,16 +311,26 @@ export class ShowpadBrandService {
 
   /**
    * Map extracted colors to BrandColors structure
+   * 
+   * PowerPoint theme color order:
+   * Index 0-3: dk1, lt1, dk2, lt2 (base colors)
+   * Index 4-9: accent1-6 (accent colors)
+   * Index 10-11: hlink, folHlink (hyperlink colors)
    */
   private mapExtractedColors(extractedColors: string[]): BrandColors {
     const defaults = this.getDefaultBrandColors();
     
+    // Theme color indices
+    const ACCENT_START_INDEX = 4;
+    const ACCENT_END_INDEX = 10;
+    const MIN_COLORS_FOR_MAPPING = 4;
+    
     // If we have extracted colors, try to categorize them
-    if (extractedColors.length >= 4) {
+    if (extractedColors.length >= MIN_COLORS_FOR_MAPPING) {
       // First colors typically: dark1, light1, dark2, light2, accents...
       const darkColors = extractedColors.filter(c => this.isColorDark(c));
       const lightColors = extractedColors.filter(c => !this.isColorDark(c));
-      const accentColors = extractedColors.slice(4, 10); // Accents start at index 4
+      const accentColors = extractedColors.slice(ACCENT_START_INDEX, ACCENT_END_INDEX);
       
       return {
         primary: darkColors.slice(0, 2).length > 0 ? darkColors.slice(0, 2) : defaults.primary,
@@ -408,7 +419,7 @@ export class ShowpadBrandService {
     // Try to find theme file
     const themeFile = zip.file(/ppt\/theme\/theme\d+\.xml/);
     
-    if (themeFile.length > 0) {
+    if (themeFile && themeFile.length > 0) {
       try {
         const themeXml = await themeFile[0].async('text');
         const parsed = await parseStringPromise(themeXml, { explicitArray: false });
