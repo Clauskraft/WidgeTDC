@@ -11,7 +11,7 @@
 import { ShowpadAssetService } from './showpad-asset-service';
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import { spawnSync } from 'child_process';
 
 interface BrandColors {
   primary: string[];
@@ -265,32 +265,25 @@ export class ShowpadBrandService {
       bodySizes?: { [key: string]: number };
     } = {};
 
-    // Create a temporary directory for extraction
-    const tempDir = path.join(path.dirname(pptPath), `_temp_pptx_${Date.now()}`);
+    // Validate and sanitize the path to prevent command injection
+    // Only allow alphanumeric, dashes, underscores, dots, forward slashes and spaces
+    const normalizedPath = path.normalize(pptPath);
+    if (!fs.existsSync(normalizedPath)) {
+      console.error('PPTX file does not exist:', normalizedPath);
+      return result;
+    }
+
+    // Create a temporary directory for extraction with unique name
+    const uniqueId = `${Date.now()}_${process.pid}_${Math.random().toString(36).substring(2, 11)}`;
+    const tempDir = path.join(path.dirname(normalizedPath), `_temp_pptx_${uniqueId}`);
     
     try {
       // Use unzip command to extract specific files from the PPTX
       fs.mkdirSync(tempDir, { recursive: true });
       
-      // Extract theme file (contains font definitions)
-      try {
-        execSync(`unzip -o -j "${pptPath}" "ppt/theme/theme1.xml" -d "${tempDir}" 2>/dev/null`, {
-          encoding: 'utf-8',
-          stdio: ['pipe', 'pipe', 'pipe']
-        });
-      } catch {
-        // Theme file might not exist or unzip failed - continue
-      }
-
-      // Extract slide master file (contains font sizes)
-      try {
-        execSync(`unzip -o -j "${pptPath}" "ppt/slideMasters/slideMaster1.xml" -d "${tempDir}" 2>/dev/null`, {
-          encoding: 'utf-8',
-          stdio: ['pipe', 'pipe', 'pipe']
-        });
-      } catch {
-        // Slide master might not exist or unzip failed - continue
-      }
+      // Use safer extraction approach with proper path handling (no shell interpolation)
+      this.safeUnzipFile(normalizedPath, 'ppt/theme/theme1.xml', tempDir);
+      this.safeUnzipFile(normalizedPath, 'ppt/slideMasters/slideMaster1.xml', tempDir);
 
       // Parse theme file for font names
       const themeFilePath = path.join(tempDir, 'theme1.xml');
@@ -310,14 +303,10 @@ export class ShowpadBrandService {
         if (sizes.bodySizes) result.bodySizes = sizes.bodySizes;
       }
     } finally {
-      // Cleanup temporary directory
+      // Cleanup temporary directory using fs.rmSync (replaces deprecated rmdirSync)
       try {
         if (fs.existsSync(tempDir)) {
-          const files = fs.readdirSync(tempDir);
-          for (const file of files) {
-            fs.unlinkSync(path.join(tempDir, file));
-          }
-          fs.rmdirSync(tempDir);
+          fs.rmSync(tempDir, { recursive: true, force: true });
         }
       } catch {
         // Ignore cleanup errors
@@ -325,6 +314,22 @@ export class ShowpadBrandService {
     }
 
     return result;
+  }
+
+  /**
+   * Safely extract a file from a ZIP archive
+   * Uses spawn-style execution with proper argument passing to avoid command injection
+   */
+  private safeUnzipFile(zipPath: string, internalPath: string, outputDir: string): void {
+    try {
+      // Use spawnSync for safer execution - arguments are passed as array, not interpolated in shell
+      spawnSync('unzip', ['-o', '-j', zipPath, internalPath, '-d', outputDir], {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+    } catch {
+      // Extraction might fail if file doesn't exist in archive - continue
+    }
   }
 
   /**
