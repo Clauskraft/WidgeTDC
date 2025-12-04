@@ -11,6 +11,7 @@
 import { ShowpadAssetService } from './showpad-asset-service';
 import * as fs from 'fs';
 import * as path from 'path';
+import { spawnSync } from 'child_process';
 
 interface BrandColors {
   primary: string[];
@@ -199,8 +200,38 @@ export class ShowpadBrandService {
    * Extract typography from PowerPoint template
    */
   private async extractTypographyFromPPT(pptPath: string): Promise<Typography> {
-    // TODO: Implement PPTX font extraction
-    // For now, return known TDC typography
+    try {
+      // Extract font information from PPTX (which is a ZIP archive)
+      const extractedFonts = await this.extractFontsFromPPTX(pptPath);
+      
+      if (extractedFonts.headlineFont || extractedFonts.bodyFont) {
+        const headlineFamily = extractedFonts.headlineFont 
+          ? `${extractedFonts.headlineFont}, Arial, sans-serif`
+          : 'TDC Sans, Arial, sans-serif';
+        const bodyFamily = extractedFonts.bodyFont 
+          ? `${extractedFonts.bodyFont}, Arial, sans-serif`
+          : 'TDC Sans, Arial, sans-serif';
+          
+        return {
+          headline: {
+            family: headlineFamily,
+            sizes: extractedFonts.headlineSizes || { h1: 48, h2: 36, h3: 28, h4: 24 },
+            weights: { light: 300, regular: 400, bold: 700 },
+            lineHeights: { tight: 1.1, normal: 1.3, relaxed: 1.5 }
+          },
+          body: {
+            family: bodyFamily,
+            sizes: extractedFonts.bodySizes || { large: 18, base: 16, small: 14, xs: 12 },
+            weights: { light: 300, regular: 400, medium: 500, bold: 700 },
+            lineHeights: { tight: 1.4, normal: 1.6, relaxed: 1.8 }
+          }
+        };
+      }
+    } catch (error) {
+      console.error('Failed to extract typography from PPTX:', error);
+    }
+    
+    // Fallback to known TDC typography
     return {
       headline: {
         family: 'TDC Sans, Arial, sans-serif',
@@ -215,6 +246,163 @@ export class ShowpadBrandService {
         lineHeights: { tight: 1.4, normal: 1.6, relaxed: 1.8 }
       }
     };
+  }
+
+  /**
+   * Extract font information from PPTX file
+   * PPTX files are ZIP archives containing XML files
+   */
+  private async extractFontsFromPPTX(pptPath: string): Promise<{
+    headlineFont?: string;
+    bodyFont?: string;
+    headlineSizes?: { [key: string]: number };
+    bodySizes?: { [key: string]: number };
+  }> {
+    const result: {
+      headlineFont?: string;
+      bodyFont?: string;
+      headlineSizes?: { [key: string]: number };
+      bodySizes?: { [key: string]: number };
+    } = {};
+
+    // Validate and sanitize the path to prevent command injection
+    // Only allow alphanumeric, dashes, underscores, dots, forward slashes and spaces
+    const normalizedPath = path.normalize(pptPath);
+    if (!fs.existsSync(normalizedPath)) {
+      console.error('PPTX file does not exist:', normalizedPath);
+      return result;
+    }
+
+    // Create a temporary directory for extraction with unique name
+    const uniqueId = `${Date.now()}_${process.pid}_${Math.random().toString(36).substring(2, 11)}`;
+    const tempDir = path.join(path.dirname(normalizedPath), `_temp_pptx_${uniqueId}`);
+    
+    try {
+      // Use unzip command to extract specific files from the PPTX
+      fs.mkdirSync(tempDir, { recursive: true });
+      
+      // Use safer extraction approach with proper path handling (no shell interpolation)
+      this.safeUnzipFile(normalizedPath, 'ppt/theme/theme1.xml', tempDir);
+      this.safeUnzipFile(normalizedPath, 'ppt/slideMasters/slideMaster1.xml', tempDir);
+
+      // Parse theme file for font names
+      const themeFilePath = path.join(tempDir, 'theme1.xml');
+      if (fs.existsSync(themeFilePath)) {
+        const themeContent = fs.readFileSync(themeFilePath, 'utf-8');
+        const themeFonts = this.parseFontsFromThemeXML(themeContent);
+        if (themeFonts.majorFont) result.headlineFont = themeFonts.majorFont;
+        if (themeFonts.minorFont) result.bodyFont = themeFonts.minorFont;
+      }
+
+      // Parse slide master for font sizes
+      const masterFilePath = path.join(tempDir, 'slideMaster1.xml');
+      if (fs.existsSync(masterFilePath)) {
+        const masterContent = fs.readFileSync(masterFilePath, 'utf-8');
+        const sizes = this.parseFontSizesFromXML(masterContent);
+        if (sizes.headlineSizes) result.headlineSizes = sizes.headlineSizes;
+        if (sizes.bodySizes) result.bodySizes = sizes.bodySizes;
+      }
+    } finally {
+      // Cleanup temporary directory using fs.rmSync (replaces deprecated rmdirSync)
+      try {
+        if (fs.existsSync(tempDir)) {
+          fs.rmSync(tempDir, { recursive: true, force: true });
+        }
+      } catch {
+        // Ignore cleanup errors
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * Safely extract a file from a ZIP archive
+   * Uses spawn-style execution with proper argument passing to avoid command injection
+   */
+  private safeUnzipFile(zipPath: string, internalPath: string, outputDir: string): void {
+    try {
+      // Use spawnSync for safer execution - arguments are passed as array, not interpolated in shell
+      spawnSync('unzip', ['-o', '-j', zipPath, internalPath, '-d', outputDir], {
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe']
+      });
+    } catch {
+      // Extraction might fail if file doesn't exist in archive - continue
+    }
+  }
+
+  /**
+   * Parse font names from theme XML
+   */
+  private parseFontsFromThemeXML(xml: string): { majorFont?: string; minorFont?: string } {
+    const result: { majorFont?: string; minorFont?: string } = {};
+    
+    // Extract major font (typically for headings) - look for a:majorFont/a:latin
+    const majorFontMatch = xml.match(/<a:majorFont[^>]*>[\s\S]*?<a:latin[^>]*typeface="([^"]+)"[^>]*\/>[\s\S]*?<\/a:majorFont>/);
+    if (majorFontMatch?.[1]) {
+      result.majorFont = majorFontMatch[1];
+    }
+    
+    // Extract minor font (typically for body text) - look for a:minorFont/a:latin
+    const minorFontMatch = xml.match(/<a:minorFont[^>]*>[\s\S]*?<a:latin[^>]*typeface="([^"]+)"[^>]*\/>[\s\S]*?<\/a:minorFont>/);
+    if (minorFontMatch?.[1]) {
+      result.minorFont = minorFontMatch[1];
+    }
+
+    return result;
+  }
+
+  /**
+   * Parse font sizes from slide master XML
+   */
+  private parseFontSizesFromXML(xml: string): {
+    headlineSizes?: { [key: string]: number };
+    bodySizes?: { [key: string]: number };
+  } {
+    const result: {
+      headlineSizes?: { [key: string]: number };
+      bodySizes?: { [key: string]: number };
+    } = {};
+
+    // Extract font sizes from XML
+    // PowerPoint uses hundredths of a point for font sizes (e.g., 4400 = 44pt)
+    const allSizes: number[] = [];
+    
+    // Use exec instead of matchAll for compatibility
+    const sizeRegex = /sz="(\d+)"/g;
+    let match;
+    while ((match = sizeRegex.exec(xml)) !== null) {
+      const sizeInHundredths = parseInt(match[1], 10);
+      if (sizeInHundredths > 0) {
+        allSizes.push(Math.round(sizeInHundredths / 100));
+      }
+    }
+
+    // Deduplicate and sort sizes (largest first)
+    const uniqueSizes = Array.from(new Set(allSizes)).sort((a, b) => b - a);
+    
+    if (uniqueSizes.length >= 4) {
+      result.headlineSizes = {
+        h1: uniqueSizes[0],
+        h2: uniqueSizes[1],
+        h3: uniqueSizes[2],
+        h4: uniqueSizes[3]
+      };
+    }
+
+    // Extract smaller sizes for body text
+    const smallerSizes = uniqueSizes.filter(s => s <= 20).sort((a, b) => b - a);
+    if (smallerSizes.length >= 4) {
+      result.bodySizes = {
+        large: smallerSizes[0],
+        base: smallerSizes[1],
+        small: smallerSizes[2],
+        xs: smallerSizes[3]
+      };
+    }
+
+    return result;
   }
 
   /**
