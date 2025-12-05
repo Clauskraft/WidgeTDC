@@ -1,6 +1,6 @@
 name: "Agent: Main Guardian"
-on:
-  schedule:
+on:  
+  schedule:  
     - cron: '0 6 * * *' # Run every morning at 6 AM
   workflow_dispatch:      # Allow manual trigger
 
@@ -23,8 +23,14 @@ jobs:
           node-version: '20.x'
           cache: 'npm'
 
+      - name: Clean npm state to avoid optional-dep install bug
+        run: |
+          echo "Removing node_modules and package-lock.json to avoid npm optional-deps bug"
+          rm -rf node_modules
+          rm -f package-lock.json
+
       - name: Install Dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Run Full Test Suite
         run: npm run test:run
