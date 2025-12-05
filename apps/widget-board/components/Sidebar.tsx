@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useGlobalState } from '../contexts/GlobalStateContext';
 import { MicrosoftIcons } from '../assets/MicrosoftIcons';
 
@@ -8,6 +8,10 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ onOpenWidgetManagement }) => {
   const { state, toggleReduceMotion } = useGlobalState();
+
+  const handleToggleReduceMotion = useCallback(() => {
+    toggleReduceMotion();
+  }, [toggleReduceMotion]);
 
   return (
     <aside className="w-64 flex-shrink-0 flex flex-col border-r bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
@@ -23,8 +27,9 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenWidgetManagement }) => {
           <button
             onClick={onOpenWidgetManagement}
             className="w-full flex items-center gap-3 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:opacity-90 transition-all shadow-[var(--shadow-button)]"
+            aria-label="Manage Widgets"
           >
-            <MicrosoftIcons.Settings />
+            <MicrosoftIcons.Settings aria-hidden="true" />
             <span className="font-medium">Manage Widgets</span>
           </button>
 
@@ -39,16 +44,21 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenWidgetManagement }) => {
 
       <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <h3 className="font-semibold mb-3 flex items-center gap-2">
-          <MicrosoftIcons.Settings />
+          <MicrosoftIcons.Settings aria-hidden="true" />
           Settings
         </h3>
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">Reduce Motion</span>
+          <label htmlFor="reduce-motion-toggle" className="text-sm font-medium cursor-pointer">
+            Reduce Motion
+          </label>
           <button
-            onClick={toggleReduceMotion}
-            className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors ${
+            id="reduce-motion-toggle"
+            onClick={handleToggleReduceMotion}
+            className={`ms-focusable relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
               state.reduceMotion ? 'bg-blue-600' : 'bg-gray-300'
             }`}
+            aria-pressed={state.reduceMotion}
+            aria-label="Toggle reduce motion"
           >
             <span
               className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform ${
@@ -62,4 +72,4 @@ const Sidebar: React.FC<SidebarProps> = ({ onOpenWidgetManagement }) => {
   );
 };
 
-export default Sidebar;
+export default React.memo(Sidebar);
