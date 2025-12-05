@@ -36,6 +36,9 @@ jobs:
       - name: Run linter
         run: npm run lint || echo "Lint completed with warnings"
 
+      - name: TypeScript Check (widget-board)
+        run: cd apps/widget-board && npx tsc --noEmit
+        
       - name: Check formatting
         run: npm run format:check || echo "Formatting check completed with warnings"
 
