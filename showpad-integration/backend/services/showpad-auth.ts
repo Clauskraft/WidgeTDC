@@ -35,6 +35,7 @@ export class ShowpadAuthService extends EventEmitter {
   private credentials: ShowpadCredentials;
   private state: AuthState;
   private refreshTimer: NodeJS.Timeout | null = null;
+  private readonly baseUrl: string;
 
   constructor(credentials: ShowpadCredentials) {
     super();
@@ -46,6 +47,7 @@ export class ShowpadAuthService extends EventEmitter {
       expiresAt: null,
       scope: []
     };
+    this.baseUrl = `https://${credentials.subdomain}.showpad.biz/api/v3/oauth2/token`;
   }
 
   /**
@@ -65,7 +67,7 @@ export class ShowpadAuthService extends EventEmitter {
       this.emit('authenticated', { scope: this.state.scope });
       this.scheduleTokenRefresh();
     } catch (error) {
-      this.emit('auth_error', error);
+      this.emit('auth_error', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -75,29 +77,18 @@ export class ShowpadAuthService extends EventEmitter {
    * Best for server-to-server authentication
    */
   private async authenticateWithOAuth(): Promise<void> {
-    const response = await fetch(
-      `https://${this.credentials.subdomain}.showpad.biz/api/v3/oauth2/token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': 'Basic ' + Buffer.from(
-            `${this.credentials.clientId}:${this.credentials.clientSecret}`
-          ).toString('base64')
-        },
-        body: new URLSearchParams({
-          grant_type: 'client_credentials',
-          scope: 'read_content read_user_management'
-        })
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`OAuth authentication failed: ${error}`);
+    const { clientId, clientSecret } = this.credentials;
+    if (!clientId || !clientSecret) {
+      throw new Error('Missing OAuth credentials');
     }
 
-    const tokenData: TokenResponse = await response.json();
+    const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+    const body = new URLSearchParams({
+      grant_type: 'client_credentials',
+      scope: 'read_content read_user_management'
+    });
+
+    const tokenData = await this.makeTokenRequest(authHeader, body);
     this.updateTokenState(tokenData);
   }
 
@@ -106,28 +97,19 @@ export class ShowpadAuthService extends EventEmitter {
    * Less secure, but works without OAuth setup
    */
   private async authenticateWithPassword(): Promise<void> {
-    const response = await fetch(
-      `https://${this.credentials.subdomain}.showpad.biz/api/v3/oauth2/token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: new URLSearchParams({
-          grant_type: 'password',
-          username: this.credentials.username!,
-          password: this.credentials.password!,
-          scope: 'read_content read_user_management'
-        })
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Password authentication failed: ${error}`);
+    const { username, password } = this.credentials;
+    if (!username || !password) {
+      throw new Error('Missing username/password credentials');
     }
 
-    const tokenData: TokenResponse = await response.json();
+    const body = new URLSearchParams({
+      grant_type: 'password',
+      username,
+      password,
+      scope: 'read_content read_user_management'
+    });
+
+    const tokenData = await this.makeTokenRequest(undefined, body);
     this.updateTokenState(tokenData);
   }
 
@@ -139,50 +121,57 @@ export class ShowpadAuthService extends EventEmitter {
       throw new Error('No refresh token available');
     }
 
-    const response = await fetch(
-      `https://${this.credentials.subdomain}.showpad.biz/api/v3/oauth2/token`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': this.hasOAuthCredentials() 
-            ? 'Basic ' + Buffer.from(
-                `${this.credentials.clientId}:${this.credentials.clientSecret}`
-              ).toString('base64')
-            : undefined
-        } as any,
-        body: new URLSearchParams({
-          grant_type: 'refresh_token',
-          refresh_token: this.state.refreshToken
-        })
-      }
-    );
+    const body = new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: this.state.refreshToken
+    });
 
-    if (!response.ok) {
-      // Refresh failed - need to re-authenticate
-      this.emit('token_refresh_failed');
-      await this.authenticate();
-      return;
-    }
-
-    const tokenData: TokenResponse = await response.json();
+    const tokenData = await this.makeTokenRequest(undefined, body);
     this.updateTokenState(tokenData);
     this.emit('token_refreshed');
+  }
+
+  /**
+   * Common method to make token requests
+   */
+  private async makeTokenRequest(authorization?: string, body: URLSearchParams): Promise<TokenResponse> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    };
+    if (authorization) {
+      headers['Authorization'] = authorization;
+    }
+
+    const response = await fetch(this.baseUrl, {
+      method: 'POST',
+      headers,
+      body
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Authentication failed: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+
+    return response.json();
   }
 
   /**
    * Update internal state with new token data
    */
   private updateTokenState(tokenData: TokenResponse): void {
-    this.state.accessToken = tokenData.access_token;
-    this.state.refreshToken = tokenData.refresh_token;
-    this.state.expiresAt = Date.now() + (tokenData.expires_in * 1000);
-    this.state.scope = tokenData.scope.split(' ');
-    this.state.isAuthenticated = true;
+    const expiresAt = Date.now() + (tokenData.expires_in * 1000);
+    this.state = {
+      isAuthenticated: true,
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+      expiresAt,
+      scope: tokenData.scope.split(' ')
+    };
   }
 
   /**
-   * Schedule automatic token refresh before expiration
+   * Schedule automatic token refresh
    */
   private scheduleTokenRefresh(): void {
     if (this.refreshTimer) {
@@ -191,63 +180,15 @@ export class ShowpadAuthService extends EventEmitter {
 
     if (!this.state.expiresAt) return;
 
-    // Refresh 5 minutes before expiration
-    const refreshIn = this.state.expiresAt - Date.now() - (5 * 60 * 1000);
-
-    if (refreshIn > 0) {
-      this.refreshTimer = setTimeout(() => {
-        this.refreshAccessToken().catch(error => {
-          this.emit('token_refresh_error', error);
-        });
-      }, refreshIn);
-    }
-  }
-
-  /**
-   * Get current access token (refreshes if expired)
-   */
-  async getAccessToken(): Promise<string> {
-    if (!this.state.isAuthenticated) {
-      await this.authenticate();
+    const refreshTime = this.state.expiresAt - Date.now() - 60000; // Refresh 1 minute before expiry
+    if (refreshTime <= 0) {
+      this.refreshAccessToken().catch(error => this.emit('auth_error', error));
+      return;
     }
 
-    // Check if token is expired or about to expire (1 minute buffer)
-    if (this.state.expiresAt && (this.state.expiresAt - Date.now()) < 60000) {
-      await this.refreshAccessToken();
-    }
-
-    if (!this.state.accessToken) {
-      throw new Error('No access token available');
-    }
-
-    return this.state.accessToken;
-  }
-
-  /**
-   * Make authenticated API request to Showpad
-   */
-  async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = await this.getAccessToken();
-    const apiVersion = process.env.SHOWPAD_API_VERSION || 'v4';
-
-    const response = await fetch(
-      `https://${this.credentials.subdomain}.api.showpad.com/${apiVersion}${endpoint}`,
-      {
-        ...options,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          ...options.headers
-        }
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Showpad API error: ${response.status} - ${error}`);
-    }
-
-    return response.json();
+    this.refreshTimer = setTimeout(() => {
+      this.refreshAccessToken().catch(error => this.emit('auth_error', error));
+    }, refreshTime);
   }
 
   /**
@@ -258,7 +199,7 @@ export class ShowpadAuthService extends EventEmitter {
   }
 
   /**
-   * Check if password credentials are available
+   * Check if username/password credentials are available
    */
   private hasPasswordCredentials(): boolean {
     return !!(this.credentials.username && this.credentials.password);
@@ -267,72 +208,24 @@ export class ShowpadAuthService extends EventEmitter {
   /**
    * Get current authentication state
    */
-  getState(): AuthState {
+  getAuthState(): Readonly<AuthState> {
     return { ...this.state };
   }
 
   /**
-   * Check if currently authenticated
+   * Get current access token
    */
-  isAuthenticated(): boolean {
-    return this.state.isAuthenticated && 
-           !!this.state.accessToken &&
-           (!this.state.expiresAt || this.state.expiresAt > Date.now());
-  }
-
-  /**
-   * Revoke current tokens and clear state
-   */
-  async logout(): Promise<void> {
-    // Clear refresh timer
-    if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer);
-      this.refreshTimer = null;
-    }
-
-    // Reset state
-    this.state = {
-      isAuthenticated: false,
-      accessToken: null,
-      refreshToken: null,
-      expiresAt: null,
-      scope: []
-    };
-
-    this.emit('logged_out');
+  getAccessToken(): string | null {
+    return this.state.accessToken;
   }
 
   /**
    * Clean up resources
    */
-  destroy(): void {
+  dispose(): void {
     if (this.refreshTimer) {
       clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
     }
-    this.removeAllListeners();
   }
 }
-
-/**
- * Factory function to create ShowpadAuthService from environment variables
- */
-export function createShowpadAuthFromEnv(): ShowpadAuthService {
-  const credentials: ShowpadCredentials = {
-    subdomain: process.env.SHOWPAD_SUBDOMAIN || 'tdcerhverv',
-    username: process.env.SHOWPAD_USERNAME,
-    password: process.env.SHOWPAD_PASSWORD,
-    clientId: process.env.SHOWPAD_CLIENT_ID,
-    clientSecret: process.env.SHOWPAD_CLIENT_SECRET
-  };
-
-  if (!credentials.subdomain) {
-    throw new Error('SHOWPAD_SUBDOMAIN environment variable is required');
-  }
-
-  return new ShowpadAuthService(credentials);
-}
-
-// Example usage:
-// const auth = createShowpadAuthFromEnv();
-// await auth.authenticate();
-// const assets = await auth.request('/assets');
