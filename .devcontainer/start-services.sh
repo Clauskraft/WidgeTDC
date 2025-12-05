@@ -7,10 +7,21 @@ echo "=== Starting WidgeTDC Services ==="
 # Create logs directory
 mkdir -p /workspaces/WidgeTDC/.devcontainer/logs
 
-# Start backend in background
+# Wait for PostgreSQL
+echo "Waiting for PostgreSQL..."
+until pg_isready -h postgres -U widgetdc -d widgetdc 2>/dev/null; do
+    sleep 2
+done
+
+# Ensure database schema is up to date
+echo "Syncing database schema..."
+cd /workspaces/WidgeTDC/apps/backend
+npx prisma db push --accept-data-loss --skip-generate 2>&1 || true
+
+# Start backend in DEV mode (not production)
 echo "Starting backend on port 3001..."
 cd /workspaces/WidgeTDC/apps/backend
-nohup npm run start > /workspaces/WidgeTDC/.devcontainer/logs/backend.log 2>&1 &
+nohup npm run dev > /workspaces/WidgeTDC/.devcontainer/logs/backend.log 2>&1 &
 BACKEND_PID=$!
 echo "Backend PID: $BACKEND_PID"
 
