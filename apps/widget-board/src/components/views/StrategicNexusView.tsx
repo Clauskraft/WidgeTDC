@@ -1,12 +1,15 @@
-import React, { lazy } from 'react';
+import React, { lazy, ComponentType } from 'react';
 import { ModuleGrid, ModuleCard } from './ModuleGrid';
 
-const StrategicCockpitWidget = lazy(() => import('../../../widgets/StrategicCockpit'));
-const MindMapBuilderWidget = lazy(() => import('../../../widgets/MindMapBuilder'));
-const ExecutiveRiskCanvasWidget = lazy(() => import('../../../widgets/ExecutiveRiskCanvas'));
-const KanbanWidget = lazy(() => import('../../../widgets/KanbanWidget'));
-const LocalWikiWidget = lazy(() => import('../../../widgets/LocalWikiWidget'));
-const CmaDecisionWidget = lazy(() => import('../../../widgets/CmaDecisionWidget'));
+// Widget prop type
+interface WidgetProps { widgetId: string; }
+
+const StrategicCockpitWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/StrategicCockpit'));
+const MindMapBuilderWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/MindMapBuilder'));
+const ExecutiveRiskCanvasWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/ExecutiveRiskCanvas'));
+const KanbanWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/KanbanWidget'));
+const LocalWikiWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/LocalWikiWidget'));
+const CmaDecisionWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/CmaDecisionWidget'));
 
 export default function StrategicNexusView() {
   return (

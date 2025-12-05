@@ -89,7 +89,7 @@ export default function KnowledgeGraphView() {
   const [error, setError] = useState<string | null>(null);
   const [selectedNode, setSelectedNode] = useState<NodeDetails | null>(null);
   const [stats, setStats] = useState({ nodes: 0, relationships: 0 });
-  const graphRef = useRef<ForceGraphMethods>();
+  const graphRef = useRef<ForceGraphMethods>(null!);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 

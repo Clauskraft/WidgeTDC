@@ -25,7 +25,7 @@ interface AgentCouncilProps {
   onToggle: () => void;
 }
 
-const ROLE_ICONS: Record<CockpitAgent['role'], React.FC<{ className?: string }>> = {
+const ROLE_ICONS: Record<CockpitAgent['role'], React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   security: Shield,
   governance: Scale,
   legal: Gavel,
@@ -34,7 +34,7 @@ const ROLE_ICONS: Record<CockpitAgent['role'], React.FC<{ className?: string }>>
   creative: Palette,
 };
 
-const STATUS_ICONS: Record<AgentStatus, React.FC<{ className?: string }>> = {
+const STATUS_ICONS: Record<AgentStatus, React.FC<{ className?: string; style?: React.CSSProperties }>> = {
   idle: Pause,
   active: Activity,
   warning: AlertTriangle,
