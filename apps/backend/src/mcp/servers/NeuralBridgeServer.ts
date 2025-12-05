@@ -38,32 +38,6 @@ const VIDENSARKIV_PATH = path.join(os.homedir(), 'Desktop', 'vidensarkiv');
 const ALLOWED_EXTENSIONS = ['.txt', '.md', '.json', '.csv', '.yaml', '.yml', '.xml', '.log'];
 
 // ═══════════════════════════════════════════════════════════════════════════
-// UTILITY: Sanitize strings for JSON (remove emojis that break parsing)
-// ═══════════════════════════════════════════════════════════════════════════
-
-function sanitizeForJson(obj: any): any {
-    if (typeof obj === 'string') {
-        // Remove emojis and other problematic Unicode characters
-        return obj.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2300}-\u{23FF}]|[\u{2B50}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]/gu, '');
-    }
-    if (Array.isArray(obj)) {
-        return obj.map(sanitizeForJson);
-    }
-    if (obj !== null && typeof obj === 'object') {
-        const result: any = {};
-        for (const key of Object.keys(obj)) {
-            result[key] = sanitizeForJson(obj[key]);
-        }
-        return result;
-    }
-    return obj;
-}
-
-function safeJsonStringify(obj: any, indent: number = 2): string {
-    return JSON.stringify(sanitizeForJson(obj), null, indent);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // Type Definitions
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -124,18 +98,12 @@ class NeuralBridgeServer {
     // ═══════════════════════════════════════════════════════════════════════
 
     private setupHandlers(): void {
-        // ═══════════════════════════════════════════════════════════════════════
-        // CONSOLIDATED TOOL LIST (16 tools total, <20)
-        // Enums removed for dynamic resources; runtime validation in handlers
-        // ═══════════════════════════════════════════════════════════════════════
+        // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
             tools: [
-                // ═══════════════════════════════════════════════════════════════
-                // CORE SYSTEM TOOLS
-                // ═══════════════════════════════════════════════════════════════
                 {
                     name: 'get_system_health',
-                    description: 'Get WidgeTDC system health status including Neo4j and all adapters.',
+                    description: 'Get WidgeTDC system health status including Neo4j and all adapters',
                     inputSchema: {
                         type: 'object',
                         properties: {
@@ -147,14 +115,73 @@ class NeuralBridgeServer {
                     }
                 },
                 {
+                    name: 'list_dropzone_files',
+                    description: 'List files in the WidgeTDC DropZone (safe zone for file access)',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            filter: {
+                                type: 'string',
+                                description: 'File extension filter (e.g., ".txt", ".json")'
+                            }
+                        }
+                    }
+                },
+                {
+                    name: 'read_dropzone_file',
+                    description: 'Read a file from the WidgeTDC DropZone',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            filename: {
+                                type: 'string',
+                                description: 'Name of the file to read'
+                            }
+                        },
+                        required: ['filename']
+                    }
+                },
+                {
+                    name: 'list_vidensarkiv',
+                    description: 'List files in the vidensarkiv (knowledge archive)',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            subfolder: {
+                                type: 'string',
+                                description: 'Subfolder path within vidensarkiv'
+                            },
+                            recursive: {
+                                type: 'boolean',
+                                description: 'List files recursively'
+                            }
+                        }
+                    }
+                },
+                {
+                    name: 'read_vidensarkiv_file',
+                    description: 'Read a file from the vidensarkiv (knowledge archive)',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            filepath: {
+                                type: 'string',
+                                description: 'Relative path within vidensarkiv'
+                            }
+                        },
+                        required: ['filepath']
+                    }
+                },
+                {
                     name: 'execute_widget_command',
-                    description: 'Execute a command in WidgeTDC system. Valid commands: harvest, analyze, search, status, refresh. Unknown commands will return an error.',
+                    description: 'Execute a command in WidgeTDC system',
                     inputSchema: {
                         type: 'object',
                         properties: {
                             command: {
                                 type: 'string',
-                                description: 'Command to execute (harvest, analyze, search, status, refresh)'
+                                enum: ['harvest', 'analyze', 'search', 'status', 'refresh'],
+                                description: 'Command to execute'
                             },
                             params: {
                                 type: 'object',
@@ -164,63 +191,9 @@ class NeuralBridgeServer {
                         required: ['command']
                     }
                 },
-                // ═══════════════════════════════════════════════════════════════
-                // FILE ACCESS TOOLS (CONSOLIDATED)
-                // ═══════════════════════════════════════════════════════════════
-                {
-                    name: 'dropzone_files',
-                    description: 'Access files in the WidgeTDC DropZone (safe zone). Use action "list" first to discover available files, then "read" with exact filename. Allowed extensions: .txt, .md, .json, .csv, .yaml, .yml, .xml, .log',
-                    inputSchema: {
-                        type: 'object',
-                        properties: {
-                            action: {
-                                type: 'string',
-                                description: 'Action: "list" to discover files, "read" to read a specific file'
-                            },
-                            filename: {
-                                type: 'string',
-                                description: 'For action="read": exact filename from list results'
-                            },
-                            filter: {
-                                type: 'string',
-                                description: 'For action="list": file extension filter (e.g., ".txt", ".json")'
-                            }
-                        },
-                        required: ['action']
-                    }
-                },
-                {
-                    name: 'vidensarkiv_files',
-                    description: 'Access files in the vidensarkiv (knowledge archive). Use action "list" first to discover available files with their paths, then "read" with exact filepath. Allowed extensions: .txt, .md, .json, .csv, .yaml, .yml, .xml, .log',
-                    inputSchema: {
-                        type: 'object',
-                        properties: {
-                            action: {
-                                type: 'string',
-                                description: 'Action: "list" to discover files, "read" to read a specific file'
-                            },
-                            filepath: {
-                                type: 'string',
-                                description: 'For action="read": exact relative path from list results'
-                            },
-                            subfolder: {
-                                type: 'string',
-                                description: 'For action="list": subfolder path within vidensarkiv'
-                            },
-                            recursive: {
-                                type: 'boolean',
-                                description: 'For action="list": list files recursively'
-                            }
-                        },
-                        required: ['action']
-                    }
-                },
-                // ═══════════════════════════════════════════════════════════════
-                // KNOWLEDGE GRAPH TOOLS
-                // ═══════════════════════════════════════════════════════════════
                 {
                     name: 'query_knowledge_graph',
-                    description: 'Query the Neo4j knowledge graph. Use type "labels" or "relationships" first to discover available node types and relationship types before building queries.',
+                    description: 'Query the Neo4j knowledge graph with Cypher or natural language search',
                     inputSchema: {
                         type: 'object',
                         properties: {
@@ -230,7 +203,8 @@ class NeuralBridgeServer {
                             },
                             type: {
                                 type: 'string',
-                                description: 'Query type: "search" (text search), "cypher" (raw Cypher), "labels" (list node labels), "relationships" (list relationship types)'
+                                enum: ['search', 'cypher', 'labels', 'relationships'],
+                                description: 'Query type: search (text), cypher (raw), labels (list all), relationships (list types)'
                             },
                             limit: {
                                 type: 'number',
@@ -241,54 +215,89 @@ class NeuralBridgeServer {
                     }
                 },
                 {
-                    name: 'graph_mutation',
-                    description: 'Mutate the knowledge graph. Use query_knowledge_graph first to discover existing node IDs before creating relationships. Operations: create_node, create_relationship, get_connections.',
+                    name: 'create_graph_node',
+                    description: 'Create or merge a node in the knowledge graph',
                     inputSchema: {
                         type: 'object',
                         properties: {
-                            operation: {
-                                type: 'string',
-                                description: 'Operation: "create_node", "create_relationship", "get_connections"'
-                            },
                             label: {
                                 type: 'string',
-                                description: 'For create_node: node label (must match /^[A-Za-z_][A-Za-z0-9_]*$/)'
+                                description: 'Node label (e.g., Component, Document, Concept)'
                             },
                             properties: {
                                 type: 'object',
-                                description: 'For create_node/create_relationship: properties object'
-                            },
+                                description: 'Node properties (name, description, etc.)'
+                            }
+                        },
+                        required: ['label', 'properties']
+                    }
+                },
+                {
+                    name: 'create_graph_relationship',
+                    description: 'Create a relationship between two nodes in the graph',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
                             fromNodeId: {
                                 type: 'string',
-                                description: 'For create_relationship: source node ID (use query_knowledge_graph to find IDs)'
+                                description: 'Source node ID'
                             },
                             toNodeId: {
                                 type: 'string',
-                                description: 'For create_relationship: target node ID (use query_knowledge_graph to find IDs)'
+                                description: 'Target node ID'
                             },
                             relationshipType: {
                                 type: 'string',
-                                description: 'For create_relationship: type in UPPERCASE_WITH_UNDERSCORES format'
+                                description: 'Relationship type (e.g., DEPENDS_ON, CONTAINS, RELATED_TO)'
                             },
+                            properties: {
+                                type: 'object',
+                                description: 'Optional relationship properties'
+                            }
+                        },
+                        required: ['fromNodeId', 'toNodeId', 'relationshipType']
+                    }
+                },
+                {
+                    name: 'get_node_connections',
+                    description: 'Get all connections (relationships) for a specific node',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
                             nodeId: {
                                 type: 'string',
-                                description: 'For get_connections: node ID to get relationships for'
+                                description: 'Node ID to get connections for'
                             },
                             direction: {
                                 type: 'string',
-                                description: 'For get_connections: "in", "out", or "both" (default: both)'
+                                enum: ['in', 'out', 'both'],
+                                description: 'Direction of relationships'
                             },
                             limit: {
                                 type: 'number',
-                                description: 'For get_connections: max connections to return'
+                                description: 'Maximum connections to return'
                             }
                         },
-                        required: ['operation']
+                        required: ['nodeId']
+                    }
+                },
+                {
+                    name: 'get_harvest_stats',
+                    description: 'Get OmniHarvester statistics and recent activity',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            timeRange: {
+                                type: 'string',
+                                enum: ['1h', '24h', '7d', '30d'],
+                                description: 'Time range for statistics'
+                            }
+                        }
                     }
                 },
                 {
                     name: 'get_graph_stats',
-                    description: 'Get knowledge graph statistics (node counts, relationship counts by type). Use this to discover what data exists in the graph.',
+                    description: 'Get knowledge graph statistics (node counts, relationship counts by type)',
                     inputSchema: {
                         type: 'object',
                         properties: {}
@@ -302,7 +311,7 @@ class NeuralBridgeServer {
                         properties: {
                             path: {
                                 type: 'string',
-                                description: 'Absolute path to repository or directory to ingest'
+                                description: 'Path to repository or directory to ingest'
                             },
                             name: {
                                 type: 'string',
@@ -317,194 +326,261 @@ class NeuralBridgeServer {
                     }
                 },
                 {
-                    name: 'get_harvest_stats',
-                    description: 'Get OmniHarvester statistics and recent activity.',
+                    name: 'read_agent_messages',
+                    description: 'Read messages from the agent communication inbox',
                     inputSchema: {
                         type: 'object',
                         properties: {
-                            timeRange: {
+                            agent: {
                                 type: 'string',
-                                description: 'Time range: "1h", "24h", "7d", "30d" (default: 24h)'
+                                enum: ['claude', 'gemini'],
+                                description: 'Which agent inbox to read'
+                            },
+                            unreadOnly: {
+                                type: 'boolean',
+                                description: 'Only show unread messages'
                             }
                         }
                     }
                 },
-                // ═══════════════════════════════════════════════════════════════
-                // AGENT COMMUNICATION (CONSOLIDATED)
-                // ═══════════════════════════════════════════════════════════════
                 {
-                    name: 'agent_messages',
-                    description: 'Read/send messages via agent communication protocol. Use action "read" to check inbox, "send" to message another agent.',
+                    name: 'send_agent_message',
+                    description: 'Send a message to another agent via the communication protocol',
                     inputSchema: {
                         type: 'object',
                         properties: {
-                            action: {
-                                type: 'string',
-                                description: 'Action: "read" or "send"'
-                            },
-                            agent: {
-                                type: 'string',
-                                description: 'For action="read": agent inbox to read (e.g., "claude", "gemini")'
-                            },
-                            unreadOnly: {
-                                type: 'boolean',
-                                description: 'For action="read": only show unread messages'
-                            },
                             to: {
                                 type: 'string',
-                                description: 'For action="send": recipient agent name'
+                                enum: ['gemini', 'claude', 'human'],
+                                description: 'Recipient agent'
                             },
                             type: {
                                 type: 'string',
-                                description: 'For action="send": message type (response, task, question, status, alert)'
+                                enum: ['response', 'task', 'question', 'status', 'alert'],
+                                description: 'Message type'
                             },
                             subject: {
                                 type: 'string',
-                                description: 'For action="send": message subject'
+                                description: 'Message subject'
                             },
                             body: {
                                 type: 'string',
-                                description: 'For action="send": message body'
+                                description: 'Message body'
                             },
                             priority: {
                                 type: 'string',
-                                description: 'For action="send": priority (low, normal, high, critical)'
+                                enum: ['low', 'normal', 'high', 'critical'],
+                                description: 'Message priority'
                             }
                         },
-                        required: ['action']
-                    }
-                },
-                {
-                    name: 'neural_chat',
-                    description: 'Real-time Neural Chat channels. Use action "channels" to list available channels, "read" to get messages, "send" to post.',
-                    inputSchema: {
-                        type: 'object',
-                        properties: {
-                            action: {
-                                type: 'string',
-                                description: 'Action: "channels", "read", or "send"'
-                            },
-                            channel: {
-                                type: 'string',
-                                description: 'For read/send: channel name (use "channels" action first to discover)'
-                            },
-                            body: {
-                                type: 'string',
-                                description: 'For action="send": message content'
-                            },
-                            from: {
-                                type: 'string',
-                                description: 'For action="send": sender agent name'
-                            },
-                            priority: {
-                                type: 'string',
-                                description: 'For action="send": priority (low, normal, high, critical)'
-                            },
-                            type: {
-                                type: 'string',
-                                description: 'For action="send": message type (chat, task, status, alert, handover, response)'
-                            },
-                            limit: {
-                                type: 'number',
-                                description: 'For action="read": max messages (default: 20)'
-                            },
-                            since: {
-                                type: 'string',
-                                description: 'For action="read": ISO timestamp to read messages since'
-                            }
-                        },
-                        required: ['action']
-                    }
-                },
-                {
-                    name: 'capability_broker',
-                    description: 'Cross-agent task delegation. Use action "list" to discover agent capabilities, "request" to delegate, "pending" to check requests, "route" to find best agent.',
-                    inputSchema: {
-                        type: 'object',
-                        properties: {
-                            action: {
-                                type: 'string',
-                                description: 'Action: "list", "request", "pending", or "route"'
-                            },
-                            agent: {
-                                type: 'string',
-                                description: 'For list/pending: agent name (use "list" without agent first to see all)'
-                            },
-                            toAgent: {
-                                type: 'string',
-                                description: 'For action="request": target agent name'
-                            },
-                            capability: {
-                                type: 'string',
-                                description: 'For action="request": capability ID or name'
-                            },
-                            params: {
-                                type: 'object',
-                                description: 'For action="request": capability parameters'
-                            },
-                            priority: {
-                                type: 'string',
-                                description: 'For action="request": priority (low, normal, high, critical)'
-                            },
-                            task: {
-                                type: 'string',
-                                description: 'For action="route": task description'
-                            },
-                            context: {
-                                type: 'string',
-                                description: 'For action="route": additional routing context'
-                            }
-                        },
-                        required: ['action']
+                        required: ['to', 'type', 'subject', 'body']
                     }
                 },
                 // ═══════════════════════════════════════════════════════════════
-                // PROTOTYPE TOOLS (CONSOLIDATED)
+                // PRD to Prototype Tools
                 // ═══════════════════════════════════════════════════════════════
                 {
-                    name: 'prototype_manager',
-                    description: 'PRD to HTML prototype workflow. Use action "list" to see saved prototypes, "generate" to create from PRD, "save" to persist.',
+                    name: 'generate_prototype',
+                    description: 'Generate an HTML prototype from a PRD document. Returns complete functional HTML code.',
                     inputSchema: {
                         type: 'object',
                         properties: {
-                            action: {
-                                type: 'string',
-                                description: 'Action: "list", "generate", or "save"'
-                            },
                             prdContent: {
                                 type: 'string',
-                                description: 'For action="generate": PRD content (text, markdown, or [PDF:base64] prefixed)'
+                                description: 'The PRD content (text, markdown, or [PDF:base64] prefixed base64 data)'
                             },
                             style: {
                                 type: 'string',
-                                description: 'For action="generate": visual style (modern, minimal, corporate, tdc-brand)'
+                                enum: ['modern', 'minimal', 'corporate', 'tdc-brand'],
+                                description: 'Visual style for the prototype (default: modern)'
                             },
                             locale: {
                                 type: 'string',
-                                description: 'For action="generate": locale for UI text (default: da-DK)'
-                            },
+                                description: 'Locale for UI text (default: da-DK)'
+                            }
+                        },
+                        required: ['prdContent']
+                    }
+                },
+                {
+                    name: 'save_prototype',
+                    description: 'Save a generated prototype to the database and Neo4j knowledge graph',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
                             name: {
                                 type: 'string',
-                                description: 'For action="save": prototype name'
+                                description: 'Name for the prototype'
                             },
                             htmlContent: {
                                 type: 'string',
-                                description: 'For action="save": HTML content'
+                                description: 'The HTML content of the prototype'
                             },
                             prdId: {
                                 type: 'string',
-                                description: 'For action="save": optional source PRD document ID'
+                                description: 'Optional ID of the source PRD document'
                             }
                         },
-                        required: ['action']
+                        required: ['name', 'htmlContent']
+                    }
+                },
+                {
+                    name: 'list_prototypes',
+                    description: 'List all saved prototypes',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {}
                     }
                 },
                 // ═══════════════════════════════════════════════════════════════
-                // COGNITIVE SENSES
+                // Neural Chat Tools - Real-time Agent Communication
+                // ═══════════════════════════════════════════════════════════════
+                {
+                    name: 'neural_chat_send',
+                    description: 'Send a message to a Neural Chat channel for real-time agent communication',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            channel: {
+                                type: 'string',
+                                description: 'Channel to send to (core-dev, standup, alerts)'
+                            },
+                            body: {
+                                type: 'string',
+                                description: 'Message content'
+                            },
+                            from: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak', 'system'],
+                                description: 'Sender agent'
+                            },
+                            priority: {
+                                type: 'string',
+                                enum: ['low', 'normal', 'high', 'critical'],
+                                description: 'Message priority'
+                            },
+                            type: {
+                                type: 'string',
+                                enum: ['chat', 'task', 'status', 'alert', 'handover', 'response'],
+                                description: 'Message type'
+                            }
+                        },
+                        required: ['channel', 'body', 'from']
+                    }
+                },
+                {
+                    name: 'neural_chat_read',
+                    description: 'Read messages from Neural Chat channels',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            channel: {
+                                type: 'string',
+                                description: 'Channel to read from (optional, reads all if not specified)'
+                            },
+                            limit: {
+                                type: 'number',
+                                description: 'Max messages to return (default: 20)'
+                            },
+                            since: {
+                                type: 'string',
+                                description: 'ISO timestamp to read messages since'
+                            }
+                        }
+                    }
+                },
+                {
+                    name: 'neural_chat_channels',
+                    description: 'List all Neural Chat channels',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {}
+                    }
+                },
+                // ═══════════════════════════════════════════════════════════════
+                // Capability Broker Tools - Cross-Agent Task Delegation
+                // ═══════════════════════════════════════════════════════════════
+                {
+                    name: 'list_agent_capabilities',
+                    description: 'List capabilities of agents (what each agent is good at)',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            agent: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak'],
+                                description: 'Specific agent to list capabilities for (optional)'
+                            }
+                        }
+                    }
+                },
+                {
+                    name: 'request_capability',
+                    description: 'Request another agent to perform a task based on their capabilities',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            toAgent: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak'],
+                                description: 'Agent to request capability from'
+                            },
+                            capability: {
+                                type: 'string',
+                                description: 'Capability ID or name to request'
+                            },
+                            params: {
+                                type: 'object',
+                                description: 'Parameters for the capability request'
+                            },
+                            priority: {
+                                type: 'string',
+                                enum: ['low', 'normal', 'high', 'critical'],
+                                description: 'Request priority'
+                            }
+                        },
+                        required: ['toAgent', 'capability']
+                    }
+                },
+                {
+                    name: 'get_pending_requests',
+                    description: 'Get pending capability requests assigned to an agent',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            agent: {
+                                type: 'string',
+                                enum: ['claude', 'gemini', 'deepseek', 'clak'],
+                                description: 'Agent to check pending requests for'
+                            }
+                        },
+                        required: ['agent']
+                    }
+                },
+                {
+                    name: 'smart_route_task',
+                    description: 'Find the best agent for a task based on capability matching',
+                    inputSchema: {
+                        type: 'object',
+                        properties: {
+                            task: {
+                                type: 'string',
+                                description: 'Description of the task to route'
+                            },
+                            context: {
+                                type: 'string',
+                                description: 'Additional context for routing decision'
+                            }
+                        },
+                        required: ['task']
+                    }
+                },
+                // ═══════════════════════════════════════════════════════════════
+                // 🧠 COGNITIVE SENSES - Neural Bridge v2.2
                 // ═══════════════════════════════════════════════════════════════
                 {
                     name: 'activate_associative_memory',
-                    description: 'The Cortical Flash: Combines semantic search with graph traversal for contextual memory recall. Use query_knowledge_graph first to validate concept exists.',
+                    description: 'The Cortical Flash: Simulates brain-wide activation. Combines semantic search with graph traversal for full contextual memory recall.',
                     inputSchema: {
                         type: 'object',
                         properties: {
@@ -522,7 +598,7 @@ class NeuralBridgeServer {
                 },
                 {
                     name: 'sense_molecular_state',
-                    description: 'The Olfactory Sense: Calculates file integrity (MD5 hash) and compares with Graph Memory to detect mutations. Provide absolute file path.',
+                    description: 'The Olfactory Sense: Calculates file integrity (MD5 hash) and compares with Graph Memory to detect mutations/changes.',
                     inputSchema: {
                         type: 'object',
                         properties: {
@@ -536,13 +612,14 @@ class NeuralBridgeServer {
                 },
                 {
                     name: 'emit_sonar_pulse',
-                    description: 'The Sonar Pulse: Measures service latency and health. Targets: neo4j, postgres, internet, filesystem, backend.',
+                    description: 'The Sonar Pulse: Active echolocation to measure service distance (latency) and health quality.',
                     inputSchema: {
                         type: 'object',
                         properties: {
                             target: {
                                 type: 'string',
-                                description: 'Target service: neo4j, postgres, internet, filesystem, or backend'
+                                enum: ['neo4j', 'postgres', 'internet', 'filesystem', 'backend'],
+                                description: 'Target to ping'
                             }
                         },
                         required: ['target']
@@ -557,32 +634,38 @@ class NeuralBridgeServer {
 
             try {
                 switch (name) {
-                    // ═══════════════════════════════════════════════════════════
-                    // Core System Tools
-                    // ═══════════════════════════════════════════════════════════
                     case 'get_system_health':
                         return await this.handleGetSystemHealth(args);
+
+                    case 'list_dropzone_files':
+                        return await this.handleListDropzoneFiles(args);
+
+                    case 'read_dropzone_file':
+                        return await this.handleReadDropzoneFile(args);
+
+                    case 'list_vidensarkiv':
+                        return await this.handleListVidensarkiv(args);
+
+                    case 'read_vidensarkiv_file':
+                        return await this.handleReadVidensarkivFile(args);
 
                     case 'execute_widget_command':
                         return await this.handleExecuteCommand(args);
 
-                    // ═══════════════════════════════════════════════════════════
-                    // Consolidated File Access Tools
-                    // ═══════════════════════════════════════════════════════════
-                    case 'dropzone_files':
-                        return await this.handleDropzoneFiles(args);
-
-                    case 'vidensarkiv_files':
-                        return await this.handleVidensarkivFiles(args);
-
-                    // ═══════════════════════════════════════════════════════════
-                    // Knowledge Graph Tools
-                    // ═══════════════════════════════════════════════════════════
                     case 'query_knowledge_graph':
                         return await this.handleQueryKnowledgeGraph(args);
 
-                    case 'graph_mutation':
-                        return await this.handleGraphMutation(args);
+                    case 'create_graph_node':
+                        return await this.handleCreateGraphNode(args);
+
+                    case 'create_graph_relationship':
+                        return await this.handleCreateGraphRelationship(args);
+
+                    case 'get_node_connections':
+                        return await this.handleGetNodeConnections(args);
+
+                    case 'get_harvest_stats':
+                        return await this.handleGetHarvestStats(args);
 
                     case 'get_graph_stats':
                         return await this.handleGetGraphStats(args);
@@ -590,29 +673,41 @@ class NeuralBridgeServer {
                     case 'ingest_knowledge_graph':
                         return await this.handleIngestKnowledgeGraph(args);
 
-                    case 'get_harvest_stats':
-                        return await this.handleGetHarvestStats(args);
+                    case 'read_agent_messages':
+                        return await this.handleReadAgentMessages(args);
+
+                    case 'send_agent_message':
+                        return await this.handleSendAgentMessage(args);
 
                     // ═══════════════════════════════════════════════════════════
-                    // Consolidated Agent Communication
+                    // Neural Chat Handlers
                     // ═══════════════════════════════════════════════════════════
-                    case 'agent_messages':
-                        return await this.handleAgentMessages(args);
+                    case 'neural_chat_send':
+                        return await this.handleNeuralChatSend(args);
 
-                    case 'neural_chat':
-                        return await this.handleNeuralChat(args);
+                    case 'neural_chat_read':
+                        return await this.handleNeuralChatRead(args);
 
-                    case 'capability_broker':
-                        return await this.handleCapabilityBroker(args);
-
-                    // ═══════════════════════════════════════════════════════════
-                    // Consolidated Prototype Tools
-                    // ═══════════════════════════════════════════════════════════
-                    case 'prototype_manager':
-                        return await this.handlePrototypeManager(args);
+                    case 'neural_chat_channels':
+                        return await this.handleNeuralChatChannels(args);
 
                     // ═══════════════════════════════════════════════════════════
-                    // Cognitive Senses
+                    // Capability Broker Handlers
+                    // ═══════════════════════════════════════════════════════════
+                    case 'list_agent_capabilities':
+                        return await this.handleListAgentCapabilities(args);
+
+                    case 'request_capability':
+                        return await this.handleRequestCapability(args);
+
+                    case 'get_pending_requests':
+                        return await this.handleGetPendingRequests(args);
+
+                    case 'smart_route_task':
+                        return await this.handleSmartRouteTask(args);
+
+                    // ═══════════════════════════════════════════════════════════
+                    // 🧠 Cognitive Sense Handlers
                     // ═══════════════════════════════════════════════════════════
                     case 'activate_associative_memory':
                         return await this.handleAssociativeMemory(args);
@@ -677,7 +772,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: safeJsonStringify(this.systemHealth)
+                            text: JSON.stringify(this.systemHealth, null, 2)
                         }]
                     };
 
@@ -687,7 +782,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: safeJsonStringify(files)
+                            text: JSON.stringify(files, null, 2)
                         }]
                     };
 
@@ -697,7 +792,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: safeJsonStringify(arkivFiles)
+                            text: JSON.stringify(arkivFiles, null, 2)
                         }]
                     };
 
@@ -707,7 +802,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: safeJsonStringify(graphHealth)
+                            text: JSON.stringify(graphHealth, null, 2)
                         }]
                     };
 
@@ -735,167 +830,127 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: safeJsonStringify(response)
+                text: JSON.stringify(response, null, 2)
             }]
         };
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // CONSOLIDATED FILE ACCESS HANDLERS
-    // ═══════════════════════════════════════════════════════════════════════
-
-    private async handleDropzoneFiles(args: any) {
-        const { action, filename, filter } = args;
-
-        // Runtime validation of action
-        if (!action) {
-            throw new Error('Action is required. Use "list" to discover files or "read" to read a specific file.');
-        }
-
-        const validActions = ['list', 'read'];
-        if (!validActions.includes(action)) {
-            throw new Error(`Invalid action "${action}". Valid actions: ${validActions.join(', ')}`);
-        }
+    private async handleListDropzoneFiles(args: any) {
+        const filter = args?.filter;
 
         await this.ensureSafeZoneExists();
+        const files = await this.listSafeFiles(SAFE_DESKTOP_PATH);
 
-        if (action === 'list') {
-            const files = await this.listSafeFiles(SAFE_DESKTOP_PATH);
-            const filtered = filter
-                ? files.filter(f => f.name.endsWith(filter))
-                : files;
+        const filtered = filter
+            ? files.filter(f => f.name.endsWith(filter))
+            : files;
 
-            return {
-                content: [{
-                    type: 'text',
-                    text: safeJsonStringify({
-                        action: 'list',
-                        path: SAFE_DESKTOP_PATH,
-                        files: filtered,
-                        count: filtered.length,
-                        hint: 'Use action="read" with filename from this list to read a file'
-                    })
-                }]
-            };
-        }
-
-        if (action === 'read') {
-            if (!filename) {
-                throw new Error('Filename is required for read action. Use action="list" first to discover available files.');
-            }
-
-            const safePath = path.join(SAFE_DESKTOP_PATH, path.basename(filename));
-
-            if (!safePath.startsWith(SAFE_DESKTOP_PATH)) {
-                throw new Error('Access denied: File outside safe zone');
-            }
-
-            const ext = path.extname(filename).toLowerCase();
-            if (!ALLOWED_EXTENSIONS.includes(ext)) {
-                throw new Error(`File type not allowed: ${ext}. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`);
-            }
-
-            try {
-                const content = await fs.readFile(safePath, 'utf-8');
-                return {
-                    content: [{
-                        type: 'text',
-                        text: content
-                    }]
-                };
-            } catch (error: any) {
-                if (error.code === 'ENOENT') {
-                    throw new Error(`File not found: ${filename}. Use action="list" to see available files.`);
-                }
-                throw error;
-            }
-        }
-
-        throw new Error(`Unhandled action: ${action}`);
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    path: SAFE_DESKTOP_PATH,
+                    files: filtered,
+                    count: filtered.length
+                }, null, 2)
+            }]
+        };
     }
 
-    private async handleVidensarkivFiles(args: any) {
-        const { action, filepath, subfolder, recursive } = args;
+    private async handleReadDropzoneFile(args: any) {
+        const { filename } = args;
 
-        // Runtime validation of action
-        if (!action) {
-            throw new Error('Action is required. Use "list" to discover files or "read" to read a specific file.');
+        if (!filename) {
+            throw new Error('Filename is required');
         }
 
-        const validActions = ['list', 'read'];
-        if (!validActions.includes(action)) {
-            throw new Error(`Invalid action "${action}". Valid actions: ${validActions.join(', ')}`);
+        const safePath = path.join(SAFE_DESKTOP_PATH, path.basename(filename));
+
+        if (!safePath.startsWith(SAFE_DESKTOP_PATH)) {
+            throw new Error('Access denied: File outside safe zone');
         }
 
-        if (action === 'list') {
-            const targetPath = path.join(VIDENSARKIV_PATH, subfolder || '');
+        const ext = path.extname(filename).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(ext)) {
+            throw new Error(`File type not allowed: ${ext}`);
+        }
 
-            if (!targetPath.startsWith(VIDENSARKIV_PATH)) {
-                throw new Error('Access denied: Path outside vidensarkiv');
-            }
-
-            const files = await this.listSafeFiles(targetPath, recursive ?? false);
-
+        try {
+            const content = await fs.readFile(safePath, 'utf-8');
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
-                        action: 'list',
-                        path: targetPath,
-                        files: files,
-                        count: files.length,
-                        hint: 'Use action="read" with filepath from this list to read a file'
-                    })
+                    text: content
                 }]
             };
+        } catch (error: any) {
+            if (error.code === 'ENOENT') {
+                throw new Error(`File not found: ${filename}`);
+            }
+            throw error;
+        }
+    }
+
+    private async handleListVidensarkiv(args: any) {
+        const subfolder = args?.subfolder || '';
+        const recursive = args?.recursive ?? false;
+
+        const targetPath = path.join(VIDENSARKIV_PATH, subfolder);
+
+        if (!targetPath.startsWith(VIDENSARKIV_PATH)) {
+            throw new Error('Access denied: Path outside vidensarkiv');
         }
 
-        if (action === 'read') {
-            if (!filepath) {
-                throw new Error('Filepath is required for read action. Use action="list" first to discover available files.');
-            }
+        const files = await this.listSafeFiles(targetPath, recursive);
 
-            const safePath = path.join(VIDENSARKIV_PATH, filepath);
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    path: targetPath,
+                    files: files,
+                    count: files.length
+                }, null, 2)
+            }]
+        };
+    }
 
-            if (!safePath.startsWith(VIDENSARKIV_PATH)) {
-                throw new Error('Access denied: Path outside vidensarkiv');
-            }
+    private async handleReadVidensarkivFile(args: any) {
+        const { filepath } = args;
 
-            const ext = path.extname(filepath).toLowerCase();
-            if (!ALLOWED_EXTENSIONS.includes(ext)) {
-                throw new Error(`File type not allowed: ${ext}. Allowed: ${ALLOWED_EXTENSIONS.join(', ')}`);
-            }
-
-            try {
-                const content = await fs.readFile(safePath, 'utf-8');
-                return {
-                    content: [{
-                        type: 'text',
-                        text: content
-                    }]
-                };
-            } catch (error: any) {
-                if (error.code === 'ENOENT') {
-                    throw new Error(`File not found: ${filepath}. Use action="list" to see available files.`);
-                }
-                throw error;
-            }
+        if (!filepath) {
+            throw new Error('Filepath is required');
         }
 
-        throw new Error(`Unhandled action: ${action}`);
+        const safePath = path.join(VIDENSARKIV_PATH, filepath);
+
+        if (!safePath.startsWith(VIDENSARKIV_PATH)) {
+            throw new Error('Access denied: Path outside vidensarkiv');
+        }
+
+        const ext = path.extname(filepath).toLowerCase();
+        if (!ALLOWED_EXTENSIONS.includes(ext)) {
+            throw new Error(`File type not allowed: ${ext}`);
+        }
+
+        try {
+            const content = await fs.readFile(safePath, 'utf-8');
+            return {
+                content: [{
+                    type: 'text',
+                    text: content
+                }]
+            };
+        } catch (error: any) {
+            if (error.code === 'ENOENT') {
+                throw new Error(`File not found: ${filepath}`);
+            }
+            throw error;
+        }
     }
 
     private async handleExecuteCommand(args: any) {
         const { command, params } = args;
-
-        // Runtime validation of command
-        const validCommands = ['harvest', 'analyze', 'search', 'status', 'refresh'];
-        if (!command) {
-            throw new Error(`Command is required. Valid commands: ${validCommands.join(', ')}`);
-        }
-        if (!validCommands.includes(command)) {
-            throw new Error(`Invalid command "${command}". Valid commands: ${validCommands.join(', ')}`);
-        }
 
         const results: Record<string, any> = {
             harvest: {
@@ -931,7 +986,7 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: safeJsonStringify(results[command])
+                text: JSON.stringify(results[command] || { error: 'Unknown command' }, null, 2)
             }]
         };
     }
@@ -942,12 +997,6 @@ class NeuralBridgeServer {
 
     private async handleQueryKnowledgeGraph(args: any) {
         const { query, type = 'search', limit = 20 } = args;
-
-        // Runtime validation of query type
-        const validTypes = ['search', 'cypher', 'labels', 'relationships'];
-        if (type && !validTypes.includes(type)) {
-            throw new Error(`Invalid query type "${type}". Valid types: ${validTypes.join(', ')}`);
-        }
 
         try {
             let results: any[];
@@ -999,14 +1048,13 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         queryType: type,
                         query: query,
                         cypherExecuted: cypherUsed,
                         resultCount: results.length,
-                        results: results,
-                        hint: type === 'search' ? 'Use type="labels" or type="relationships" to discover available node/relationship types' : undefined
-                    })
+                        results: results
+                    }, null, 2)
                 }]
             };
 
@@ -1014,164 +1062,128 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         error: error.message,
                         queryType: type,
                         query: query,
-                        hint: 'Check Neo4j connection or query syntax. Use type="labels" to discover node types.'
-                    })
+                        hint: 'Check Neo4j connection or query syntax'
+                    }, null, 2)
                 }],
                 isError: true
             };
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // CONSOLIDATED GRAPH MUTATION HANDLER
-    // ═══════════════════════════════════════════════════════════════════════
+    private async handleCreateGraphNode(args: any) {
+        const { label, properties } = args;
 
-    private async handleGraphMutation(args: any) {
-        const { operation } = args;
-
-        // Runtime validation of operation
-        if (!operation) {
-            throw new Error('Operation is required. Valid operations: create_node, create_relationship, get_connections');
+        if (!label || !properties) {
+            throw new Error('Label and properties are required');
         }
 
-        const validOperations = ['create_node', 'create_relationship', 'get_connections'];
-        if (!validOperations.includes(operation)) {
-            throw new Error(`Invalid operation "${operation}". Valid operations: ${validOperations.join(', ')}`);
+        // Validate label (prevent injection)
+        if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(label)) {
+            throw new Error('Invalid label format');
         }
 
-        switch (operation) {
-            case 'create_node': {
-                const { label, properties } = args;
+        try {
+            const result = await neo4jAdapter.createNode(label, {
+                ...properties,
+                createdAt: new Date().toISOString(),
+                source: 'neural-bridge'
+            });
 
-                if (!label || !properties) {
-                    throw new Error('Label and properties are required for create_node operation');
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: true,
+                        action: 'node_created',
+                        label: label,
+                        node: result
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            throw new Error(`Failed to create node: ${error.message}`);
+        }
+    }
+
+    private async handleCreateGraphRelationship(args: any) {
+        const { fromNodeId, toNodeId, relationshipType, properties = {} } = args;
+
+        if (!fromNodeId || !toNodeId || !relationshipType) {
+            throw new Error('fromNodeId, toNodeId, and relationshipType are required');
+        }
+
+        // Validate relationship type
+        if (!/^[A-Z_][A-Z0-9_]*$/.test(relationshipType)) {
+            throw new Error('Invalid relationship type format (use UPPERCASE_WITH_UNDERSCORES)');
+        }
+
+        try {
+            const result = await neo4jAdapter.createRelationship(
+                fromNodeId,
+                toNodeId,
+                relationshipType,
+                {
+                    ...properties,
+                    createdAt: new Date().toISOString(),
+                    source: 'neural-bridge'
                 }
+            );
 
-                // Validate label (prevent injection)
-                if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(label)) {
-                    throw new Error('Invalid label format. Must match /^[A-Za-z_][A-Za-z0-9_]*$/');
-                }
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        success: true,
+                        action: 'relationship_created',
+                        type: relationshipType,
+                        result: result
+                    }, null, 2)
+                }]
+            };
 
-                try {
-                    const result = await neo4jAdapter.createNode(label, {
-                        ...properties,
-                        createdAt: new Date().toISOString(),
-                        source: 'neural-bridge'
-                    });
+        } catch (error: any) {
+            throw new Error(`Failed to create relationship: ${error.message}`);
+        }
+    }
 
-                    return {
-                        content: [{
-                            type: 'text',
-                            text: safeJsonStringify({
-                                success: true,
-                                operation: 'create_node',
-                                label: label,
-                                node: result,
-                                hint: 'Save the node ID to use when creating relationships'
-                            })
-                        }]
-                    };
-                } catch (error: any) {
-                    throw new Error(`Failed to create node: ${error.message}`);
-                }
-            }
+    private async handleGetNodeConnections(args: any) {
+        const { nodeId, direction = 'both', limit = 50 } = args;
 
-            case 'create_relationship': {
-                const { fromNodeId, toNodeId, relationshipType, properties = {} } = args;
+        if (!nodeId) {
+            throw new Error('nodeId is required');
+        }
 
-                if (!fromNodeId || !toNodeId || !relationshipType) {
-                    throw new Error('fromNodeId, toNodeId, and relationshipType are required. Use query_knowledge_graph to find node IDs first.');
-                }
+        try {
+            const connections = await neo4jAdapter.getNodeRelationships(
+                nodeId,
+                direction,
+                limit
+            );
 
-                // Validate relationship type
-                if (!/^[A-Z_][A-Z0-9_]*$/.test(relationshipType)) {
-                    throw new Error('Invalid relationship type format. Must be UPPERCASE_WITH_UNDERSCORES (e.g., DEPENDS_ON, CONTAINS)');
-                }
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        nodeId: nodeId,
+                        direction: direction,
+                        connectionCount: connections.length,
+                        connections: connections
+                    }, null, 2)
+                }]
+            };
 
-                try {
-                    const result = await neo4jAdapter.createRelationship(
-                        fromNodeId,
-                        toNodeId,
-                        relationshipType,
-                        {
-                            ...properties,
-                            createdAt: new Date().toISOString(),
-                            source: 'neural-bridge'
-                        }
-                    );
-
-                    return {
-                        content: [{
-                            type: 'text',
-                            text: safeJsonStringify({
-                                success: true,
-                                operation: 'create_relationship',
-                                type: relationshipType,
-                                from: fromNodeId,
-                                to: toNodeId,
-                                result: result
-                            })
-                        }]
-                    };
-                } catch (error: any) {
-                    throw new Error(`Failed to create relationship: ${error.message}. Verify node IDs exist using query_knowledge_graph.`);
-                }
-            }
-
-            case 'get_connections': {
-                const { nodeId, direction = 'both', limit = 50 } = args;
-
-                if (!nodeId) {
-                    throw new Error('nodeId is required. Use query_knowledge_graph to find node IDs first.');
-                }
-
-                // Runtime validation of direction
-                const validDirections = ['in', 'out', 'both'];
-                if (!validDirections.includes(direction)) {
-                    throw new Error(`Invalid direction "${direction}". Valid: ${validDirections.join(', ')}`);
-                }
-
-                try {
-                    const connections = await neo4jAdapter.getNodeRelationships(
-                        nodeId,
-                        direction,
-                        limit
-                    );
-
-                    return {
-                        content: [{
-                            type: 'text',
-                            text: safeJsonStringify({
-                                operation: 'get_connections',
-                                nodeId: nodeId,
-                                direction: direction,
-                                connectionCount: connections.length,
-                                connections: connections
-                            })
-                        }]
-                    };
-                } catch (error: any) {
-                    throw new Error(`Failed to get connections: ${error.message}. Verify nodeId exists using query_knowledge_graph.`);
-                }
-            }
-
-            default:
-                throw new Error(`Unhandled operation: ${operation}`);
+        } catch (error: any) {
+            throw new Error(`Failed to get connections: ${error.message}`);
         }
     }
 
     private async handleGetHarvestStats(args: any) {
         const timeRange = args?.timeRange || '24h';
-
-        // Runtime validation of timeRange
-        const validRanges = ['1h', '24h', '7d', '30d'];
-        if (timeRange && !validRanges.includes(timeRange)) {
-            throw new Error(`Invalid timeRange "${timeRange}". Valid ranges: ${validRanges.join(', ')}`);
-        }
 
         // Query Neo4j for actual harvest statistics
         try {
@@ -1192,12 +1204,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         timeRange,
                         nodesByLabel: stats,
                         relationshipsByType: relStats,
                         lastUpdated: new Date().toISOString()
-                    })
+                    }, null, 2)
                 }]
             };
 
@@ -1206,7 +1218,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         timeRange,
                         filesScanned: 288,
                         linesOfCode: 58317,
@@ -1214,7 +1226,7 @@ class NeuralBridgeServer {
                         relationshipsCreated: 3891,
                         note: 'Simulated stats - Neo4j connection issue',
                         error: error.message
-                    })
+                    }, null, 2)
                 }]
             };
         }
@@ -1253,12 +1265,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         health: health,
                         labels: labelCounts,
                         relationshipTypes: relCounts,
                         timestamp: new Date().toISOString()
-                    })
+                    }, null, 2)
                 }]
             };
 
@@ -1266,10 +1278,10 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         error: error.message,
                         hint: 'Neo4j may not be running. Start with: docker-compose up neo4j'
-                    })
+                    }, null, 2)
                 }],
                 isError: true
             };
@@ -1402,7 +1414,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         success: result.success,
                         repositoryId: result.repositoryId,
                         stats: result.stats,
@@ -1410,7 +1422,7 @@ class NeuralBridgeServer {
                         message: result.success 
                             ? `Successfully ingested ${result.stats.totalNodes} nodes with ${result.stats.relationshipsCreated} relationships`
                             : 'Ingestion failed - check errors'
-                    })
+                    }, null, 2)
                 }]
             };
 
@@ -1418,542 +1430,289 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         error: error.message,
                         hint: 'Ensure Neo4j is running and path exists'
-                    })
+                    }, null, 2)
                 }],
                 isError: true
             };
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // CONSOLIDATED AGENT MESSAGES HANDLER
-    // ═══════════════════════════════════════════════════════════════════════
+    private async handleReadAgentMessages(args: any) {
+        const agent = args?.agent || 'claude';
+        const inboxPath = path.join(SAFE_DESKTOP_PATH, 'agents', agent, 'inbox');
 
-    private async handleAgentMessages(args: any) {
-        const { action } = args;
+        try {
+            const files = await this.listSafeFiles(inboxPath, false);
+            const messages: any[] = [];
 
-        // Runtime validation of action
-        if (!action) {
-            throw new Error('Action is required. Use "read" to check inbox or "send" to message another agent.');
-        }
-
-        const validActions = ['read', 'send'];
-        if (!validActions.includes(action)) {
-            throw new Error(`Invalid action "${action}". Valid actions: ${validActions.join(', ')}`);
-        }
-
-        if (action === 'read') {
-            const agent = args?.agent || 'claude';
-            const inboxPath = path.join(SAFE_DESKTOP_PATH, 'agents', agent, 'inbox');
-
-            try {
-                const files = await this.listSafeFiles(inboxPath, false);
-                const messages: any[] = [];
-
-                for (const file of files) {
-                    if (file.type === '.json') {
-                        try {
-                            const content = await fs.readFile(
-                                path.join(inboxPath, file.name), 
-                                'utf-8'
-                            );
-                            messages.push(JSON.parse(content));
-                        } catch {
-                            // Skip invalid JSON
-                        }
+            for (const file of files) {
+                if (file.type === '.json') {
+                    try {
+                        const content = await fs.readFile(
+                            path.join(inboxPath, file.name), 
+                            'utf-8'
+                        );
+                        messages.push(JSON.parse(content));
+                    } catch {
+                        // Skip invalid JSON
                     }
                 }
-
-                return {
-                    content: [{
-                        type: 'text',
-                        text: safeJsonStringify({
-                            action: 'read',
-                            agent: agent,
-                            inboxPath: inboxPath,
-                            messageCount: messages.length,
-                            messages: messages,
-                            hint: 'Use action="send" to reply to a message'
-                        })
-                    }]
-                };
-            } catch (error: any) {
-                return {
-                    content: [{
-                        type: 'text',
-                        text: safeJsonStringify({
-                            error: error.message,
-                            hint: 'Agent inbox may not exist yet'
-                        })
-                    }]
-                };
-            }
-        }
-
-        if (action === 'send') {
-            const { to, type, subject, body, priority = 'normal' } = args;
-
-            if (!to || !type || !subject || !body) {
-                throw new Error('to, type, subject, and body are required for send action');
-            }
-
-            // Runtime validation
-            const validTypes = ['response', 'task', 'question', 'status', 'alert'];
-            if (!validTypes.includes(type)) {
-                throw new Error(`Invalid message type "${type}". Valid types: ${validTypes.join(', ')}`);
-            }
-
-            const validPriorities = ['low', 'normal', 'high', 'critical'];
-            if (!validPriorities.includes(priority)) {
-                throw new Error(`Invalid priority "${priority}". Valid priorities: ${validPriorities.join(', ')}`);
-            }
-
-            const timestamp = new Date().toISOString();
-            const messageId = `msg-${Date.now()}`;
-            const filename = `${timestamp.replace(/[:.]/g, '-')}_claude_${to}_${type}.json`;
-
-            const message = {
-                id: messageId,
-                timestamp: timestamp,
-                from: 'claude',
-                to: to,
-                type: type,
-                priority: priority,
-                subject: subject,
-                body: body,
-                context: {
-                    session: 'neural-bridge',
-                    source: 'mcp-tool'
-                },
-                requires_response: type !== 'status' && type !== 'response'
-            };
-
-            // Write to own outbox
-            const outboxPath = path.join(SAFE_DESKTOP_PATH, 'agents', 'claude', 'outbox', filename);
-            await fs.writeFile(outboxPath, safeJsonStringify(message));
-
-            // Copy to recipient's inbox
-            if (to !== 'human') {
-                const recipientInbox = path.join(SAFE_DESKTOP_PATH, 'agents', to, 'inbox', filename);
-                await fs.writeFile(recipientInbox, safeJsonStringify(message));
             }
 
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
-                        success: true,
-                        action: 'send',
-                        messageId: messageId,
-                        sentTo: to,
-                        filename: filename,
-                        message: `Message sent to ${to}`
-                    })
+                    text: JSON.stringify({
+                        agent: agent,
+                        inboxPath: inboxPath,
+                        messageCount: messages.length,
+                        messages: messages
+                    }, null, 2)
+                }]
+            };
+
+        } catch (error: any) {
+            return {
+                content: [{
+                    type: 'text',
+                    text: JSON.stringify({
+                        error: error.message,
+                        hint: 'Agent inbox may not exist yet'
+                    }, null, 2)
                 }]
             };
         }
+    }
 
-        throw new Error(`Unhandled action: ${action}`);
+    private async handleSendAgentMessage(args: any) {
+        const { to, type, subject, body, priority = 'normal' } = args;
+
+        if (!to || !type || !subject || !body) {
+            throw new Error('to, type, subject, and body are required');
+        }
+
+        const timestamp = new Date().toISOString();
+        const messageId = `msg-${Date.now()}`;
+        const filename = `${timestamp.replace(/[:.]/g, '-')}_claude_${to}_${type}.json`;
+
+        const message = {
+            id: messageId,
+            timestamp: timestamp,
+            from: 'claude',
+            to: to,
+            type: type,
+            priority: priority,
+            subject: subject,
+            body: body,
+            context: {
+                session: 'neural-bridge',
+                source: 'mcp-tool'
+            },
+            requires_response: type !== 'status' && type !== 'response'
+        };
+
+        // Write to own outbox
+        const outboxPath = path.join(SAFE_DESKTOP_PATH, 'agents', 'claude', 'outbox', filename);
+        await fs.writeFile(outboxPath, JSON.stringify(message, null, 2));
+
+        // Copy to recipient's inbox
+        if (to !== 'human') {
+            const recipientInbox = path.join(SAFE_DESKTOP_PATH, 'agents', to, 'inbox', filename);
+            await fs.writeFile(recipientInbox, JSON.stringify(message, null, 2));
+        }
+
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    success: true,
+                    messageId: messageId,
+                    sentTo: to,
+                    filename: filename,
+                    message: `Message sent to ${to}`
+                }, null, 2)
+            }]
+        };
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // CONSOLIDATED NEURAL CHAT HANDLER
+    // Neural Chat Handlers
     // ═══════════════════════════════════════════════════════════════════════
 
-    private async handleNeuralChat(args: any) {
-        const { action } = args;
+    private async handleNeuralChatSend(args: any) {
+        const { channel, body, from, priority, type } = args;
 
-        // Runtime validation of action
-        if (!action) {
-            throw new Error('Action is required. Use "channels" to list channels, "read" to get messages, "send" to post.');
-        }
+        // Dynamic import to avoid circular dependency
+        const { neuralChatService } = await import('../../services/NeuralChat/index.js');
 
-        const validActions = ['channels', 'read', 'send'];
-        if (!validActions.includes(action)) {
-            throw new Error(`Invalid action "${action}". Valid actions: ${validActions.join(', ')}`);
-        }
+        const message = await neuralChatService.sendMessage({
+            channel: channel || 'core-dev',
+            body,
+            from: from || 'claude',
+            priority: priority || 'normal',
+            type: type || 'chat'
+        });
+
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    success: true,
+                    message
+                }, null, 2)
+            }]
+        };
+    }
+
+    private async handleNeuralChatRead(args: any) {
+        const { channel, limit, since } = args;
 
         const { neuralChatService } = await import('../../services/NeuralChat/index.js');
 
-        if (action === 'channels') {
-            const channels = neuralChatService.getChannels();
-            return {
-                content: [{
-                    type: 'text',
-                    text: safeJsonStringify({
-                        action: 'channels',
-                        count: channels.length,
-                        channels,
-                        hint: 'Use action="read" with a channel name to get messages'
-                    })
-                }]
-            };
-        }
+        const messages = await neuralChatService.getMessages({
+            channel,
+            limit: limit || 20,
+            since
+        });
 
-        if (action === 'read') {
-            const { channel, limit, since } = args;
-            const messages = await neuralChatService.getMessages({
-                channel,
-                limit: limit || 20,
-                since
-            });
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    channel: channel || 'all',
+                    count: messages.length,
+                    messages
+                }, null, 2)
+            }]
+        };
+    }
 
-            return {
-                content: [{
-                    type: 'text',
-                    text: safeJsonStringify({
-                        action: 'read',
-                        channel: channel || 'all',
-                        count: messages.length,
-                        messages,
-                        hint: 'Use action="send" to post a reply'
-                    })
-                }]
-            };
-        }
+    private async handleNeuralChatChannels(args: any) {
+        const { neuralChatService } = await import('../../services/NeuralChat/index.js');
+        const channels = neuralChatService.getChannels();
 
-        if (action === 'send') {
-            const { channel, body, from, priority, type } = args;
-
-            if (!channel || !body || !from) {
-                throw new Error('channel, body, and from are required for send action. Use action="channels" first to discover available channels.');
-            }
-
-            // Runtime validation
-            const validPriorities = ['low', 'normal', 'high', 'critical'];
-            if (priority && !validPriorities.includes(priority)) {
-                throw new Error(`Invalid priority "${priority}". Valid priorities: ${validPriorities.join(', ')}`);
-            }
-
-            const validTypes = ['chat', 'task', 'status', 'alert', 'handover', 'response'];
-            if (type && !validTypes.includes(type)) {
-                throw new Error(`Invalid type "${type}". Valid types: ${validTypes.join(', ')}`);
-            }
-
-            const message = await neuralChatService.sendMessage({
-                channel: channel,
-                body,
-                from: from,
-                priority: priority || 'normal',
-                type: type || 'chat'
-            });
-
-            return {
-                content: [{
-                    type: 'text',
-                    text: safeJsonStringify({
-                        success: true,
-                        action: 'send',
-                        message
-                    })
-                }]
-            };
-        }
-
-        throw new Error(`Unhandled action: ${action}`);
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    count: channels.length,
+                    channels
+                }, null, 2)
+            }]
+        };
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // CONSOLIDATED CAPABILITY BROKER HANDLER
+    // Capability Broker Handlers
     // ═══════════════════════════════════════════════════════════════════════
 
-    private async handleCapabilityBroker(args: any) {
-        const { action } = args;
-
-        // Runtime validation of action
-        if (!action) {
-            throw new Error('Action is required. Use "list" for capabilities, "request" to delegate, "pending" for requests, "route" for routing.');
-        }
-
-        const validActions = ['list', 'request', 'pending', 'route'];
-        if (!validActions.includes(action)) {
-            throw new Error(`Invalid action "${action}". Valid actions: ${validActions.join(', ')}`);
-        }
-
+    private async handleListAgentCapabilities(args: any) {
+        const { agent } = args;
         const { capabilityBroker, AGENT_CAPABILITIES } = await import('../../services/NeuralChat/CapabilityBroker.js');
 
-        if (action === 'list') {
-            const { agent } = args;
-            if (agent) {
-                const capabilities = capabilityBroker.getAgentCapabilities(agent);
-                if (!capabilities || capabilities.length === 0) {
-                    throw new Error(`No capabilities found for agent "${agent}". Use action="list" without agent to see all available agents.`);
-                }
-                return {
-                    content: [{
-                        type: 'text',
-                        text: safeJsonStringify({ 
-                            action: 'list',
-                            agent, 
-                            capabilities,
-                            hint: 'Use action="request" with toAgent and capability to delegate a task'
-                        })
-                    }]
-                };
-            }
-
+        if (agent) {
+            const capabilities = capabilityBroker.getAgentCapabilities(agent);
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
-                        action: 'list',
-                        agents: Object.keys(AGENT_CAPABILITIES),
-                        capabilities: AGENT_CAPABILITIES,
-                        hint: 'Specify an agent parameter to see their specific capabilities'
-                    })
+                    text: JSON.stringify({ agent, capabilities }, null, 2)
                 }]
             };
         }
 
-        if (action === 'request') {
-            const { toAgent, capability, params, priority } = args;
-
-            if (!toAgent || !capability) {
-                throw new Error('toAgent and capability are required. Use action="list" first to discover agent capabilities.');
-            }
-
-            // Runtime validation
-            const validPriorities = ['low', 'normal', 'high', 'critical'];
-            if (priority && !validPriorities.includes(priority)) {
-                throw new Error(`Invalid priority "${priority}". Valid priorities: ${validPriorities.join(', ')}`);
-            }
-
-            const request = await capabilityBroker.requestCapability({
-                fromAgent: 'claude',
-                toAgent,
-                capability,
-                params: params || {},
-                priority: priority || 'normal'
-            });
-
-            return {
-                content: [{
-                    type: 'text',
-                    text: safeJsonStringify({
-                        success: true,
-                        action: 'request',
-                        request,
-                        message: `Capability request sent to ${toAgent}`
-                    })
-                }]
-            };
-        }
-
-        if (action === 'pending') {
-            const { agent } = args;
-
-            if (!agent) {
-                throw new Error('Agent is required for pending action. Use action="list" to see available agents.');
-            }
-
-            const requests = await capabilityBroker.getPendingRequests(agent);
-
-            return {
-                content: [{
-                    type: 'text',
-                    text: safeJsonStringify({
-                        action: 'pending',
-                        agent,
-                        pending: requests.length,
-                        requests
-                    })
-                }]
-            };
-        }
-
-        if (action === 'route') {
-            const { task, context } = args;
-
-            if (!task) {
-                throw new Error('Task description is required for route action.');
-            }
-
-            const result = await capabilityBroker.smartRoute({
-                task,
-                context,
-                fromAgent: 'claude'
-            });
-
-            if (result) {
-                return {
-                    content: [{
-                        type: 'text',
-                        text: safeJsonStringify({
-                            success: true,
-                            action: 'route',
-                            recommendation: {
-                                agent: result.agent,
-                                capability: result.capability.name,
-                                confidence: `${(result.confidence * 100).toFixed(0)}%`,
-                                description: result.capability.description
-                            },
-                            message: `Best match: ${result.agent} for "${result.capability.name}"`,
-                            hint: 'Use action="request" to delegate to this agent'
-                        })
-                    }]
-                };
-            }
-
-            return {
-                content: [{
-                    type: 'text',
-                    text: safeJsonStringify({
-                        success: false,
-                        action: 'route',
-                        message: 'No suitable agent found for this task',
-                        hint: 'Try a more specific task description or use action="list" to see available capabilities'
-                    })
-                }]
-            };
-        }
-
-        throw new Error(`Unhandled action: ${action}`);
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    agents: Object.keys(AGENT_CAPABILITIES),
+                    capabilities: AGENT_CAPABILITIES
+                }, null, 2)
+            }]
+        };
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // CONSOLIDATED PROTOTYPE MANAGER HANDLER
-    // ═══════════════════════════════════════════════════════════════════════
+    private async handleRequestCapability(args: any) {
+        const { toAgent, capability, params, priority } = args;
+        const { capabilityBroker } = await import('../../services/NeuralChat/CapabilityBroker.js');
 
-    private async handlePrototypeManager(args: any) {
-        const { action } = args;
+        const request = await capabilityBroker.requestCapability({
+            fromAgent: 'claude',
+            toAgent,
+            capability,
+            params: params || {},
+            priority: priority || 'normal'
+        });
 
-        // Runtime validation of action
-        if (!action) {
-            throw new Error('Action is required. Use "list" to see prototypes, "generate" to create from PRD, "save" to persist.');
-        }
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    success: true,
+                    request,
+                    message: `Capability request sent to ${toAgent}`
+                }, null, 2)
+            }]
+        };
+    }
 
-        const validActions = ['list', 'generate', 'save'];
-        if (!validActions.includes(action)) {
-            throw new Error(`Invalid action "${action}". Valid actions: ${validActions.join(', ')}`);
-        }
+    private async handleGetPendingRequests(args: any) {
+        const { agent } = args;
+        const { capabilityBroker } = await import('../../services/NeuralChat/CapabilityBroker.js');
 
-        if (action === 'list') {
-            // Return list of prototypes (placeholder - would query Neo4j in production)
-            try {
-                const prototypes = await neo4jAdapter.readQuery(`
-                    MATCH (p:Prototype)
-                    RETURN p.name as name, p.id as id, p.createdAt as createdAt, p.style as style
-                    ORDER BY p.createdAt DESC
-                    LIMIT 50
-                `);
+        const requests = await capabilityBroker.getPendingRequests(agent);
 
-                return {
-                    content: [{
-                        type: 'text',
-                        text: safeJsonStringify({
-                            action: 'list',
-                            count: prototypes.length,
-                            prototypes,
-                            hint: 'Use action="generate" with prdContent to create a new prototype'
-                        })
-                    }]
-                };
-            } catch (error: any) {
-                return {
-                    content: [{
-                        type: 'text',
-                        text: safeJsonStringify({
-                            action: 'list',
-                            count: 0,
-                            prototypes: [],
-                            note: 'Neo4j query failed - no prototypes found',
-                            error: error.message
-                        })
-                    }]
-                };
-            }
-        }
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    agent,
+                    pending: requests.length,
+                    requests
+                }, null, 2)
+            }]
+        };
+    }
 
-        if (action === 'generate') {
-            const { prdContent, style, locale } = args;
+    private async handleSmartRouteTask(args: any) {
+        const { task, context } = args;
+        const { capabilityBroker } = await import('../../services/NeuralChat/CapabilityBroker.js');
 
-            if (!prdContent) {
-                throw new Error('prdContent is required for generate action. Provide PRD as text, markdown, or [PDF:base64] prefixed data.');
-            }
+        const result = await capabilityBroker.smartRoute({
+            task,
+            context,
+            fromAgent: 'claude'
+        });
 
-            // Runtime validation of style
-            const validStyles = ['modern', 'minimal', 'corporate', 'tdc-brand'];
-            if (style && !validStyles.includes(style)) {
-                throw new Error(`Invalid style "${style}". Valid styles: ${validStyles.join(', ')}`);
-            }
-
-            // Placeholder - actual PRD-to-prototype generation would be here
-            const prototypeId = `proto-${Date.now()}`;
-            const generatedHtml = `<!DOCTYPE html>
-<html lang="${locale || 'da-DK'}">
-<head>
-    <meta charset="UTF-8">
-    <title>Generated Prototype</title>
-    <style>
-        body { font-family: system-ui, sans-serif; padding: 2rem; background: ${style === 'modern' ? '#f5f5f5' : '#fff'}; }
-        .container { max-width: 800px; margin: 0 auto; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Prototype Generated from PRD</h1>
-        <p>Style: ${style || 'modern'}</p>
-        <p>PRD Length: ${prdContent.length} characters</p>
-        <!-- Full prototype would be generated here -->
-    </div>
-</body>
-</html>`;
-
+        if (result) {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         success: true,
-                        action: 'generate',
-                        prototypeId,
-                        style: style || 'modern',
-                        locale: locale || 'da-DK',
-                        htmlContent: generatedHtml,
-                        hint: 'Use action="save" with name and htmlContent to persist this prototype'
-                    })
+                        recommendation: {
+                            agent: result.agent,
+                            capability: result.capability.name,
+                            confidence: `${(result.confidence * 100).toFixed(0)}%`,
+                            description: result.capability.description
+                        },
+                        message: `Best match: ${result.agent} for "${result.capability.name}"`
+                    }, null, 2)
                 }]
             };
         }
 
-        if (action === 'save') {
-            const { name, htmlContent, prdId } = args;
-
-            if (!name || !htmlContent) {
-                throw new Error('name and htmlContent are required for save action. Use action="generate" first to create HTML from PRD.');
-            }
-
-            try {
-                const prototypeId = `proto-${Date.now()}`;
-                await neo4jAdapter.createNode('Prototype', {
-                    id: prototypeId,
-                    name,
-                    htmlContent,
-                    prdId: prdId || null,
-                    createdAt: new Date().toISOString(),
-                    source: 'neural-bridge'
-                });
-
-                return {
-                    content: [{
-                        type: 'text',
-                        text: safeJsonStringify({
-                            success: true,
-                            action: 'save',
-                            prototypeId,
-                            name,
-                            message: `Prototype "${name}" saved successfully`
-                        })
-                    }]
-                };
-            } catch (error: any) {
-                throw new Error(`Failed to save prototype: ${error.message}`);
-            }
-        }
-
-        throw new Error(`Unhandled action: ${action}`);
+        return {
+            content: [{
+                type: 'text',
+                text: JSON.stringify({
+                    success: false,
+                    message: 'No suitable agent found for this task'
+                }, null, 2)
+            }]
+        };
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -2008,7 +1767,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         success: true,
                         sense: 'CORTICAL_FLASH',
                         memoryTrace,
@@ -2018,19 +1777,19 @@ class NeuralBridgeServer {
                             associations: associations.length,
                             traversalDepth: depth
                         }
-                    })
+                    }, null, 2)
                 }]
             };
         } catch (error: any) {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         success: false,
                         sense: 'CORTICAL_FLASH',
                         error: error.message,
                         concept
-                    })
+                    }, null, 2)
                 }]
             };
         }
@@ -2090,7 +1849,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         success: true,
                         sense: 'OLFACTORY',
                         status,
@@ -2101,19 +1860,19 @@ class NeuralBridgeServer {
                             size: stats.size,
                             modified: stats.mtime.toISOString()
                         }
-                    })
+                    }, null, 2)
                 }]
             };
         } catch (error: any) {
             return {
                 content: [{
                     type: 'text',
-                    text: safeJsonStringify({
+                    text: JSON.stringify({
                         success: false,
                         sense: 'OLFACTORY',
                         error: error.message,
                         path: filePath
-                    })
+                    }, null, 2)
                 }]
             };
         }
@@ -2125,16 +1884,6 @@ class NeuralBridgeServer {
      */
     private async handleSonarPulse(args: any) {
         const { target } = args;
-
-        // Runtime validation of target
-        const validTargets = ['neo4j', 'postgres', 'internet', 'filesystem', 'backend'];
-        if (!target) {
-            throw new Error(`Target is required. Valid targets: ${validTargets.join(', ')}`);
-        }
-        if (!validTargets.includes(target)) {
-            throw new Error(`Invalid target "${target}". Valid targets: ${validTargets.join(', ')}`);
-        }
-
         const sonarEcho: any = {
             target,
             pulseTime: new Date().toISOString(),
@@ -2214,14 +1963,14 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: safeJsonStringify({
+                text: JSON.stringify({
                     success,
                     sense: 'SONAR',
                     sonarEcho,
                     interpretation: success 
                         ? `${target} responded in ${sonarEcho.latencyMs.toFixed(2)}ms (${sonarEcho.field})`
                         : `${target} is unreachable`
-                })
+                }, null, 2)
             }]
         };
     }
@@ -2234,11 +1983,11 @@ class NeuralBridgeServer {
         const transport = new StdioServerTransport();
         await this.server.connect(transport);
 
-        console.error('[Neural Bridge] MCP Server v2.1 running via stdio');
-        console.error('[Neural Bridge] Neo4j Integration: ENABLED');
-        console.error('[Neural Bridge] Agent Communication: ENABLED');
-        console.error(`[Neural Bridge] DropZone: ${SAFE_DESKTOP_PATH}`);
-        console.error(`[Neural Bridge] Vidensarkiv: ${VIDENSARKIV_PATH}`);
+        console.error('🧠 Neural Bridge MCP Server v2.1 running via stdio');
+        console.error('🔗 Neo4j Integration: ENABLED');
+        console.error('🤝 Agent Communication: ENABLED');
+        console.error(`📁 DropZone: ${SAFE_DESKTOP_PATH}`);
+        console.error(`📚 Vidensarkiv: ${VIDENSARKIV_PATH}`);
     }
 }
 

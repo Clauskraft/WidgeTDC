@@ -1,23 +1,24 @@
 {
     "name": "WidgeTDC Dev Environment",
-    // Use Docker Compose to define the full environment, combining the base and dev-specific files.
     "dockerComposeFile": "docker-compose.yml",
-    // The service within the Docker Compose files that the dev container will attach to.
     "service": "dev-environment",
-    // The folder inside the container where your project will be mounted and where VS Code will open.
     "workspaceFolder": "/workspaces/WidgeTDC",
-    // Forward ports from the container to your local machine for access.
     "forwardPorts": [
-        8888, // Standard frontend port
-        5173, // Often used by Vite dev server
-        3001, // Backend port from main compose file
-        3000, // Grafana
-        8080 // NocoDB
+        5173,
+        3001,
+        3002,
+        7474,
+        7687
     ],
-    // Commands to run after the container is created.
-    // This installs all monorepo dependencies and then generates the Prisma client.
-    "postCreateCommand": "npm install && npx prisma generate --schema=./apps/backend/prisma/schema.prisma",
-    // Customize the VS Code experience inside the container.
+    "portsAttributes": {
+        "3001": { "label": "Backend API", "onAutoForward": "notify" },
+        "3002": { "label": "Backend API (alt)", "onAutoForward": "notify" },
+        "5173": { "label": "Frontend (Vite)", "onAutoForward": "openBrowser" },
+        "7474": { "label": "Neo4j Browser", "onAutoForward": "silent" },
+        "7687": { "label": "Neo4j Bolt", "onAutoForward": "silent" }
+    },
+    "postCreateCommand": "bash .devcontainer/setup.sh",
+    "postStartCommand": "bash .devcontainer/start-services.sh",
     "customizations": {
         "vscode": {
             "extensions": [
@@ -32,6 +33,5 @@
             }
         }
     },
-    // Run commands and open the terminal as the non-root 'node' user.
     "remoteUser": "node"
 }
