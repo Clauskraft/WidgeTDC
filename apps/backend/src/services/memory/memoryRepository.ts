@@ -3,35 +3,38 @@ import { MemoryEntityInput, MemorySearchQuery } from '@widget-tdc/mcp-types';
 
 export class MemoryRepository {
   private vectorCache = new Map<string, number[]>();
+  private readonly VECTOR_SIZE = 768;
+  private readonly MAX_CACHE_SIZE = 1000;
 
-  // Simple tokenization (placeholder - for semantic search)
   private simpleTokenize(text: string): string[] {
     return text.toLowerCase().split(/\s+/).filter(t => t.length > 0);
-  }
-
-  // Simple vectorization using token frequencies (placeholder for real embeddings)
-  private vectorizeText(text: string): number[] {
-    const tokens = this.simpleTokenize(text);
-    const vector = new Array(768).fill(0);
-
-    tokens.forEach((token) => {
-      const hash = this.simpleHash(token);
-      vector[hash % 768] += 1;
-    });
-
-    // Normalize
-    const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
-    return magnitude > 0 ? vector.map(val => val / magnitude) : vector;
   }
 
   private simpleHash(str: string): number {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
     }
     return Math.abs(hash);
+  }
+
+  private vectorizeText(text: string): number[] {
+    const tokens = this.simpleTokenize(text);
+    const vector = new Array(this.VECTOR_SIZE).fill(0);
+
+    for (const token of tokens) {
+      const hash = this.simpleHash(token);
+      vector[hash % this.VECTOR_SIZE] += 1;
+    }
+
+    const magnitude = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0));
+    if (magnitude <= 0) return vector;
+    
+    for (let i = 0; i < vector.length; i++) {
+      vector[i] /= magnitude;
+    }
+    return vector;
   }
 
   private cosineSimilarity(vecA: number[], vecB: number[]): number {
@@ -40,9 +43,11 @@ export class MemoryRepository {
     let normB = 0;
 
     for (let i = 0; i < vecA.length; i++) {
-      dotProduct += vecA[i] * vecB[i];
-      normA += vecA[i] * vecA[i];
-      normB += vecB[i] * vecB[i];
+      const a = vecA[i];
+      const b = vecB[i];
+      dotProduct += a * b;
+      normA += a * a;
+      normB += b * b;
     }
 
     const denominator = Math.sqrt(normA) * Math.sqrt(normB);
@@ -50,15 +55,13 @@ export class MemoryRepository {
   }
 
   private getCachedVector(text: string): number[] {
-    if (this.vectorCache.has(text)) {
-      return this.vectorCache.get(text)!;
-    }
+    const cached = this.vectorCache.get(text);
+    if (cached) return cached;
 
     const vector = this.vectorizeText(text);
     this.vectorCache.set(text, vector);
 
-    // Simple LRU: clear cache if it gets too large
-    if (this.vectorCache.size > 1000) {
+    if (this.vectorCache.size > this.MAX_CACHE_SIZE) {
       this.vectorCache.clear();
     }
 
@@ -66,25 +69,25 @@ export class MemoryRepository {
   }
 
   async ingestEntity(input: MemoryEntityInput): Promise<number> {
-    const importance = input.importance || 3;
+    const importance = input.importance ?? 3;
 
     const entity = await prisma.memoryEntity.create({
       data: {
         orgId: input.orgId,
-        userId: input.userId || null,
+        userId: input.userId ?? null,
         entityType: input.entityType,
         content: input.content,
         importance,
       },
     });
 
-    // Insert tags if provided
-    if (input.tags && input.tags.length > 0) {
+    if (input.tags?.length) {
       await prisma.memoryTag.createMany({
         data: input.tags.map(tag => ({
           entityId: entity.id,
           tag,
         })),
+        skipDuplicates: true,
       });
     }
 
@@ -93,11 +96,7 @@ export class MemoryRepository {
 
   async searchEntities(query: MemorySearchQuery): Promise<any[]> {
     const limit = query.limit || 10;
-
-    // Build where clause
-    const where: any = {
-      orgId: query.orgId,
-    };
+    const where: any = { orgId: query.orgId };
 
     if (query.userId) {
       where.OR = [
@@ -106,111 +105,46 @@ export class MemoryRepository {
       ];
     }
 
-    if (query.entityTypes && query.entityTypes.length > 0) {
+    if (query.entityTypes?.length) {
       where.entityType = { in: query.entityTypes };
     }
 
-    // Keyword search with tags
-    if (query.keywords && query.keywords.length > 0) {
+    if (query.keywords?.length) {
       const keywordConditions = query.keywords.map(keyword => ({
         OR: [
-          { content: { contains: keyword, mode: 'insensitive' as const } },
-          { tags: { some: { tag: { contains: keyword, mode: 'insensitive' as const } } } },
+          { content: { contains: keyword, mode: 'insensitive' } },
+          { tags: { some: { tag: { contains: keyword, mode: 'insensitive' } } } },
         ],
       }));
-      where.OR = keywordConditions;
+      where.AND = keywordConditions;
     }
 
+    const takeCount = query.keywords?.length ? limit * 2 : limit;
+    
     let candidates = await prisma.memoryEntity.findMany({
       where,
       orderBy: [
         { importance: 'desc' },
         { createdAt: 'desc' },
       ],
-      take: query.keywords && query.keywords.length > 0 ? limit * 2 : limit,
-      include: {
-        tags: true,
-      },
+      take: takeCount,
+      include: { tags: true },
     });
 
-    // If we have keywords, apply semantic scoring
-    if (query.keywords && query.keywords.length > 0 && candidates.length > 0) {
+    if (query.keywords?.length && candidates.length > 0) {
       const queryText = query.keywords.join(' ');
       const queryVector = this.vectorizeText(queryText);
 
       const scoredCandidates = candidates.map(candidate => {
-        const contentVector = this.getCachedVector(candidate.content);
-        const semanticScore = this.cosineSimilarity(queryVector, contentVector);
-        const keywordScore = candidate.content.toLowerCase().includes(queryText.toLowerCase()) ? 1 : 0;
-        const combinedScore = 0.7 * semanticScore + 0.3 * keywordScore;
-
-        return {
-          id: candidate.id,
-          org_id: candidate.orgId,
-          user_id: candidate.userId,
-          entity_type: candidate.entityType,
-          content: candidate.content,
-          importance: candidate.importance,
-          created_at: candidate.createdAt,
-          semanticScore,
-          combinedScore,
-        };
+        const candidateVector = this.getCachedVector(candidate.content);
+        const similarity = this.cosineSimilarity(queryVector, candidateVector);
+        return { ...candidate, similarity };
       });
 
-      scoredCandidates.sort((a, b) => b.combinedScore - a.combinedScore);
-      return scoredCandidates.slice(0, limit);
+      scoredCandidates.sort((a, b) => b.similarity - a.similarity);
+      candidates = scoredCandidates.slice(0, limit);
     }
 
-    // Transform to snake_case for compatibility
-    return candidates.map(c => ({
-      id: c.id,
-      org_id: c.orgId,
-      user_id: c.userId,
-      entity_type: c.entityType,
-      content: c.content,
-      importance: c.importance,
-      created_at: c.createdAt,
-    }));
-  }
-
-  async getEntityById(id: number): Promise<any | null> {
-    const entity = await prisma.memoryEntity.findUnique({
-      where: { id },
-      include: { tags: true },
-    });
-
-    if (!entity) return null;
-
-    return {
-      id: entity.id,
-      org_id: entity.orgId,
-      user_id: entity.userId,
-      entity_type: entity.entityType,
-      content: entity.content,
-      importance: entity.importance,
-      created_at: entity.createdAt,
-    };
-  }
-
-  async getEntityTags(entityId: number): Promise<string[]> {
-    const tags = await prisma.memoryTag.findMany({
-      where: { entityId },
-      select: { tag: true },
-    });
-
-    return tags.map(t => t.tag);
-  }
-
-  async createRelation(orgId: string, sourceId: number, targetId: number, relationType: string): Promise<number> {
-    const relation = await prisma.memoryRelation.create({
-      data: {
-        orgId,
-        sourceId,
-        targetId,
-        relationType,
-      },
-    });
-
-    return relation.id;
+    return candidates;
   }
 }
