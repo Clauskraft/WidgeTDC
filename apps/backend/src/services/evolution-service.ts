@@ -9,8 +9,8 @@ interface AIResponse {
 
 export class EvolutionService {
   // Stier til mapperne
-  private liveDir = path.resolve(__dirname, '../../../../apps/widget-board/src/widgets/generated');
-  private stagingDir = path.resolve(__dirname, '../../../../apps/widget-board/src/widgets/staging');
+  private liveDir = path.resolve(__dirname, '../../../../apps/matrix-frontend/src/widgets/generated');
+  private stagingDir = path.resolve(__dirname, '../../../../apps/matrix-frontend/src/widgets/staging');
 
   // SYSTEM PROMPT: WidgeTDC Design Systemet (Opdateret med strengere regler)
   private systemPrompt = `

@@ -3,7 +3,7 @@
 # Line 305: Add closing paren
 
 # Find exact content and replace
-$file = "apps/widget-board/WidgeTDC_Pro.tsx"
+$file = "apps/matrix-frontend/WidgeTDC_Pro.tsx"
 $content = Get-Content $file -Raw
 
 # Replace line 219-220

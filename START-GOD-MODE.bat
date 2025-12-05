@@ -17,7 +17,7 @@ echo [2/3] Starting Backend - OmniHarvester and Evolution Engine...
 start "WidgeTDC Backend" cmd /k "cd apps\backend && npm run dev"
 
 echo [3/3] Starting Frontend (Neural Interface)...
-start "WidgeTDC Frontend" cmd /k "cd apps\widget-board && npm run dev"
+start "WidgeTDC Frontend" cmd /k "cd apps\matrix-frontend && npm run dev"
 
 echo.
 echo SYSTEM ONLINE.

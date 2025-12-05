@@ -42,7 +42,7 @@ bash .devcontainer/start-services.sh
 cd apps/backend && npm run dev
 
 # Terminal 2: Frontend
-cd apps/widget-board && npm run dev -- --host 0.0.0.0
+cd apps/matrix-frontend && npm run dev -- --host 0.0.0.0
 ```
 
 ## Services & Ports
@@ -87,7 +87,7 @@ docker compose -f .devcontainer/docker-compose.yml restart postgres redis neo4j
 
 ### Frontend won't start
 ```bash
-cd apps/widget-board
+cd apps/matrix-frontend
 npm install
 npm run dev -- --host 0.0.0.0
 ```

@@ -575,7 +575,7 @@ mcpRegistry.registerTool('graph_rag', graphRAGHandler);
 
 #### 2.2 Frontend Integration: UnifiedDataService Enhancement
 
-**File:** `apps/widget-board/src/services/UnifiedDataService.ts` (modify EXISTING)
+**File:** `apps/matrix-frontend/src/services/UnifiedDataService.ts` (modify EXISTING)
 
 ```typescript
 /**

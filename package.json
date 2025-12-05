@@ -5,16 +5,16 @@
   "private": true,
   "workspaces": [
     "apps/backend",
-    "apps/widget-board",
+    "apps/matrix-frontend",
     "packages/*"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:frontend": "cd apps/widget-board && npm run dev",
+    "dev:frontend": "cd apps/matrix-frontend && npm run dev",
     "dev:backend": "cd apps/backend && npm run dev",
     "dev:desktop": "npm run build:frontend && cd desktop-app && npm run start:dev",
     "build": "npm run build:shared && npm run build:backend && npm run build:frontend",
-    "build:frontend": "cd apps/widget-board && vite build",
+    "build:frontend": "cd apps/matrix-frontend && npm run build",
     "build:backend": "cd apps/backend && npm run build",
     "build:shared": "npm run build:domain-types && npm run build:mcp-types",
     "build:domain-types": "cd packages/domain-types && npm install && npm run build",
@@ -30,8 +30,8 @@
     "test:run": "vitest run",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
-    "lint:frontend": "cd apps/widget-board && npm run lint",
-    "typecheck:frontend": "cd apps/widget-board && npm run typecheck",
+    "lint:frontend": "cd apps/matrix-frontend && npm run lint",
+    "typecheck:frontend": "cd apps/matrix-frontend && npm run typecheck",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "ci:frontend": "npm run typecheck:frontend && npm run lint:frontend && npm run build:frontend"

@@ -30,8 +30,8 @@ jobs:
 
       - name: "Task 1.1: Dashboard Shell UI Refinement (6 pts)"
         run: |
-          mkdir -p apps/widget-board/src/components/Dashboard
-          cat > apps/widget-board/src/components/Dashboard/DashboardShell.tsx << 'EOF'
+          mkdir -p apps/matrix-frontend/src/components/Dashboard
+          cat > apps/matrix-frontend/src/components/Dashboard/DashboardShell.tsx << 'EOF'
           import React, { useState } from 'react';
           import './DashboardShell.css';
 
@@ -91,11 +91,11 @@ jobs:
 
           export default DashboardShell;
           EOF
-          git add apps/widget-board/src/components/Dashboard/DashboardShell.tsx
+          git add apps/matrix-frontend/src/components/Dashboard/DashboardShell.tsx
 
       - name: "Task 1.1: Dashboard Styles"
         run: |
-          cat > apps/widget-board/src/components/Dashboard/DashboardShell.css << 'EOF'
+          cat > apps/matrix-frontend/src/components/Dashboard/DashboardShell.css << 'EOF'
           :root {
             --primary: #3b82f6;
             --bg-dark: #0f172a;
@@ -220,12 +220,12 @@ jobs:
             }
           }
           EOF
-          git add apps/widget-board/src/components/Dashboard/DashboardShell.css
+          git add apps/matrix-frontend/src/components/Dashboard/DashboardShell.css
 
       - name: "Task 1.2: Layout System Fixes (4 pts)"
         run: |
-          mkdir -p apps/widget-board/src/styles
-          cat > apps/widget-board/src/styles/layout.css << 'EOF'
+          mkdir -p apps/matrix-frontend/src/styles
+          cat > apps/matrix-frontend/src/styles/layout.css << 'EOF'
           /* 12-Column Grid System (8px base unit) */
           .grid {
             display: grid;
@@ -270,12 +270,12 @@ jobs:
           .flex-center { justify-content: center; align-items: center; }
           .flex-between { justify-content: space-between; }
           EOF
-          git add apps/widget-board/src/styles/layout.css
+          git add apps/matrix-frontend/src/styles/layout.css
 
       - name: "Task 1.3: Widget Placement Validation (8 pts)"
         run: |
-          mkdir -p apps/widget-board/src/hooks
-          cat > apps/widget-board/src/hooks/useWidgetLayout.ts << 'EOF'
+          mkdir -p apps/matrix-frontend/src/hooks
+          cat > apps/matrix-frontend/src/hooks/useWidgetLayout.ts << 'EOF'
           import { useState, useCallback } from 'react';
 
           export interface WidgetPosition {
@@ -331,7 +331,7 @@ jobs:
             };
           };
           EOF
-          git add apps/widget-board/src/hooks/useWidgetLayout.ts
+          git add apps/matrix-frontend/src/hooks/useWidgetLayout.ts
 
       - name: Commit Block 1 completion
         run: |
@@ -379,10 +379,10 @@ jobs:
           - Code Review: Ready ✅
 
           ### Files Modified
-          - \`apps/widget-board/src/components/Dashboard/DashboardShell.tsx\` (NEW)
-          - \`apps/widget-board/src/components/Dashboard/DashboardShell.css\` (NEW)
-          - \`apps/widget-board/src/styles/layout.css\` (NEW)
-          - \`apps/widget-board/src/hooks/useWidgetLayout.ts\` (NEW)
+          - \`apps/matrix-frontend/src/components/Dashboard/DashboardShell.tsx\` (NEW)
+          - \`apps/matrix-frontend/src/components/Dashboard/DashboardShell.css\` (NEW)
+          - \`apps/matrix-frontend/src/styles/layout.css\` (NEW)
+          - \`apps/matrix-frontend/src/hooks/useWidgetLayout.ts\` (NEW)
 
           ---
           **Agent**: AlexaGPT-Frontend

@@ -165,7 +165,7 @@ widget.reset();
 
 ```bash
 # I din app mappe
-cd apps/widget-board
+cd apps/matrix-frontend
 
 # Kør test
 npm run dev
@@ -187,7 +187,7 @@ WidgetTDC/
 ├── install-deepseek.ps1 (powershell script)
 ├── install-deepseek-simple.bat (batch script)
 └── apps/
-    └── widget-board/
+    └── matrix-frontend/
         └── src/
             └── utils/
                 └── deepseek-integration.tsx (✅ ny fil)

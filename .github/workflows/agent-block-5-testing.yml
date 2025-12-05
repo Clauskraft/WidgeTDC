@@ -29,9 +29,9 @@ jobs:
 
       - name: 'Task 5.1: Test Acceleration (50 to 100 tests) (16 pts)'
         run: |
-          mkdir -p apps/widget-board/__tests__ apps/api/__tests__ packages/widget-registry/__tests__
+          mkdir -p apps/matrix-frontend/__tests__ apps/api/__tests__ packages/widget-registry/__tests__
 
-          cat > apps/widget-board/__tests__/dashboard.test.ts << 'EOF'
+          cat > apps/matrix-frontend/__tests__/dashboard.test.ts << 'EOF'
           import { describe, it, expect, beforeEach, afterEach } from 'vitest';
           import { DashboardShell } from '../src/components/Dashboard/DashboardShell';
           import { render, screen, fireEvent } from '@testing-library/react';
@@ -102,7 +102,7 @@ jobs:
             });
           });
           EOF
-          git add apps/widget-board/__tests__/dashboard.test.ts
+          git add apps/matrix-frontend/__tests__/dashboard.test.ts
 
           cat > apps/api/__tests__/auth.test.ts << 'EOF'
           import { describe, it, expect, beforeEach } from 'vitest';

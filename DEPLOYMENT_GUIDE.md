@@ -56,7 +56,7 @@ cd apps/backend
 npm install
 
 # Frontend
-cd apps/widget-board
+cd apps/matrix-frontend
 npm install
 ```
 
@@ -80,7 +80,7 @@ npm run migrate --prefix apps/backend
 npm run build --prefix apps/backend
 
 # Build frontend
-npm run build --prefix apps/widget-board
+npm run build --prefix apps/matrix-frontend
 ```
 
 ### 4. Run Tests
@@ -90,7 +90,7 @@ npm run build --prefix apps/widget-board
 npm test --prefix apps/backend
 
 # Frontend tests
-npm test --prefix apps/widget-board
+npm test --prefix apps/matrix-frontend
 
 # Integration tests
 npm run test:integration
@@ -134,7 +134,7 @@ docker build -t widgetdc-backend ./apps/backend
 docker run -p 3000:3000 widgetdc-backend
 
 # Frontend
-docker build -t widgetdc-frontend ./apps/widget-board
+docker build -t widgetdc-frontend ./apps/matrix-frontend
 docker run -p 5173:5173 widgetdc-frontend
 ```
 

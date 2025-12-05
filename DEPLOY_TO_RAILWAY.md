@@ -70,7 +70,7 @@ Gå til **Variables** og tilføj:
    - **Service Name**: `frontend`
 3. I **Settings** → **Build**:
    - **Builder**: `Dockerfile`
-   - **Dockerfile Path**: `apps/widget-board/Dockerfile`
+   - **Dockerfile Path**: `apps/matrix-frontend/Dockerfile`
 4. I **Settings** → **Networking**:
    - Klik **"Generate Domain"**
 
@@ -122,7 +122,7 @@ curl https://[backend-url].railway.app/health
 
 ```
 apps/backend/Dockerfile           # Backend Docker build
-apps/widget-board/Dockerfile      # Frontend Docker build
+apps/matrix-frontend/Dockerfile      # Frontend Docker build
 scripts/deploy/railway.toml       # Railway config for backend
 scripts/deploy/railway.frontend.toml  # Railway config for frontend
 ```

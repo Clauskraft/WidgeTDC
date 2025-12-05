@@ -384,8 +384,8 @@ jobs:
 
       - name: 'Task 3.3: Audit Trail UI Implementation (8 pts)'
         run: |
-          mkdir -p apps/widget-board/src/components/AuditLog
-          cat > apps/widget-board/src/components/AuditLog/AuditViewer.tsx << 'EOF'
+          mkdir -p apps/matrix-frontend/src/components/AuditLog
+          cat > apps/matrix-frontend/src/components/AuditLog/AuditViewer.tsx << 'EOF'
           import React, { useState, useCallback, useMemo } from 'react';
           import './AuditViewer.css';
 
@@ -582,11 +582,11 @@ jobs:
             return csvContent;
           }
           EOF
-          git add apps/widget-board/src/components/AuditLog/AuditViewer.tsx
+          git add apps/matrix-frontend/src/components/AuditLog/AuditViewer.tsx
 
       - name: 'Task 3.3 Continued: Audit Viewer Styles (8 pts)'
         run: |
-          cat > apps/widget-board/src/components/AuditLog/AuditViewer.css << 'EOF'
+          cat > apps/matrix-frontend/src/components/AuditLog/AuditViewer.css << 'EOF'
           .audit-viewer {
             display: flex;
             flex-direction: column;
@@ -725,11 +725,11 @@ jobs:
             color: #94a3b8;
           }
           EOF
-          git add apps/widget-board/src/components/AuditLog/AuditViewer.css
+          git add apps/matrix-frontend/src/components/AuditLog/AuditViewer.css
 
       - name: 'Task 3.3 Continued: Custom Hook (8 pts)'
         run: |
-          cat > apps/widget-board/src/hooks/useAuditLog.ts << 'EOF'
+          cat > apps/matrix-frontend/src/hooks/useAuditLog.ts << 'EOF'
           import { useState, useCallback, useEffect } from 'react';
 
           export interface AuditEvent {
@@ -808,7 +808,7 @@ jobs:
             };
           };
           EOF
-          git add apps/widget-board/src/hooks/useAuditLog.ts
+          git add apps/matrix-frontend/src/hooks/useAuditLog.ts
 
       - name: Commit Block 3
         run: |

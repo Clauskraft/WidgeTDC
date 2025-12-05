@@ -34,7 +34,7 @@ cd apps/backend
 npm install agentset@latest
 
 # Frontend (Agently)
-cd ../../apps/widget-board
+cd ../../apps/matrix-frontend
 npm install agently@latest
 ```
 
@@ -89,7 +89,7 @@ export function getAgentsetAdapter(): AgentsetAdapter {
 ### 3️⃣ Frontend – Agently Workflow UI
 Create a new widget that hosts the Agently editor.
 
-**File:** `apps/widget-board/src/widgets/AgenticWorkflowWidget.tsx`
+**File:** `apps/matrix-frontend/src/widgets/AgenticWorkflowWidget.tsx`
 ```tsx
 import React, { useEffect, useRef } from 'react';
 import { Agently } from 'agently';

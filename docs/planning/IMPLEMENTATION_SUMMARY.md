@@ -12,7 +12,7 @@ Successfully implemented a comprehensive multi-agent widget framework with compl
 WidgeTDC/
 ├── apps/
 │   ├── backend/          # Complete Node.js/Express backend
-│   └── widget-board/     # React frontend with 20 widgets
+│   └── matrix-frontend/     # React frontend with 20 widgets
 └── packages/
     └── shared/
         ├── mcp-types/    # Type-safe MCP interfaces
@@ -287,7 +287,7 @@ Controller (HTTP) → Repository (Data) → Database (SQLite)
 - `src/services/evolution/` - Evolution implementation
 - `src/services/pal/` - PAL implementation
 
-### Frontend (apps/widget-board/)
+### Frontend (apps/matrix-frontend/)
 
 - `constants.ts` - Widget registrations
 - `widgets/CmaDecisionWidget.tsx` - New widget

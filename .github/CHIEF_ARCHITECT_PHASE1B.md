@@ -279,7 +279,7 @@
 **Phase 1.A Reference**:
 - Widget Registry 2.0: Already in place
 - Context API: Current state management
-- Architecture: Check `apps/widget-board/contexts/`
+- Architecture: Check `apps/matrix-frontend/contexts/`
 
 **Communication**:
 - Release Manager: `.github/PM_NUDGE_PROTOCOL.md`

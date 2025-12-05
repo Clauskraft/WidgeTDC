@@ -24,7 +24,7 @@ Professionalize the WidgetBoard dashboard shell with modern UI/UX patterns, resp
 - [ ] Dark/light mode support via CSS variables
 - [ ] Performance: First Contentful Paint <1.5s
 
-**File**: `apps/widget-board/src/components/Dashboard/DashboardShell.tsx`
+**File**: `apps/matrix-frontend/src/components/Dashboard/DashboardShell.tsx`
 
 **Acceptance Criteria**:
 
@@ -47,7 +47,7 @@ Professionalize the WidgetBoard dashboard shell with modern UI/UX patterns, resp
 - [ ] Implement proper gap spacing
 - [ ] Add CSS-in-JS theme integration
 
-**File**: `apps/widget-board/src/styles/layout.css`
+**File**: `apps/matrix-frontend/src/styles/layout.css`
 
 **Acceptance Criteria**:
 
@@ -71,7 +71,7 @@ Professionalize the WidgetBoard dashboard shell with modern UI/UX patterns, resp
 - [ ] Smooth animations (requestAnimationFrame)
 - [ ] Restore from saved layouts
 
-**File**: `apps/widget-board/src/hooks/useWidgetLayout.ts`
+**File**: `apps/matrix-frontend/src/hooks/useWidgetLayout.ts`
 
 **Acceptance Criteria**:
 

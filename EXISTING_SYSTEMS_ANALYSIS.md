@@ -72,7 +72,7 @@
 ---
 
 ### 4. Frontend Integration ✅
-**Lokation:** `apps/widget-board/`
+**Lokation:** `apps/matrix-frontend/`
 
 - ✅ **UnifiedDataService.ts** (~350 LOC)
   - Zero-config frontend API

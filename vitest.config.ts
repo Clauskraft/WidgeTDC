@@ -23,9 +23,9 @@ export default defineConfig({
       'tests/e2e-comprehensive.spec.ts',
       'tests/unit/**',
       'tests/integration/**',
-      'apps/widget-board/tests/**',
-      'apps/widget-board/widgets/__tests__/**',
-      'apps/widget-board/src/components/Dashboard/**/*.test.tsx',
+      'apps/matrix-frontend/tests/**',
+      'apps/matrix-frontend/widgets/__tests__/**',
+      'apps/matrix-frontend/src/components/Dashboard/**/*.test.tsx',
     ],
     coverage: {
       provider: 'v8',
