@@ -146,7 +146,7 @@ class KnowledgeCompiler {
             this.compile().catch(console.error);
         }, intervalMs);
         
-        console.log(`🧠 [KnowledgeCompiler] Auto-compilation started (every ${intervalMs/1000}s)`);
+        console.log(`[KnowledgeCompiler] Auto-compilation started (every ${intervalMs/1000}s)`);
     }
 
     /**
@@ -168,7 +168,7 @@ class KnowledgeCompiler {
      * Aggregates all data sources into a unified summary
      */
     async compile(): Promise<SystemStateSummary> {
-        console.log('🧠 [KnowledgeCompiler] Starting compilation...');
+        console.log('[KnowledgeCompiler] Starting compilation...');
         const startTime = Date.now();
 
         try {
@@ -199,11 +199,11 @@ class KnowledgeCompiler {
             this.lastCompilation = summary;
             
             const duration = Date.now() - startTime;
-            console.log(`🧠 [KnowledgeCompiler] Compilation complete in ${duration}ms`);
+            console.log(`[KnowledgeCompiler] Compilation complete in ${duration}ms`);
             
             return summary;
         } catch (error) {
-            console.error('🧠 [KnowledgeCompiler] Compilation failed:', error);
+            console.error('[KnowledgeCompiler] Compilation failed:', error);
             throw error;
         }
     }
@@ -331,7 +331,7 @@ class KnowledgeCompiler {
     private async compileGraphStats(): Promise<GraphStats> {
         try {
             // Get total counts
-            const countResult = await neo4jAdapter.runQuery(`
+            const countResult = await neo4jAdapter.executeQuery(`
                 MATCH (n)
                 WITH count(n) as nodes
                 MATCH ()-[r]->()
@@ -339,7 +339,7 @@ class KnowledgeCompiler {
             `);
 
             // Get counts by label
-            const labelResult = await neo4jAdapter.runQuery(`
+            const labelResult = await neo4jAdapter.executeQuery(`
                 MATCH (n)
                 WITH labels(n) as nodeLabels
                 UNWIND nodeLabels as label
@@ -363,7 +363,7 @@ class KnowledgeCompiler {
                 }
             };
         } catch (error) {
-            console.warn('🧠 [KnowledgeCompiler] Failed to get graph stats:', error);
+            console.warn('[KnowledgeCompiler] Failed to get graph stats:', error);
             return {
                 totalNodes: 0,
                 totalRelationships: 0,

@@ -45,7 +45,7 @@ class NeuralChatService {
             await this.persistChannel(channel);
         }
         
-        console.log('💬 Neural Chat Service initialized');
+        console.log('[NeuralChat] Service initialized');
         this.initialized = true;
     }
 
@@ -100,7 +100,7 @@ class NeuralChatService {
         // Persist to Neo4j
         await this.persistMessage(message);
         
-        console.log(`💬 [${message.channel}] ${message.from}: ${message.body.substring(0, 50)}...`);
+        console.log(`[NeuralChat] [${message.channel}] ${message.from}: ${message.body.substring(0, 50)}...`);
         
         return message;
     }

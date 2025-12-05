@@ -89,14 +89,14 @@ class CapabilityBroker {
             context: params.params
         });
 
-        console.log(`🔍 [ApprovalGate] ${params.fromAgent} → ${params.capability}: ${approval.decision}`);
+        console.log(`[ApprovalGate] ${params.fromAgent} -> ${params.capability}: ${approval.decision}`);
 
         // If escalation needed, notify and pause
         if (approval.decision === 'escalate_to_clak') {
             await neuralChatService.sendMessage({
                 channel: 'alerts',
                 from: 'system',
-                body: `⚠️ ESCALATION REQUIRED\n\nAgent: ${params.fromAgent}\nAction: ${params.capability}\nReason: ${approval.reason}\n\n@clak please review and decide.`,
+                body: `[ESCALATION REQUIRED]\n\nAgent: ${params.fromAgent}\nAction: ${params.capability}\nReason: ${approval.reason}\n\n@clak please review and decide.`,
                 type: 'alert',
                 priority: 'critical',
                 mentions: ['clak']
@@ -110,7 +110,7 @@ class CapabilityBroker {
             await neuralChatService.sendMessage({
                 channel: 'core-dev',
                 from: 'claude',
-                body: `❌ Request Denied\n\nFrom: ${params.fromAgent}\nAction: ${params.capability}\nReason: ${approval.reason}`,
+                body: `[DENIED] Request Denied\n\nFrom: ${params.fromAgent}\nAction: ${params.capability}\nReason: ${approval.reason}`,
                 type: 'status',
                 priority: 'normal'
             });
@@ -143,19 +143,19 @@ class CapabilityBroker {
 
         // 4. Send notifikation via Neural Chat (with approval note)
         const modNote = approval.modifications?.length 
-            ? `\n📝 Notes: ${approval.modifications.join(', ')}` 
+            ? `\n[Notes]: ${approval.modifications.join(', ')}` 
             : '';
             
         await neuralChatService.sendMessage({
             channel: 'core-dev',
             from: 'claude',
-            body: `✅ Capability Request APPROVED\n\n🎯 ${params.capability}\nFrom: ${params.fromAgent} → To: ${params.toAgent}\nPriority: ${params.priority || 'normal'}\nRequest ID: ${request.requestId}${modNote}`,
+            body: `[APPROVED] Capability Request\n\nCapability: ${params.capability}\nFrom: ${params.fromAgent} -> To: ${params.toAgent}\nPriority: ${params.priority || 'normal'}\nRequest ID: ${request.requestId}${modNote}`,
             type: 'task',
             priority: params.priority || 'normal',
             mentions: [params.toAgent]
         });
 
-        console.log(`✅ [CapabilityBroker] APPROVED: ${request.requestId}: ${params.fromAgent} → ${params.toAgent} (${params.capability})`);
+        console.log(`[CapabilityBroker] APPROVED: ${request.requestId}: ${params.fromAgent} -> ${params.toAgent} (${params.capability})`);
         
         return { ...request, approval };
     }
@@ -260,7 +260,7 @@ class CapabilityBroker {
             await neuralChatService.sendMessage({
                 channel: 'core-dev',
                 from: params.respondingAgent,
-                body: `✅ Capability Response: ${params.requestId}\nStatus: ${params.success ? 'SUCCESS' : 'FAILED'}\n${params.error || ''}`,
+                body: `[RESPONSE] Capability Response: ${params.requestId}\nStatus: ${params.success ? 'SUCCESS' : 'FAILED'}\n${params.error || ''}`,
                 type: 'response',
                 priority: 'normal',
                 mentions: [request.fromAgent]

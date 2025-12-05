@@ -38,6 +38,32 @@ const VIDENSARKIV_PATH = path.join(os.homedir(), 'Desktop', 'vidensarkiv');
 const ALLOWED_EXTENSIONS = ['.txt', '.md', '.json', '.csv', '.yaml', '.yml', '.xml', '.log'];
 
 // ═══════════════════════════════════════════════════════════════════════════
+// UTILITY: Sanitize strings for JSON (remove emojis that break parsing)
+// ═══════════════════════════════════════════════════════════════════════════
+
+function sanitizeForJson(obj: any): any {
+    if (typeof obj === 'string') {
+        // Remove emojis and other problematic Unicode characters
+        return obj.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2300}-\u{23FF}]|[\u{2B50}]|[\u{1F900}-\u{1F9FF}]|[\u{1FA00}-\u{1FA6F}]|[\u{1FA70}-\u{1FAFF}]/gu, '');
+    }
+    if (Array.isArray(obj)) {
+        return obj.map(sanitizeForJson);
+    }
+    if (obj !== null && typeof obj === 'object') {
+        const result: any = {};
+        for (const key of Object.keys(obj)) {
+            result[key] = sanitizeForJson(obj[key]);
+        }
+        return result;
+    }
+    return obj;
+}
+
+function safeJsonStringify(obj: any, indent: number = 2): string {
+    return JSON.stringify(sanitizeForJson(obj), null, indent);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // Type Definitions
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -772,7 +798,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: JSON.stringify(this.systemHealth, null, 2)
+                            text: safeJsonStringify(this.systemHealth)
                         }]
                     };
 
@@ -782,7 +808,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: JSON.stringify(files, null, 2)
+                            text: safeJsonStringify(files)
                         }]
                     };
 
@@ -792,7 +818,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: JSON.stringify(arkivFiles, null, 2)
+                            text: safeJsonStringify(arkivFiles)
                         }]
                     };
 
@@ -802,7 +828,7 @@ class NeuralBridgeServer {
                         contents: [{
                             uri,
                             mimeType: 'application/json',
-                            text: JSON.stringify(graphHealth, null, 2)
+                            text: safeJsonStringify(graphHealth)
                         }]
                     };
 
@@ -830,7 +856,7 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify(response, null, 2)
+                text: safeJsonStringify(response)
             }]
         };
     }
@@ -848,11 +874,11 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     path: SAFE_DESKTOP_PATH,
                     files: filtered,
                     count: filtered.length
-                }, null, 2)
+                })
             }]
         };
     }
@@ -906,11 +932,11 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     path: targetPath,
                     files: files,
                     count: files.length
-                }, null, 2)
+                })
             }]
         };
     }
@@ -986,7 +1012,7 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify(results[command] || { error: 'Unknown command' }, null, 2)
+                text: safeJsonStringify(results[command] || { error: 'Unknown command' })
             }]
         };
     }
@@ -1048,13 +1074,13 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         queryType: type,
                         query: query,
                         cypherExecuted: cypherUsed,
                         resultCount: results.length,
                         results: results
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1062,12 +1088,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         error: error.message,
                         queryType: type,
                         query: query,
                         hint: 'Check Neo4j connection or query syntax'
-                    }, null, 2)
+                    })
                 }],
                 isError: true
             };
@@ -1096,12 +1122,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: true,
                         action: 'node_created',
                         label: label,
                         node: result
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1137,12 +1163,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: true,
                         action: 'relationship_created',
                         type: relationshipType,
                         result: result
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1168,12 +1194,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         nodeId: nodeId,
                         direction: direction,
                         connectionCount: connections.length,
                         connections: connections
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1204,12 +1230,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         timeRange,
                         nodesByLabel: stats,
                         relationshipsByType: relStats,
                         lastUpdated: new Date().toISOString()
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1218,7 +1244,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         timeRange,
                         filesScanned: 288,
                         linesOfCode: 58317,
@@ -1226,7 +1252,7 @@ class NeuralBridgeServer {
                         relationshipsCreated: 3891,
                         note: 'Simulated stats - Neo4j connection issue',
                         error: error.message
-                    }, null, 2)
+                    })
                 }]
             };
         }
@@ -1265,12 +1291,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         health: health,
                         labels: labelCounts,
                         relationshipTypes: relCounts,
                         timestamp: new Date().toISOString()
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1278,10 +1304,10 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         error: error.message,
                         hint: 'Neo4j may not be running. Start with: docker-compose up neo4j'
-                    }, null, 2)
+                    })
                 }],
                 isError: true
             };
@@ -1414,7 +1440,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: result.success,
                         repositoryId: result.repositoryId,
                         stats: result.stats,
@@ -1422,7 +1448,7 @@ class NeuralBridgeServer {
                         message: result.success 
                             ? `Successfully ingested ${result.stats.totalNodes} nodes with ${result.stats.relationshipsCreated} relationships`
                             : 'Ingestion failed - check errors'
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1430,10 +1456,10 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         error: error.message,
                         hint: 'Ensure Neo4j is running and path exists'
-                    }, null, 2)
+                    })
                 }],
                 isError: true
             };
@@ -1465,12 +1491,12 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         agent: agent,
                         inboxPath: inboxPath,
                         messageCount: messages.length,
                         messages: messages
-                    }, null, 2)
+                    })
                 }]
             };
 
@@ -1478,10 +1504,10 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         error: error.message,
                         hint: 'Agent inbox may not exist yet'
-                    }, null, 2)
+                    })
                 }]
             };
         }
@@ -1516,24 +1542,24 @@ class NeuralBridgeServer {
 
         // Write to own outbox
         const outboxPath = path.join(SAFE_DESKTOP_PATH, 'agents', 'claude', 'outbox', filename);
-        await fs.writeFile(outboxPath, JSON.stringify(message, null, 2));
+        await fs.writeFile(outboxPath, safeJsonStringify(message));
 
         // Copy to recipient's inbox
         if (to !== 'human') {
             const recipientInbox = path.join(SAFE_DESKTOP_PATH, 'agents', to, 'inbox', filename);
-            await fs.writeFile(recipientInbox, JSON.stringify(message, null, 2));
+            await fs.writeFile(recipientInbox, safeJsonStringify(message));
         }
 
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     success: true,
                     messageId: messageId,
                     sentTo: to,
                     filename: filename,
                     message: `Message sent to ${to}`
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1559,10 +1585,10 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     success: true,
                     message
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1581,11 +1607,11 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     channel: channel || 'all',
                     count: messages.length,
                     messages
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1597,10 +1623,10 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     count: channels.length,
                     channels
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1618,7 +1644,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({ agent, capabilities }, null, 2)
+                    text: safeJsonStringify({ agent, capabilities })
                 }]
             };
         }
@@ -1626,10 +1652,10 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     agents: Object.keys(AGENT_CAPABILITIES),
                     capabilities: AGENT_CAPABILITIES
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1649,11 +1675,11 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     success: true,
                     request,
                     message: `Capability request sent to ${toAgent}`
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1667,11 +1693,11 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     agent,
                     pending: requests.length,
                     requests
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1690,7 +1716,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: true,
                         recommendation: {
                             agent: result.agent,
@@ -1699,7 +1725,7 @@ class NeuralBridgeServer {
                             description: result.capability.description
                         },
                         message: `Best match: ${result.agent} for "${result.capability.name}"`
-                    }, null, 2)
+                    })
                 }]
             };
         }
@@ -1707,10 +1733,10 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     success: false,
                     message: 'No suitable agent found for this task'
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1767,7 +1793,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: true,
                         sense: 'CORTICAL_FLASH',
                         memoryTrace,
@@ -1777,19 +1803,19 @@ class NeuralBridgeServer {
                             associations: associations.length,
                             traversalDepth: depth
                         }
-                    }, null, 2)
+                    })
                 }]
             };
         } catch (error: any) {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: false,
                         sense: 'CORTICAL_FLASH',
                         error: error.message,
                         concept
-                    }, null, 2)
+                    })
                 }]
             };
         }
@@ -1849,7 +1875,7 @@ class NeuralBridgeServer {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: true,
                         sense: 'OLFACTORY',
                         status,
@@ -1860,19 +1886,19 @@ class NeuralBridgeServer {
                             size: stats.size,
                             modified: stats.mtime.toISOString()
                         }
-                    }, null, 2)
+                    })
                 }]
             };
         } catch (error: any) {
             return {
                 content: [{
                     type: 'text',
-                    text: JSON.stringify({
+                    text: safeJsonStringify({
                         success: false,
                         sense: 'OLFACTORY',
                         error: error.message,
                         path: filePath
-                    }, null, 2)
+                    })
                 }]
             };
         }
@@ -1963,14 +1989,14 @@ class NeuralBridgeServer {
         return {
             content: [{
                 type: 'text',
-                text: JSON.stringify({
+                text: safeJsonStringify({
                     success,
                     sense: 'SONAR',
                     sonarEcho,
                     interpretation: success 
                         ? `${target} responded in ${sonarEcho.latencyMs.toFixed(2)}ms (${sonarEcho.field})`
                         : `${target} is unreachable`
-                }, null, 2)
+                })
             }]
         };
     }
@@ -1983,11 +2009,11 @@ class NeuralBridgeServer {
         const transport = new StdioServerTransport();
         await this.server.connect(transport);
 
-        console.error('🧠 Neural Bridge MCP Server v2.1 running via stdio');
-        console.error('🔗 Neo4j Integration: ENABLED');
-        console.error('🤝 Agent Communication: ENABLED');
-        console.error(`📁 DropZone: ${SAFE_DESKTOP_PATH}`);
-        console.error(`📚 Vidensarkiv: ${VIDENSARKIV_PATH}`);
+        console.error('[Neural Bridge] MCP Server v2.1 running via stdio');
+        console.error('[Neural Bridge] Neo4j Integration: ENABLED');
+        console.error('[Neural Bridge] Agent Communication: ENABLED');
+        console.error(`[Neural Bridge] DropZone: ${SAFE_DESKTOP_PATH}`);
+        console.error(`[Neural Bridge] Vidensarkiv: ${VIDENSARKIV_PATH}`);
     }
 }
 
