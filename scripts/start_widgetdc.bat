@@ -20,7 +20,7 @@ start "WidgeTDC Backend (Port 3001)" cmd /k "cd apps\backend && npm run dev"
 
 echo.
 echo [3/3] Starter Frontend (The Face) i nyt vindue...
-start "WidgeTDC Frontend (Port 8888)" cmd /k "cd apps\widget-board && npm run dev"
+start "WidgeTDC Frontend (Port 8888)" cmd /k "cd apps\matrix-frontend && npm run dev"
 
 echo.
 echo ===================================================

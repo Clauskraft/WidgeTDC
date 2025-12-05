@@ -66,7 +66,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: apps/widget-board/Dockerfile
+      dockerfile: apps/matrix-frontend/Dockerfile
     container_name: widgetdc-frontend
     ports:
       - "8081:80"

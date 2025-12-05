@@ -1,3 +1,3 @@
 @echo off
-cd apps/widget-board
+cd apps/matrix-frontend
 npm run dev

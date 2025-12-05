@@ -19,7 +19,7 @@ sleep 3
 
 # Start frontend in background
 echo "Starting frontend on port 5173..."
-cd /workspaces/WidgeTDC/apps/widget-board
+cd /workspaces/WidgeTDC/apps/matrix-frontend
 nohup npm run dev -- --host 0.0.0.0 > /workspaces/WidgeTDC/.devcontainer/logs/frontend.log 2>&1 &
 FRONTEND_PID=$!
 echo "Frontend PID: $FRONTEND_PID"

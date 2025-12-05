@@ -42,7 +42,7 @@ For at systemet ikke bare er en "avanceret lommeregner", men en autonom agent, k
     *   **Action:** Bevar denne struktur. Gør det muligt for agenten selv at skrive nye adaptere (Self-coding).
 
 3.  **Monorepo Strukturen:**
-    *   **Hvorfor:** Opdelingen mellem `apps/backend`, `apps/widget-board` og `packages/shared` sikrer, at vi ikke blander tingene sammen, men stadig kan dele typer.
+    *   **Hvorfor:** Opdelingen mellem `apps/backend`, `apps/matrix-frontend` og `packages/shared` sikrer, at vi ikke blander tingene sammen, men stadig kan dele typer.
     *   **Action:** Håndhæv strengere regler for, hvad der må importeres hvor.
 
 ---

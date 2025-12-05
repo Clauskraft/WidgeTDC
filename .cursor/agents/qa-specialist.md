@@ -29,7 +29,7 @@ Accelerate test suite from 50→100 tests, improve coverage from 70%→95%, and 
 
 **Files**:
 
-- `apps/widget-board/__tests__/*` (50 new tests)
+- `apps/matrix-frontend/__tests__/*` (50 new tests)
 - `apps/api/__tests__/*` (20 new tests)
 - `packages/widget-registry/__tests__/*` (20 new tests)
 - `jest.config.js` (parallelization config)

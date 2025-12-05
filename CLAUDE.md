@@ -22,7 +22,7 @@ npm run build
 npm run dev
 
 # Development - run separately
-npm run dev:frontend    # Vite dev server for widget-board
+npm run dev:frontend    # Vite dev server for matrix-frontend
 npm run dev:backend     # tsx watch for backend
 
 # Testing
@@ -47,7 +47,7 @@ npm run format:check   # Check formatting
 ```
 apps/
   backend/           # Express.js backend with MCP, cognitive layer, ingestion
-  widget-board/      # React 19 + Vite frontend with modular widgets
+  matrix-frontend/   # Matrix UI - React 19 + Vite frontend
   mobile/            # React Native mobile app (WIP)
 packages/
   domain-types/      # Shared domain type definitions
@@ -71,9 +71,9 @@ packages/
   - `external/` - Gmail, Outlook, OneDrive, Teams, Twitter adapters
   - `agent/` - HansPedderAgentController orchestration
 
-### Frontend (apps/widget-board/)
+### Frontend (apps/matrix-frontend/)
 
-React 19 with Tailwind CSS v4, Zustand for state, react-grid-layout for dashboard layout. Widgets live in `widgets/` directory and are registered in `src/staticWidgetRegistry.ts`.
+React 19 with Tailwind CSS v4, Zustand for state. Widgets live in `src/widgets/` directory. Environment configuration is in `.env.example`.
 
 ### Key Technologies
 
@@ -96,9 +96,7 @@ npm run build:frontend
 
 ### Widget Registration
 
-Widgets must be registered in two places in `apps/widget-board/src/staticWidgetRegistry.ts`:
-1. `staticWidgetRegistry` - lazy import of the component
-2. `widgetMetadata` - name, description, category, type, defaultLayout
+Widgets are registered in `apps/matrix-frontend/src/widgets/index.ts`.
 
 ### MCP Tool Registration
 

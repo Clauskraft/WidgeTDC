@@ -20,7 +20,7 @@ The "Inbox" system is dead. We use a **Single Source of Truth**.
 
 Do NOT hallucinate ports. Memorize this topology:
 
-- **Repo Root:** Monorepo (`apps/backend`, `apps/widget-board`).
+- **Repo Root:** Monorepo (`apps/backend`, `apps/matrix-frontend`).
 - **Backend (Node/Express):** `http://localhost:3001` (NEVER 3000).
 - **Frontend (Vite/React):** `http://localhost:8888`.
 - **PostgreSQL:** Port `5433` (Note: non-standard port).

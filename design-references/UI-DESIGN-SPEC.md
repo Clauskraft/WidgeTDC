@@ -176,9 +176,9 @@ transition: 300ms
 ## 🔧 Implementation Files
 
 ### Key Components
-- `apps/widget-board/components/AcrylicCard.tsx` - Main glassmorphism component
-- `apps/widget-board/App.css` - Advanced animations & utilities
-- `apps/widget-board/WidgeTDC_Pro.jsx` - Main application layout
+- `apps/matrix-frontend/components/AcrylicCard.tsx` - Main glassmorphism component
+- `apps/matrix-frontend/App.css` - Advanced animations & utilities
+- `apps/matrix-frontend/WidgeTDC_Pro.jsx` - Main application layout
 
 ### CSS Classes to Use
 ```css

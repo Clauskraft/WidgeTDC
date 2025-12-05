@@ -11,7 +11,7 @@
 
 ### Option 1: Test Page (Nemmest)
 
-1. **Åbn `apps/widget-board/App.tsx`** og tilføj:
+1. **Åbn `apps/matrix-frontend/App.tsx`** og tilføj:
 
 ```tsx
 import DeepSeekTestPage from './DeepSeekTestPage';
@@ -29,7 +29,7 @@ export default App;
 
 2. **Start dev server:**
 ```bash
-cd apps/widget-board
+cd apps/matrix-frontend
 npm run dev
 ```
 
@@ -40,7 +40,7 @@ npm run dev
 ### Option 2: Direkte i Console
 
 ```bash
-cd apps/widget-board
+cd apps/matrix-frontend
 npm run dev
 ```
 
@@ -198,7 +198,7 @@ DEEPSEEK_API_KEY=sk-a3f8e6b48271466b981396dc97fd904a
 
 **Kør bare:**
 ```bash
-cd apps/widget-board
+cd apps/matrix-frontend
 npm run dev
 ```
 
