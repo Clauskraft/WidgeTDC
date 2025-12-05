@@ -37,7 +37,10 @@
     "ci:frontend": "npm run typecheck:frontend && npm run lint:frontend && npm run build:frontend"
   },
   "dependencies": {
-    "dotenv": "^17.2.3"
+    "callsites": "^4.2.0",
+    "dotenv": "^17.2.3",
+    "lightningcss-linux-x64-gnu": "^1.30.2",
+    "meshline": "^3.3.1"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.1",
