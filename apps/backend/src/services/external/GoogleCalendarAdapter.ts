@@ -1,62 +1,87 @@
-// Google Calendar JSON adapter (placeholder, OAuth to be added later)
+typescript
 import { DataSourceAdapter } from '../../services/ingestion/DataIngestionEngine.js';
-import { readFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { readFile, stat } from 'fs/promises';
+import { join } from 'path';
 
 export class GoogleCalendarAdapter implements DataSourceAdapter {
-    name = 'Google Calendar';
-    type: 'other' = 'other';
-    private filePath: string;
+    readonly name = 'Google Calendar';
+    readonly type = 'other' as const;
+    
+    private readonly filePath: string;
     private events: any[] = [];
     private lastLoaded = 0;
+    private loadPromise: Promise<void> | null = null;
+    private static readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
     constructor(filePath?: string) {
-        this.filePath = filePath || `${process.cwd()}/apps/backend/data/google-calendar.json`;
+        this.filePath = filePath || join(process.cwd(), 'apps/backend/data/google-calendar.json');
     }
 
     private async load(): Promise<void> {
-        if (!existsSync(this.filePath)) {
-            console.warn(`[GoogleCalendarAdapter] File not found: ${this.filePath}`);
-            this.events = [];
-            return;
+        // Prevent concurrent loads
+        if (this.loadPromise) {
+            return this.loadPromise;
         }
-        try {
-            const data = await readFile(this.filePath, 'utf-8');
-            const json = JSON.parse(data);
-            this.events = Array.isArray(json) ? json : json.items || [];
-            this.lastLoaded = Date.now();
-            console.log(`[GoogleCalendarAdapter] Loaded ${this.events.length} events`);
-        } catch (e) {
-            console.error(`[GoogleCalendarAdapter] Failed to parse JSON:`, e);
-            this.events = [];
-        }
+
+        this.loadPromise = (async () => {
+            try {
+                await stat(this.filePath);
+                const data = await readFile(this.filePath, 'utf-8');
+                const json = JSON.parse(data);
+                this.events = Array.isArray(json) ? json : json.items || [];
+                this.lastLoaded = Date.now();
+                console.log(`[GoogleCalendarAdapter] Loaded ${this.events.length} events`);
+            } catch (error) {
+                if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+                    console.warn(`[GoogleCalendarAdapter] File not found: ${this.filePath}`);
+                } else {
+                    console.error(`[GoogleCalendarAdapter] Failed to load data:`, error);
+                }
+                this.events = [];
+            } finally {
+                this.loadPromise = null;
+            }
+        })();
+
+        return this.loadPromise;
     }
 
     async fetch(): Promise<any[]> {
-        const STALE = 5 * 60 * 1000;
-        if (this.events.length === 0 || Date.now() - this.lastLoaded > STALE) {
+        const isCacheStale = Date.now() - this.lastLoaded > GoogleCalendarAdapter.CACHE_TTL;
+        
+        if (this.events.length === 0 || isCacheStale) {
             await this.load();
         }
+        
         return this.events;
     }
 
     async transform(raw: any[]): Promise<any[]> {
-        return raw.map(item => ({
-            sourceId: item.id,
-            type: 'event',
-            content: item.summary ?? '',
-            metadata: {
-                provider: 'Google Calendar',
-                raw: item,
-                location: item.location,
-                start: item.start,
-                end: item.end
-            },
-            timestamp: new Date(item.start?.dateTime ?? Date.now())
-        }));
+        return raw.map(item => {
+            const startDate = item.start?.dateTime ? new Date(item.start.dateTime) : new Date();
+            
+            return {
+                sourceId: item.id,
+                type: 'event' as const,
+                content: item.summary || '',
+                metadata: {
+                    provider: 'Google Calendar',
+                    raw: item,
+                    location: item.location || null,
+                    start: item.start || null,
+                    end: item.end || null
+                },
+                timestamp: startDate
+            };
+        });
     }
 
     async isAvailable(): Promise<boolean> {
-        return existsSync(this.filePath);
+        try {
+            await stat(this.filePath);
+            return true;
+        } catch {
+            return false;
+        }
     }
 }
