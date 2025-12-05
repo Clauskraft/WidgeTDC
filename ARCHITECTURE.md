@@ -142,7 +142,7 @@ WidgeTDC/
 │   │   │   └── api/         # REST endpoints
 │   │   └── package.json
 │   │
-│   └── widget-board/         # React 19 frontend ✅ BUILD FIXED
+│   └── matrix-frontend/         # React 19 frontend ✅ BUILD FIXED
 │       ├── src/
 │       │   ├── components/  # React components
 │       │   ├── widgets/     # Widget implementations
@@ -242,7 +242,7 @@ WidgeTDC/
   - Memory integration
 
 ### 4. Widget System
-- **Location**: `apps/widget-board/src/widgets/`
+- **Location**: `apps/matrix-frontend/src/widgets/`
 - **Purpose**: Modular UI components
 - **Features**:
   - Dynamic loading
@@ -256,14 +256,14 @@ WidgeTDC/
 
 ### ✅ Frontend Build
 ```bash
-npm run build --prefix apps/widget-board
+npm run build --prefix apps/matrix-frontend
 # Status: ✅ SUCCESS (6.40s)
 # Output: dist/ directory created
 # Issues: None
 ```
 
 ### ✅ CSS Architecture
-- **File**: `apps/widget-board/App.css`
+- **File**: `apps/matrix-frontend/App.css`
 - **Status**: Completely rebuilt
 - **Keyframes**: All properly structured
 - **Tailwind**: v4 compatible (no @apply)
@@ -311,7 +311,7 @@ npm test
 ### Production Build
 ```bash
 # Build frontend
-npm run build --prefix apps/widget-board
+npm run build --prefix apps/matrix-frontend
 
 # Build backend
 npm run build --prefix apps/backend

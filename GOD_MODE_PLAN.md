@@ -24,7 +24,7 @@ Files:
 **Status: READY TO BUILD**
 
 ```
-Location: apps/widget-board/components/3d/
+Location: apps/matrix-frontend/components/3d/
 Files:
   - ThreeBrain.tsx        # Main 3D force-directed graph
   - NeuralNode.tsx        # Glowing neon sphere component
@@ -52,7 +52,7 @@ Agents:
 
 ### EXECUTION ORDER:
 
-1. [ ] Install 3D dependencies in widget-board
+1. [ ] Install 3D dependencies in matrix-frontend
 2. [ ] Create OmniHarvester.ts with recursive scanner
 3. [ ] Build ThreeBrain.tsx component
 4. [ ] Connect to Neo4j for graph visualization

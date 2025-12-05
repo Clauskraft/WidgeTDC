@@ -12,7 +12,7 @@ Backend will run on: http://localhost:3001
 
 ### 2. Start Frontend Server
 ```bash
-cd apps/widget-board
+cd apps/matrix-frontend
 npm install
 npm run dev
 ```

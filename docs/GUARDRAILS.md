@@ -17,7 +17,7 @@ The root directory must **ONLY** contain:
 ### 📂 File Placement Guide
 | Type | Correct Location |
 |------|------------------|
-| **Frontend Code** | `apps/widget-board/src/` |
+| **Frontend Code** | `apps/matrix-frontend/src/` |
 | **Backend Code** | `apps/backend/src/` |
 | **Shared Types** | `packages/domain-types/` or `packages/mcp-types/` |
 | **Shared Logic** | `packages/shared-utils/` (Future) |

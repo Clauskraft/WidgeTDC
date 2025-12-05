@@ -20,7 +20,7 @@ Jeg har lavet en **komplet løsning** der giver dig:
 ## 📁 Filer Oprettet
 
 ```
-apps/widget-board/src/utils/
+apps/matrix-frontend/src/utils/
 ├── llm-models.ts              # Model definitions (inkl. DeepSeek)
 ├── llm-provider.ts            # Unified provider (alle LLMs)
 ├── ModelSelector.tsx          # UI dropdown component

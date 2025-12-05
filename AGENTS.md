@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 - `apps/backend` contains the Node/TypeScript GraphRAG, MCP, and integration services; integration and smoke specs sit in `apps/backend/src/tests` and mirror the service tree.
-- `apps/widget-board` houses the Vite/React dashboard; UI assets live in `apps/widget-board/public`, while component hooks keep colocated specs under `__tests__`.
+- `apps/matrix-frontend` houses the Vite/React dashboard; UI assets live in `apps/matrix-frontend/public`, while component hooks keep colocated specs under `__tests__`.
 - Shared contracts reside in `packages/domain-types` and `packages/mcp-types`; rebuild them before consuming new DTOs elsewhere.
 - Packaging layers live in `desktop-app` and automation reference material in `agents/`, `docs/`, `scripts/`, and `tests/`.
 
@@ -26,7 +26,7 @@
 
 ## Commit & Pull Request Guidelines
 - Follow the existing conventional commit style (`feat(scope):`, `fix(scope):`, etc.) and mention ticket IDs in the subject or body.
-- Keep commits focused (types, backend, widget-board) and push only formatted, lint-clean diffs.
+- Keep commits focused (types, backend, matrix-frontend) and push only formatted, lint-clean diffs.
 - PRs must include a summary, reproduction/validation steps, linked issues, and screenshots or API traces for UI/API work; mention relevant docs under `docs/`.
 - Before requesting review, rerun `npm run lint`, `npm run test`, `npm run build`, and document any suites intentionally skipped.
 

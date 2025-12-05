@@ -27,7 +27,7 @@ WidgeTDC/
 │   │   │   ├── mcp/      # MCP gateway and tools
 │   │   │   └── database/ # SQLite (to be migrated to PostgreSQL)
 │   │   └── package.json
-│   └── widget-board/     # React frontend
+│   └── matrix-frontend/     # React frontend
 │       ├── components/   # UI components
 │       ├── widgets/      # Individual widgets
 │       └── package.json
@@ -158,7 +158,7 @@ npm install
 npm run dev
 
 # Check if frontend runs
-cd ../widget-board
+cd ../matrix-frontend
 npm install
 npm run dev
 ```
@@ -335,12 +335,12 @@ describe('Auth Integration', () => {
 ```
 
 ### E2E Tests (Playwright)
-**Location**: `apps/widget-board/tests/`
+**Location**: `apps/matrix-frontend/tests/`
 **Run Command**: `npm run test:e2e`
 
 Example:
 ```typescript
-// apps/widget-board/tests/auth-flow.spec.ts
+// apps/matrix-frontend/tests/auth-flow.spec.ts
 import { test, expect } from '@playwright/test';
 
 test('complete auth flow', async ({ page }) => {
@@ -507,7 +507,7 @@ Yes - run: npm run migrate:auth
 Read these before starting:
 - `apps/backend/src/services/memory/memoryRepository.ts` - Repository pattern
 - `apps/backend/src/mcp/toolHandlers.ts` - MCP integration pattern
-- `apps/widget-board/widgets/AiPalWidget.tsx` - Widget structure
+- `apps/matrix-frontend/widgets/AiPalWidget.tsx` - Widget structure
 
 ### External Docs
 - [Express.js Best Practices](https://expressjs.com/en/advanced/best-practice-performance.html)

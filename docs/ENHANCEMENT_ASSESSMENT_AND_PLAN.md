@@ -227,7 +227,7 @@ export async function widgetsDiscoverHandler(payload: any, _ctx: McpContext): Pr
   const { filter } = payload;
   
   // Use existing WIDGET_REGISTRY from widgetRegistry.js
-  const { WIDGET_REGISTRY, WIDGET_CATEGORIES } = await import('../../../widget-board/widgetRegistry.js');
+  const { WIDGET_REGISTRY, WIDGET_CATEGORIES } = await import('../../../matrix-frontend/widgetRegistry.js');
   
   let widgets = Object.values(WIDGET_REGISTRY);
   
@@ -291,7 +291,7 @@ mcpRegistry.registerTool('widgets.correlate', widgetsCorrelateHandler);
 
 ### 1.2 Dynamic Widget Registry Enhancement
 
-**Lokation**: Ny fil `apps/widget-board/src/services/WidgetDiscoveryService.ts`
+**Lokation**: Ny fil `apps/matrix-frontend/src/services/WidgetDiscoveryService.ts`
 
 ```typescript
 import { WIDGET_REGISTRY, WIDGET_CATEGORIES } from '../../widgetRegistry.js';
@@ -388,10 +388,10 @@ export const widgetDiscovery = WidgetDiscoveryService.getInstance();
 
 ### 2.1 Base OSINT Widget Pattern
 
-**Princip**: Følg eksisterende widget pattern fra `apps/widget-board/widgets/`
+**Princip**: Følg eksisterende widget pattern fra `apps/matrix-frontend/widgets/`
 
 ```typescript
-// apps/widget-board/widgets/DomainIntelligenceWidget.tsx
+// apps/matrix-frontend/widgets/DomainIntelligenceWidget.tsx
 
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -636,7 +636,7 @@ export async function osintIpLookupHandler(payload: any, ctx: McpContext): Promi
 
 ### 2.3 Widget Registry Update
 
-**Tilføj til**: `apps/widget-board/widgetRegistry.js`
+**Tilføj til**: `apps/matrix-frontend/widgetRegistry.js`
 
 ```javascript
 // Tilføj til WIDGET_REGISTRY:
@@ -849,7 +849,7 @@ export class KlavisAdapter {
     // Fallback to local widget discovery if Klavis unavailable
     if (!this.apiKey) {
       // Use local WidgetDiscoveryService
-      const { widgetDiscovery } = await import('../../../widget-board/src/services/WidgetDiscoveryService');
+      const { widgetDiscovery } = await import('../../../matrix-frontend/src/services/WidgetDiscoveryService');
       return widgetDiscovery.getAll();
     }
     
@@ -1268,7 +1268,7 @@ git lfs clone https://huggingface.co/datasets/Forceless/Zenodo10K
 ## 📋 WIDGET REGISTRY OPDATERINGER
 
 ```javascript
-// Tilføj til apps/widget-board/widgetRegistry.js
+// Tilføj til apps/matrix-frontend/widgetRegistry.js
 
 // === AUTONOME OSINT WIDGETS ===
 'AutonomousOSINTEmailWidget': {

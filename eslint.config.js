@@ -20,7 +20,7 @@ export default [
       '.DS_Store',
       '*.pem',
       'apps/backend/dist',
-      'apps/widget-board/dist',
+      'apps/matrix-frontend/dist',
       'packages/*/dist',
       'packages/*/build',
       '.claude',

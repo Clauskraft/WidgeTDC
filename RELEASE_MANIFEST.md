@@ -62,7 +62,7 @@ Claus (System Director)
 - [x] Backward compatibility (existing widgets still work)
 
 **Files**:
-- `apps/widget-board/contexts/WidgetRegistryContext.tsx` (+203 lines, Registry 2.0 complete)
+- `apps/matrix-frontend/contexts/WidgetRegistryContext.tsx` (+203 lines, Registry 2.0 complete)
 
 **Status**: ✅ SHIPPED on main (commit a011e8f)
 

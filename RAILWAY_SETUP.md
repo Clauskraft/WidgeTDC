@@ -54,12 +54,12 @@ VITE_API_URL=https://<your-backend-service>.up.railway.app
 ```
 
 **Build Settings:**
-- Root Directory: `/apps/widget-board`
+- Root Directory: `/apps/matrix-frontend`
 - Build Command: `npm install && npm run build`
 - Start Command: `npx serve -s dist -l $PORT`
 
 Or use Docker:
-- Dockerfile Path: `apps/widget-board/Dockerfile`
+- Dockerfile Path: `apps/matrix-frontend/Dockerfile`
 - Build Args: `VITE_API_URL=https://<your-backend>.up.railway.app`
 
 ### 5. Connect Services
@@ -132,7 +132,7 @@ apps/
     Dockerfile        # Backend container
     prisma/
       schema.prisma   # Database schema
-  widget-board/
+  matrix-frontend/
     railway.toml      # Frontend Railway config
     Dockerfile        # Frontend container
 ```

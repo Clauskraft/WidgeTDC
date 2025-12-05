@@ -137,14 +137,14 @@ desktop-app/
 ├── preload.js       # Preload script (IPC bridge)
 ├── package.json     # Dependencies and build config
 ├── assets/          # Icons and images
-└── renderer/        # Frontend files (built from widget-board)
+└── renderer/        # Frontend files (built from matrix-frontend)
 ```
 
 ### Running in Development
 
 ```bash
 # Terminal 1: Start Vite dev server
-cd apps/widget-board
+cd apps/matrix-frontend
 npm run dev
 
 # Terminal 2: Start Electron

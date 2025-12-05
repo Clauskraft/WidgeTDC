@@ -2,7 +2,7 @@
 
 - Dette repo indeholder: WidgeTDC, en Enterprise AI Platform designet til cybersecurity og OSINT analyse. Det er en "Neural Command Center" med en widget-baseret React frontend og en Node.js backend der integrerer Neo4j, PostgreSQL (pgvector) og AI agents.
 - Primær backend: `apps/backend` (TypeScript / Node / Express).
-- Primær frontend: `apps/widget-board` (React 19 / Vite / Tailwind v4).
+- Primær frontend: `apps/matrix-frontend` (Matrix UI - React 19 / Vite).
 - Neo4j kører i hybrid mode (Docker lokalt / AuraDB prod).
 
 ## Sådan validerer du ændringer
