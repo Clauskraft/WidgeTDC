@@ -1,6 +1,9 @@
 {
     "name": "WidgeTDC Dev Environment",
     "dockerComposeFile": "docker-compose.yml",
+    "features": {
+        "ghcr.io/devcontainers/features/sshd:1": {}
+    },
     "service": "dev-environment",
     "workspaceFolder": "/workspaces/WidgeTDC",
     "forwardPorts": [
