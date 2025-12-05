@@ -87,6 +87,8 @@ jobs:
       - name: TypeCheck frontend
         run: npm run typecheck:frontend
 
+      # Note: continue-on-error allows warnings while maintaining visibility.
+      # Existing warnings are tracked; new lint errors will show in PR annotations.
       - name: Lint frontend
         continue-on-error: true
         run: npm run lint:frontend
