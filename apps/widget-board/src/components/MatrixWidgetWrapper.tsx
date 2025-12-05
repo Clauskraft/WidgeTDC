@@ -1,6 +1,5 @@
 import React from 'react';
 import { AlertTriangle, Loader2 } from 'lucide-react';
-import { useTheme } from '../components/MainLayout'; // Assuming this is exported or we recreate it
 
 // --- ERROR BOUNDARY ---
 class WidgetErrorBoundary extends React.Component<

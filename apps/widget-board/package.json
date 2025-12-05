@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 8888 --strictPort",
+    "dev": "vite --port 5173 --strictPort",
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -26,6 +26,7 @@
     "postprocessing": "^6.38.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-force-graph-2d": "^1.29.0",
     "react-force-graph-3d": "^1.29.0",
     "react-grid-layout": "^1.5.2",
     "react-is": "^19.2.0",

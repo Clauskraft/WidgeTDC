@@ -114,7 +114,7 @@ const mapTenders = (opportunities: any[]): TenderOpportunity[] =>
 const deriveThreatIntel = (payload: SecurityFeedsPayload): ThreatIntel => {
   const activeGroups = payload.feeds.slice(0, 5).map(feed => ({
     name: feed.name,
-    victimCount: feed.documentsPerHour ?? 0
+    victimCount: 0  // FeedSource doesn't have documentsPerHour
   }));
 
   return {

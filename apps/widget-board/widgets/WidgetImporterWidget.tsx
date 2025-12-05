@@ -70,7 +70,19 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
       return;
     }
 
-    registerWidget(newWidgetDefinition);
+    // Convert WidgetDefinition to WidgetEntry by wrapping component in lazy
+    const LazyComponent = React.lazy(() => Promise.resolve({
+      default: newWidgetDefinition.component as React.ComponentType<{ widgetId: string; config?: any }>
+    }));
+
+    registerWidget?.({
+      id: newWidgetDefinition.id,
+      name: newWidgetDefinition.name,
+      description: newWidgetDefinition.description,
+      category: newWidgetDefinition.category,
+      component: LazyComponent,
+      defaultLayout: newWidgetDefinition.defaultLayout,
+    });
     onSuccess(`Widget'en "${newWidgetDefinition.name}" er blevet tilføjet til sidebaren og er klar til brug.`);
   };
 

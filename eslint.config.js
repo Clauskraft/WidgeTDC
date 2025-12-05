@@ -30,7 +30,6 @@ export default [
       '**/*.test.ts',
       '**/*.spec.js',
       '**/*.spec.ts',
-      'src/**',
       'database/**',
       'scripts/**',
       'security/**',
