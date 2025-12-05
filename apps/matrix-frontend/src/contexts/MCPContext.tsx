@@ -3,7 +3,8 @@
  * Provides real-time communication with MCP server
  */
 
-import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import type { ReactNode } from 'react';
 import type { MCPMessage, MCPResponse, MCPTool, MCPConnection } from '../types/mcp';
 
 interface MCPContextValue {

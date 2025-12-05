@@ -10,7 +10,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useMCP } from '../contexts/MCPContext';
 import { dataService } from '../services/UnifiedDataService';
-import type { PRDDocument, GeneratedPrototype } from '../types/mcp';
 import './PRDPrototypeWidget.css';
 
 // ═══════════════════════════════════════════════════════════════════════════
