@@ -20,11 +20,12 @@ npm install
 echo "Generating Prisma client..."
 npx prisma generate --schema=./apps/backend/prisma/schema.prisma
 
-# Wait for PostgreSQL to be ready
+# Wait for PostgreSQL to be ready (using Node.js since pg_isready isn't installed)
 echo "Waiting for PostgreSQL..."
-until pg_isready -h postgres -U widgetdc -d widgetdc 2>/dev/null; do
+until node -e "const net = require('net'); const client = new net.Socket(); client.setTimeout(3000); client.connect(5432, 'postgres', () => { client.destroy(); process.exit(0); }); client.on('error', () => process.exit(1)); client.on('timeout', () => { client.destroy(); process.exit(1); });" 2>/dev/null; do
     sleep 2
 done
+echo "PostgreSQL is ready!"
 
 # Push schema to database
 echo "Syncing database schema..."
