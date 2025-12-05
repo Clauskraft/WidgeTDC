@@ -6,8 +6,32 @@
 import { Router } from 'express';
 import { knowledgeAcquisition } from '../services/KnowledgeAcquisitionService.js';
 import { hyperLog } from '../services/HyperLog.js';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const router = Router();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const TARGETS_PATH = path.join(__dirname, '../../../docs/KNOWLEDGE_TARGETS.json');
+
+const validateRequiredFields = (fields: Record<string, any>, required: string[]): string | null => {
+    for (const field of required) {
+        if (!fields[field]) {
+            return `Missing required field: ${field}`;
+        }
+    }
+    return null;
+};
+
+const handleError = (res: any, error: any, endpoint: string, logError: boolean = true) => {
+    if (logError) {
+        hyperLog.logEvent('API_ERROR', { endpoint, error: error.message });
+    }
+    res.status(500).json({
+        success: false,
+        error: error.message
+    });
+};
 
 /**
  * POST /acquire
@@ -16,30 +40,15 @@ const router = Router();
 router.post('/acquire', async (req, res) => {
     try {
         const { type, content, metadata } = req.body;
-
-        if (!type || !content) {
-            return res.status(400).json({
-                success: false,
-                error: 'Missing required fields: type and content'
-            });
+        const validationError = validateRequiredFields({ type, content }, ['type', 'content']);
+        if (validationError) {
+            return res.status(400).json({ success: false, error: validationError });
         }
 
-        const result = await knowledgeAcquisition.acquire({
-            type,
-            content,
-            metadata
-        });
-
-        res.json({
-            success: result.success,
-            data: result
-        });
+        const result = await knowledgeAcquisition.acquire({ type, content, metadata });
+        res.json({ success: result.success, data: result });
     } catch (error: any) {
-        hyperLog.logEvent('API_ERROR', { endpoint: '/acquire', error: error.message });
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        handleError(res, error, '/acquire');
     }
 });
 
@@ -50,7 +59,6 @@ router.post('/acquire', async (req, res) => {
 router.post('/acquire/batch', async (req, res) => {
     try {
         const { sources } = req.body;
-
         if (!sources || !Array.isArray(sources)) {
             return res.status(400).json({
                 success: false,
@@ -59,22 +67,15 @@ router.post('/acquire/batch', async (req, res) => {
         }
 
         const results = await knowledgeAcquisition.batchAcquire(sources);
+        const successful = results.filter(r => r.success).length;
+        const failed = results.filter(r => !r.success).length;
 
         res.json({
             success: true,
-            data: {
-                total: results.length,
-                successful: results.filter(r => r.success).length,
-                failed: results.filter(r => !r.success).length,
-                results
-            }
+            data: { total: results.length, successful, failed, results }
         });
     } catch (error: any) {
-        hyperLog.logEvent('API_ERROR', { endpoint: '/acquire/batch', error: error.message });
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        handleError(res, error, '/acquire/batch');
     }
 });
 
@@ -85,7 +86,6 @@ router.post('/acquire/batch', async (req, res) => {
 router.get('/search', async (req, res) => {
     try {
         const { q, limit } = req.query;
-
         if (!q) {
             return res.status(400).json({
                 success: false,
@@ -93,10 +93,8 @@ router.get('/search', async (req, res) => {
             });
         }
 
-        const results = await knowledgeAcquisition.semanticSearch(
-            q as string, 
-            parseInt(limit as string) || 10
-        );
+        const searchLimit = parseInt(limit as string) || 10;
+        const results = await knowledgeAcquisition.semanticSearch(q as string, searchLimit);
 
         res.json({
             success: true,
@@ -105,11 +103,7 @@ router.get('/search', async (req, res) => {
             results
         });
     } catch (error: any) {
-        hyperLog.logEvent('API_ERROR', { endpoint: '/search', error: error.message });
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        handleError(res, error, '/search');
     }
 });
 
@@ -120,16 +114,9 @@ router.get('/search', async (req, res) => {
 router.get('/stats', async (req, res) => {
     try {
         const stats = await knowledgeAcquisition.getVectorStats();
-
-        res.json({
-            success: true,
-            data: stats
-        });
+        res.json({ success: true, data: stats });
     } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        handleError(res, error, '/stats', false);
     }
 });
 
@@ -139,96 +126,11 @@ router.get('/stats', async (req, res) => {
  */
 router.get('/targets', async (req, res) => {
     try {
-        const fs = await import('fs/promises');
-        const path = await import('path');
-        const { fileURLToPath } = await import('url');
-        
-        const __dirname = path.dirname(fileURLToPath(import.meta.url));
-        const targetsPath = path.join(__dirname, '../../../docs/KNOWLEDGE_TARGETS.json');
-        
-        const content = await fs.readFile(targetsPath, 'utf-8');
+        const content = await fs.readFile(TARGETS_PATH, 'utf-8');
         const targets = JSON.parse(content);
-
-        res.json({
-            success: true,
-            data: targets
-        });
+        res.json({ success: true, data: targets });
     } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-/**
- * POST /acquire/targets
- * Acquire knowledge from KNOWLEDGE_TARGETS.json
- * Body: { targetIds?: string[] } - Optional array of specific target IDs to acquire
- * If no targetIds provided, acquires ALL targets (use with caution!)
- */
-router.post('/acquire/targets', async (req, res) => {
-    try {
-        const { targetIds } = req.body;
-
-        hyperLog.logEvent('API_ACQUIRE_TARGETS', { 
-            targetIds: targetIds || 'ALL',
-            timestamp: new Date().toISOString()
-        });
-
-        const results = await knowledgeAcquisition.acquireFromTargets(targetIds);
-
-        res.json({
-            success: true,
-            data: {
-                total: results.length,
-                successful: results.filter(r => r.success).length,
-                failed: results.filter(r => !r.success).length,
-                results
-            }
-        });
-    } catch (error: any) {
-        hyperLog.logEvent('API_ERROR', { endpoint: '/acquire/targets', error: error.message });
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-/**
- * POST /acquire/target/:id
- * Acquire a single target by ID
- */
-router.post('/acquire/target/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        hyperLog.logEvent('API_ACQUIRE_SINGLE_TARGET', { 
-            targetId: id,
-            timestamp: new Date().toISOString()
-        });
-
-        const result = await knowledgeAcquisition.acquireSingleTarget(id);
-
-        if (!result) {
-            return res.status(404).json({
-                success: false,
-                error: `Target ${id} not found or failed to acquire`
-            });
-        }
-
-        res.json({
-            success: result.success,
-            targetId: id,
-            data: result
-        });
-    } catch (error: any) {
-        hyperLog.logEvent('API_ERROR', { endpoint: `/acquire/target/${req.params.id}`, error: error.message });
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
+        handleError(res, error, '/targets', false);
     }
 });
 
