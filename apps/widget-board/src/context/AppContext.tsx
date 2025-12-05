@@ -112,9 +112,12 @@ const mapTenders = (opportunities: any[]): TenderOpportunity[] =>
   }));
 
 const deriveThreatIntel = (payload: SecurityFeedsPayload): ThreatIntel => {
+  // FeedSource interface does not have a victimCount/documentsPerHour property
+  // Using feed count from metrics as a proxy for activity level
+  const docsPerFeed = payload.metrics.documentsIndexed / Math.max(payload.feeds.length, 1);
   const activeGroups = payload.feeds.slice(0, 5).map(feed => ({
     name: feed.name,
-    victimCount: 0  // FeedSource doesn't have documentsPerHour
+    victimCount: Math.round(docsPerFeed) // Use docs per feed as activity indicator
   }));
 
   return {

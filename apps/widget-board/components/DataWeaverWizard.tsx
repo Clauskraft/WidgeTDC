@@ -90,6 +90,11 @@ export const DataWeaverWizard: React.FC<DataWeaverWizardProps> = ({ isOpen, onCl
     }, [currentStep, dataSourceType, parsedData, widgetName, visualizationType, errors.rawData, chartCategoryKey, chartValueKeys, pieValueKey]);
 
     const handleCreateWidget = () => {
+        if (!registerWidget) {
+            setErrors(prev => ({ ...prev, final: 'Widget registration not available.' }));
+            return;
+        }
+
         try {
             const newWidgetId = `data-weaver-${Date.now()}`;
 
@@ -98,7 +103,7 @@ export const DataWeaverWizard: React.FC<DataWeaverWizardProps> = ({ isOpen, onCl
                 default: GenericDataWidget as React.ComponentType<{ widgetId: string; config?: any }>
             }));
 
-            registerWidget?.({
+            registerWidget({
                 id: newWidgetId,
                 name: widgetName || 'New Data Widget',
                 component: LazyGenericDataWidget,

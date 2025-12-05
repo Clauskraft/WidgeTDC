@@ -62,6 +62,11 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
   };
 
   const handleDirectImport = (msWidget: MSWidget, onSuccess: (message: string) => void) => {
+    if (!registerWidget) {
+      console.warn('Widget registration not available');
+      return;
+    }
+
     const adapter = new MSWidgetAdapter();
     const newWidgetDefinition = adapter.transformToWidgetDefinition(msWidget);
 
@@ -75,7 +80,7 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
       default: newWidgetDefinition.component as React.ComponentType<{ widgetId: string; config?: any }>
     }));
 
-    registerWidget?.({
+    registerWidget({
       id: newWidgetDefinition.id,
       name: newWidgetDefinition.name,
       description: newWidgetDefinition.description,
