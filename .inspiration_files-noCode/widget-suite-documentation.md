@@ -230,7 +230,7 @@ interface ModelDeployment {
 
 ### Fil Struktur
 ```
-apps/widget-board/widgets/
+apps/matrix-frontend/widgets/
 ├── ChatCapabilityDesignerV3.tsx       # Use-case baseret designer
 ├── PlatformModelGovernanceWidget.tsx  # Central governance
 └── shared/

@@ -85,8 +85,8 @@ Implement SHA-256 hash-chain based immutable audit log system with GDPR complian
 
 **Files**:
 
-- `apps/widget-board/src/components/AuditLog/AuditViewer.tsx`
-- `apps/widget-board/src/hooks/useAuditLog.ts`
+- `apps/matrix-frontend/src/components/AuditLog/AuditViewer.tsx`
+- `apps/matrix-frontend/src/hooks/useAuditLog.ts`
 
 **Acceptance Criteria**:
 

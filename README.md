@@ -4,7 +4,7 @@
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](docker-compose.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](tsconfig.json)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](apps/widget-board)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](apps/matrix-frontend)
 [![Neo4j](https://img.shields.io/badge/Neo4j-5.15-008CC1?logo=neo4j)](docker-compose.yml)
 [![License](https://img.shields.io/badge/License-Proprietary-red)]()
 
@@ -111,13 +111,13 @@ WidgeTDC/
 │   │   │   └── harvester/       # OmniHarvester pipeline
 │   │   └── Dockerfile
 │   │
-│   └── widget-board/            # React 19 Frontend
+│   └── matrix-frontend/          # Matrix UI (React 19 Frontend)
 │       ├── src/
-│       │   ├── widgets/         # 42+ widget implementations
-│       │   ├── components/      # Shared UI components
-│       │   └── hooks/           # Custom React hooks
-│       ├── nginx.conf           # Production server config
-│       └── Dockerfile
+│       │   ├── widgets/         # Widget implementations
+│       │   ├── contexts/        # React contexts (MCP)
+│       │   └── services/        # Data services
+│       ├── .env.example         # Environment configuration template
+│       └── vite.config.ts
 │
 ├── packages/
 │   └── shared/
@@ -202,7 +202,7 @@ npm run build -w packages/shared/domain-types
 cd apps/backend && npm run dev
 
 # Start frontend (Terminal 2)
-cd apps/widget-board && npm run dev
+cd apps/matrix-frontend && npm install && npm run dev -- --host 0.0.0.0 --port 4173
 ```
 
 ### Environment Variables

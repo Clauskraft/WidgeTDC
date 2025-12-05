@@ -91,7 +91,7 @@
 - Backward compatibility (existing widgets continue to work)
 
 **Files**:
-- `apps/widget-board/contexts/WidgetRegistryContext.tsx`
+- `apps/matrix-frontend/contexts/WidgetRegistryContext.tsx`
 
 **Lines of Code**: +203 lines
 

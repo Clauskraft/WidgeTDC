@@ -15,10 +15,10 @@ try {
 
 # 2. TJEK MILJØ
 $BackendPath = "apps/backend"
-$FrontendPath = "apps/widget-board"
+$FrontendPath = "apps/matrix-frontend"
 
 if (!(Test-Path $BackendPath) -or !(Test-Path $FrontendPath)) {
-    Write-Host "`n❌ KRITISK FEJL: Kan ikke finde apps/backend eller apps/widget-board." -ForegroundColor Red
+    Write-Host "`n❌ KRITISK FEJL: Kan ikke finde apps/backend eller apps/matrix-frontend." -ForegroundColor Red
     Write-Host "   Er du i roden af WidgeTDC mappen?" -ForegroundColor Yellow
     exit
 }

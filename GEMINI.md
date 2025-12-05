@@ -19,7 +19,7 @@ The project follows a monorepo structure:
 
 *   **`apps/`**
     *   **`backend/`**: Node.js Express API, MCP WebSocket server, AI agents (`src/cognitive/`), and OmniHarvester pipeline.
-    *   **`widget-board/`**: React 19 frontend, Widget implementations (`src/widgets/`), and 3D Knowledge Graph visualizations.
+    *   **`matrix-frontend/`**: React 19 frontend, Widget implementations (`src/widgets/`), and 3D Knowledge Graph visualizations.
 *   **`packages/`**
     *   **`shared/`**: Shared TypeScript types (`mcp-types`, `domain-types`) and utilities.
 *   **`monitoring/`**: Prometheus and Grafana configurations.
@@ -65,7 +65,7 @@ When working on this codebase, be aware of:
 1.  **MCP (Model Context Protocol):** The backend exposes tools via WebSockets. New capabilities should often be exposed as MCP tools.
 2.  **UnifiedGraphRAG:** The system uses a hybrid RAG approach combining vector search (Postgres) and graph traversal (Neo4j).
 3.  **Autonomous Task Engine:** Located in `apps/backend/src/cognitive/AutonomousAgent.ts`. It handles self-directed goals.
-4.  **Widgets:** The UI is modular. Widgets are self-contained components located in `apps/widget-board/src/widgets/`.
+4.  **Widgets:** The UI is modular. Widgets are self-contained components located in `apps/matrix-frontend/src/widgets/`.
 
 ## 🛠️ Key Commands Reference
 

@@ -6,7 +6,7 @@ Implement robust authentication and authorization with role-based access control
 ## 📋 Prerequisites
 - PostgreSQL migration completed (or adapt for SQLite)
 - Backend services running
-- Frontend widget-board available
+- Frontend matrix-frontend available
 
 ## 🔧 Implementation Tasks
 
@@ -292,7 +292,7 @@ app.use('/api/admin', authenticate, authorize(['admin']), adminRouter);
 
 **Deliverables**:
 ```typescript
-// apps/widget-board/components/LoginForm.tsx
+// apps/matrix-frontend/components/LoginForm.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -326,7 +326,7 @@ export const LoginForm: React.FC = () => {
   );
 };
 
-// apps/widget-board/contexts/AuthContext.tsx
+// apps/matrix-frontend/contexts/AuthContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AuthContextType {
@@ -408,7 +408,7 @@ test('Login fails with wrong password', async ({ page }) => {
 
 - [ ] All API endpoints require valid JWT token
 - [ ] Role-based access control working for admin/standard/viewer
-- [ ] Login form functional in widget-board
+- [ ] Login form functional in matrix-frontend
 - [ ] Token refresh mechanism working
 - [ ] All test cases passing (unit, integration, E2E)
 - [ ] Security audit completed (no JWT manipulation possible)

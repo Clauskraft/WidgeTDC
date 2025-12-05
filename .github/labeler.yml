@@ -1,7 +1,7 @@
 # Area Labels
 frontend:
   - changed-files:
-      - any-glob-to-any-file: ['apps/widget-board/**']
+      - any-glob-to-any-file: ['apps/matrix-frontend/**']
 
 backend:
   - changed-files:

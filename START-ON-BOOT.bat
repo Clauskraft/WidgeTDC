@@ -46,7 +46,7 @@ echo [3/3] Launching Backend and Frontend terminals...
 start "WidgeTDC Backend (MCP)" cmd /k "cd apps/backend && npm run dev"
 
 :: Start Frontend in new window
-start "WidgeTDC Frontend" cmd /k "cd apps/widget-board && npm run dev"
+start "WidgeTDC Frontend" cmd /k "cd apps/matrix-frontend && npm run dev"
 
 echo.
 echo ===================================================
