@@ -5,11 +5,10 @@ import { MemoryEntityInput, CmaContextRequest } from '@widget-tdc/mcp-types';
 export const memoryRouter = Router();
 const memoryRepo = new MemoryRepository();
 
-// Simple in-memory cache with TTL
 class SimpleCache {
   private cache = new Map<string, { data: any; expiry: number }>();
 
-  set(key: string, data: any, ttlMs: number = 300000): void { // 5 min default
+  set(key: string, data: any, ttlMs: number = 300000): void {
     this.cache.set(key, { data, expiry: Date.now() + ttlMs });
   }
 
@@ -32,20 +31,24 @@ class SimpleCache {
 
 const contextCache = new SimpleCache();
 
-// Ingest a memory entity
+const validateRequiredFields = (obj: Record<string, any>, fields: string[]): string | null => {
+  for (const field of fields) {
+    if (!obj[field]) return field;
+  }
+  return null;
+};
+
 memoryRouter.post('/ingest', async (req, res) => {
   try {
     const input: MemoryEntityInput = req.body;
-
-    if (!input.orgId || !input.entityType || !input.content) {
+    const missingField = validateRequiredFields(input, ['orgId', 'entityType', 'content']);
+    if (missingField) {
       return res.status(400).json({
-        error: 'Missing required fields: orgId, entityType, content',
+        error: `Missing required field: ${missingField}`,
       });
     }
 
     const entityId = await memoryRepo.ingestEntity(input);
-
-    // Clear context cache when new memory is added to ensure freshness
     contextCache.clear();
 
     res.json({
@@ -61,21 +64,17 @@ memoryRouter.post('/ingest', async (req, res) => {
   }
 });
 
-// Get contextual prompt with memories
 memoryRouter.post('/contextual-prompt', async (req, res) => {
   try {
     const request: CmaContextRequest = req.body;
-
-    if (!request.orgId || !request.userId || !request.userQuery) {
+    const missingField = validateRequiredFields(request, ['orgId', 'userId', 'userQuery']);
+    if (missingField) {
       return res.status(400).json({
-        error: 'Missing required fields: orgId, userId, userQuery',
+        error: `Missing required field: ${missingField}`,
       });
     }
 
-    // Create cache key from request parameters
     const cacheKey = `${request.orgId}:${request.userId}:${request.userQuery}:${JSON.stringify(request.keywords || [])}:${request.widgetData || ''}`;
-
-    // Check cache first
     const cachedResult = contextCache.get(cacheKey);
     if (cachedResult) {
       return res.json({
@@ -85,7 +84,6 @@ memoryRouter.post('/contextual-prompt', async (req, res) => {
       });
     }
 
-    // Search for relevant memories with enhanced semantic search
     const memories = await memoryRepo.searchEntities({
       orgId: request.orgId,
       userId: request.userId,
@@ -93,14 +91,12 @@ memoryRouter.post('/contextual-prompt', async (req, res) => {
       limit: 5,
     });
 
-    // Build enhanced contextual prompt with semantic scoring
     const memoryContext = memories.map(m => {
       const score = m.semanticScore ? ` (semantic score: ${(m.semanticScore * 100).toFixed(1)}%)` : '';
       return `[${m.entity_type}] ${m.content} (importance: ${m.importance})${score}`;
     }).join('\n');
 
-    const prompt = `
-Context from memory (enhanced with semantic search):
+    const prompt = `Context from memory (enhanced with semantic search):
 ${memoryContext}
 
 Widget data:
@@ -109,8 +105,7 @@ ${request.widgetData || 'None'}
 User query:
 ${request.userQuery}
 
-Please provide a hyper-contextual response considering the semantic relationships and importance scores above.
-    `.trim();
+Please provide a hyper-contextual response considering the semantic relationships and importance scores above.`.trim();
 
     const result = {
       prompt,
@@ -122,7 +117,6 @@ Please provide a hyper-contextual response considering the semantic relationship
       })),
     };
 
-    // Cache the result for 5 minutes
     contextCache.set(cacheKey, result, 300000);
 
     res.json({
@@ -139,7 +133,6 @@ Please provide a hyper-contextual response considering the semantic relationship
   }
 });
 
-// Search memories
 memoryRouter.post('/search', async (req, res) => {
   try {
     const query = req.body;
