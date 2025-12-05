@@ -5,10 +5,10 @@ import { staticWidgetRegistry, widgetMetadata } from '../src/staticWidgetRegistr
 export interface WidgetEntry {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   category: string;
   type?: 'app' | 'tool';
-  component: React.LazyExoticComponent<any>;
+  component: React.LazyExoticComponent<React.ComponentType<{ widgetId: string; config?: any }>>;
   defaultLayout: { w: number; h: number };
   minW?: number;
   maxW?: number;

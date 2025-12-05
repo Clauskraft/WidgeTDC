@@ -65,8 +65,8 @@ services:
 
   frontend:
     build:
-      context: ./apps/widget-board
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/widget-board/Dockerfile
     container_name: widgetdc-frontend
     ports:
       - "8081:80"

@@ -90,17 +90,26 @@ export const DataWeaverWizard: React.FC<DataWeaverWizardProps> = ({ isOpen, onCl
     }, [currentStep, dataSourceType, parsedData, widgetName, visualizationType, errors.rawData, chartCategoryKey, chartValueKeys, pieValueKey]);
 
     const handleCreateWidget = () => {
+        if (!registerWidget) {
+            setErrors(prev => ({ ...prev, final: 'Widget registration not available.' }));
+            return;
+        }
+
         try {
             const newWidgetId = `data-weaver-${Date.now()}`;
+
+            // Wrap the component in a lazy loader to satisfy WidgetEntry type
+            const LazyGenericDataWidget = React.lazy(() => Promise.resolve({
+                default: GenericDataWidget as React.ComponentType<{ widgetId: string; config?: any }>
+            }));
 
             registerWidget({
                 id: newWidgetId,
                 name: widgetName || 'New Data Widget',
-                component: GenericDataWidget,
-                category: 'ai-agents' as WidgetCategory,
+                component: LazyGenericDataWidget,
+                category: 'ai-agents',
                 defaultLayout: { w: 6, h: 8 },
-                source: 'dynamic',
-            }, undefined, 'dynamic');
+            });
 
             addWidget(newWidgetId, { data: parsedData, visualizationType, chartCategoryKey, chartValueKeys, pieValueKey });
             handleClose();

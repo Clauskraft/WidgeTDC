@@ -90,7 +90,7 @@ const LiveConversationWidget: React.FC<{ widgetId: string }> = () => {
 
     const startConversation = async () => {
         // Accessing env via window or a config object might be safer than process.env in Vite client
-        const apiKey = (import.meta.env || {}).VITE_GEMINI_API_KEY || ''; 
+        const apiKey = (import.meta.env as Record<string, string | undefined>)?.VITE_GEMINI_API_KEY || ''; 
         
         if (!apiKey) {
             setStatusText("No API Key found.");

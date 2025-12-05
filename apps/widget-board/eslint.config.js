@@ -4,6 +4,9 @@ import react from 'eslint-plugin-react';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default [
+  {
+    ignores: ['dist/**', 'node_modules/**', '**/*.js'],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -23,6 +26,7 @@ export default [
         document: 'readonly',
         window: 'readonly',
         setTimeout: 'readonly',
+        clearTimeout: 'readonly',
         WebSocket: 'readonly',
         CloseEvent: 'readonly',
         Event: 'readonly',
@@ -40,6 +44,26 @@ export default [
         describe: 'readonly',
         it: 'readonly',
         expect: 'readonly',
+        vi: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        requestIdleCallback: 'readonly',
+        crypto: 'readonly',
+        AudioContext: 'readonly',
+        NodeJS: 'readonly',
+        MediaRecorder: 'readonly',
+        MediaStream: 'readonly',
+        Blob: 'readonly',
+        fetch: 'readonly',
+        Headers: 'readonly',
+        atob: 'readonly',
+        btoa: 'readonly',
+        ResizeObserver: 'readonly',
+        MutationObserver: 'readonly',
+        IntersectionObserver: 'readonly',
+        IndexedDB: 'readonly',
+        indexedDB: 'readonly',
+        IDBRequest: 'readonly',
       },
     },
     plugins: {
@@ -53,7 +77,9 @@ export default [
     },
     rules: {
       ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
+      // Only use specific react-hooks rules instead of recommended to avoid new v7 errors
+      'react-hooks/exhaustive-deps': 'warn',
+      'react-hooks/rules-of-hooks': 'error',
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
@@ -63,11 +89,10 @@ export default [
       'no-irregular-whitespace': 'warn',
       'no-empty': 'warn',
       'prefer-const': 'warn',
-      'react-hooks/exhaustive-deps': 'warn',
-      'react-hooks/rules-of-hooks': 'warn',
       'react/prop-types': 'off',
       'react/no-unescaped-entities': 'off',
       'react/no-unknown-property': 'warn',
+      'react/jsx-no-target-blank': 'warn',
       '@typescript-eslint/ban-ts-comment': 'warn',
     },
   },

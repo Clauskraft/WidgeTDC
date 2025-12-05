@@ -1,12 +1,15 @@
-import React, { lazy } from 'react';
+import React, { lazy, ComponentType } from 'react';
 import { ModuleGrid, ModuleCard } from './ModuleGrid';
 
-const AgentStatusDashboardWidget = lazy(() => import('../../../widgets/AgentStatusDashboardWidget'));
-const EvolutionAgentWidget = lazy(() => import('../../../widgets/EvolutionAgentWidget'));
-const PersonaCoordinatorWidget = lazy(() => import('../../../widgets/PersonaCoordinatorWidget'));
-const AgentBuilderWidget = lazy(() => import('../../../widgets/AgentBuilderWidget'));
-const HansPedderMonitorWidget = lazy(() => import('../../../widgets/HansPedderMonitor'));
-const IntelligenceEvolutionWidget = lazy(() => import('../../../widgets/IntelligenceEvolutionWidget'));
+// Widget prop type
+interface WidgetProps { widgetId: string; }
+
+const AgentStatusDashboardWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/AgentStatusDashboardWidget'));
+const EvolutionAgentWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/EvolutionAgentWidget'));
+const PersonaCoordinatorWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/PersonaCoordinatorWidget'));
+const AgentBuilderWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/AgentBuilderWidget'));
+const HansPedderMonitorWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/HansPedderMonitor'));
+const IntelligenceEvolutionWidget = lazy<ComponentType<WidgetProps>>(() => import('../../../widgets/IntelligenceEvolutionWidget'));
 
 export default function AgentSwarmView() {
   return (

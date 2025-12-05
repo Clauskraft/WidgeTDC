@@ -361,8 +361,11 @@ Generate valid Mermaid.js code for the requested diagram. Apply any relevant pat
     ${keywords[3] || 'Branch C'}
       Sub-topic 5`;
 
-      default:
-        return DIAGRAM_TEMPLATES[type].example;
+      default: {
+        // Exhaustive check - this should never be reached
+        const _exhaustive: never = type;
+        return DIAGRAM_TEMPLATES.flowchart.example;
+      }
     }
   };
 
