@@ -65,7 +65,8 @@ jobs:
         run: npm run typecheck:frontend
 
       - name: Frontend Lint
-        run: npm run lint:frontend || echo "Frontend lint completed with warnings"
+        run: npm run lint:frontend
+        continue-on-error: true
 
       - name: Frontend Build
         run: npm run build:frontend
