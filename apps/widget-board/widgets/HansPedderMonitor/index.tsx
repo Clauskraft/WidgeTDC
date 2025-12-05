@@ -32,7 +32,7 @@ interface AgentStatus {
   nextNudgeIn: string;
 }
 
-const HansPedderMonitorWidget: React.FC = () => {
+const HansPedderMonitorWidget: React.FC<{ widgetId?: string }> = () => {
   const [status, setStatus] = useState<AgentStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -103,8 +103,8 @@ Full sweep initiated across project and intel sources.`;
         case 'intel':
             const resIntel = await fetch('/api/evolution/harvest/intel', { method: 'POST' });
             if (resIntel.ok) {
-                responseContent = 'INTEL ACQUISITION STARTED.
-Fetching latest neuro-engrams...';
+                responseContent = `INTEL ACQUISITION STARTED.
+Fetching latest neuro-engrams...`;
             } else {
                 responseContent = 'Failed to start intel harvest.';
                 responseType = 'error';

@@ -18,6 +18,7 @@ export class MSWidgetAdapter {
     const definition: WidgetDefinition = {
       id: newId,
       name: `(MS) ${msWidget.displayName}`,
+      description: `Imported Microsoft widget: ${msWidget.displayName}`,
       component: TransformedWidgetComponent,
       defaultLayout: { w: 5, h: 6 },
       source: 'microsoft',

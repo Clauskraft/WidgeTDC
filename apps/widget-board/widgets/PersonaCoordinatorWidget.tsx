@@ -50,7 +50,7 @@ const personas = [
   },
 ];
 
-export const PersonaCoordinatorWidget: React.FC = () => {
+export const PersonaCoordinatorWidget: React.FC<{ widgetId?: string }> = () => {
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>(['architecture', 'security']);
   const [isReviewing, setIsReviewing] = useState(false);
   const [result, setResult] = useState<ReviewResult | null>(null);

@@ -70,7 +70,11 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
       return;
     }
 
-    registerWidget(newWidgetDefinition);
+    registerWidget?.({
+      ...newWidgetDefinition,
+      description: newWidgetDefinition.description || `Imported widget: ${newWidgetDefinition.name}`,
+      component: newWidgetDefinition.component as any,
+    });
     onSuccess(`Widget'en "${newWidgetDefinition.name}" er blevet tilføjet til sidebaren og er klar til brug.`);
   };
 

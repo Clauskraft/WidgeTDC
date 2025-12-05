@@ -93,14 +93,14 @@ export const DataWeaverWizard: React.FC<DataWeaverWizardProps> = ({ isOpen, onCl
         try {
             const newWidgetId = `data-weaver-${Date.now()}`;
 
-            registerWidget({
+            registerWidget?.({
                 id: newWidgetId,
                 name: widgetName || 'New Data Widget',
-                component: GenericDataWidget,
-                category: 'ai-agents' as WidgetCategory,
+                component: GenericDataWidget as any,
+                category: 'ai-agents' as string,
+                description: 'Dynamically created data widget',
                 defaultLayout: { w: 6, h: 8 },
-                source: 'dynamic',
-            }, undefined, 'dynamic');
+            });
 
             addWidget(newWidgetId, { data: parsedData, visualizationType, chartCategoryKey, chartValueKeys, pieValueKey });
             handleClose();

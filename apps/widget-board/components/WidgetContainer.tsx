@@ -115,7 +115,7 @@ const WidgetContainer: React.FC<WidgetContainerProps> = memo(({
     );
   }
 
-  const WidgetComponent = widgetDef.component;
+  const WidgetComponent = widgetDef.component as React.ComponentType<{ widgetId: string; config?: WidgetConfig }>;
 
   return (
     <>

@@ -156,7 +156,10 @@ const PerformanceMonitorWidget: React.FC<{ widgetId: string }> = () => {
                memory_percent: 40 + Math.random() * 5,
 
 
-               api_response_time: 45 + Math.random() * 20
+               api_response_time: 45 + Math.random() * 20,
+
+
+               timestamp: Date.now()
 
 
             };
@@ -413,3 +416,5 @@ const MetricDisplay: React.FC<{ label: string; value: number; unit: string; icon
 
 
 );
+
+export default PerformanceMonitorWidget;

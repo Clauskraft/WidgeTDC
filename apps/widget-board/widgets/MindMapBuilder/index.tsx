@@ -319,7 +319,7 @@ const EdgeComponent: React.FC<EdgeComponentProps> = ({ edge, sourceNode, targetN
 };
 
 // ===== MAIN COMPONENT =====
-export const MindMapBuilderWidget: React.FC = () => {
+export const MindMapBuilderWidget: React.FC<{ widgetId?: string }> = () => {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });

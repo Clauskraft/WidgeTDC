@@ -16,6 +16,7 @@ import {
   ChevronUp,
   ChevronDown,
 } from 'lucide-react';
+import { LucideProps } from 'lucide-react';
 import { CockpitAgent, AgentStatus, AGENT_STATUS_COLORS } from './types';
 import { useCockpitStore } from './cockpitStore';
 
@@ -25,7 +26,7 @@ interface AgentCouncilProps {
   onToggle: () => void;
 }
 
-const ROLE_ICONS: Record<CockpitAgent['role'], React.FC<{ className?: string }>> = {
+const ROLE_ICONS: Record<CockpitAgent['role'], React.FC<LucideProps>> = {
   security: Shield,
   governance: Scale,
   legal: Gavel,
@@ -34,7 +35,7 @@ const ROLE_ICONS: Record<CockpitAgent['role'], React.FC<{ className?: string }>>
   creative: Palette,
 };
 
-const STATUS_ICONS: Record<AgentStatus, React.FC<{ className?: string }>> = {
+const STATUS_ICONS: Record<AgentStatus, React.FC<LucideProps>> = {
   idle: Pause,
   active: Activity,
   warning: AlertTriangle,

@@ -19,7 +19,7 @@ interface AgentRun {
   created_at: string;
 }
 
-const EvolutionAgentWidget: React.FC = () => {
+const EvolutionAgentWidget: React.FC<{ widgetId?: string }> = () => {
   const [agentId, setAgentId] = useState('procurement-agent');
   const [currentPrompt, setCurrentPrompt] = useState<Prompt | null>(null);
   const [recentRuns, setRecentRuns] = useState<AgentRun[]>([]);
