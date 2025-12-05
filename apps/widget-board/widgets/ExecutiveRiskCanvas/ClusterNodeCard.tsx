@@ -62,8 +62,9 @@ export const ClusterNodeCard: React.FC<ClusterNodeCardProps> = ({
   onMove,
   onToggleCollapse,
   onRemove,
-  widgetComponent: WidgetComponent,
+  widgetComponent,
 }) => {
+  const WidgetComponent = widgetComponent as React.ComponentType<{ widgetId: string; config?: Record<string, unknown>; compact?: boolean }> | undefined;
   const cardRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; startY: number; nodeX: number; nodeY: number } | null>(null);
 
@@ -240,7 +241,7 @@ const NodeContentPreview: React.FC<{ node: ClusterNode }> = ({ node }) => {
       <div className="p-3 space-y-3 text-sm">
         <div className="flex justify-between">
           <span className="text-white/60">Risk Score</span>
-          <span className="font-bold text-rose-400">{metadata.riskScore || 'N/A'}</span>
+          <span className="font-bold text-rose-400">{String(metadata.riskScore ?? 'N/A')}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-white/60">ARR Exposure</span>
@@ -256,7 +257,7 @@ const NodeContentPreview: React.FC<{ node: ClusterNode }> = ({ node }) => {
             metadata.status === 'escalated' ? 'text-rose-400' : 
             metadata.status === 'investigating' ? 'text-amber-400' : 'text-emerald-400'
           }`}>
-            {metadata.status || 'Unknown'}
+            {String(metadata.status ?? 'Unknown')}
           </span>
         </div>
         {metadata.graphNodes && Array.isArray(metadata.graphNodes) && (
@@ -288,9 +289,9 @@ const NodeContentPreview: React.FC<{ node: ClusterNode }> = ({ node }) => {
         </div>
         {metadata.keyClause && (
           <div className="p-2 bg-white/5 rounded border border-white/10">
-            <span className="text-xs text-white/40 block mb-1">{metadata.clauseReference || 'Key Clause'}</span>
+            <span className="text-xs text-white/40 block mb-1">{String(metadata.clauseReference ?? 'Key Clause')}</span>
             <p className="text-xs text-white/80 italic line-clamp-3">
-              "{metadata.keyClause}"
+              "{String(metadata.keyClause)}"
             </p>
           </div>
         )}
@@ -319,7 +320,7 @@ const NodeContentPreview: React.FC<{ node: ClusterNode }> = ({ node }) => {
       <div className="p-3 space-y-3 text-sm">
         <div className="flex justify-between items-center">
           <span className="text-white/60">Owner</span>
-          <span className="font-medium text-cyan-400">{metadata.owner || 'N/A'}</span>
+          <span className="font-medium text-cyan-400">{String(metadata.owner ?? 'N/A')}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-white/60">Status</span>
@@ -329,7 +330,7 @@ const NodeContentPreview: React.FC<{ node: ClusterNode }> = ({ node }) => {
             metadata.status === 'rejected' ? 'bg-rose-500/20 text-rose-400' :
             'bg-purple-500/20 text-purple-400'
           }`}>
-            {metadata.status || 'Unknown'}
+            {String(metadata.status ?? 'Unknown')}
           </span>
         </div>
         {metadata.actions && Array.isArray(metadata.actions) && (

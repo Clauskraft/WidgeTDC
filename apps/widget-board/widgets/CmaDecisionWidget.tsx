@@ -8,7 +8,7 @@ interface Memory {
   importance: number;
 }
 
-const CmaDecisionWidget: React.FC = () => {
+const CmaDecisionWidget: React.FC<{ widgetId?: string }> = () => {
   const [question, setQuestion] = useState('');
   const [widgetData, setWidgetData] = useState('');
   const [keywords, setKeywords] = useState('');

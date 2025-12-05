@@ -1,8 +1,8 @@
 import React, { Suspense, useState } from 'react';
 import { MainLayout } from './components/MainLayout';
 import { AppLauncher } from './components/GroupedAppLauncher';
-import { WidgetRegistryProvider } from './contexts/WidgetRegistryContext';
-import { GlobalStateProvider } from './contexts/GlobalStateContext';
+import { WidgetRegistryProvider } from '../contexts/WidgetRegistryContext';
+import { GlobalStateProvider } from '../contexts/GlobalStateContext';
 import { staticWidgetRegistry } from './staticWidgetRegistry';
 import { ArrowLeft } from 'lucide-react';
 import './App.css';

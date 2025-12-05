@@ -90,7 +90,7 @@ export default function NeuralGraph3D() {
   const [stats, setStats] = useState({ nodes: 0, relationships: 0 });
   const [autoRotate, setAutoRotate] = useState(true);
   const [showLabels, setShowLabels] = useState(true);
-  const graphRef = useRef<ForceGraphMethods>();
+  const graphRef = useRef<ForceGraphMethods | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 

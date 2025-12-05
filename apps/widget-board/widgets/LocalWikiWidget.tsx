@@ -152,7 +152,7 @@ const SmartAttachment = ({ attachment, isOwner }: { attachment: Attachment, isOw
     );
 };
 
-export default function LocalWikiWidget() {
+export default function LocalWikiWidget({ widgetId }: { widgetId?: string }) {
     const [articles, setArticles] = useState<Article[]>(INITIAL_ARTICLES);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);

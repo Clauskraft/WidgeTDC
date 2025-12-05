@@ -45,7 +45,7 @@ const useHyperStream = () => {
   return { events, metrics, isConnected };
 };
 
-export const IntelligenceEvolutionWidget: React.FC = () => {
+export const IntelligenceEvolutionWidget: React.FC<{ widgetId?: string }> = () => {
   const { events, metrics, isConnected } = useHyperStream();
 
   return (
