@@ -7,11 +7,12 @@ echo "=== Starting WidgeTDC Services ==="
 # Create logs directory
 mkdir -p /workspaces/WidgeTDC/.devcontainer/logs
 
-# Wait for PostgreSQL
+# Wait for PostgreSQL using Node.js (pg_isready not available in container)
 echo "Waiting for PostgreSQL..."
-until pg_isready -h postgres -U widgetdc -d widgetdc 2>/dev/null; do
+until node -e "const net = require('net'); const client = new net.Socket(); client.setTimeout(3000); client.connect(5432, 'postgres', () => { client.destroy(); process.exit(0); }); client.on('error', () => process.exit(1)); client.on('timeout', () => { client.destroy(); process.exit(1); });" 2>/dev/null; do
     sleep 2
 done
+echo "PostgreSQL is ready!"
 
 # Ensure database schema is up to date
 echo "Syncing database schema..."
