@@ -93,11 +93,12 @@ export const DataWeaverWizard: React.FC<DataWeaverWizardProps> = ({ isOpen, onCl
         try {
             const newWidgetId = `data-weaver-${Date.now()}`;
 
+            // GenericDataWidget is a regular component, cast needed for lazy registry type
             registerWidget?.({
                 id: newWidgetId,
                 name: widgetName || 'New Data Widget',
-                component: GenericDataWidget as any,
-                category: 'ai-agents' as string,
+                component: GenericDataWidget as unknown as React.LazyExoticComponent<React.ComponentType<{ widgetId: string }>>,
+                category: 'ai-agents',
                 description: 'Dynamically created data widget',
                 defaultLayout: { w: 6, h: 8 },
             });

@@ -73,7 +73,7 @@ const WidgetImporterWidget: React.FC<{ widgetId: string }> = () => {
     registerWidget?.({
       ...newWidgetDefinition,
       description: newWidgetDefinition.description || `Imported widget: ${newWidgetDefinition.name}`,
-      component: newWidgetDefinition.component as any,
+      component: newWidgetDefinition.component as React.LazyExoticComponent<React.ComponentType<any>>,
     });
     onSuccess(`Widget'en "${newWidgetDefinition.name}" er blevet tilføjet til sidebaren og er klar til brug.`);
   };
