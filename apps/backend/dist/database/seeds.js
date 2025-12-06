@@ -1,21 +1,28 @@
-import { getDatabase } from './index.js';
+import { prisma } from './prisma.js';
 export async function seedDatabase() {
-    const db = getDatabase();
-    console.log('Seeding database...');
-    // Simple seed data with minimal complexity for sqlite3
+    console.log('Seeding database with Prisma...');
+    // Seed data for memory entities
     const memories = [
-        ['org-1', 'user-1', 'DecisionOutcome', 'Decided to use TypeScript for the backend', 5],
-        ['org-1', 'user-1', 'CustomerPreference', 'Customer prefers minimal UI with dark mode', 4],
+        { orgId: 'org-1', userId: 'user-1', entityType: 'DecisionOutcome', content: 'Decided to use TypeScript for the backend', importance: 5 },
+        { orgId: 'org-1', userId: 'user-1', entityType: 'CustomerPreference', content: 'Customer prefers minimal UI with dark mode', importance: 4 },
     ];
     try {
-        memories.forEach((mem) => {
-            // sql.js run takes params as second argument
-            db.run('INSERT INTO memory_entities (org_id, user_id, entity_type, content, importance) VALUES (?, ?, ?, ?, ?)', mem);
+        // Check if seed data already exists
+        const existingCount = await prisma.memoryEntity.count({
+            where: { orgId: 'org-1' }
         });
-        console.log(`✅ Database seeded successfully (${memories.length} entries)`);
+        if (existingCount > 0) {
+            console.log(`Skipping seed - ${existingCount} entries already exist for org-1`);
+            return;
+        }
+        // Create seed entries
+        const result = await prisma.memoryEntity.createMany({
+            data: memories,
+        });
+        console.log(`Database seeded successfully (${result.count} entries created)`);
     }
     catch (err) {
-        console.error('Error inserting memory:', err);
+        console.error('Error seeding database:', err);
         throw err;
     }
 }
