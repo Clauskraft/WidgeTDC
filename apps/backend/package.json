@@ -7,7 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "test": "echo \"No tests yet\"",
+    "test": "vitest run",
     "neural-bridge": "tsx src/mcp/servers/NeuralBridgeServer.ts",
     "neural-bridge:build": "tsc && node dist/mcp/servers/NeuralBridgeServer.js"
   },
