@@ -37,7 +37,7 @@ class WidgeTDCAssistant {
     /**
      * Handle messages from background script
      */
-    private async handleMessage(message: any, sendResponse: Function) {
+    private async handleMessage(message: any, sendResponse: (response?: any) => void) {
         switch (message.action) {
             case 'captureContent':
                 const content = this.capturePageContent();

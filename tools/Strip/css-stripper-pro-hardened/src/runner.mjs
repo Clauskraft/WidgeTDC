@@ -17,7 +17,9 @@ async function importCsso() {
     if (mod && (mod.minify || (mod.default && mod.default.minify))) {
       return (css) => (mod.minify ? mod.minify(css) : mod.default.minify(css));
     }
-  } catch {}
+  } catch {
+    // csso not available, fall through to noop
+  }
   return (css) => ({ css }); // noop if csso absent
 }
 async function importPurgeCSS() {
@@ -25,7 +27,9 @@ async function importPurgeCSS() {
     const mod = await import('purgecss');
     if (mod.PurgeCSS) return mod.PurgeCSS;
     if (mod.default && mod.default.PurgeCSS) return mod.default.PurgeCSS;
-  } catch {}
+  } catch {
+    // purgecss not available, fall through to null
+  }
   return null; // fallback: no purge
 }
 
@@ -55,7 +59,9 @@ export async function runStripper(opts, log = () => {}) {
   const safelistArr = (safelist || "").split(",").map(s => s.trim()).filter(Boolean);
 
   const logFile = path.join(outDir, `run-${Date.now()}.log`);
-  const logBoth = (m) => { try { fs.appendFileSync(logFile, m); } catch{} log(m); };
+  const logBoth = (m) => { try { fs.appendFileSync(logFile, m); } catch {
+    // Ignore file write errors
+  } log(m); };
 
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const normalizeUrl = (u, base) => { try { return new URL(u, base).toString().replace(/#.*$/, ""); } catch { return null; } };
@@ -66,7 +72,7 @@ export async function runStripper(opts, log = () => {}) {
       let p = pathname;
       if (p.endsWith("/")) p += "index.html";
       if (!path.extname(p)) p += ".html";
-      const q = search ? "_" + Buffer.from(search).toString("base64url") : "";
+      const q = search ? "_" + Buffer.from(search).toString("base64url").replace(/\//g, "_") : "";
       return path.join(outDir, "html", hostname, p.replace(/[^a-zA-Z0-9._\/-]/g, "_") + q);
     } catch {
       return path.join(outDir, "html", "invalid", Date.now() + ".html");
