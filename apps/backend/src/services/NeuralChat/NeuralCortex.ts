@@ -7,30 +7,24 @@
  * ║                                                          - CLAK, 2025                ║
  * ║                                                                                       ║
  * ║   ┌─────────────────────────────────────────────────────────────────────────────┐    ║
- * ║   │                         NEURAL CORTEX ARCHITECTURE                          │    ║
+ * ║   │                   HYBRID NEURAL CORTEX ARCHITECTURE                         │    ║
  * ║   │                                                                             │    ║
  * ║   │    ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐        │    ║
- * ║   │    │  AGENTS  │────▶│   CHAT   │────▶│  GRAPH   │────▶│ PATTERNS │        │    ║
- * ║   │    └──────────┘     └──────────┘     └──────────┘     └──────────┘        │    ║
- * ║   │         │                │                │                │               │    ║
- * ║   │         ▼                ▼                ▼                ▼               │    ║
- * ║   │    ┌─────────────────────────────────────────────────────────────┐        │    ║
- * ║   │    │                    NEO4J KNOWLEDGE GRAPH                     │        │    ║
- * ║   │    │                                                              │        │    ║
- * ║   │    │  (Agent)-[:SENT]->(Message)-[:MENTIONS]->(Entity)           │        │    ║
- * ║   │    │  (Message)-[:RELATES_TO]->(Code|Doc|Concept)                │        │    ║
- * ║   │    │  (Pattern)-[:DISCOVERED_IN]->(Conversation)                 │        │    ║
- * ║   │    │  (Insight)-[:DERIVED_FROM]->(Pattern)                       │        │    ║
- * ║   │    │                                                              │        │    ║
- * ║   │    └─────────────────────────────────────────────────────────────┘        │    ║
+ * ║   │    │  AGENTS  │────▶│   CHAT   │────▶│  HYBRID  │────▶│ PATTERNS │        │    ║
+ * ║   │    └──────────┘     └──────────┘     │  SEARCH  │     └──────────┘        │    ║
+ * ║   │         │                │           └─────┬────┘          │               │    ║
+ * ║   │         ▼                ▼                 │               ▼               │    ║
+ * ║   │    ┌─────────┐      ┌─────────┐      ┌─────▼─────┐    ┌─────────┐        │    ║
+ * ║   │    │  NEO4J  │◀────▶│ PGVECTR │      │ SEMANTIC  │    │ INSIGHT │        │    ║
+ * ║   │    │ (Graph) │ link │ (Dense) │      │ MATCHING  │    │ ENGINE  │        │    ║
+ * ║   │    └─────────┘      └─────────┘      └───────────┘    └─────────┘        │    ║
  * ║   │                                                                             │    ║
  * ║   │    CAPABILITIES:                                                            │    ║
- * ║   │    • Chat with agents                                                       │    ║
- * ║   │    • Query the knowledge graph in natural language                          │    ║
+ * ║   │    • Hybrid Search (Vector Similarity + Graph Traversal)                    │    ║
+ * ║   │    • Chat with agents & documents                                           │    ║
  * ║   │    • Auto-link messages to relevant nodes                                   │    ║
  * ║   │    • Discover patterns across conversations                                 │    ║
  * ║   │    • Surface insights from connected data                                   │    ║
- * ║   │    • Time-travel through decision history                                   │    ║
  * ║   │                                                                             │    ║
  * ║   └─────────────────────────────────────────────────────────────────────────────┘    ║
  * ╚═══════════════════════════════════════════════════════════════════════════════════════╝
@@ -39,6 +33,7 @@
 import { neo4jAdapter } from '../../adapters/Neo4jAdapter.js';
 import { neuralChatService } from './ChatService.js';
 import { AgentId, ChatMessage } from './types.js';
+import { getVectorStore } from '../../platform/vector/index.js';
 
 export interface CortexQuery {
     type: 'chat' | 'search' | 'pattern' | 'insight' | 'history';
@@ -81,17 +76,18 @@ class NeuralCortex {
     }
 
     /**
-     * Process a message and connect it to the knowledge graph
+     * Process a message and connect it to the knowledge graph AND vector store
      */
     async processMessage(message: ChatMessage): Promise<{
         entities: string[];
         concepts: string[];
         linkedNodes: string[];
+        vectorStored: boolean;
     }> {
         const entities = this.extractEntities(message.body);
         const concepts = this.extractConcepts(message.body);
         
-        // Create message node in graph
+        // 1. Create message node in GRAPH (Neo4j)
         await neo4jAdapter.runQuery(`
             CREATE (m:Message {
                 id: $id,
@@ -119,19 +115,42 @@ class NeuralCortex {
             type: message.type || 'chat'
         });
 
-        // Link to mentioned entities
+        // 2. Link to mentioned entities in GRAPH
         const linkedNodes: string[] = [];
         for (const entity of entities) {
             const linked = await this.linkToEntity(message.id, entity);
             if (linked) linkedNodes.push(linked);
         }
 
-        // Link to concepts
+        // 3. Link to concepts in GRAPH
         for (const concept of concepts) {
             await this.linkToConcept(message.id, concept);
         }
 
-        return { entities, concepts, linkedNodes };
+        // 4. Store embedding in VECTOR STORE (pgvector)
+        // This enables "fuzzy" semantic search later
+        let vectorStored = false;
+        try {
+            const vectorStore = await getVectorStore();
+            await vectorStore.upsert({
+                id: message.id,
+                content: message.body,
+                metadata: {
+                    type: 'message',
+                    channel: message.channel,
+                    from: message.from,
+                    timestamp: message.timestamp,
+                    entities: entities,
+                    concepts: concepts
+                },
+                namespace: 'neural_chat'
+            });
+            vectorStored = true;
+        } catch (error) {
+            console.warn('Failed to store vector for message:', error);
+        }
+
+        return { entities, concepts, linkedNodes, vectorStored };
     }
 
     /**
@@ -167,15 +186,15 @@ class NeuralCortex {
         const textLower = text.toLowerCase();
         
         // Technologies
-        const techs = ['neo4j', 'react', 'typescript', 'docker', 'kubernetes', 'api', 'websocket', 'mcp', 'graphql', 'rest', 'postgresql', 'redis'];
+        const techs = ['neo4j', 'react', 'typescript', 'docker', 'kubernetes', 'api', 'websocket', 'mcp', 'graphql', 'rest', 'postgresql', 'redis', 'vector', 'rag'];
         techs.forEach(t => { if (textLower.includes(t)) concepts.push(t); });
         
         // Actions
-        const actions = ['deploy', 'review', 'test', 'refactor', 'implement', 'fix', 'create', 'delete', 'update', 'analyze', 'research'];
+        const actions = ['deploy', 'review', 'test', 'refactor', 'implement', 'fix', 'create', 'delete', 'update', 'analyze', 'research', 'architect'];
         actions.forEach(a => { if (textLower.includes(a)) concepts.push(a); });
         
         // Domains
-        const domains = ['security', 'performance', 'architecture', 'authentication', 'authorization', 'database', 'frontend', 'backend', 'infrastructure'];
+        const domains = ['security', 'performance', 'architecture', 'authentication', 'authorization', 'database', 'frontend', 'backend', 'infrastructure', 'ai', 'agents'];
         domains.forEach(d => { if (textLower.includes(d)) concepts.push(d); });
         
         return [...new Set(concepts)];
@@ -218,17 +237,14 @@ class NeuralCortex {
     }
 
     /**
-     * Query the cortex in natural language
-     * "Find alt relateret til authentication"
-     * "Hvad har vi snakket om i denne uge?"
-     * "Vis mønstre i vores arkitektur beslutninger"
+     * Query the cortex in natural language using Hybrid Strategy
      */
     async query(input: CortexQuery): Promise<CortexResult[]> {
         const results: CortexResult[] = [];
         
         switch (input.type) {
             case 'search':
-                return await this.searchGraph(input.query, input.context);
+                return await this.hybridSearch(input.query, input.context);
             
             case 'pattern':
                 return await this.findPatterns(input.query, input.context);
@@ -241,53 +257,116 @@ class NeuralCortex {
             
             case 'chat':
             default:
-                // Kombiner chat med graph search
+                // 1. Search Chat History (Vector + Keyword)
                 const chatResults = await this.searchMessages(input.query);
-                const graphResults = await this.searchGraph(input.query, input.context);
+                // 2. Search Knowledge Graph (Keyword/Hybrid)
+                const graphResults = await this.hybridSearch(input.query, input.context);
+                
                 return [...chatResults, ...graphResults].sort((a, b) => b.relevance - a.relevance);
         }
     }
 
     /**
-     * Search messages
+     * Search messages using Vector Similarity (Semantic) + Graph (Keyword)
      */
     private async searchMessages(query: string): Promise<CortexResult[]> {
         try {
-            const results = await neo4jAdapter.runQuery(`
-                MATCH (m:Message)
-                WHERE toLower(m.body) CONTAINS toLower($query)
-                OPTIONAL MATCH (a:Agent)-[:SENT]->(m)
-                OPTIONAL MATCH (m)-[:MENTIONS]->(e)
-                RETURN m, a.name as agent, collect(DISTINCT e.name) as mentions
-                ORDER BY m.timestamp DESC
-                LIMIT 20
-            `, { query });
+            const results: CortexResult[] = [];
 
-            return results.map((r: any) => ({
-                type: 'message' as const,
-                data: {
-                    id: r.m.properties.id,
-                    body: r.m.properties.body,
-                    from: r.agent,
-                    timestamp: r.m.properties.timestamp,
-                    mentions: r.mentions
-                },
-                relevance: this.calculateRelevance(query, r.m.properties.body),
-                source: 'messages'
-            }));
+            // A. Semantic Search (Vector)
+            try {
+                const vectorStore = await getVectorStore();
+                const vectorResults = await vectorStore.search({
+                    text: query,
+                    limit: 10,
+                    namespace: 'neural_chat'
+                });
+
+                results.push(...vectorResults.map(r => ({
+                    type: 'message' as const,
+                    data: {
+                        id: r.id,
+                        body: r.content,
+                        metadata: r.metadata,
+                        from: r.metadata?.from,
+                        timestamp: r.metadata?.timestamp
+                    },
+                    relevance: r.similarity,
+                    source: 'vector_memory'
+                })));
+            } catch (err) {
+                console.warn('Vector search failed, falling back to graph only', err);
+            }
+
+            // B. Keyword Search (Graph) - if vector search didn't yield enough
+            if (results.length < 5) {
+                const graphResults = await neo4jAdapter.runQuery(`
+                    MATCH (m:Message)
+                    WHERE toLower(m.body) CONTAINS toLower($query)
+                    OPTIONAL MATCH (a:Agent)-[:SENT]->(m)
+                    RETURN m, a.name as agent
+                    ORDER BY m.timestamp DESC
+                    LIMIT 10
+                `, { query });
+
+                const existingIds = new Set(results.map(r => r.data.id));
+
+                for (const r of graphResults) {
+                    if (!existingIds.has(r.m.properties.id)) {
+                         results.push({
+                            type: 'message' as const,
+                            data: {
+                                id: r.m.properties.id,
+                                body: r.m.properties.body,
+                                from: r.agent,
+                                timestamp: r.m.properties.timestamp
+                            },
+                            relevance: this.calculateRelevance(query, r.m.properties.body),
+                            source: 'graph_memory'
+                        });
+                    }
+                }
+            }
+
+            return results;
         } catch {
             return [];
         }
     }
 
     /**
-     * Search the knowledge graph
+     * Hybrid Search: Vector -> Graph Entry -> Traversal
      */
-    private async searchGraph(query: string, context?: CortexQuery['context']): Promise<CortexResult[]> {
+    private async hybridSearch(query: string, context?: CortexQuery['context']): Promise<CortexResult[]> {
         try {
             const nodeTypes = context?.nodeTypes?.join('|') || 'File|Component|Service|Document|Concept|Agent';
-            
-            const results = await neo4jAdapter.runQuery(`
+            const results: CortexResult[] = [];
+
+            // 1. Vector Search (Find conceptually related nodes)
+            // Assuming we have documents/nodes in 'knowledge' namespace
+            try {
+                const vectorStore = await getVectorStore();
+                const vectorResults = await vectorStore.search({
+                    text: query,
+                    limit: 10,
+                    namespace: 'knowledge' // Search acquired knowledge too
+                });
+
+                results.push(...vectorResults.map(r => ({
+                    type: 'node' as const,
+                    data: {
+                        name: r.metadata?.title || r.id,
+                        description: r.content.substring(0, 200) + '...',
+                        labels: [r.metadata?.type || 'Unknown']
+                    },
+                    relevance: r.similarity,
+                    source: 'semantic_search'
+                })));
+
+            } catch (e) { /* ignore vector error */ }
+
+            // 2. Graph Search (Exact/Fuzzy string match)
+            const graphResults = await neo4jAdapter.runQuery(`
                 MATCH (n)
                 WHERE any(label IN labels(n) WHERE label IN split($nodeTypes, '|'))
                 AND (
@@ -298,20 +377,30 @@ class NeuralCortex {
                 OPTIONAL MATCH (n)-[r]-(connected)
                 RETURN n, labels(n) as types, 
                        collect(DISTINCT {type: type(r), target: coalesce(connected.name, connected.id)}) as connections
-                LIMIT 30
+                LIMIT 20
             `, { query, nodeTypes });
 
-            return results.map((r: any) => ({
-                type: 'node' as const,
-                data: {
-                    name: r.n.properties.name || r.n.properties.id,
-                    labels: r.types,
-                    properties: r.n.properties
-                },
-                relevance: this.calculateRelevance(query, r.n.properties.name || ''),
-                source: 'knowledge_graph',
-                connections: r.connections.filter((c: any) => c.target)
-            }));
+             // Merge results (simple dedup by name)
+             const existingNames = new Set(results.map(r => r.data.name));
+             
+             for (const r of graphResults) {
+                 const name = r.n.properties.name || r.n.properties.id;
+                 if (!existingNames.has(name)) {
+                     results.push({
+                        type: 'node' as const,
+                        data: {
+                            name: name,
+                            labels: r.types,
+                            properties: r.n.properties
+                        },
+                        relevance: this.calculateRelevance(query, name),
+                        source: 'knowledge_graph',
+                        connections: r.connections.filter((c: any) => c.target)
+                    });
+                 }
+             }
+
+            return results;
         } catch {
             return [];
         }
