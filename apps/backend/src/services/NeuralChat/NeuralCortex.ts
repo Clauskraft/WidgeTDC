@@ -164,7 +164,7 @@ class NeuralCortex {
         if (mentions) entities.push(...mentions.map(m => m.slice(1)));
         
         // File paths
-        const files = text.match(/[\w\-]+\.(ts|js|tsx|jsx|json|md|py|yaml|yml|sql)/gi);
+        const files = text.match(/[\w-]+\.(ts|js|tsx|jsx|json|md|py|yaml|yml|sql)/gi);
         if (files) entities.push(...files);
         
         // Component/Class names (PascalCase)

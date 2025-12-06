@@ -89,9 +89,11 @@ export const PRDPrototypeWidget: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    loadVidensarkivFiles();
-    loadSavedPrototypes();
-  }, [loadVidensarkivFiles, loadSavedPrototypes]);
+    // Load initial data on mount
+    void loadVidensarkivFiles();
+    void loadSavedPrototypes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ═══════════════════════════════════════════════════════════════════════
   // File Handling

@@ -23,6 +23,7 @@ export interface PluginHooks {
 export interface Plugin {
     metadata: PluginMetadata;
     hooks: PluginHooks;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     api?: Record<string, Function>;
 }
 

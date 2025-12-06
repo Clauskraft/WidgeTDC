@@ -170,10 +170,11 @@ export const MCPProvider: React.FC<MCPProviderProps> = ({
   // Auto-connect on mount
   useEffect(() => {
     if (autoConnect && !isConnected && !isConnecting) {
-      connect().catch(console.error);
+      void connect().catch(console.error);
     }
     return () => disconnect();
-  }, [autoConnect]); // eslint-disable-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+  }, [autoConnect]);
 
   const value: MCPContextValue = {
     connection,
